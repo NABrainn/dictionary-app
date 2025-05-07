@@ -13,7 +13,6 @@ public class ImportTest {
     @Test
     void constructor_validParameters() {
         Import trans = new Import("title", "wordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword", "url", Language.EN, Language.NO, "nabrain");
-        log.info(trans.toString());
     }
 
     @Test

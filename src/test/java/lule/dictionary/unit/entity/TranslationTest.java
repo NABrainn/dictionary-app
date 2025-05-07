@@ -14,7 +14,6 @@ public class TranslationTest {
     @Test
     void constructor_validParameters() {
         Translation trans = new Translation("słowo", "word", Language.PL, Language.EN, "nabrain", Familiarity.UNKNOWN);
-        log.info(trans.toString());
     }
 
     @Test

@@ -7,12 +7,11 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
-public class    UserProfileTest {
+public class UserProfileTest {
 
     @Test
     void constructor_validParameters() {
         UserProfile user = new UserProfile("nabrain", "email@mail.pl", "password");
-        log.info(user.toString());
     }
 
     @Test
