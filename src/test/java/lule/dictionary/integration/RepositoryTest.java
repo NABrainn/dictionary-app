@@ -12,12 +12,18 @@ import lule.dictionary.enumeration.Language;
 import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.repository.UserProfileRepository;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -26,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @SpringBootTest
-@Profile("test")
 @Sql(scripts = "/schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = "/drop.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class RepositoryTest {
@@ -40,10 +45,30 @@ public class RepositoryTest {
     @Autowired
     private TranslationRepository translationRepository;
 
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
+            "postgres:latest"
+    );
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    @BeforeAll
+    static void beforeAll() {
+        postgres.start();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        postgres.stop();
+    }
+
     @Test
     void useCaseTest1() {
         UserProfile userProfile = UserProfileFactory.create("nabrain", "email@email.com", "password");
-        log.info(userProfile.toString());
         Optional<UserProfile> addedUserProfile = userProfileRepository.addUserProfile(userProfile);
         addedUserProfile.ifPresent(value -> log.info("User Profile created: {}", value));
 

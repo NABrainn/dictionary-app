@@ -1,7 +1,0 @@
-spring:
-  application:
-    name: "dictionary"
-  datasource:
-    url: "jdbc:postgresql://localhost:6001/dictionary"
-    username: "1234"
-    password: "1234"

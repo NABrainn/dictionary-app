@@ -3,8 +3,9 @@ package lule.dictionary.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.Translation;
+import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.enumeration.Language;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -19,15 +20,14 @@ import java.util.OptionalInt;
 public class TranslationRepository {
 
     private final JdbcTemplate template;
-    private final RowMapper<Integer> TRANSLATIONS_ID_MAPPER = ((rs, rowNum) -> rs.getInt("translations_id"));
-//    private final RowMapper<Translation> TRANSLATION_MAPPER = ((rs, rowNum) -> new Translation(rs.getString(), ));
 
     public OptionalInt addTranslation(Translation translation, int importId) throws RuntimeException {
+        final RowMapper<Integer> ROW_MAPPER = ((rs, rowNum) -> rs.getInt("translations_id"));
         String translationsInsertSql = "INSERT INTO dictionary.translations (source_word, target_word, source_lang, target_lang, translation_owner, familiarity) VALUES (?, ?, ?, ?, ?, ?) RETURNING translations_id";
         String relationsInsertSql = "INSERT INTO dictionary.imports_translations (imports_id, translations_id, amount) VALUES (?, ?, ?)";
         try {
             Integer translationId = template.queryForObject(translationsInsertSql,
-                    TRANSLATIONS_ID_MAPPER,
+                    ROW_MAPPER,
                     translation.sourceWord(),
                     translation.targetWord(),
                     translation.sourceLanguage().toString().toLowerCase(),
@@ -47,14 +47,22 @@ public class TranslationRepository {
     }
 
     public List<Translation> findAllByImport(int importId) {
+        final RowMapper<Translation> ROW_MAPPER = ((rs, rowNum) -> new Translation(
+                rs.getString("source_word"),
+                rs.getString("target_word"),
+                Language.valueOf(rs.getString("source_lang").toUpperCase()),
+                Language.valueOf(rs.getString("target_lang").toUpperCase()),
+                rs.getString("translation_owner"),
+                Familiarity.valueOf(rs.getString("familiarity").toUpperCase())
+        ));
         String sql = """
-                SELECT *
+                SELECT t.source_word, t.target_word, t.source_lang, t.target_lang, t.translation_owner, t.familiarity
                 FROM dictionary.translations t
                 LEFT JOIN dictionary.imports_translations it ON t.translations_id = it.translations_id
                 WHERE it.imports_id=?;
                 """;
         try {
-            return template.query(sql, new BeanPropertyRowMapper<>(Translation.class), importId);
+            return template.query(sql, ROW_MAPPER, importId);
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e);
@@ -67,6 +75,7 @@ public class TranslationRepository {
             Translation result = template.queryForObject(sql, Translation.class, targetWord);
             return Optional.ofNullable(result);
         } catch (DataAccessException e) {
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }
