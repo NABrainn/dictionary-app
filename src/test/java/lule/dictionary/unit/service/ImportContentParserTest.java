@@ -1,0 +1,43 @@
+package lule.dictionary.unit.service;
+
+import lule.dictionary.service.ImportContentParser;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class ImportContentParserTest {
+
+    @Mock
+    private ImportContentParser importContentParser;
+
+    @BeforeEach
+    void setup() {
+        this.importContentParser = new ImportContentParser();
+    }
+
+    @Test
+    void shouldRemoveSpecialCharsAndDigits() {
+        String actual1 = importContentParser.replaceAllMatching("XDDDDDDDDDDDDDDDDd. XDDDDDDDDDDDDDDDD.");
+        assertEquals("XDDDDDDDDDDDDDDDDd  XDDDDDDDDDDDDDDDD ", actual1);
+    }
+    @Test
+    void shouldRemoveIndentations() {
+        String before = importContentParser.replaceAllMatching("""
+                		<dependency>
+                			<groupId>org.springframework.boot</groupId>
+                			<artifactId>spring-boot-starter-data-jpa</artifactId>
+                		</dependency>
+                		<dependency>
+                			<groupId>org.springframework.boot</groupId>
+                			<artifactId>spring-boot-starter-web</artifactId>
+                		</dependency>
+                		<dependency>
+                			<groupId>org
+                """);
+        String actual2 = importContentParser.normalizeSpaces(before);
+        assertEquals("dependency groupId org springframework boot groupId artifactId spring boot starter data jpa artifactId dependency dependency groupId org springframework boot groupId artifactId spring boot starter web artifactId dependency dependency groupId org", actual2);
+    }
+
+}
