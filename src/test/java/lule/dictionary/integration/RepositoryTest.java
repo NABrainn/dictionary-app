@@ -14,12 +14,9 @@ import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.repository.UserProfileRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
@@ -76,8 +73,8 @@ public class RepositoryTest {
         OptionalInt addedImport = importRepository.addImport(anImport);
         addedImport.ifPresent(value -> log.info("Import created: {}, for User Profile: {}", value, anImport.owner()));
 
-        Translation translation1 = TranslationFactory.create("one", "en", Language.EN, Language.NO, "nabrain", Familiarity.KNOWN);
-        Translation translation2 = TranslationFactory.create("two", "to", Language.EN, Language.NO, "nabrain", Familiarity.UNKNOWN);
+        Translation translation1 = TranslationFactory.create("jeden", "en", Language.EN, Language.NO, "nabrain", Familiarity.KNOWN);
+        Translation translation2 = TranslationFactory.create("dwa", "to", Language.EN, Language.NO, "nabrain", Familiarity.UNKNOWN);
         Translation translation3 = TranslationFactory.create("three", "tre", Language.EN, Language.NO, "nabrain", Familiarity.RECOGNIZED);
         Translation translation4 = TranslationFactory.create("four", "fire", Language.EN, Language.NO, "nabrain", Familiarity.IGNORED);
         Translation translation5 = TranslationFactory.create("five", "fem", Language.EN, Language.NO, "nabrain", Familiarity.KNOWN);
@@ -89,6 +86,27 @@ public class RepositoryTest {
             translationRepository.addTranslation(translation4, value);
             translationRepository.addTranslation(translation5, value);
             assertEquals(5, translationRepository.findAllByImport(value).size());
+
+            translationRepository.updateSourceWord(translation1, "one");
+            translationRepository.updateSourceWord(translation2, "two");
+            translationRepository.findByTargetWord("en").ifPresent(trans -> {
+                assertEquals("one", trans.sourceWord());
+            });
+            translationRepository.findByTargetWord("to").ifPresent(trans -> {
+                assertEquals("two", trans.sourceWord());
+            });
+
+            translationRepository.updateFamiliarity(translation3, Familiarity.KNOWN);
+            translationRepository.updateFamiliarity(translation4, Familiarity.KNOWN);
+            translationRepository.findByTargetWord("tre").ifPresent(trans -> {
+                assertEquals(Familiarity.KNOWN, trans.familiarity());
+            });
+            translationRepository.findByTargetWord("fire").ifPresent(trans -> {
+                assertEquals(Familiarity.KNOWN, trans.familiarity());
+            });
+            importRepository.deleteById(value);
+            assertEquals(0, translationRepository.findAllByImport(value).size());
+            assertEquals(0, importRepository.findAllByOwner(userProfile.username()).size());
         });
     }
 }

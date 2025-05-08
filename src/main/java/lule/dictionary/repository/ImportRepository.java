@@ -1,13 +1,17 @@
 package lule.dictionary.repository;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.Import;
+import lule.dictionary.entity.factory.ImportFactory;
+import lule.dictionary.enumeration.Language;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -18,9 +22,8 @@ public class ImportRepository {
 
     private final JdbcTemplate template;
 
-    private static final RowMapper<Integer> ROW_MAPPER = ((rs, rowNum) -> rs.getInt("imports_id"));
-
     public OptionalInt addImport(Import imported) {
+        RowMapper<Integer> ROW_MAPPER = ((rs, rowNum) -> rs.getInt("imports_id"));
         final String importsInsertSql = "INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner) VALUES (?, ?, ?, ?, ?, ?) RETURNING imports_id";
         try {
             Integer importsId = template.queryForObject(importsInsertSql,
@@ -35,6 +38,33 @@ public class ImportRepository {
             return OptionalInt.empty();
         } catch (DataAccessException e) {
             log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteById(int id) {
+        String sql = "DELETE FROM dictionary.imports WHERE imports_id=?";
+        try {
+            template.update(sql, id);
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Import> findAllByOwner(@NonNull String username) {
+        RowMapper<Import> ROW_MAPPER = (rs, rowNum) -> ImportFactory.create(
+                rs.getString("title"),
+                rs.getString("content"),
+                rs.getString("url"),
+                Language.valueOf(rs.getString("source_lang").toUpperCase()),
+                Language.valueOf(rs.getString("target_lang").toUpperCase()),
+                rs.getString("import_owner")
+        );
+        String sql = "SELECT * FROM dictionary.imports WHERE import_owner=?";
+        try {
+            return template.query(sql, ROW_MAPPER, username);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

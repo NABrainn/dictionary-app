@@ -3,6 +3,7 @@ package lule.dictionary.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.Translation;
+import lule.dictionary.entity.factory.TranslationFactory;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 import org.springframework.dao.DataAccessException;
@@ -70,10 +71,38 @@ public class TranslationRepository {
     }
 
     public Optional<Translation> findByTargetWord(String targetWord) {
-        String sql = "SELECT * FROM dictionary.translations WHERE target_word = ?";
+        RowMapper<Translation> ROW_MAPPER = (rs, rowNum) -> TranslationFactory.create(
+                rs.getString("source_word"),
+                rs.getString("target_word"),
+                Language.valueOf(rs.getString("source_lang").toUpperCase()),
+                Language.valueOf(rs.getString("target_lang").toUpperCase()),
+                rs.getString("translation_owner"),
+                Familiarity.valueOf(rs.getString("familiarity").toUpperCase())
+        );
+        String sql = "SELECT * FROM dictionary.translations WHERE target_word=?";
         try {
-            Translation result = template.queryForObject(sql, Translation.class, targetWord);
+            Translation result = template.queryForObject(sql, ROW_MAPPER, targetWord);
             return Optional.ofNullable(result);
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateSourceWord(Translation translation, String sourceWord) {
+        String sql = "UPDATE dictionary.translations SET source_word = ? WHERE target_word = ?";
+        try {
+            template.update(sql, sourceWord, translation.targetWord());
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateFamiliarity(Translation translation, Familiarity familiarity) {
+        String sql = "UPDATE dictionary.translations SET familiarity = ? WHERE target_word = ?";
+        try {
+            template.update(sql, familiarity.toString().toLowerCase(), translation.targetWord());
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e);

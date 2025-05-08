@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS dictionary.user_profiles (
 CREATE TABLE IF NOT EXISTS dictionary.translations (
     translations_id              	SERIAL PRIMARY KEY,
     source_word     				VARCHAR(50) NOT NULL,
-    target_word     				VARCHAR(50) NOT NULL,
+    target_word     				VARCHAR(50) NOT NULL UNIQUE,
     source_lang  					dictionary.lang NOT NULL,
     target_lang  					dictionary.lang NOT NULL,
-  	translation_owner				VARCHAR(20) NOT NULL references dictionary.user_profiles(username),
+  	translation_owner				VARCHAR(20) NOT NULL references dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
   	familiarity						dictionary.familiarity NOT NULL
 );
 CREATE TABLE IF NOT EXISTS dictionary.imports (
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS dictionary.imports (
   	url								VARCHAR(200),
   	source_lang						dictionary.lang NOT NULL,
   	target_lang						dictionary.lang NOT NULL,
-  	import_owner					VARCHAR(20) NOT NULL references dictionary.user_profiles(username)
+  	import_owner					VARCHAR(20) NOT NULL references dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS dictionary.imports_translations (
