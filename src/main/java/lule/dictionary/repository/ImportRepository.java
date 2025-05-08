@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.Import;
 import lule.dictionary.entity.factory.ImportFactory;
 import lule.dictionary.enumeration.Language;
+import lule.dictionary.repository.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -22,7 +23,7 @@ public class ImportRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt addImport(Import imported) {
+    public OptionalInt addImport(Import imported) throws RepositoryException {
         RowMapper<Integer> ROW_MAPPER = ((rs, rowNum) -> rs.getInt("imports_id"));
         final String importsInsertSql = "INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner) VALUES (?, ?, ?, ?, ?, ?) RETURNING imports_id";
         try {
@@ -38,21 +39,21 @@ public class ImportRepository {
             return OptionalInt.empty();
         } catch (DataAccessException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getMessage());
         }
     }
 
-    public void deleteById(int id) {
+    public void deleteById(int id) throws RepositoryException{
         String sql = "DELETE FROM dictionary.imports WHERE imports_id=?";
         try {
             template.update(sql, id);
         } catch (DataAccessException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getMessage());
         }
     }
 
-    public List<Import> findAllByOwner(@NonNull String username) {
+    public List<Import> findAllByOwner(@NonNull String username) throws RepositoryException {
         RowMapper<Import> ROW_MAPPER = (rs, rowNum) -> ImportFactory.create(
                 rs.getString("title"),
                 rs.getString("content"),
@@ -65,7 +66,7 @@ public class ImportRepository {
         try {
             return template.query(sql, ROW_MAPPER, username);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getMessage());
         }
     }
 }

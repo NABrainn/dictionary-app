@@ -19,12 +19,12 @@ public class ImportContentParserTest {
 
     @Test
     void shouldRemoveSpecialCharsAndDigits() {
-        String actual1 = importContentParser.replaceAllMatching("XDDDDDDDDDDDDDDDDd. XDDDDDDDDDDDDDDDD.");
+        String actual1 = importContentParser.removeNonLetters("XDDDDDDDDDDDDDDDDd. XDDDDDDDDDDDDDDDD.");
         assertEquals("XDDDDDDDDDDDDDDDDd  XDDDDDDDDDDDDDDDD ", actual1);
     }
     @Test
     void shouldRemoveIndentations() {
-        String before = importContentParser.replaceAllMatching("""
+        String before = importContentParser.removeNonLetters("""
                 		<dependency>
                 			<groupId>org.springframework.boot</groupId>
                 			<artifactId>spring-boot-starter-data-jpa</artifactId>

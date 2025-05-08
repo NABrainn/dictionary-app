@@ -6,6 +6,7 @@ import lule.dictionary.entity.Translation;
 import lule.dictionary.entity.factory.TranslationFactory;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
+import lule.dictionary.repository.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -22,7 +23,7 @@ public class TranslationRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt addTranslation(Translation translation, int importId) throws RuntimeException {
+    public OptionalInt addTranslation(Translation translation, int importId) throws RepositoryException {
         final RowMapper<Integer> ROW_MAPPER = ((rs, rowNum) -> rs.getInt("translations_id"));
         String translationsInsertSql = "INSERT INTO dictionary.translations (source_word, target_word, source_lang, target_lang, translation_owner, familiarity) VALUES (?, ?, ?, ?, ?, ?) RETURNING translations_id";
         String relationsInsertSql = "INSERT INTO dictionary.imports_translations (imports_id, translations_id, amount) VALUES (?, ?, ?)";
@@ -43,11 +44,11 @@ public class TranslationRepository {
             return OptionalInt.empty();
         } catch (DataAccessException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getMessage());
         }
     }
 
-    public List<Translation> findAllByImport(int importId) {
+    public List<Translation> findAllByImport(int importId) throws RepositoryException {
         final RowMapper<Translation> ROW_MAPPER = ((rs, rowNum) -> new Translation(
                 rs.getString("source_word"),
                 rs.getString("target_word"),
@@ -66,11 +67,11 @@ public class TranslationRepository {
             return template.query(sql, ROW_MAPPER, importId);
         } catch (DataAccessException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getMessage());
         }
     }
 
-    public Optional<Translation> findByTargetWord(String targetWord) {
+    public Optional<Translation> findByTargetWord(String targetWord) throws RepositoryException {
         RowMapper<Translation> ROW_MAPPER = (rs, rowNum) -> TranslationFactory.create(
                 rs.getString("source_word"),
                 rs.getString("target_word"),
@@ -85,27 +86,27 @@ public class TranslationRepository {
             return Optional.ofNullable(result);
         } catch (DataAccessException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getMessage());
         }
     }
 
-    public void updateSourceWord(Translation translation, String sourceWord) {
+    public void updateSourceWord(Translation translation, String sourceWord) throws RepositoryException {
         String sql = "UPDATE dictionary.translations SET source_word = ? WHERE target_word = ?";
         try {
             template.update(sql, sourceWord, translation.targetWord());
         } catch (DataAccessException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getMessage());
         }
     }
 
-    public void updateFamiliarity(Translation translation, Familiarity familiarity) {
+    public void updateFamiliarity(Translation translation, Familiarity familiarity) throws RepositoryException {
         String sql = "UPDATE dictionary.translations SET familiarity = ? WHERE target_word = ?";
         try {
             template.update(sql, familiarity.toString().toLowerCase(), translation.targetWord());
         } catch (DataAccessException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getMessage());
         }
     }
 }
