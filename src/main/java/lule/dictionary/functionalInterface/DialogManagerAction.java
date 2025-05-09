@@ -1,4 +1,4 @@
-package lule.dictionary.command;
+package lule.dictionary.functionalInterface;
 
 @FunctionalInterface
 public interface DialogManagerAction {

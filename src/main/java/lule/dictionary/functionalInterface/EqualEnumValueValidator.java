@@ -1,4 +1,4 @@
-package lule.dictionary.validation;
+package lule.dictionary.functionalInterface;
 
 @FunctionalInterface
 public interface EqualEnumValueValidator<T extends Enum<T>> {
