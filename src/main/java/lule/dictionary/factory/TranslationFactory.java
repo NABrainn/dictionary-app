@@ -1,7 +1,7 @@
 package lule.dictionary.factory;
 
 
-import lule.dictionary.entity.Translation;
+import lule.dictionary.dto.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 

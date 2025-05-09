@@ -1,6 +1,6 @@
 package lule.dictionary.service;
 
-import lule.dictionary.command.DialogManagerAction;
+import lule.dictionary.functionalInterface.DialogManagerAction;
 import lule.dictionary.dto.Dialog;
 import lule.dictionary.dto.DialogOption;
 

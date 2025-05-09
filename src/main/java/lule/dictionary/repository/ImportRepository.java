@@ -3,7 +3,7 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.Import;
+import lule.dictionary.dto.Import;
 import lule.dictionary.factory.ImportFactory;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.exception.RepositoryException;

@@ -1,6 +1,6 @@
 package lule.dictionary.factory;
 
-import lule.dictionary.entity.Import;
+import lule.dictionary.dto.Import;
 import lule.dictionary.enumeration.Language;
 
 public class ImportFactory {

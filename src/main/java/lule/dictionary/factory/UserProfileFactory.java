@@ -1,6 +1,6 @@
 package lule.dictionary.factory;
 
-import lule.dictionary.entity.UserProfile;
+import lule.dictionary.dto.UserProfile;
 
 public class UserProfileFactory {
     public static UserProfile create(String username, String email, String password) {

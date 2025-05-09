@@ -1,7 +1,7 @@
 package lule.dictionary.unit.entity;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.UserProfile;
+import lule.dictionary.dto.UserProfile;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

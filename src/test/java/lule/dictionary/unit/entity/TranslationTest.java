@@ -1,7 +1,7 @@
 package lule.dictionary.unit.entity;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.Translation;
+import lule.dictionary.dto.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 import org.junit.jupiter.api.Test;

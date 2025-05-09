@@ -1,7 +1,7 @@
 package lule.dictionary.service;
 
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.entity.Translation;
+import lule.dictionary.dto.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.exception.RepositoryException;
