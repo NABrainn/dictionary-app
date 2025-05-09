@@ -1,8 +1,7 @@
 package lule.dictionary.dto;
 
-import lule.dictionary.command.DialogRunner;
+import lule.dictionary.command.DialogManagerAction;
 
-import java.util.List;
 
-public record Dialog(DialogRunner runner, List<DialogOption> options) {
+public record Dialog(DialogManagerAction runner, DialogOption... options) {
 }

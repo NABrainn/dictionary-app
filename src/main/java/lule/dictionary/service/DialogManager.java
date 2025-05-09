@@ -1,30 +1,40 @@
 package lule.dictionary.service;
 
-import lule.dictionary.command.Command;
+import lule.dictionary.command.DialogManagerAction;
 import lule.dictionary.dto.Dialog;
 import lule.dictionary.dto.DialogOption;
-import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.Scanner;
 
-@Component
 public class DialogManager {
 
-    private final Scanner scanner = new Scanner(System.in);
-    private final Deque<Dialog> dialogHistory = new ArrayDeque<>();
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final Deque<Dialog> dialogHistory = new ArrayDeque<>();
 
-    public Command executeDialog(Dialog dialog) {
+    public static DialogOption createOption(String text, String input, DialogManagerAction command) {
+        return new DialogOption(text, input, command);
+    }
+
+    public static Dialog createDialog(DialogManagerAction runner, DialogOption... options) {
+        return new Dialog(runner, options);
+    }
+
+    public static void start(Dialog dialog) {
+        dialogHistory.push(dialog);
+        finalize(dialog);
+    }
+
+    public static DialogManagerAction executeDialog(Dialog dialog) {
         return () -> {
             dialogHistory.push(dialog);
             finalize(dialog);
         };
     }
 
-    public Command printTranslations() {
-        return null;
-    }
-
-    public Command retryDialog() {
+    public static DialogManagerAction reopenCurrent() {
         return () -> {
             Dialog previous = dialogHistory.peek();
             System.out.println(dialogHistory.size());
@@ -32,7 +42,7 @@ public class DialogManager {
         };
     }
 
-    public Command openPrevious() {
+    public static DialogManagerAction openPrevious() {
         return () -> {
             dialogHistory.pop();
             Dialog previous = dialogHistory.peek();
@@ -40,9 +50,11 @@ public class DialogManager {
         };
     }
 
-    private void finalize(Dialog dialog) {
+    private static void finalize(Dialog dialog) {
         dialog.runner().execute();
-        dialog.options().forEach(dialogOption -> System.out.println(dialogOption.text() + ": [" + dialogOption.input() + "]"));
+        for(DialogOption option : dialog.options()) {
+            System.out.println(option.text() + ": [" + option.input() + "]");
+        }
         while(true) {
             String input = scanner.nextLine();
             for(DialogOption option : dialog.options()) {
@@ -51,11 +63,11 @@ public class DialogManager {
                     return;
                 }
             }
-            System.out.println("Incorrect input. Try the following: " + dialog.options().stream().map(DialogOption::input));
+            System.out.println("Incorrect input. Try the following: " + Arrays.stream(dialog.options()).map(DialogOption::input));
         }
     }
 
-    public Command terminate(Dialog runningProfileSettings) {
+    public static DialogManagerAction terminate() {
         return () -> {
             System.exit(0);
         };

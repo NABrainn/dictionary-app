@@ -1,6 +1,6 @@
 package lule.dictionary.command;
 
 @FunctionalInterface
-public interface Command {
+public interface DialogManagerAction {
     void execute();
 }

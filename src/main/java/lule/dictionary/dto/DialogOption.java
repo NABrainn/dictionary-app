@@ -1,9 +1,9 @@
 package lule.dictionary.dto;
 
-import lule.dictionary.command.Command;
+import lule.dictionary.command.DialogManagerAction;
 
 public record DialogOption(
         String text,
         String input,
-        Command command) {
+        DialogManagerAction command) {
 }
