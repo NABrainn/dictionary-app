@@ -1,6 +1,6 @@
 package lule.dictionary.dto;
 
-import lule.dictionary.command.DialogManagerAction;
+import lule.dictionary.functionalInterface.DialogManagerAction;
 
 public record DialogOption(
         String text,

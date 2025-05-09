@@ -1,10 +1,10 @@
-package lule.dictionary.entity;
+package lule.dictionary.dto;
 
 
 import lombok.NonNull;
-import lule.dictionary.validation.EmptyValidator;
-import lule.dictionary.validation.LengthValidator;
-import lule.dictionary.validation.PatternValidator;
+import lule.dictionary.functionalInterface.EmptyValidator;
+import lule.dictionary.functionalInterface.LengthValidator;
+import lule.dictionary.functionalInterface.PatternValidator;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -45,7 +45,6 @@ public record UserProfile(
         LengthValidator maxLengthValidator = (int length, String field) -> {
             if(field.length() > length) throw new IllegalArgumentException("Field cannot be longer than " + length + " characters");
         };
-        System.out.println(username);
         emptyValidator.validate(username, email, password);
 
         username = username.trim();

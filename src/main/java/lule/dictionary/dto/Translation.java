@@ -1,11 +1,11 @@
-package lule.dictionary.entity;
+package lule.dictionary.dto;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.validation.EmptyValidator;
-import lule.dictionary.validation.EqualEnumValueValidator;
-import lule.dictionary.validation.LengthValidator;
-import lule.dictionary.validation.PatternValidator;
+import lule.dictionary.functionalInterface.EmptyValidator;
+import lule.dictionary.functionalInterface.EqualEnumValueValidator;
+import lule.dictionary.functionalInterface.LengthValidator;
+import lule.dictionary.functionalInterface.PatternValidator;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 
