@@ -3,8 +3,8 @@ package lule.dictionary.service;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.Import;
 import lule.dictionary.repository.ImportRepository;
-import lule.dictionary.repository.exception.RepositoryException;
-import lule.dictionary.service.exception.ServiceException;
+import lule.dictionary.exception.RepositoryException;
+import lule.dictionary.exception.ServiceException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

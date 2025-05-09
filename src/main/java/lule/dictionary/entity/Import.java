@@ -2,10 +2,10 @@ package lule.dictionary.entity;
 
 
 import lombok.NonNull;
-import lule.dictionary.entity.validation.EmptyValidator;
-import lule.dictionary.entity.validation.EqualEnumValueValidator;
-import lule.dictionary.entity.validation.LengthValidator;
-import lule.dictionary.entity.validation.PatternValidator;
+import lule.dictionary.validation.EmptyValidator;
+import lule.dictionary.validation.EqualEnumValueValidator;
+import lule.dictionary.validation.LengthValidator;
+import lule.dictionary.validation.PatternValidator;
 import lule.dictionary.enumeration.Language;
 
 import java.util.Arrays;

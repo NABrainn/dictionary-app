@@ -1,4 +1,4 @@
-package lule.dictionary.service.exception;
+package lule.dictionary.exception;
 
 public class ServiceException extends RuntimeException {
   public ServiceException(String message) {

@@ -1,11 +1,10 @@
 package lule.dictionary.entity;
 
 
-import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.entity.validation.EmptyValidator;
-import lule.dictionary.entity.validation.LengthValidator;
-import lule.dictionary.entity.validation.PatternValidator;
+import lule.dictionary.validation.EmptyValidator;
+import lule.dictionary.validation.LengthValidator;
+import lule.dictionary.validation.PatternValidator;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;

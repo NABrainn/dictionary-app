@@ -1,4 +1,4 @@
-package lule.dictionary.entity.factory;
+package lule.dictionary.factory;
 
 
 import lule.dictionary.entity.Translation;

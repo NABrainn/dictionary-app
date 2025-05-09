@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
-import lule.dictionary.repository.exception.RepositoryException;
-import lule.dictionary.service.exception.ServiceException;
+import lule.dictionary.exception.RepositoryException;
+import lule.dictionary.exception.ServiceException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

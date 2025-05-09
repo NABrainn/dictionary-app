@@ -1,4 +1,4 @@
-package lule.dictionary.entity.validation;
+package lule.dictionary.validation;
 
 import java.util.regex.Pattern;
 
