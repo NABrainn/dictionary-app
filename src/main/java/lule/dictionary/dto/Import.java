@@ -2,6 +2,7 @@ package lule.dictionary.dto;
 
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.functionalInterface.EmptyValidator;
 import lule.dictionary.functionalInterface.EqualEnumValueValidator;
 import lule.dictionary.functionalInterface.LengthValidator;
@@ -11,6 +12,7 @@ import lule.dictionary.enumeration.Language;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+@Slf4j
 public record Import(
         @NonNull
         String title,
@@ -25,6 +27,9 @@ public record Import(
         String owner
 ) {
     public Import {
+        sourceLanguage = Language.valueOf(sourceLanguage.toString().toUpperCase());
+        targetLanguage = Language.valueOf(targetLanguage.toString().toUpperCase());
+
         EmptyValidator emptyValidator = (String... fields) -> {
             Arrays.stream(fields).forEach(field -> {
                 if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");

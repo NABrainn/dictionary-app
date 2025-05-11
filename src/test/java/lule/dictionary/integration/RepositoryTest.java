@@ -73,11 +73,11 @@ public class RepositoryTest {
         OptionalInt addedImport = importRepository.addImport(anImport);
         addedImport.ifPresent(value -> log.info("Import created: {}, for User Profile: {}", value, anImport.owner()));
 
-        Translation translation1 = TranslationFactory.create("jeden", "en", Language.EN, Language.NO, "nabrain", Familiarity.KNOWN);
-        Translation translation2 = TranslationFactory.create("dwa", "to", Language.EN, Language.NO, "nabrain", Familiarity.UNKNOWN);
-        Translation translation3 = TranslationFactory.create("three", "tre", Language.EN, Language.NO, "nabrain", Familiarity.RECOGNIZED);
-        Translation translation4 = TranslationFactory.create("four", "fire", Language.EN, Language.NO, "nabrain", Familiarity.IGNORED);
-        Translation translation5 = TranslationFactory.create("five", "fem", Language.EN, Language.NO, "nabrain", Familiarity.KNOWN);
+        Translation translation1 = TranslationFactory.create(0, "jeden", "en", Language.EN, Language.NO, "nabrain", Familiarity.KNOWN);
+        Translation translation2 = TranslationFactory.create(0, "dwa", "to", Language.EN, Language.NO, "nabrain", Familiarity.UNKNOWN);
+        Translation translation3 = TranslationFactory.create(0, "three", "tre", Language.EN, Language.NO, "nabrain", Familiarity.RECOGNIZED);
+        Translation translation4 = TranslationFactory.create(0, "four", "fire", Language.EN, Language.NO, "nabrain", Familiarity.IGNORED);
+        Translation translation5 = TranslationFactory.create(0, "five", "fem", Language.EN, Language.NO, "nabrain", Familiarity.KNOWN);
 
         addedImport.ifPresent(value -> {
             translationRepository.addTranslation(translation1, value);

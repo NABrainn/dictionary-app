@@ -32,6 +32,14 @@ public class TranslationService {
         }
     }
 
+    public List<Translation> findAllByOwner(String owner) throws ServiceException{
+        try {
+            return translationRepository.findAllByOwner(owner);
+        } catch (RepositoryException e) {
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
     public Translation findByTargetWord(String targetWord) throws ServiceException{
         try {
             return translationRepository.findByTargetWord(targetWord).orElseThrow(() -> new ServiceException("import for target word: " + targetWord + " not found."));

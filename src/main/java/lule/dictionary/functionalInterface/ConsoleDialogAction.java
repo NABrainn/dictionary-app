@@ -1,6 +1,8 @@
 package lule.dictionary.functionalInterface;
 
+import java.io.IOException;
+
 @FunctionalInterface
-public interface DialogManagerAction {
+public interface ConsoleDialogAction {
     void execute();
 }

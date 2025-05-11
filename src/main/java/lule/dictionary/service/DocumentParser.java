@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ImportFetchingService {
+public class DocumentParser {
 
     private final RestClient restClient;
 
@@ -20,7 +22,10 @@ public class ImportFetchingService {
                 .body(String.class);
         return Optional.ofNullable(fetched);
     }
-    public Optional<String> convertToWords(String content) {
+    public List<String> wordsAsList(String content) {
+        return Arrays.stream(content.split(" ")).toList();
+    }
+    private Optional<String> convertToWords(String content) {
         if(content != null) {
             String fetchedOnlyWords = removeNonLetters(content);
             return Optional.of(normalizeSpaces(fetchedOnlyWords));

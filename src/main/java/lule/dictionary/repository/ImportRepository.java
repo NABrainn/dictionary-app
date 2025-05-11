@@ -31,8 +31,8 @@ public class ImportRepository {
                     imported.title(),
                     imported.content(),
                     imported.url(),
-                    imported.sourceLanguage().toString().toLowerCase(),
-                    imported.targetLanguage().toString().toLowerCase(),
+                    imported.sourceLanguage().toString(),
+                    imported.targetLanguage().toString(),
                     imported.owner());
             if(importsId != null) return OptionalInt.of(importsId);
             return OptionalInt.empty();

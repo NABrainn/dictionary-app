@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public record Translation(
+        int id,
         @NonNull
         String sourceWord,
         @NonNull
@@ -48,6 +49,7 @@ public record Translation(
         EqualEnumValueValidator<Language> equalValueValidator = (Language lang1, Language lang2) -> {
             if(lang1.equals(lang2)) throw new IllegalArgumentException("source language and target language cannot be equal");
         };
+        id = 0;
         emptyValidator.validate(sourceWord, targetWord, sourceLanguage.name(), targetLanguage.name(), translationOwner, familiarity.name());
 
         sourceWord = sourceWord.trim();

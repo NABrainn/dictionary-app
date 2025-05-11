@@ -23,7 +23,7 @@ public class UserProfileService {
 
     public UserProfile findByUsername(String username) {
         try {
-            return userProfileRepository.findByUsername(username).orElseThrow(() -> new ServiceException("an unknown issue occurred"));
+            return userProfileRepository.findByUsername(username).orElseThrow(() -> new ServiceException("user not found"));
         } catch (RepositoryException e) {
             throw new ServiceException(e.getMessage());
         }

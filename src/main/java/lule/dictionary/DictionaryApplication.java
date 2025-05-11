@@ -7,6 +7,5 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class DictionaryApplication {
 	public static void main(String... args) throws Exception {
 		SpringApplication.run(DictionaryApplication.class, args);
-
     }
 }

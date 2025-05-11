@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS dictionary.user_profiles (
 CREATE TABLE IF NOT EXISTS dictionary.translations (
     translations_id              	SERIAL PRIMARY KEY,
     source_word     				VARCHAR(50) NOT NULL,
-    target_word     				VARCHAR(50) NOT NULL UNIQUE,
+    target_word     				VARCHAR(50) NOT NULL,
     source_lang  					dictionary.lang NOT NULL,
     target_lang  					dictionary.lang NOT NULL,
   	translation_owner				VARCHAR(20) NOT NULL references dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,

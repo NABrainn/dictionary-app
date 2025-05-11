@@ -25,17 +25,30 @@ public class TranslationRepository {
 
     public OptionalInt addTranslation(Translation translation, int importId) throws RepositoryException {
         final RowMapper<Integer> ROW_MAPPER = ((rs, rowNum) -> rs.getInt("translations_id"));
-        String translationsInsertSql = "INSERT INTO dictionary.translations (source_word, target_word, source_lang, target_lang, translation_owner, familiarity) VALUES (?, ?, ?, ?, ?, ?) RETURNING translations_id";
-        String relationsInsertSql = "INSERT INTO dictionary.imports_translations (imports_id, translations_id, amount) VALUES (?, ?, ?)";
+        String translationsInsertSql = """
+                INSERT INTO dictionary.translations (source_word, target_word, source_lang, target_lang, translation_owner, familiarity) 
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT ON CONSTRAINT unique_translations_per_owner
+                DO UPDATE SET
+                    familiarity = EXCLUDED.familiarity,
+                    source_word = EXCLUDED.source_word,
+                    source_lang = EXCLUDED.source_lang,
+                    target_lang = EXCLUDED.target_lang
+                RETURNING translations_id
+                """;
+        String relationsInsertSql = """
+                INSERT INTO dictionary.imports_translations (imports_id, translations_id, amount)
+                VALUES (?, ?, ?)
+                """;
         try {
             Integer translationId = template.queryForObject(translationsInsertSql,
                     ROW_MAPPER,
                     translation.sourceWord(),
                     translation.targetWord(),
-                    translation.sourceLanguage().toString().toLowerCase(),
-                    translation.targetLanguage().toString().toLowerCase(),
+                    translation.sourceLanguage().toString(),
+                    translation.targetLanguage().toString(),
                     translation.translationOwner(),
-                    translation.familiarity().toString().toLowerCase()
+                    translation.familiarity().toString()
             );
             if(translationId != null) {
                 template.update(relationsInsertSql, importId, translationId, 1);
@@ -50,6 +63,7 @@ public class TranslationRepository {
 
     public List<Translation> findAllByImport(int importId) throws RepositoryException {
         final RowMapper<Translation> ROW_MAPPER = ((rs, rowNum) -> new Translation(
+                rs.getInt("id"),
                 rs.getString("source_word"),
                 rs.getString("target_word"),
                 Language.valueOf(rs.getString("source_lang").toUpperCase()),
@@ -73,6 +87,7 @@ public class TranslationRepository {
 
     public Optional<Translation> findByTargetWord(String targetWord) throws RepositoryException {
         RowMapper<Translation> ROW_MAPPER = (rs, rowNum) -> TranslationFactory.create(
+                rs.getInt("transactions_id"),
                 rs.getString("source_word"),
                 rs.getString("target_word"),
                 Language.valueOf(rs.getString("source_lang").toUpperCase()),
@@ -103,7 +118,26 @@ public class TranslationRepository {
     public void updateFamiliarity(Translation translation, Familiarity familiarity) throws RepositoryException {
         String sql = "UPDATE dictionary.translations SET familiarity = ? WHERE target_word = ?";
         try {
-            template.update(sql, familiarity.toString().toLowerCase(), translation.targetWord());
+            template.update(sql, familiarity.toString(), translation.targetWord());
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            throw new RepositoryException(e.getMessage());
+        }
+    }
+
+    public List<Translation> findAllByOwner(String owner) {
+        final RowMapper<Translation> ROW_MAPPER = ((rs, rowNum) -> new Translation(
+                rs.getInt("translations_id"),
+                rs.getString("source_word"),
+                rs.getString("target_word"),
+                Language.valueOf(rs.getString("source_lang").toUpperCase()),
+                Language.valueOf(rs.getString("target_lang").toUpperCase()),
+                rs.getString("translation_owner"),
+                Familiarity.valueOf(rs.getString("familiarity").toUpperCase())
+        ));
+        String sql = "SELECT * FROM dictionary.translations WHERE translation_owner=?";
+        try {
+            return template.query(sql, ROW_MAPPER, owner);
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             throw new RepositoryException(e.getMessage());
