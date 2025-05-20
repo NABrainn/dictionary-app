@@ -5,8 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx @tailwindcss/cli -i ./main.css -o ../resources/static/main.css",
-    "watch": "npx @tailwindcss/cli -i ./main.css --watch"
+    "build": "npx @tailwindcss/cli -i ./input.css -o ../resources/static/output.css --minify",
+    "watch": "npx @tailwindcss/cli -i ./input.css -o ../resources/static/output.css --watch"
   },
   "author": "",
   "license": "ISC",
