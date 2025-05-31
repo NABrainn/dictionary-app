@@ -1,35 +1,20 @@
-package lule.dictionary.dto;
-
+package lule.dictionary.dto.application.implementation.imports;
 
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.dto.application.interfaces.imports.ImportDetails;
 import lule.dictionary.functionalInterface.EmptyValidator;
-import lule.dictionary.functionalInterface.EqualEnumValueValidator;
 import lule.dictionary.functionalInterface.LengthValidator;
 import lule.dictionary.functionalInterface.PatternValidator;
-import lule.dictionary.enumeration.Language;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
-@Slf4j
-public record Import(
-        @NonNull
-        String title,
-        @NonNull
-        String content,
-        String url,
-        @NonNull
-        Language sourceLanguage,
-        @NonNull
-        Language targetLanguage,
-        @NonNull
-        String owner
-) {
-    public Import {
-        sourceLanguage = Language.valueOf(sourceLanguage.toString().toUpperCase());
-        targetLanguage = Language.valueOf(targetLanguage.toString().toUpperCase());
-
+public record DictionaryImportDetails(
+        @NonNull String title,
+        @NonNull String content,
+        String url) implements ImportDetails {
+    public DictionaryImportDetails {
         EmptyValidator emptyValidator = (String... fields) -> {
             Arrays.stream(fields).forEach(field -> {
                 if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");
@@ -49,23 +34,20 @@ public record Import(
             if(field.length() > length) throw new IllegalArgumentException("Field cannot be longer than " + length + " characters");
         };
 
-        EqualEnumValueValidator<Language> equalValueValidator = (Language lang1, Language lang2) -> {
-            if(lang1.equals(lang2)) throw new IllegalArgumentException("source language and target language cannot be equal");
-        };
-        emptyValidator.validate(title, content, owner);
+        emptyValidator.validate(title, content);
 
         title = title.trim();
         content = content.trim();
         url = url.trim();
-        owner = owner.trim();
 
         patternValidator.validate(INVALID_FIRST_CHAR, title);
 
         maxLengthValidator.validate(100, title);
         maxLengthValidator.validate(10000, content);
         maxLengthValidator.validate(200, url);
-        maxLengthValidator.validate(20, owner);
-
-        equalValueValidator.validate(sourceLanguage, targetLanguage);
+    }
+    @Override
+    public List<String> importDetailsSummary() {
+        return List.of(title, content, url);
     }
 }

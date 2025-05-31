@@ -1,33 +1,25 @@
-package lule.dictionary.dto;
+package lule.dictionary.dto.application.implementation.translation;
 
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
+import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.enumeration.Language;
 import lule.dictionary.functionalInterface.EmptyValidator;
 import lule.dictionary.functionalInterface.EqualEnumValueValidator;
 import lule.dictionary.functionalInterface.LengthValidator;
 import lule.dictionary.functionalInterface.PatternValidator;
-import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.enumeration.Language;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-@Slf4j
-public record Translation(
-        int id,
+public record DictionaryTranslationDetails(
         @NonNull
         String sourceWord,
         @NonNull
         String targetWord,
         @NonNull
-        Language sourceLanguage,
-        @NonNull
-        Language targetLanguage,
-        @NonNull
-        String translationOwner,
-        @NonNull
-        Familiarity familiarity) {
-    public Translation {
+        Familiarity familiarity) implements TranslationDetails {
+    public DictionaryTranslationDetails {
         EmptyValidator emptyValidator = (String... fields) -> {
             Arrays.stream(fields).forEach(field -> {
                 if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");
@@ -49,21 +41,15 @@ public record Translation(
         EqualEnumValueValidator<Language> equalValueValidator = (Language lang1, Language lang2) -> {
             if(lang1.equals(lang2)) throw new IllegalArgumentException("source language and target language cannot be equal");
         };
-        id = 0;
-        emptyValidator.validate(sourceWord, targetWord, sourceLanguage.name(), targetLanguage.name(), translationOwner, familiarity.name());
+        emptyValidator.validate(sourceWord, targetWord, familiarity.name());
 
         sourceWord = sourceWord.trim();
         targetWord = targetWord.trim();
-        translationOwner = translationOwner.trim();
 
         patternValidator.validate(INVALID_CHARS, sourceWord);
         patternValidator.validate(INVALID_CHARS, targetWord);
-        patternValidator.validate(INVALID_CHARS, translationOwner);
 
         maxLengthValidator.validate(50, sourceWord);
         maxLengthValidator.validate(50, targetWord);
-        maxLengthValidator.validate(20, translationOwner);
-
-        equalValueValidator.validate(sourceLanguage, targetLanguage);
     }
 }

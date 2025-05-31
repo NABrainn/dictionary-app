@@ -1,7 +1,7 @@
-package lule.dictionary.dto;
-
+package lule.dictionary.dto.application.implementation.userProfile;
 
 import lombok.NonNull;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfileCredentials;
 import lule.dictionary.functionalInterface.EmptyValidator;
 import lule.dictionary.functionalInterface.LengthValidator;
 import lule.dictionary.functionalInterface.PatternValidator;
@@ -9,14 +9,14 @@ import lule.dictionary.functionalInterface.PatternValidator;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-public record UserProfile(
+public record DictionaryUserProfileCredentials(
         @NonNull
         String username,
         @NonNull
         String email,
         @NonNull
-        String password) {
-    public UserProfile {
+        String password) implements UserProfileCredentials {
+    public DictionaryUserProfileCredentials {
         final Pattern INVALID_SPECIAL_DIGITS = Pattern.compile("[%&/^!<>@#$'\"*;`:=\\-_+.,(){}\\[\\]?\\\\1234567890]");
         final Pattern VALID_EMAIL = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
 
