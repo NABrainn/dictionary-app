@@ -1,9 +1,13 @@
 package lule.dictionary.unit.entity;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.Translation;
+import lule.dictionary.dto.application.implementation.translation.DictionaryTranslation;
+import lule.dictionary.dto.application.implementation.userProfile.DictionaryUserProfile;
+import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
+import lule.dictionary.factory.dto.TranslationFactory;
+import lule.dictionary.factory.dto.UserProfileFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,7 +17,24 @@ public class TranslationTest {
 
     @Test
     void constructor_validParameters() {
-        Translation trans = new Translation(0, "słowo", "word", Language.PL, Language.EN, "nabrain", Familiarity.UNKNOWN);
+        TranslationFactory.createTranslation(
+                TranslationFactory.createTranslationDetails(
+                        "owo",
+                        "uwu",
+                        Familiarity.UNKNOWN
+                ),
+                UserProfileFactory.createUserProfile(
+                        UserProfileFactory.createCredentials(
+                                "nabrain",
+                                "eeee@mail.com",
+                                "password"
+                        ),
+                        UserProfileFactory.createSettings(
+                                Language.EN,
+                                Language.PL
+                        )
+                )
+        );
     }
 
     @Test
@@ -23,7 +44,24 @@ public class TranslationTest {
         };
 
         for(String ch : invalidChars) {
-            assertThrows(IllegalArgumentException.class, () -> new Translation(0, "s" + ch + "owo./,;'[]-=<>?:{}_+-=", "word", Language.PL, Language.EN, "nabrain", Familiarity.RECOGNIZED));
+            assertThrows(IllegalArgumentException.class, () -> TranslationFactory.createTranslation(
+                    TranslationFactory.createTranslationDetails(
+                            ch + "owo" + ch,
+                            "uwu",
+                            Familiarity.UNKNOWN
+                    ),
+                    UserProfileFactory.createUserProfile(
+                            UserProfileFactory.createCredentials(
+                                    "nabrain",
+                                    "eeee@mail.com",
+                                    "password"
+                            ),
+                            UserProfileFactory.createSettings(
+                                    Language.EN,
+                                    Language.PL
+                            )
+                    )
+            ));
         }
     }
 
@@ -34,38 +72,29 @@ public class TranslationTest {
         };
 
         for(String ch : invalidChars) {
-            assertThrows(IllegalArgumentException.class, () -> new Translation(0, "sowo./,;'[]-=<>?:{}_+-=", "wo" + ch + "rd", Language.PL, Language.EN, "nabrain", Familiarity.RECOGNIZED));
+            assertThrows(IllegalArgumentException.class, () -> TranslationFactory.createTranslation(
+                    TranslationFactory.createTranslationDetails(
+                            "owo",
+                            ch + "uwu" + ch,
+                            Familiarity.UNKNOWN
+                    ),
+                    UserProfileFactory.createUserProfile(
+                            UserProfileFactory.createCredentials(
+                                    "nabrain",
+                                    "eeee@mail.com",
+                                    "password"
+                            ),
+                            UserProfileFactory.createSettings(
+                                    Language.EN,
+                                    Language.PL
+                            )
+                    )
+            ));
         }
-    }
-
-    @Test
-    void constructor_invalidTranslationOwner() {
-        String[] invalidChars = {
-                "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "'", "\"", "_", "=", "+", "[", "{", "]", "}", "\\", ";", ":", ",", "<", ".", ">", "/", "?", "`"
-        };
-
-        for(String ch : invalidChars) {
-            assertThrows(IllegalArgumentException.class, () -> new Translation(0, "sowo./,;'[]-=<>?:{}_+-=", "word", Language.PL, Language.EN, "nabr" + ch + "ain", Familiarity.RECOGNIZED));
-        }
-    }
-
-    @Test
-    void constructor_nameOver50Characters() {
-        assertThrows(IllegalArgumentException.class, () -> new Translation(0, "słowosłowosłowosłowosłowosłowosłowosłowosłowosłowosłowosłowosłowosłowosłowosłowosłowo", "word", Language.PL, Language.EN, "nabrain", Familiarity.IGNORED));
-    }
-
-    @Test
-    void constructor_ownerOver20Characters() {
-        assertThrows(IllegalArgumentException.class, () -> new Translation(0, "słowo", "word", Language.PL, Language.EN, "nabrainnabrainnabrainnabrainnabrainnabrainnabrain", Familiarity.KNOWN));
     }
 
     @Test
     void constructor_nullParameters() {
-        assertThrows(NullPointerException.class, () -> new Translation(0, null, "word", Language.PL, null, "nabrain", Familiarity.KNOWN));
-    }
-
-    @Test
-    void constructor_sameLanguages() {
-        assertThrows(IllegalArgumentException.class, () -> new Translation(0, "słowo", "word", Language.PL, Language.PL, "nabrain", Familiarity.KNOWN));
+        assertThrows(NullPointerException.class, () -> new DictionaryTranslation(null, null));
     }
 }

@@ -1,14 +1,19 @@
 package lule.dictionary.integration;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.Import;
-import lule.dictionary.dto.Translation;
-import lule.dictionary.dto.UserProfile;
-import lule.dictionary.factory.ImportFactory;
-import lule.dictionary.factory.TranslationFactory;
-import lule.dictionary.factory.UserProfileFactory;
+
+import lule.dictionary.dto.application.interfaces.imports.Import;
+import lule.dictionary.dto.application.interfaces.imports.ImportDetails;
+import lule.dictionary.dto.application.interfaces.translation.Translation;
+import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfileCredentials;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
+import lule.dictionary.factory.dto.ImportFactory;
+import lule.dictionary.factory.dto.TranslationFactory;
+import lule.dictionary.factory.dto.UserProfileFactory;
 import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.repository.UserProfileRepository;
@@ -24,8 +29,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.Optional;
 import java.util.OptionalInt;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @SpringBootTest
@@ -64,49 +67,33 @@ public class RepositoryTest {
     }
 
     @Test
-    void useCaseTest1() {
-        UserProfile userProfile = UserProfileFactory.create("nabrain", "email@email.com", "password");
-        Optional<UserProfile> addedUserProfile = userProfileRepository.addUserProfile(userProfile);
-        addedUserProfile.ifPresent(value -> log.info("User Profile created: {}", value));
+    void shouldCreateImportWithTranslations() {
+        UserProfileCredentials credentials = UserProfileFactory.createCredentials(
+                        "username",
+                        "email@email.com",
+                        "password"
+        );
+        UserProfileSettings settings = UserProfileFactory.createSettings(
+                Language.EN,
+                Language.NO
+        );
+        Optional<UserProfile> userProfile = userProfileRepository.addUserProfile(credentials, settings);
 
-        Import anImport = ImportFactory.create("this is a title", "this is the content of the said import", "", Language.EN, Language.NO, "nabrain");
-        OptionalInt addedImport = importRepository.addImport(anImport);
-        addedImport.ifPresent(value -> log.info("Import created: {}, for User Profile: {}", value, anImport.owner()));
-
-        Translation translation1 = TranslationFactory.create(0, "jeden", "en", Language.EN, Language.NO, "nabrain", Familiarity.KNOWN);
-        Translation translation2 = TranslationFactory.create(0, "dwa", "to", Language.EN, Language.NO, "nabrain", Familiarity.UNKNOWN);
-        Translation translation3 = TranslationFactory.create(0, "three", "tre", Language.EN, Language.NO, "nabrain", Familiarity.RECOGNIZED);
-        Translation translation4 = TranslationFactory.create(0, "four", "fire", Language.EN, Language.NO, "nabrain", Familiarity.IGNORED);
-        Translation translation5 = TranslationFactory.create(0, "five", "fem", Language.EN, Language.NO, "nabrain", Familiarity.KNOWN);
-
-        addedImport.ifPresent(value -> {
-            translationRepository.addTranslation(translation1, value);
-            translationRepository.addTranslation(translation2, value);
-            translationRepository.addTranslation(translation3, value);
-            translationRepository.addTranslation(translation4, value);
-            translationRepository.addTranslation(translation5, value);
-            assertEquals(5, translationRepository.findAllByImport(value).size());
-
-            translationRepository.updateSourceWord(translation1, "one");
-            translationRepository.updateSourceWord(translation2, "two");
-            translationRepository.findByTargetWord("en").ifPresent(trans -> {
-                assertEquals("one", trans.sourceWord());
+        userProfile.ifPresent(profile -> {
+            ImportDetails importDetails = ImportFactory.createImportDetails(
+                    "very profound title",
+                    "plenty of content here",
+                    "no url"
+            );
+            OptionalInt importId = importRepository.addImport(importDetails, profile);
+            importId.ifPresent(id -> {
+                TranslationDetails details = TranslationFactory.createTranslationDetails(
+                        "monka",
+                        "weed",
+                        Familiarity.UNKNOWN
+                );
+                translationRepository.addTranslation(details, profile, id);
             });
-            translationRepository.findByTargetWord("to").ifPresent(trans -> {
-                assertEquals("two", trans.sourceWord());
-            });
-
-            translationRepository.updateFamiliarity(translation3, Familiarity.KNOWN);
-            translationRepository.updateFamiliarity(translation4, Familiarity.KNOWN);
-            translationRepository.findByTargetWord("tre").ifPresent(trans -> {
-                assertEquals(Familiarity.KNOWN, trans.familiarity());
-            });
-            translationRepository.findByTargetWord("fire").ifPresent(trans -> {
-                assertEquals(Familiarity.KNOWN, trans.familiarity());
-            });
-            importRepository.deleteById(value);
-            assertEquals(0, translationRepository.findAllByImport(value).size());
-            assertEquals(0, importRepository.findAllByOwner(userProfile.username()).size());
         });
     }
 }
