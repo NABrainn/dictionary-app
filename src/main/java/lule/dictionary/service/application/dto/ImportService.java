@@ -1,5 +1,6 @@
 package lule.dictionary.service.application.dto;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.dto.application.interfaces.imports.Import;
 import lule.dictionary.exception.ServiceException;
@@ -15,7 +16,7 @@ public class ImportService {
 
     private final ImportRepository importRepository;
 
-    public int addImport(Import imported) throws ServiceException {
+    public int addImport(@NonNull Import imported) throws ServiceException {
         try {
             return importRepository.addImport(imported.importDetails(), imported.userProfileSettings(), imported.owner()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
         } catch (RepositoryException e) {
@@ -30,7 +31,7 @@ public class ImportService {
             throw new ServiceException("Failed to fetch import");
         }
     }
-    public List<Import> findByOwner(String owner) throws ServiceException {
+    public List<Import> findByOwner(@NonNull String owner) throws ServiceException {
         try {
             return importRepository.findByOwner(owner);
         } catch (RepositoryException e) {
