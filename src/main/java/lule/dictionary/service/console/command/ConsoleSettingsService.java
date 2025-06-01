@@ -1,4 +1,4 @@
-package lule.dictionary.service.console;
+package lule.dictionary.service.console.command;
 
 import lule.dictionary.functionalInterface.Printer;
 import org.springframework.stereotype.Service;
