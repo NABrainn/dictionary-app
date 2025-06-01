@@ -2,19 +2,28 @@ package lule.dictionary.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.Translation;
-import lule.dictionary.factory.TranslationFactory;
+import lule.dictionary.dto.application.implementation.translation.DictionaryTranslation;
+import lule.dictionary.dto.application.interfaces.translation.Translation;
+import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
+import lule.dictionary.factory.dto.TranslationFactory;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.exception.RepositoryException;
+import lule.dictionary.factory.dto.UserProfileFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+
+import static lule.dictionary.factory.RowMapperFactory.TRANSLATION;
+import static lule.dictionary.factory.RowMapperFactory.TRANSLATION_ID;
 
 @Slf4j
 @Repository
@@ -23,124 +32,117 @@ public class TranslationRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt addTranslation(Translation translation, int importId) throws RepositoryException {
-        final RowMapper<Integer> ROW_MAPPER = ((rs, rowNum) -> rs.getInt("translations_id"));
-        String translationsInsertSql = """
-                INSERT INTO dictionary.translations (source_word, target_word, source_lang, target_lang, translation_owner, familiarity) 
-                VALUES (?, ?, ?, ?, ?, ?)
-                ON CONFLICT ON CONSTRAINT unique_translations_per_owner
-                DO UPDATE SET
-                    familiarity = EXCLUDED.familiarity,
-                    source_word = EXCLUDED.source_word,
-                    source_lang = EXCLUDED.source_lang,
-                    target_lang = EXCLUDED.target_lang
-                RETURNING translations_id
-                """;
-        String relationsInsertSql = """
+    @Transactional
+    public OptionalInt addTranslation(TranslationDetails details, UserProfileSettings userProfileSettings, String owner, int importId) throws RepositoryException {
+        String sql = """
+                WITH translation AS (
+                    INSERT INTO dictionary.translations (source_word, target_word, source_lang, target_lang, translation_owner, familiarity)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON CONFLICT ON CONSTRAINT unique_translations_per_owner
+                    DO UPDATE SET
+                        source_lang = EXCLUDED.source_lang,
+                        target_lang = EXCLUDED.target_lang,
+                        familiarity = EXCLUDED.familiarity
+                    RETURNING translations_id
+                )
                 INSERT INTO dictionary.imports_translations (imports_id, translations_id, amount)
-                VALUES (?, ?, ?)
+                VALUES (?, (SELECT translations_id FROM translation), ?)
+                RETURNING (SELECT translations_id FROM translation)
                 """;
         try {
-            Integer translationId = template.queryForObject(translationsInsertSql,
-                    ROW_MAPPER,
-                    translation.sourceWord(),
-                    translation.targetWord(),
-                    translation.sourceLanguage().toString(),
-                    translation.targetLanguage().toString(),
-                    translation.translationOwner(),
-                    translation.familiarity().toString()
+            Integer translationId = template.queryForObject(sql, TRANSLATION_ID,
+                    details.sourceWord(),
+                    details.targetWord(),
+                    userProfileSettings.sourceLanguage().toString(),
+                    userProfileSettings.targetLanguage().toString(),
+                    owner,
+                    details.familiarity().toString(),
+                    importId,
+                    1
             );
             if(translationId != null) {
-                template.update(relationsInsertSql, importId, translationId, 1);
                 return OptionalInt.of(translationId);
             }
             return OptionalInt.empty();
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
-            throw new RepositoryException(e.getMessage());
+            throw new RepositoryException(e.getCause());
         }
     }
 
-    public List<Translation> findAllByImport(int importId) throws RepositoryException {
-        final RowMapper<Translation> ROW_MAPPER = ((rs, rowNum) -> new Translation(
-                rs.getInt("id"),
-                rs.getString("source_word"),
-                rs.getString("target_word"),
-                Language.valueOf(rs.getString("source_lang").toUpperCase()),
-                Language.valueOf(rs.getString("target_lang").toUpperCase()),
-                rs.getString("translation_owner"),
-                Familiarity.valueOf(rs.getString("familiarity").toUpperCase())
-        ));
+    public Optional<Translation> updateSourceWord(String sourceWord, String targetWord) throws RepositoryException {
         String sql = """
-                SELECT t.source_word, t.target_word, t.source_lang, t.target_lang, t.translation_owner, t.familiarity
-                FROM dictionary.translations t
-                LEFT JOIN dictionary.imports_translations it ON t.translations_id = it.translations_id
-                WHERE it.imports_id=?;
+                UPDATE dictionary.translations
+                SET source_word = ?
+                WHERE target_word = ?
+                RETURNING *
                 """;
         try {
-            return template.query(sql, ROW_MAPPER, importId);
+            Translation translation = template.queryForObject(sql, TRANSLATION,
+                    sourceWord,
+                    targetWord
+            );
+            return Optional.ofNullable(translation);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
-            throw new RepositoryException(e.getMessage());
+            throw new RepositoryException(e.getCause());
         }
     }
 
-    public Optional<Translation> findByTargetWord(String targetWord) throws RepositoryException {
-        RowMapper<Translation> ROW_MAPPER = (rs, rowNum) -> TranslationFactory.create(
-                rs.getInt("transactions_id"),
-                rs.getString("source_word"),
-                rs.getString("target_word"),
-                Language.valueOf(rs.getString("source_lang").toUpperCase()),
-                Language.valueOf(rs.getString("target_lang").toUpperCase()),
-                rs.getString("translation_owner"),
-                Familiarity.valueOf(rs.getString("familiarity").toUpperCase())
-        );
-        String sql = "SELECT * FROM dictionary.translations WHERE target_word=?";
+    public Optional<Translation> updateFamiliarity(String targetWord, Familiarity familiarity) throws RepositoryException {
+        String sql = """
+                UPDATE dictionary.translations
+                SET familiarity = ?
+                WHERE target_word = ?
+                RETURNING *
+                """;
         try {
-            Translation result = template.queryForObject(sql, ROW_MAPPER, targetWord);
-            return Optional.ofNullable(result);
+            Translation translation = template.queryForObject(sql, TRANSLATION,
+                    familiarity.toString(),
+                    targetWord
+            );
+            return Optional.ofNullable(translation);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
-            throw new RepositoryException(e.getMessage());
+            throw new RepositoryException(e.getCause());
         }
     }
 
-    public void updateSourceWord(Translation translation, String sourceWord) throws RepositoryException {
-        String sql = "UPDATE dictionary.translations SET source_word = ? WHERE target_word = ?";
+    public List<Translation> findByOwner(String username) {
+        String sql = """
+                SELECT *
+                FROM dictionary.translations
+                WHERE translations.translation_owner=?
+                """;
+
         try {
-            template.update(sql, sourceWord, translation.targetWord());
+            return template.query(sql, TRANSLATION, username);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
-            throw new RepositoryException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
-    public void updateFamiliarity(Translation translation, Familiarity familiarity) throws RepositoryException {
-        String sql = "UPDATE dictionary.translations SET familiarity = ? WHERE target_word = ?";
+    public List<Translation> findAll() {
+        String sql = """
+                SELECT *
+                FROM dictionary.translations
+                """;
         try {
-            template.update(sql, familiarity.toString(), translation.targetWord());
+            return template.query(sql, TRANSLATION);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
-            throw new RepositoryException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
-    public List<Translation> findAllByOwner(String owner) {
-        final RowMapper<Translation> ROW_MAPPER = ((rs, rowNum) -> new Translation(
-                rs.getInt("translations_id"),
-                rs.getString("source_word"),
-                rs.getString("target_word"),
-                Language.valueOf(rs.getString("source_lang").toUpperCase()),
-                Language.valueOf(rs.getString("target_lang").toUpperCase()),
-                rs.getString("translation_owner"),
-                Familiarity.valueOf(rs.getString("familiarity").toUpperCase())
-        ));
-        String sql = "SELECT * FROM dictionary.translations WHERE translation_owner=?";
+    public Optional<Translation> findByTargetWord(String targetWord) {
+        String sql = """
+                SELECT *
+                FROM dictionary.translations
+                WHERE translations.target_word=?
+                LIMIT 1
+                """;
         try {
-            return template.query(sql, ROW_MAPPER, owner);
+            Translation translation = template.queryForObject(sql, TRANSLATION, targetWord);
+            return Optional.ofNullable(translation);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
-            throw new RepositoryException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }

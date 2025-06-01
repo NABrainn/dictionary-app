@@ -2,7 +2,6 @@ package lule.dictionary.integration;
 
 import lombok.extern.slf4j.Slf4j;
 
-import lule.dictionary.dto.application.interfaces.imports.Import;
 import lule.dictionary.dto.application.interfaces.imports.ImportDetails;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
@@ -29,6 +28,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.Optional;
 import java.util.OptionalInt;
+
+import static org.junit.Assert.assertEquals;
 
 @Slf4j
 @SpringBootTest
@@ -67,17 +68,9 @@ public class RepositoryTest {
     }
 
     @Test
-    void shouldCreateImportWithTranslations() {
-        UserProfileCredentials credentials = UserProfileFactory.createCredentials(
-                        "username",
-                        "email@email.com",
-                        "password"
-        );
-        UserProfileSettings settings = UserProfileFactory.createSettings(
-                Language.EN,
-                Language.NO
-        );
-        Optional<UserProfile> userProfile = userProfileRepository.addUserProfile(credentials, settings);
+    void shouldCreateEntities() {
+        Optional<UserProfile> userProfile = testLoadUserProfile();
+        assertEquals(1, userProfileRepository.findAll().size());
 
         userProfile.ifPresent(profile -> {
             ImportDetails importDetails = ImportFactory.createImportDetails(
@@ -85,15 +78,86 @@ public class RepositoryTest {
                     "plenty of content here",
                     "no url"
             );
-            OptionalInt importId = importRepository.addImport(importDetails, profile);
+            OptionalInt importId = importRepository.addImport(
+                    importDetails,
+                    profile.userProfileSettings(),
+                    profile.userProfileCredentials().username()
+            );
+            assertEquals(1, importRepository.findAll().size());
+
             importId.ifPresent(id -> {
-                TranslationDetails details = TranslationFactory.createTranslationDetails(
-                        "monka",
-                        "weed",
-                        Familiarity.UNKNOWN
-                );
-                translationRepository.addTranslation(details, profile, id);
+                testAddMultipleTranslations(profile.userProfileSettings(), profile.userProfileCredentials().username(), id);
+                assertEquals(5, translationRepository.findAll().size());
+                assertEquals(5, translationRepository.findByOwner(profile.userProfileCredentials().username()).size());
+
+                log.info("""
+                        User Profile created: {}
+                        With new import (id): {}
+                        """, profile, id);
             });
         });
+    }
+    @Test
+    void shouldModifyTranslations() {
+        setupTestEntities();
+        translationRepository.updateFamiliarity("en", Familiarity.FAMILIAR);
+        translationRepository.updateFamiliarity("enen", Familiarity.RECOGNIZED);
+        assertEquals(Familiarity.FAMILIAR, translationRepository.findByTargetWord("en").get().translationDetails().familiarity());
+        assertEquals(Familiarity.RECOGNIZED, translationRepository.findByTargetWord("enen").get().translationDetails().familiarity());
+
+        Optional<Translation> translation1 = translationRepository.updateSourceWord("jeden", "en");
+        Optional<Translation> translation2 = translationRepository.updateSourceWord("dwa", "enen");
+        assertEquals("jeden", translation1.get().translationDetails().sourceWord());
+        assertEquals("dwa", translation2.get().translationDetails().sourceWord());
+    }
+
+    private void setupTestEntities() {
+        Optional<UserProfile> userProfile = testLoadUserProfile();
+        userProfile.ifPresent(profile -> {
+            int importId = testAddImport(profile.userProfileSettings(), profile.userProfileCredentials().username());
+            testAddMultipleTranslations(profile.userProfileSettings(), profile.userProfileCredentials().username(), importId);
+        });
+    }
+
+    private Optional<UserProfile> testLoadUserProfile() {
+        UserProfileCredentials credentials = UserProfileFactory.createCredentials(
+                "username",
+                "email@email.com",
+                "password"
+        );
+        UserProfileSettings settings = UserProfileFactory.createSettings(
+                Language.EN,
+                Language.NO
+        );
+        return userProfileRepository.addUserProfile(credentials, settings);
+    }
+
+    private int testAddImport(UserProfileSettings userProfileSettings, String owner) {
+        OptionalInt addedImport = importRepository.addImport(
+                ImportFactory.createImportDetails(
+                        "title",
+                        "content",
+                        "url"
+                ),
+                userProfileSettings,
+                owner
+        );
+        return addedImport.orElseThrow(() -> new RuntimeException("An exception has been caught while adding an import"));
+    }
+
+    private void testAddMultipleTranslations(UserProfileSettings userProfileSettings, String owner, int importId) {
+        for(int i = 1; i <= 5; i++) {
+            TranslationDetails translationDetails = TranslationFactory.createTranslationDetails(
+                    "one".repeat(i),
+                    "en".repeat(i),
+                    Familiarity.UNKNOWN
+            );
+            translationRepository.addTranslation(
+                    translationDetails,
+                    userProfileSettings,
+                    owner,
+                    importId
+            ).orElseThrow(() -> new RuntimeException("An exception has been caught while adding a translation"));
+        }
     }
 }

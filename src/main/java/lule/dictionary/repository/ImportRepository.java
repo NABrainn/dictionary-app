@@ -3,17 +3,23 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.Import;
-import lule.dictionary.factory.ImportFactory;
+import lule.dictionary.dto.application.interfaces.imports.Import;
+import lule.dictionary.dto.application.interfaces.imports.ImportDetails;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
 import lule.dictionary.enumeration.Language;
+import lule.dictionary.factory.dto.ImportFactory;
 import lule.dictionary.exception.RepositoryException;
+import lule.dictionary.factory.dto.UserProfileFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
+
+import static lule.dictionary.factory.RowMapperFactory.IMPORT;
+import static lule.dictionary.factory.RowMapperFactory.IMPORT_ID;
 
 @Slf4j
 @Repository
@@ -22,23 +28,24 @@ public class ImportRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt addImport(Import imported) throws RepositoryException {
-        RowMapper<Integer> ROW_MAPPER = ((rs, rowNum) -> rs.getInt("imports_id"));
-        final String importsInsertSql = "INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner) VALUES (?, ?, ?, ?, ?, ?) RETURNING imports_id";
+    public OptionalInt addImport(ImportDetails importDetails, UserProfileSettings userProfileSettings, String owner) throws RepositoryException {
+        final String sql = """
+                INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner)
+                VALUES (?, ?, ?, ?, ?, ?)
+                RETURNING imports_id
+                """;
         try {
-            Integer importsId = template.queryForObject(importsInsertSql,
-                    ROW_MAPPER,
-                    imported.title(),
-                    imported.content(),
-                    imported.url(),
-                    imported.sourceLanguage().toString(),
-                    imported.targetLanguage().toString(),
-                    imported.owner());
+            Integer importsId = template.queryForObject(sql, IMPORT_ID,
+                    importDetails.title(),
+                    importDetails.content(),
+                    importDetails.url(),
+                    userProfileSettings.sourceLanguage().toString(),
+                    userProfileSettings.targetLanguage().toString(),
+                    owner);
             if(importsId != null) return OptionalInt.of(importsId);
             return OptionalInt.empty();
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
-            throw new RepositoryException(e.getMessage());
+            throw new RepositoryException(e.getCause());
         }
     }
 
@@ -47,25 +54,34 @@ public class ImportRepository {
         try {
             template.update(sql, id);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
-            throw new RepositoryException(e.getMessage());
+            throw new RepositoryException(e.getCause());
         }
     }
 
-    public List<Import> findAllByOwner(@NonNull String username) throws RepositoryException {
-        RowMapper<Import> ROW_MAPPER = (rs, rowNum) -> ImportFactory.create(
-                rs.getString("title"),
-                rs.getString("content"),
-                rs.getString("url"),
-                Language.valueOf(rs.getString("source_lang").toUpperCase()),
-                Language.valueOf(rs.getString("target_lang").toUpperCase()),
-                rs.getString("import_owner")
-        );
-        String sql = "SELECT * FROM dictionary.imports WHERE import_owner=?";
+
+    public Optional<Import> findById(int id) {
+        String sql = """
+                SELECT *
+                FROM dictionary.imports
+                WHERE imports.imports_id=?
+                """;
         try {
-            return template.query(sql, ROW_MAPPER, username);
-        } catch (Exception e) {
-            throw new RepositoryException(e.getMessage());
+            Import found = template.queryForObject(sql, IMPORT, id);
+            return Optional.ofNullable(found);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Import> findAll() {
+        String sql = """
+                SELECT *
+                FROM dictionary.imports
+                """;
+        try {
+            return template.query(sql, IMPORT);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }

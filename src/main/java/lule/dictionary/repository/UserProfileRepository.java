@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static lule.dictionary.factory.RowMapperFactory.USER_PROFILE;
@@ -62,6 +63,20 @@ public class UserProfileRepository {
             return Optional.ofNullable(userProfile);
         } catch (DataAccessException e) {
             throw new RepositoryException(e.getCause());
+        }
+    }
+
+    public List<UserProfile> findAll() {
+        String sql = """
+                SELECT p.username, p.email, p.password, s.source_lang, s.target_lang
+                FROM dictionary.user_profiles as p
+                LEFT JOIN dictionary.user_profile_settings as s
+                ON p.settings_id=s.settings_id
+                """;
+        try {
+            return template.query(sql, USER_PROFILE);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }
