@@ -1,5 +1,6 @@
 package lule.dictionary.repository;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
@@ -23,7 +24,7 @@ public class UserProfileRepository {
 
     private final JdbcTemplate template;
 
-    public Optional<UserProfile> findByUsername(String username) {
+    public Optional<UserProfile> findByUsername(@NonNull String username) {
         String sql = """
                 SELECT user_profiles.username, user_profiles.password, user_profiles.email, user_profile_settings.source_lang, user_profile_settings.target_lang
                 FROM user_profiles, user_profile_settings
@@ -39,7 +40,7 @@ public class UserProfileRepository {
     }
 
     @Transactional
-    public Optional<UserProfile> addUserProfile(UserProfileCredentials userProfileCredentials, UserProfileSettings userProfileSettings) throws RepositoryException {
+    public Optional<UserProfile> addUserProfile(@NonNull UserProfileCredentials userProfileCredentials, @NonNull UserProfileSettings userProfileSettings) throws RepositoryException {
         String sql = """
                     WITH settings AS (
                         INSERT INTO dictionary.user_profile_settings (source_lang, target_lang)
@@ -66,7 +67,7 @@ public class UserProfileRepository {
         }
     }
 
-    public List<UserProfile> findAll() {
+    public List<UserProfile> findAll() throws RepositoryException {
         String sql = """
                 SELECT p.username, p.email, p.password, s.source_lang, s.target_lang
                 FROM dictionary.user_profiles as p

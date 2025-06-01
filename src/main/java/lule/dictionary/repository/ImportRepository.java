@@ -28,7 +28,7 @@ public class ImportRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt addImport(ImportDetails importDetails, UserProfileSettings userProfileSettings, String owner) throws RepositoryException {
+    public OptionalInt addImport(@NonNull ImportDetails importDetails, @NonNull UserProfileSettings userProfileSettings, @NonNull String owner) throws RepositoryException {
         final String sql = """
                 INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner)
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -49,17 +49,8 @@ public class ImportRepository {
         }
     }
 
-    public void deleteById(int id) throws RepositoryException{
-        String sql = "DELETE FROM dictionary.imports WHERE imports_id=?";
-        try {
-            template.update(sql, id);
-        } catch (DataAccessException e) {
-            throw new RepositoryException(e.getCause());
-        }
-    }
 
-
-    public Optional<Import> findById(int id) {
+    public Optional<Import> findById(int id) throws RepositoryException {
         String sql = """
                 SELECT *
                 FROM dictionary.imports
@@ -73,7 +64,19 @@ public class ImportRepository {
         }
     }
 
-    public List<Import> findAll() {
+    public List<Import> findByOwner(@NonNull String owner) throws RepositoryException {
+        String sql = """
+                SELECT *
+                FROM dictionary.imports
+                WHERE import_owner=?
+                """;
+        try {
+            return template.query(sql, IMPORT, owner);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public List<Import> findAll() throws RepositoryException {
         String sql = """
                 SELECT *
                 FROM dictionary.imports

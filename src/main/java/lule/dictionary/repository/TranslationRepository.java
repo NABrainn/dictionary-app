@@ -1,20 +1,15 @@
 package lule.dictionary.repository;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.implementation.translation.DictionaryTranslation;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
-import lule.dictionary.factory.dto.TranslationFactory;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.enumeration.Language;
 import lule.dictionary.exception.RepositoryException;
-import lule.dictionary.factory.dto.UserProfileFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +28,7 @@ public class TranslationRepository {
     private final JdbcTemplate template;
 
     @Transactional
-    public OptionalInt addTranslation(TranslationDetails details, UserProfileSettings userProfileSettings, String owner, int importId) throws RepositoryException {
+    public OptionalInt addTranslation(@NonNull TranslationDetails details, @NonNull UserProfileSettings userProfileSettings, @NonNull String owner, int importId) throws RepositoryException {
         String sql = """
                 WITH translation AS (
                     INSERT INTO dictionary.translations (source_word, target_word, source_lang, target_lang, translation_owner, familiarity)
@@ -69,7 +64,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateSourceWord(String sourceWord, String targetWord) throws RepositoryException {
+    public Optional<Translation> updateSourceWord(@NonNull String sourceWord, @NonNull String targetWord) throws RepositoryException {
         String sql = """
                 UPDATE dictionary.translations
                 SET source_word = ?
@@ -87,7 +82,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateFamiliarity(String targetWord, Familiarity familiarity) throws RepositoryException {
+    public Optional<Translation> updateFamiliarity(@NonNull String targetWord, @NonNull Familiarity familiarity) throws RepositoryException {
         String sql = """
                 UPDATE dictionary.translations
                 SET familiarity = ?
@@ -105,7 +100,7 @@ public class TranslationRepository {
         }
     }
 
-    public List<Translation> findByOwner(String username) {
+    public List<Translation> findByOwner(@NonNull String username) throws RepositoryException {
         String sql = """
                 SELECT *
                 FROM dictionary.translations
@@ -115,11 +110,11 @@ public class TranslationRepository {
         try {
             return template.query(sql, TRANSLATION, username);
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getCause());
         }
     }
 
-    public List<Translation> findAll() {
+    public List<Translation> findAll() throws RepositoryException {
         String sql = """
                 SELECT *
                 FROM dictionary.translations
@@ -127,11 +122,11 @@ public class TranslationRepository {
         try {
             return template.query(sql, TRANSLATION);
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getCause());
         }
     }
 
-    public Optional<Translation> findByTargetWord(String targetWord) {
+    public Optional<Translation> findByTargetWord(@NonNull String targetWord) throws RepositoryException {
         String sql = """
                 SELECT *
                 FROM dictionary.translations
@@ -139,10 +134,10 @@ public class TranslationRepository {
                 LIMIT 1
                 """;
         try {
-            Translation translation = template.queryForObject(sql, TRANSLATION, targetWord);
-            return Optional.ofNullable(translation);
+            List<Translation> translation = template.query(sql, TRANSLATION, targetWord);
+            return translation.stream().findFirst();
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException(e.getCause());
         }
     }
 }
