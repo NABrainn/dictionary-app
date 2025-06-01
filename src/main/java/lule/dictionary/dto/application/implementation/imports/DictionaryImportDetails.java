@@ -2,9 +2,9 @@ package lule.dictionary.dto.application.implementation.imports;
 
 import lombok.NonNull;
 import lule.dictionary.dto.application.interfaces.imports.ImportDetails;
-import lule.dictionary.functionalInterface.EmptyValidator;
-import lule.dictionary.functionalInterface.LengthValidator;
-import lule.dictionary.functionalInterface.PatternValidator;
+import lule.dictionary.functionalInterface.validation.EmptyValidator;
+import lule.dictionary.functionalInterface.validation.LengthValidator;
+import lule.dictionary.functionalInterface.validation.PatternValidator;
 
 import java.util.Arrays;
 import java.util.List;

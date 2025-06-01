@@ -1,9 +1,8 @@
 package lule.dictionary.dto.application.implementation.userProfile;
 
-import lombok.NonNull;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
 import lule.dictionary.enumeration.Language;
-import lule.dictionary.functionalInterface.EqualEnumValueValidator;
+import lule.dictionary.functionalInterface.validation.EqualEnumValueValidator;
 
 public record DictionaryUserProfileSettings(
         Language sourceLanguage,

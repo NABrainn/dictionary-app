@@ -4,10 +4,10 @@ import lombok.NonNull;
 import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
-import lule.dictionary.functionalInterface.EmptyValidator;
-import lule.dictionary.functionalInterface.EqualEnumValueValidator;
-import lule.dictionary.functionalInterface.LengthValidator;
-import lule.dictionary.functionalInterface.PatternValidator;
+import lule.dictionary.functionalInterface.validation.EmptyValidator;
+import lule.dictionary.functionalInterface.validation.EqualEnumValueValidator;
+import lule.dictionary.functionalInterface.validation.LengthValidator;
+import lule.dictionary.functionalInterface.validation.PatternValidator;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
