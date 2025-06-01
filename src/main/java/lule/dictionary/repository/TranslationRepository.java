@@ -140,4 +140,18 @@ public class TranslationRepository {
             throw new RepositoryException(e.getCause());
         }
     }
+
+    public List<Translation> findByTargetWords(List<String> targetWords) {
+        String sql = String.format("""
+                SELECT *
+                FROM dictionary.translations
+                WHERE translations.target_word IN (%s)
+                """, String.join(",", targetWords.stream().map(word -> "?").toArray(String[]::new)));
+
+        try {
+            return template.query(sql, TRANSLATION, targetWords);
+        } catch (DataAccessException e) {
+            throw new RepositoryException(e.getCause());
+        }
+    }
 }
