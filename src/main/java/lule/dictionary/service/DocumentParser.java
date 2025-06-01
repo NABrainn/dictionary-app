@@ -22,7 +22,17 @@ public class DocumentParser {
                 .body(String.class);
         return Optional.ofNullable(fetched);
     }
-    public List<String> wordsAsList(String content) {
+
+    public List<String> parse(String content) {
+        Optional<String> words = convertToWords(content);
+        if(words.isPresent()) {
+            String wordsWithoutSpecials = removeNonLetters(words.get());
+            String wordsNormalized = normalizeSpaces(wordsWithoutSpecials);
+            return convertToList(wordsNormalized);
+        }
+        return List.of();
+    }
+    private List<String> convertToList(String content) {
         return Arrays.stream(content.split(" ")).toList();
     }
     private Optional<String> convertToWords(String content) {
@@ -33,13 +43,11 @@ public class DocumentParser {
         return Optional.empty();
     }
 
-    private String removeNonLetters(String content) {
+    public String removeNonLetters(String content) {
         return content.replaceAll("[%&/^!<>@#$'\"*;`:=\\-_+.,\\t\\n(){}\\[\\]?\\\\1234567890]", " ");
     }
 
-    private String normalizeSpaces(String content) {
-        content = content.trim();
-        content = content.replaceAll("\\s{2,}", " ");
-        return content;
+    public String normalizeSpaces(String content) {
+        return content.trim().replaceAll("\\s{2,}", " ");
     }
 }
