@@ -29,7 +29,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @SpringBootTest
