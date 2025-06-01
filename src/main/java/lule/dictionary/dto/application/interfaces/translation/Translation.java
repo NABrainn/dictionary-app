@@ -1,8 +1,9 @@
 package lule.dictionary.dto.application.interfaces.translation;
 
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
 
 public interface Translation {
     TranslationDetails translationDetails();
-    UserProfile userProfile();
+    UserProfileSettings userProfileSettings();
+    String owner();
 }
