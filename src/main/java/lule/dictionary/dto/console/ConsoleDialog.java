@@ -1,4 +1,4 @@
-package lule.dictionary.dto;
+package lule.dictionary.dto.console;
 
 import lule.dictionary.functionalInterface.ConsoleDialogAction;
 
