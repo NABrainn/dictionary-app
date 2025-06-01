@@ -5,12 +5,14 @@ import lule.dictionary.dto.application.implementation.imports.DictionaryImportDe
 import lule.dictionary.dto.application.interfaces.imports.Import;
 import lule.dictionary.dto.application.interfaces.imports.ImportDetails;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
 
 public class ImportFactory {
     public static Import createImport(
             ImportDetails importDetails,
-            UserProfile userProfile) {
-        return new DictionaryImport(importDetails, userProfile);
+            UserProfileSettings userProfileSettings,
+            String owner) {
+        return new DictionaryImport(importDetails, userProfileSettings, owner);
     }
 
     public static ImportDetails createImportDetails(

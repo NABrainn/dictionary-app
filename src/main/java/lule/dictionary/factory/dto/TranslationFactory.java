@@ -6,13 +6,15 @@ import lule.dictionary.dto.application.implementation.translation.DictionaryTran
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
+import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
 import lule.dictionary.enumeration.Familiarity;
 
 public class TranslationFactory {
     public static Translation createTranslation(
             TranslationDetails translationDetails,
-            UserProfile userProfile) {
-        return new DictionaryTranslation(translationDetails, userProfile);
+            UserProfileSettings userProfileSettings,
+            String owner) {
+        return new DictionaryTranslation(translationDetails, userProfileSettings, owner);
     }
     public static TranslationDetails createTranslationDetails(
              String sourceWord,
