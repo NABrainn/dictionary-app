@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class DocumentParser {
+public class ContentParsingService {
 
     private final RestClient restClient;
 
