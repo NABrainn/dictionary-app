@@ -1,4 +1,4 @@
-package lule.dictionary.functionalInterface;
+package lule.dictionary.functionalInterface.validation;
 
 import java.util.regex.Pattern;
 
