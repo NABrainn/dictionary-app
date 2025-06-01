@@ -82,6 +82,16 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>jwks-rsa</artifactId>
+			<version>0.22.1</version>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
@@ -146,37 +156,37 @@
 				<groupId>com.maciejwalkowiak.paseq</groupId>
 				<artifactId>paseq-maven-plugin</artifactId>
 				<version>0.1.1</version>
-						<configuration>
-							<tasks>
-								<task>
-									<exec>
-										<command>docker compose up -d --wait</command>
-									</exec>
-								</task>
-								<task>
-									<exec>
-										<directory>src/main/frontend</directory>
-										<command>npm install</command>
-									</exec>
-								</task>
-								<task>
-									<exec>
-										<directory>src/main/frontend</directory>
-										<command>npm run build</command>
-									</exec>
-								</task>
-								<task>
-									<async>true</async>
-									<exec>
-										<directory>src/main/frontend</directory>
-										<command>npm run watch</command>
-									</exec>
-								</task>
-								<task>
-									<goals>spring-boot:run</goals>
-								</task>
-							</tasks>
-						</configuration>
+					<configuration>
+						<tasks>
+							<task>
+								<exec>
+									<command>docker compose up -d --wait</command>
+								</exec>
+							</task>
+							<task>
+								<exec>
+									<directory>src/main/frontend</directory>
+									<command>npm install</command>
+								</exec>
+							</task>
+							<task>
+								<exec>
+									<directory>src/main/frontend</directory>
+									<command>npm run build</command>
+								</exec>
+							</task>
+							<task>
+								<async>true</async>
+								<exec>
+									<directory>src/main/frontend</directory>
+									<command>npm run watch</command>
+								</exec>
+							</task>
+							<task>
+								<goals>spring-boot:run</goals>
+							</task>
+						</tasks>
+					</configuration>
 			</plugin>
 		</plugins>
 	</build>
