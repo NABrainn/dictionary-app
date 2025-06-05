@@ -23,13 +23,12 @@
                     if (word.classList.contains('bg-tertiary')) {
                         word.classList.remove('bg-tertiary');
                     }
-                    if (word.classList.contains('bg-tertiary')) {
-                        word.classList.remove('bg-tertiary');
-                    }
-                    if (word.classList.contains('bg-tertiary')) {
-                        word.classList.remove('bg-tertiary');
-                    }
-                    if (word.classList.contains('bg-accent') || word.classList.contains('bg-accent/80') || word.classList.contains('bg-accent/60') || word.classList.contains('bg-accent/40')) {
+                    if (
+                        word.classList.contains('bg-accent') || 
+                        word.classList.contains('bg-accent/80') || 
+                        word.classList.contains('bg-accent/60') || 
+                        word.classList.contains('bg-accent/40')) {
+
                         word.classList.remove('text-neutral');
                         word.classList.add('text-primary');
                     }
