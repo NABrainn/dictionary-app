@@ -26,7 +26,7 @@ public record DictionaryTranslationDetails(
             });
         };
 
-        final Pattern INVALID_CHARS = Pattern.compile("[%&/^!<>@#$'\"*;`:=\\-_+.,(){}\\[\\]?\\\\1234567890]");
+        final Pattern INVALID_CHARS = Pattern.compile("[%&/^!<>@#$'\"*;`:=\\-_+.,(){}\\[\\]?\\\\]");
 
         PatternValidator patternValidator = (Pattern pattern, String field) -> {
             if(pattern.matcher(field).find()) {
