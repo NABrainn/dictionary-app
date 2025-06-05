@@ -10,3 +10,16 @@ gg:
     templateLocation: src/main/jte
     templateSuffix: .jte
     developmentMode: true
+logging:
+  level:
+    org:
+      springframework.jdbc.core: DEBUG
+      springframework.jdbc.core.JdbcTemplate: DEBUG
+      springframework.jdbc.core.StatementCreatorUtils: TRACE
+      springframework:
+        web:
+          - "DEBUG"
+server:
+  compression:
+    enabled: true
+    min-response-size: 2048
