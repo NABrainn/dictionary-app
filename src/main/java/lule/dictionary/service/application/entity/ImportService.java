@@ -1,4 +1,4 @@
-package lule.dictionary.service.application.dto;
+package lule.dictionary.service.application.entity;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class ImportService {
         try {
             return importRepository.addImport(imported.importDetails(), imported.userProfileSettings(), imported.owner()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to add a new import");
+            throw new ServiceException("Failed to add a new import", e.getCause());
         }
     }
 
@@ -28,14 +28,14 @@ public class ImportService {
         try {
             return importRepository.findById(id).orElseThrow(() -> new ServiceException("Failed to fetch import"));
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch import");
+            throw new ServiceException("Failed to fetch import", e.getCause());
         }
     }
     public List<Import> findByOwner(@NonNull String owner) throws ServiceException {
         try {
             return importRepository.findByOwner(owner);
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch imports");
+            throw new ServiceException("Failed to fetch imports", e.getCause());
         }
     }
 
@@ -43,7 +43,7 @@ public class ImportService {
         try {
             return importRepository.findAll();
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch imports");
+            throw new ServiceException("Failed to fetch imports", e.getCause());
         }
     }
 }
