@@ -47,7 +47,7 @@ public class TranslationRepository {
         try {
             Integer translationId = template.queryForObject(sql, TRANSLATION_ID,
                     details.sourceWord(),
-                    details.targetWord(),
+                    details.targetWord().toLowerCase(),
                     userProfileSettings.sourceLanguage().toString(),
                     userProfileSettings.targetLanguage().toString(),
                     owner,
@@ -91,11 +91,12 @@ public class TranslationRepository {
                 """;
         try {
             Translation translation = template.queryForObject(sql, TRANSLATION,
-                    familiarity.toString(),
-                    targetWord
+                    familiarity.name(),
+                    targetWord.toLowerCase()
             );
             return Optional.ofNullable(translation);
         } catch (DataAccessException e) {
+            log.error(e.getMessage(), e.getCause());
             throw new RepositoryException(e.getCause());
         }
     }
@@ -134,7 +135,7 @@ public class TranslationRepository {
                 LIMIT 1
                 """;
         try {
-            List<Translation> translation = template.query(sql, TRANSLATION, targetWord);
+            List<Translation> translation = template.query(sql, TRANSLATION, targetWord.toLowerCase());
             return translation.stream().findFirst();
         } catch (DataAccessException e) {
             throw new RepositoryException(e.getCause());
@@ -149,7 +150,8 @@ public class TranslationRepository {
                 """, String.join(",", targetWords.stream().map(word -> "?").toArray(String[]::new)));
 
         try {
-            return template.query(sql, TRANSLATION, targetWords);
+            String[] targetWordsArray = targetWords.toArray(new String[0]);
+            return template.query(sql, TRANSLATION, (Object[]) targetWordsArray);
         } catch (DataAccessException e) {
             throw new RepositoryException(e.getCause());
         }
