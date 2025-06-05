@@ -26,10 +26,10 @@ public class UserProfileRepository {
 
     public Optional<UserProfile> findByUsername(@NonNull String username) {
         String sql = """
-                SELECT user_profiles.username, user_profiles.password, user_profiles.email, user_profile_settings.source_lang, user_profile_settings.target_lang
-                FROM user_profiles, user_profile_settings
-                LEFT JOIN user_profiles.settings_id ON user_profile_settings.settings_id
-                WHERE username=?
+                SELECT p.username, p.password, p.email, s.source_lang, s.target_lang
+                FROM dictionary.user_profiles p
+                LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
+                WHERE p.username=?
                 """;
         try {
             UserProfile result = template.queryForObject(sql, USER_PROFILE, username);
