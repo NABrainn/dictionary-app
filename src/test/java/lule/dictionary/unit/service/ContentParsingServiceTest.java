@@ -1,47 +1,51 @@
 package lule.dictionary.unit.service;
 
-import lule.dictionary.service.ContentParsingService;
+import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.service.DocumentParsingService;
+import lule.dictionary.service.StringParsingService;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.springframework.web.client.RestClient;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.io.IOException;
+import java.util.List;
 
+@Slf4j
 public class ContentParsingServiceTest {
 
     @Mock
-    private ContentParsingService documentParser;
+    private DocumentParsingService documentParser;
 
     @Mock
-    private RestClient restClient;
+    private StringParsingService stringParsingService = new StringParsingService();
 
     @BeforeEach
     void setup() {
-        this.documentParser = new ContentParsingService(restClient);
+        this.documentParser = new DocumentParsingService(stringParsingService);
+    }
+    @Test
+    void shouldFetchContent() {
+        try {
+            Document content = documentParser.fetchContent("https://yr.no/nb");
+            Elements tags = content.select("a, span, div");
+            log.info(tags.text());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    void shouldRemoveSpecialCharsAndDigits() {
-        String actual1 = documentParser.removeNonLetters("XDDDDDDDDDDDDDDDDd. XDDDDDDDDDDDDDDDD.");
-        assertEquals("XDDDDDDDDDDDDDDDDd  XDDDDDDDDDDDDDDDD ", actual1);
-    }
-    @Test
-    void shouldRemoveIndentations() {
-        String before = documentParser.removeNonLetters("""
-                		<dependency>
-                			<groupId>org.springframework.boot</groupId>
-                			<artifactId>spring-boot-starter-data-jpa</artifactId>
-                		</dependency>
-                		<dependency>
-                			<groupId>org.springframework.boot</groupId>
-                			<artifactId>spring-boot-starter-web</artifactId>
-                		</dependency>
-                		<dependency>
-                			<groupId>org
-                """);
-        String actual2 = documentParser.normalizeSpaces(before);
-        assertEquals("dependency groupId org springframework boot groupId artifactId spring boot starter data jpa artifactId dependency dependency groupId org springframework boot groupId artifactId spring boot starter web artifactId dependency dependency groupId org", actual2);
+    void shouldFetchAndParseContent() {
+        try {
+            Document content = documentParser.fetchContent("https://yr.no/nb");
+            Elements tags = content.select("a, span, div");
+            List<String> parsed = documentParser.parse(tags.text());
+            log.info("{}", parsed);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
