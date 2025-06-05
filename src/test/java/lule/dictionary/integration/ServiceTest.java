@@ -1,15 +1,12 @@
 package lule.dictionary.integration;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfileCredentials;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
-import lule.dictionary.exception.ResourceNotFoundException;
-import lule.dictionary.exception.ServiceException;
 import lule.dictionary.factory.dto.ImportFactory;
 import lule.dictionary.factory.dto.TranslationFactory;
 import lule.dictionary.factory.dto.UserProfileFactory;
@@ -29,7 +26,6 @@ import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 @SpringBootTest
