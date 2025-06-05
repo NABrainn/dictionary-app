@@ -1,13 +1,12 @@
 @import lule.dictionary.dto.application.interfaces.translation.Translation
 @import lule.dictionary.enumeration.Familiarity
-@import java.util.Map
-@import java.util.stream.Collectors
+@import java.util.SortedMap
 
 @param int importId
 @param int selectedWordId
 @param int currentFamiliarity
 @param Translation translation
-@param Map<Integer, Familiarity> familiarityLevels
+@param SortedMap<Integer, Familiarity> familiarityLevels
 
 <script>
     function exitForm() {
@@ -20,7 +19,7 @@
     </div>
     <span class="font-bold text-lg text-accent">${translation.translationDetails().targetWord()}</span>
     <span class="text-accent">${translation.translationDetails().sourceWord()}</span>
-    @for(var level : familiarityLevels.entrySet().stream().sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey())).collect(Collectors.toList()))
+    @for(var level : familiarityLevels.entrySet())
         @if(level.getKey() == currentFamiliarity)
             <div class="font-bold text-tertiary flex gap-1">
                 <span>${level.getKey()}: </span>
