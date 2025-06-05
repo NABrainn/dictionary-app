@@ -1,13 +1,16 @@
-package lule.dictionary.service.application.dto;
+package lule.dictionary.service.application.entity;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.exception.ServiceException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -21,7 +24,7 @@ public class TranslationService {
         try {
             return translationRepository.addTranslation(translation.translationDetails(), translation.userProfileSettings(), translation.owner(), importId).orElseThrow(() -> new ServiceException("Failed to add new translation"));
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to add new translation");
+            throw new ServiceException("Failed to add new translation", e.getCause());
         }
     }
 
@@ -29,15 +32,16 @@ public class TranslationService {
         try {
             return translationRepository.findByOwner(owner);
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch translations");
+            throw new ServiceException("Failed to fetch translations", e.getCause());
         }
     }
 
     public Translation findByTargetWord(@NonNull String targetWord) throws ServiceException{
         try {
-            return translationRepository.findByTargetWord(targetWord).orElseThrow(() -> new ServiceException("Failed to fetch translation for word " + targetWord));
+            if(targetWord.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "String is not in a valid state");
+            return translationRepository.findByTargetWord(targetWord).orElseThrow(() -> new ResourceNotFoundException("Failed to fetch translation for word " + targetWord));
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch translation for word " + targetWord);
+            throw new ServiceException("Failed to fetch translation for word " + targetWord, e.getCause());
         }
     }
 
@@ -45,7 +49,7 @@ public class TranslationService {
         try {
             translationRepository.updateSourceWord(sourceWord, targetWord).orElseThrow(() -> new ServiceException("Failed to update source word for " + targetWord));
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to update source word for " + targetWord);
+            throw new ServiceException("Failed to update source word for " + targetWord, e.getCause());
         }
     }
 
@@ -53,7 +57,7 @@ public class TranslationService {
         try {
             translationRepository.updateFamiliarity(targetWord, familiarity).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + targetWord));
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to update familiarity for " + targetWord);
+            throw new ServiceException("Failed to update familiarity", e.getCause());
         }
     }
 
@@ -61,7 +65,17 @@ public class TranslationService {
         try {
             return translationRepository.findByTargetWords(targetWords);
         } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch translations");
+            throw new ServiceException("Failed to fetch translations", e.getCause());
         }
+    }
+
+    public int getFamiliarityAsInt(Familiarity familiarity) {
+        return switch (familiarity) {
+            case UNKNOWN -> 1;
+            case RECOGNIZED -> 2;
+            case FAMILIAR -> 3;
+            case KNOWN -> 4;
+            case IGNORED -> 5;
+        };
     }
 }
