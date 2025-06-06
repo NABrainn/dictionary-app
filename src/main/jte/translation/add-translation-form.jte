@@ -1,12 +1,6 @@
-@import lule.dictionary.dto.application.interfaces.translation.Translation
-@import lule.dictionary.enumeration.Familiarity
-@import java.util.SortedMap
+@import lule.dictionary.controller.translation.dto.TranslationModel
 
-@param int importId
-@param int selectedWordId
-@param int currentFamiliarity
-@param Translation translation
-@param SortedMap<Integer, Familiarity> familiarityLevels
+@param TranslationModel translationModel 
 
 <script>
     function exitForm() {
@@ -17,21 +11,21 @@
     <div class="flex justify-end">
         <span class="text-red-400 font-bold text-2xl cursor-pointer" onclick="exitForm()">❌</span>
     </div>
-    <span class="font-bold text-lg text-accent">${translation.translationDetails().targetWord()}</span>
-    <span class="text-accent">${translation.translationDetails().sourceWord()}</span>
-    @for(var level : familiarityLevels.entrySet())
+    <span class="font-bold text-lg text-accent">${translationModel.translation().translationDetails().targetWord()}</span>
+    <span class="text-accent">${translationModel.translation().translationDetails().sourceWord()}</span>
+    @for(var level : translationModel.familiarityLevels().entrySet())
         <div class="hover:text-accent font-bold text-primary flex gap-1 cursor-pointer"
              hx-post="/translations/new"
              hx-vals='
              {
-                "sourceWord": "${translation.translationDetails().sourceWord()}",
-                "targetWord": "${translation.translationDetails().targetWord()}",
+                "sourceWord": "${translationModel.translation().translationDetails().sourceWord()}",
+                "targetWord": "${translationModel.translation().translationDetails().targetWord()}",
                 "familiarity": "${level.getValue().name()}",
-                "sourceLanguage": "${translation.userProfileSettings().sourceLanguage().name()}",
-                "targetLanguage": "${translation.userProfileSettings().targetLanguage().name()}",
-                "owner": "${translation.owner()}",
-                "importId": "${importId}",
-                "selectedWordId": "${selectedWordId}"
+                "sourceLanguage": "${translationModel.translation().userProfileSettings().sourceLanguage().name()}",
+                "targetLanguage": "${translationModel.translation().userProfileSettings().targetLanguage().name()}",
+                "owner": "${translationModel.translation().owner()}",
+                "importId": "${translationModel.importId()}",
+                "selectedWordId": "${translationModel.selectedWordId()}"
              }'
              hx-target="#page-content"
              hx-swap="outerHTML">
