@@ -1,10 +1,9 @@
-@import lule.dictionary.service.application.ImportData
+@import lule.dictionary.controller.imports.dto.DictionaryModel
 
-@param ImportData data
-@param int selectedWordId
+@param DictionaryModel dictionaryModel
 
 @template.layout.base(content = @`
-    @template.importPageContent(data = data, selectedWordId = selectedWordId)
+    @template.importPageContent(dictionaryModel = dictionaryModel)
     <script>
         class ImportPage extends HTMLElement {
             static observedAttributes = ['selected-word-id'];
@@ -68,6 +67,6 @@
             customElements.define('import-page', ImportPage);
         }
     </script>
-    <import-page selectedWordId="${selectedWordId}"></import-page>
+    <import-page selectedWordId="${dictionaryModel.selectedWordId()}"></import-page>
 `)
 

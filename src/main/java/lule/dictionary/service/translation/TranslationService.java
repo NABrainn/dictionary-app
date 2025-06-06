@@ -6,6 +6,7 @@ import lule.dictionary.controller.translation.dto.AddTranslationRequest;
 import lule.dictionary.controller.translation.dto.TranslationModel;
 import lule.dictionary.controller.translation.dto.FindTranslationRequest;
 import lule.dictionary.controller.translation.dto.UpdateFamiliarityRequest;
+import lule.dictionary.dto.application.interfaces.imports.Import;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
@@ -14,12 +15,16 @@ import lule.dictionary.exception.ServiceException;
 import lule.dictionary.factory.dto.TranslationFactory;
 import lule.dictionary.factory.dto.UserProfileFactory;
 import lule.dictionary.repository.TranslationRepository;
+import lule.dictionary.service.DocumentParsingService;
+import lule.dictionary.service.StringParsingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +32,8 @@ public class TranslationService {
 
     private final TranslationRepository translationRepository;
     private final TranslationUtilService translationUtilService;
+    private final StringParsingService stringParsingService;
+    private final DocumentParsingService documentParsingService;
 
     public int add(Model model, @NonNull AddTranslationRequest addTranslationRequest) throws ServiceException {
         try {
@@ -139,9 +146,23 @@ public class TranslationService {
 
     public List<Translation> findByTargetWords(List<String> targetWords) {
         try {
-            return translationRepository.findByTargetWords(targetWords);
+            List<String> validTargetWords = targetWords.stream()
+                    .map(word -> stringParsingService.removeNonLetters(word).trim().toLowerCase())
+                    .filter(word -> !word.isEmpty())
+                    .distinct()
+                    .toList();
+            return translationRepository.findByTargetWords(validTargetWords);
         } catch (RepositoryException e) {
             throw new ServiceException("Failed to fetch translations", e.getCause());
+        }
+    }
+
+    public Map<String, Translation> findTranslationsByImport(@NonNull Import imported) {
+        try {
+            List<String> targetWords = documentParsingService.parse(imported.importDetails().content());
+            return findByTargetWords(targetWords).stream().collect(Collectors.toUnmodifiableMap((key) -> key.translationDetails().targetWord(), (value) -> value));
+        } catch (ServiceException e) {
+            throw new ServiceException(e.getMessage(), e.getCause());
         }
     }
 }
