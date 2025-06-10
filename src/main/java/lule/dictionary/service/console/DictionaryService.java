@@ -2,8 +2,8 @@ package lule.dictionary.service.console;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.controller.imports.dto.DictionaryModel;
-import lule.dictionary.controller.imports.dto.SaveTranslationRequest;
+import lule.dictionary.controller.catalog.dto.CatalogModel;
+import lule.dictionary.controller.catalog.dto.SaveTranslationRequest;
 import lule.dictionary.dto.application.interfaces.imports.Import;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.exception.ServiceException;
@@ -29,7 +29,7 @@ public class DictionaryService {
             String title = imported.importDetails().title();
             List<String> content = stringParsingService.toWhitespaceSplit(imported.importDetails().content());
             Map<String, Translation> translations = translationService.findTranslationsByImport(imported);
-            model.addAttribute("dictionaryModel", new DictionaryModel(title, content, translations, saveTranslationRequest.importId(), saveTranslationRequest.wordId()));
+            model.addAttribute("dictionaryModel", new CatalogModel(title, content, translations, saveTranslationRequest.importId(), saveTranslationRequest.wordId()));
         } catch (ServiceException e) {
             throw new ServiceException(e.getMessage(), e.getCause());
         }
