@@ -32,8 +32,23 @@ public class UserProfileRepository {
                 WHERE p.username=?
                 """;
         try {
-            UserProfile result = template.queryForObject(sql, USER_PROFILE, username);
-            return Optional.ofNullable(result);
+            List<UserProfile> result = template.query(sql, USER_PROFILE, username);
+            return result.stream().findFirst();
+        } catch (DataAccessException e) {
+            throw new RepositoryException(e.getMessage(), e.getCause());
+        }
+    }
+
+    public Optional<UserProfile> findByUsernameOrEmail(@NonNull String username, @NonNull String email) {
+        String sql = """
+                SELECT p.username, p.password, p.email, s.source_lang, s.target_lang
+                FROM dictionary.user_profiles p
+                LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
+                WHERE p.username=? OR p.email=?
+                """;
+        try {
+            List<UserProfile> result = template.query(sql, USER_PROFILE, username, email);
+            return result.stream().findFirst();
         } catch (DataAccessException e) {
             throw new RepositoryException(e.getMessage(), e.getCause());
         }
