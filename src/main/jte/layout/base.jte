@@ -12,9 +12,8 @@
         <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
         <title>here is the required title element</title>
     </head>
-    <body class="bg-neutral min-h-screen">
-        <main class="bg-primary grow-1 flex flex-col gap-8 p-4 min-h-screen p-20" id="main">
-            ${content}
-        </main>
+    <body class="bg-primary grow-1 flex flex-col gap-8 min-h-screen" id="main">
+        @template.navbar()
+        ${content}
     </body>
 </html>
