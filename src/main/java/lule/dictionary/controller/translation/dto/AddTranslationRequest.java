@@ -1,7 +1,18 @@
 package lule.dictionary.controller.translation.dto;
 
+import lombok.Builder;
+import lombok.NonNull;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 
-public record AddTranslationRequest(String sourceWord, String targetWord, Familiarity familiarity, Language sourceLanguage, Language targetLanguage, String owner, int importId, int selectedWordId) {
+@Builder
+public record AddTranslationRequest(
+        @NonNull String sourceWord,
+        @NonNull String targetWord,
+        @NonNull Familiarity familiarity,
+        @NonNull Language sourceLanguage,
+        @NonNull Language targetLanguage,
+        @NonNull String owner,
+        int importId,
+        int selectedWordId) {
 }
