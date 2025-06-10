@@ -1,9 +1,9 @@
-package lule.dictionary.controller.imports;
+package lule.dictionary.controller.catalog;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.controller.imports.dto.AddImportRequest;
-import lule.dictionary.controller.imports.dto.SaveTranslationRequest;
+import lule.dictionary.controller.catalog.dto.AddImportRequest;
+import lule.dictionary.controller.catalog.dto.SaveTranslationRequest;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
 import lule.dictionary.service.imports.ImportService;
 import lule.dictionary.service.userProfile.UserProfileService;
@@ -16,13 +16,18 @@ import java.io.IOException;
 
 @Slf4j
 @Controller
-@RequestMapping({"/dictionary", "/dictionary/"})
+@RequestMapping({"/catalog", "/catalog/"})
 @RequiredArgsConstructor
-public class DictionaryController {
+public class CatalogController {
 
     private final ImportService importService;
     private final UserProfileService userProfileService;
     private final DictionaryService dictionaryService;
+
+    @GetMapping({"", "/"})
+    public String index() {
+        return "catalog";
+    }
 
     @GetMapping({"/page", "page"})
     public String findAll(Model model) throws IOException {
