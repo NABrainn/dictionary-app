@@ -47,7 +47,7 @@ public class AuthService {
                     )
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            response.addCookie(new Cookie("jwt", jwtService.generateTokenPair(authentication).accessToken()));
+            response.addCookie(CookieFactory.createJwtCookie("jwt", jwtService.generateTokenPair(authentication)));
             model.addAttribute("result", new ServiceResult(false, ""));
         } catch (AuthenticationException | ResourceNotFoundException | ValidationException e) {
             model.addAttribute("result", new ServiceResult(true, e.getMessage()));
