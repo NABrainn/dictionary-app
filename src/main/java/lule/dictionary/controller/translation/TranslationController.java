@@ -44,7 +44,7 @@ public class TranslationController {
                                 @RequestParam("importId") int importId,
                                 @RequestParam("selectedWordId") int selectedWordId) {
         translationService.add(model, new AddTranslationRequest(sourceWord, targetWord, familiarity, sourceLanguage, targetLanguage, owner, importId, selectedWordId));
-        return "forward:/dictionary/page/reload";
+        return "forward:/catalog/page/reload";
     }
 
     @PutMapping({"/familiarity/update", "familiarity/update"})
@@ -59,6 +59,6 @@ public class TranslationController {
                                     @RequestParam("selectedWordId") int selectedWordId) {
 
         translationService.updateFamiliarity(model, new UpdateFamiliarityRequest(targetWord, familiarity, sourceWord, sourceLanguage, targetLanguage, owner, importId, selectedWordId));
-        return "forward:/dictionary/page/reload";
+        return "forward:/catalog/page/reload";
     }
 }
