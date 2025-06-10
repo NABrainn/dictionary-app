@@ -1,31 +1,18 @@
 package lule.dictionary.integration;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfileCredentials;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
-import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.enumeration.Language;
-import lule.dictionary.factory.dto.ImportFactory;
-import lule.dictionary.factory.dto.TranslationFactory;
-import lule.dictionary.factory.dto.UserProfileFactory;
-import lule.dictionary.service.application.ImportData;
-import lule.dictionary.service.application.entity.ImportService;
-import lule.dictionary.service.application.entity.TranslationService;
-import lule.dictionary.service.application.entity.UserProfileService;
-import lule.dictionary.service.application.integration.DictionaryService;
+import lule.dictionary.service.imports.ImportService;
+import lule.dictionary.service.userProfile.UserProfileService;
+import lule.dictionary.service.console.DictionaryService;
+import lule.dictionary.service.translation.TranslationService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
-
-import java.io.IOException;
 
 @Slf4j
 @SpringBootTest
@@ -66,59 +53,5 @@ public class ServiceTest {
         postgres.stop();
     }
 
-    @Test
-    void testScenario1() throws IOException {
-        UserProfile userProfile = testLoadUserProfile();
-        UserProfileSettings userProfileSettings = userProfile.userProfileSettings();
-        String username = userProfile.userProfileCredentials().username();
-        int importId = dictionaryService.addImport("Am importing a content thing", "yr.no", userProfileSettings, username);
-        ImportData importData = dictionaryService.loadImport(importId);
-        log.info("""
-                {}
-                {}
-                """, importData.title(), importData.content());
-    }
 
-    private UserProfile testLoadUserProfile() {
-        UserProfileCredentials credentials = UserProfileFactory.createCredentials(
-                "username",
-                "email@email.com",
-                "password"
-        );
-        UserProfileSettings settings = UserProfileFactory.createSettings(
-                Language.EN,
-                Language.NO
-        );
-        return userProfileService.addUserProfile(UserProfileFactory.createUserProfile(credentials, settings));
-    }
-
-    private int testAddImport(UserProfileSettings userProfileSettings, String owner) {
-        int addedImport = importService.addImport(ImportFactory.createImport(
-                ImportFactory.createImportDetails(
-                        "title",
-                        "content",
-                        "url"
-                ),
-                userProfileSettings,
-                owner));
-        return addedImport;
-    }
-
-    private void testAddMultipleTranslations(UserProfileSettings userProfileSettings, String owner, int importId) {
-        for(int i = 1; i <= 5; i++) {
-            TranslationDetails translationDetails = TranslationFactory.createTranslationDetails(
-                    "one".repeat(i),
-                    "en".repeat(i),
-                    Familiarity.UNKNOWN
-            );
-            translationService.add(
-                    TranslationFactory.createTranslation(
-                            translationDetails,
-                            userProfileSettings,
-                            owner
-                    ),
-                    importId
-            );
-        }
-    }
 }
