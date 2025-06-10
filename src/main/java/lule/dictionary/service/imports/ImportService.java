@@ -2,15 +2,15 @@ package lule.dictionary.service.imports;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.controller.imports.dto.AddImportRequest;
+import lule.dictionary.controller.catalog.dto.AddImportRequest;
 import lule.dictionary.dto.application.interfaces.imports.Import;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.factory.dto.ImportFactory;
 import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.service.DocumentParsingService;
-import lule.dictionary.service.StringParsingService;
-import lule.dictionary.validation.implementation.UrlValidationStrategy;
+import lule.dictionary.service.auth.validator.exception.ValidationStrategyException;
+import lule.dictionary.service.imports.validator.UrlValidator;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -23,16 +23,15 @@ import java.util.List;
 public class ImportService {
 
     private final ImportRepository importRepository;
-    private final UrlValidationStrategy urlValidationStrategy;
+    private final UrlValidator urlValidator;
     private final DocumentParsingService contentParser;
-    private final StringParsingService stringParsingService;
 
     public int addImport(@NonNull Model model, AddImportRequest addImportRequest) throws ServiceException {
         try {
             if(!addImportRequest.url().startsWith("https://") || !addImportRequest.url().startsWith("http://")) {
                 String urlWithHttps = "https://".concat(addImportRequest.url());
-                boolean result = urlValidationStrategy.validate(urlWithHttps);
-                if (result) {
+                try {
+                    urlValidator.validate(urlWithHttps);
                     Document document = contentParser.fetchContent(urlWithHttps);
                     String content = document.text();
                     int importId =  importRepository.addImport(ImportFactory.createImportDetails(
@@ -41,6 +40,8 @@ public class ImportService {
                             addImportRequest.url()
                     ), addImportRequest.userProfileSettings(), addImportRequest.owner()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
                     return importId;
+                } catch (ValidationStrategyException e) {
+                    throw new ServiceException(e.getMessage());
                 }
             }
             throw new ServiceException("Invalid url");
