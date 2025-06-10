@@ -1,7 +1,18 @@
 package lule.dictionary.controller.translation.dto;
 
+import lombok.Builder;
+import lombok.NonNull;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 
-public record UpdateFamiliarityRequest(String targetWord, Familiarity familiarity, String sourceWord, Language sourceLanguage, Language targetLanguage, String owner, int importId, int selectedWordId) {
+@Builder
+public record UpdateFamiliarityRequest(
+        @NonNull String targetWord,
+        @NonNull Familiarity familiarity,
+        @NonNull String sourceWord,
+        @NonNull Language sourceLanguage,
+        @NonNull Language targetLanguage,
+        @NonNull String owner,
+        int importId,
+        int selectedWordId) {
 }
