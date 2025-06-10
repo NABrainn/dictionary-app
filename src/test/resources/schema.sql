@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS dictionary.user_profile_settings (
 CREATE TABLE IF NOT EXISTS dictionary.user_profiles (
     username        				VARCHAR(50) NOT NULL UNIQUE,
     email           				VARCHAR(50) NOT NULL PRIMARY KEY,
-    password        			    VARCHAR(50) NOT NULL,
+    password        			    VARCHAR(500) NOT NULL,
 	settings_id						int REFERENCES dictionary.user_profile_settings(settings_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
