@@ -17,7 +17,7 @@ public record DictionaryUserProfileCredentials(
         @NonNull
         String password) implements UserProfileCredentials {
     public DictionaryUserProfileCredentials {
-        final Pattern INVALID_SPECIAL_DIGITS = Pattern.compile("[%&/^!<>@#$'\"*;`:=\\-_+.,(){}\\[\\]?\\\\1234567890]");
+        final Pattern INVALID_SPECIAL_AND_DIGITS = Pattern.compile("[%&/^!<>@#$'\"*;`:=\\-_+.,(){}\\[\\]?\\\\1234567890]");
         final Pattern VALID_EMAIL = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
 
         EmptyValidator emptyValidator = (String... fields) -> {
@@ -51,10 +51,10 @@ public record DictionaryUserProfileCredentials(
         email = email.trim();
         password = password.trim();
 
-        patternValidator.validate(INVALID_SPECIAL_DIGITS, username);
+        patternValidator.validate(INVALID_SPECIAL_AND_DIGITS, username);
         emailValidator.validate(VALID_EMAIL, email);
-        patternValidator.validate(INVALID_SPECIAL_DIGITS, password);
 
+        minLengthValidator.validate(8, username);
         minLengthValidator.validate(8, password);
 
         maxLengthValidator.validate(50, username);
