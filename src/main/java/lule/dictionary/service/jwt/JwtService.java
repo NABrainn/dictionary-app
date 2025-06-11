@@ -63,7 +63,6 @@ public class JwtService {
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
-
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(principal.getUsername())
                 .issueTime(now)
