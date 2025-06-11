@@ -5,7 +5,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +23,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -29,27 +32,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
-        final String jwt = getJwtFromCookie(request);
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
+        final Optional<String> jwt = getJwtFromCookie(request);
         final Optional<String> optionalUsername;
 
-        if (jwt == null) {
+        if (jwt.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        if (!jwtService.isValidToken(jwt.get())) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (!jwtService.isValidToken(jwt)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        optionalUsername = jwtService.extractUsername(jwt.get());
 
-        optionalUsername = jwtService.extractUsername(jwt);
         if (optionalUsername.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userProfileService.loadUserByUsername(optionalUsername.get());
 
-            if (jwtService.validateTokenForUser(jwt, userDetails)) {
+            if (jwtService.validateTokenForUser(jwt.get(), userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
@@ -65,15 +68,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String getJwtFromCookie(HttpServletRequest request) {
+    private Optional<String> getJwtFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
-            return null;
+            return Optional.empty();
         }
         return Arrays.stream(cookies)
                 .filter(cookie -> JWT_COOKIE_NAME.equals(cookie.getName()))
                 .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 }
