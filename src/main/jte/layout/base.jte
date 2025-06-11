@@ -1,8 +1,10 @@
 @import gg.jte.Content
+@import org.springframework.security.core.Authentication
 
-@param Content content
+@param Content authView = null
+@param Content content = null
+@param Authentication authentication = null
 
-<!DOCTYPE>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -13,7 +15,12 @@
         <title>here is the required title element</title>
     </head>
     <body class="bg-primary grow-1 flex flex-col gap-8 min-h-screen" id="main">
-        @template.navbar()
-        ${content}
+        @template.navbar(authentication = authentication)
+        @if(authView != null)
+            ${authView}
+        @endif
+        @if(content != null && authentication != null)
+            ${content}
+        @endif
     </body>
 </html>
