@@ -17,7 +17,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class DictionaryService {
+public class CatalogService {
 
     private final ImportService importService;
     private final TranslationService translationService;
