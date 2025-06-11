@@ -1,6 +1,5 @@
 package lule.dictionary.controller.auth;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -9,12 +8,14 @@ import lule.dictionary.controller.auth.dto.SignupRequest;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.service.auth.AuthService;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping({"/auth", "/auth/"})
@@ -30,14 +31,14 @@ public class AuthController {
     }
 
     @PostMapping({"/login", "/login/"})
-    public String login(@NonNull Model model,
+    public String login(Model model,
+                        RedirectAttributes redirectAttributes,
                         @RequestParam("login") @NonNull String login,
                         @RequestParam("password") @NonNull String password,
-                        HttpServletRequest request,
                         HttpServletResponse response) {
         try {
-            authService.login(model, response, new LoginRequest(login, password));
-            return "catalog";
+            authService.login(model, redirectAttributes, response, new LoginRequest(login, password));
+            return "redirect:/";
         } catch (ServiceException e) {
             return "auth/login";
         }
@@ -55,9 +56,19 @@ public class AuthController {
                          @RequestParam("password") @NonNull String password) {
         try {
             authService.signup(model, new SignupRequest(login, email, password));
-            return "catalog";
+            return "auth/login";
         } catch (ServiceException e) {
             return "auth/signup";
         }
+    }
+
+    @PostMapping({"/logout", "/logout/"})
+    public String logout(@NonNull Model model, HttpServletResponse response) {
+        authService.logout(
+                model,
+                SecurityContextHolder.getContext().getAuthentication(),
+                response
+        );
+        return "auth/login";
     }
 }
