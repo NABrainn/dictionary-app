@@ -9,9 +9,9 @@ import lule.dictionary.controller.auth.dto.SignupRequest;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
 import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.exception.ServiceException;
-import lule.dictionary.factory.CookieFactory;
 import lule.dictionary.service.auth.validator.AuthValidator;
 import lule.dictionary.service.auth.validator.exception.ValidationException;
+import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
@@ -35,8 +36,9 @@ public class AuthService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final CookieService cookieService;
 
-    public void login(@NonNull Model model, @NonNull HttpServletResponse response, @NonNull LoginRequest loginRequest) {
+    public void login(@NonNull Model model, @NonNull RedirectAttributes redirectAttributes, @NonNull HttpServletResponse response, @NonNull LoginRequest loginRequest) {
         try {
             String login = authValidator.validateUsername(loginRequest.login());
             String password = authValidator.validatePassword(loginRequest.password());
@@ -47,10 +49,11 @@ public class AuthService {
                     )
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            response.addCookie(CookieFactory.createJwtCookie("jwt", jwtService.generateTokenPair(authentication)));
-            model.addAttribute("result", new ServiceResult(false, ""));
+            response.addCookie(cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication)));
+            redirectAttributes.addFlashAttribute("result", new ServiceResult(false, ""));
         } catch (AuthenticationException | ResourceNotFoundException | ValidationException e) {
             model.addAttribute("result", new ServiceResult(true, e.getMessage()));
+            model.addAttribute("authentication", null);
             throw new ServiceException(e.getMessage());
         }
     }
@@ -74,5 +77,18 @@ public class AuthService {
             model.addAttribute("result", new ServiceResult(true, e.getMessage()));
             throw new ServiceException(e.getMessage());
         }
+    }
+
+    public void logout(
+            @NonNull Model model,
+            Authentication authentication,
+            @NonNull HttpServletResponse httpServletResponse) {
+        if (authentication != null) {
+            SecurityContextHolder.clearContext();
+        }
+        Cookie cookie = cookieService.deleteJwtCookie("jwt");
+        httpServletResponse.addCookie(cookie);
+        model.addAttribute("result", new ServiceResult(false, ""));
+        model.addAttribute("authentication", null);
     }
 }
