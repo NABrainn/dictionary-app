@@ -1,6 +1,7 @@
 package lule.dictionary.factory;
 
-import lule.dictionary.dto.application.interfaces.imports.Import;
+import lule.dictionary.dto.application.interfaces.imports.base.Import;
+import lule.dictionary.dto.application.interfaces.imports.base.ImportWithId;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
 import lule.dictionary.enumeration.Familiarity;
@@ -41,6 +42,21 @@ public class RowMapperFactory {
     public static final RowMapper<Integer> TRANSLATION_ID = ((rs, rowNum) -> rs.getInt("translations_id"));
 
 
+    public static final RowMapper<ImportWithId> IMPORT_WITH_ID = ((rs, rowNum) ->
+            ImportFactory.createImportWithId(
+                    ImportFactory.createImportDetails(
+                            rs.getString("title"),
+                            rs.getString("content"),
+                            rs.getString("url")
+                    ),
+                    UserProfileFactory.createSettings(
+                            Language.valueOf(rs.getString("source_lang")),
+                            Language.valueOf(rs.getString("target_lang"))
+                    ),
+                    rs.getString("import_owner"),
+                    rs.getInt("imports_id")
+            )
+    );
     public static final RowMapper<Import> IMPORT = ((rs, rowNum) ->
             ImportFactory.createImport(
                     ImportFactory.createImportDetails(
