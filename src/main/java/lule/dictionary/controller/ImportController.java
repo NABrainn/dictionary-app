@@ -11,10 +11,7 @@ import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping({"/imports", "/imports/"})
@@ -26,26 +23,31 @@ public class ImportController {
     private final ImportPageService importPageService;
 
     @GetMapping({"new", "/new"})
-    public String addImportForm(Authentication authentication, Model model) {
-        model.addAttribute("authentication", authentication);
+    public String addImportForm() {
         return "import-form/import-form";
     }
 
+    @GetMapping({"{importId}", "/{importId}"})
+    public String importPageContent(Model model,
+                                    @PathVariable("importId") String importId) {
+        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(0, Integer.parseInt(importId)));
+        return "import-page/import-page-content";
+    }
+
     @PostMapping({"new", "/new"})
-    public String addImport(Model model,
+    public String addImport(
                             Authentication authentication,
                             @RequestParam("title") String title,
                             @RequestParam("content") String content,
                             @RequestParam("url") String url) {
         UserProfile userProfile = userProfileService.findByUsername(authentication.getName());
-        int importId = importService.addImport(authentication, model, new AddImportRequest(
+        int importId = importService.addImport(new AddImportRequest(
                 title,
                 content,
                 url,
                 UserProfileFactory.createSettings(userProfile.userProfileSettings().sourceLanguage(), userProfile.userProfileSettings().targetLanguage()),
                 authentication.getName()));
-        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(0, importId));
-        return "import-page/import-page-content";
+        return "redirect:/imports/" + importId;
     }
 
     @GetMapping({"by-url-form", "/by-url-form"})
