@@ -9,7 +9,7 @@
     hx-post="/imports/new"
     hx-target="#main"
     hx-swap="innerHTML"
-    hx-push-url="false">
+    hx-push-url="true">
         <input type="hidden" name="${_csrf.getParameterName()}" value="${_csrf.getToken()}">
         <div class="flex flex-col gap-2">
             <label class="text-accent font-bold text-2xl" for="title">Title</label>
