@@ -3,13 +3,11 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.interfaces.imports.Import;
+import lule.dictionary.dto.application.interfaces.imports.base.Import;
 import lule.dictionary.dto.application.interfaces.imports.ImportDetails;
+import lule.dictionary.dto.application.interfaces.imports.base.ImportWithId;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
-import lule.dictionary.enumeration.Language;
-import lule.dictionary.factory.dto.ImportFactory;
 import lule.dictionary.exception.RepositoryException;
-import lule.dictionary.factory.dto.UserProfileFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -18,8 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import static lule.dictionary.factory.RowMapperFactory.IMPORT;
-import static lule.dictionary.factory.RowMapperFactory.IMPORT_ID;
+import static lule.dictionary.factory.RowMapperFactory.*;
 
 @Slf4j
 @Repository
@@ -64,14 +61,14 @@ public class ImportRepository {
         }
     }
 
-    public List<Import> findByOwner(@NonNull String owner) throws RepositoryException {
+    public List<ImportWithId> findByOwner(@NonNull String owner) throws RepositoryException {
         String sql = """
                 SELECT *
                 FROM dictionary.imports
                 WHERE import_owner=?
                 """;
         try {
-            return template.query(sql, IMPORT, owner);
+            return template.query(sql, IMPORT_WITH_ID, owner);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
