@@ -8,7 +8,7 @@
 @param boolean authenticated
 
 @template.layout.base(content = @`
-    <div id="page-content" class="flex flex-col gap-8 max-w-3/5 mx-auto">
+    <div id="page-content" class="flex flex-col gap-8 w-3/5 mx-auto">
         <span class="text-neutral font-bold text-4xl">${importPageModel.title()}</span>
         <div class="leading-10">
             @for(var word : ForSupport.of(importPageModel.content()))
