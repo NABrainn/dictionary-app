@@ -1,6 +1,13 @@
 @param boolean authenticated
 <nav class="flex justify-between bg-secondary p-4">
-    <div class="text-lg text-neutral">Logo</div>
+    <div class="text-lg text-neutral cursor-pointer">
+        <a
+        hx-get="/"
+        hx-swap="innerHTML"
+        hx-target="#main"
+        hx-push-url="true"
+        class="text-lg">Logo</a>
+    </div>
     @if(authenticated)
         <a
         class="text-lg text-neutral underline cursor-pointer"
