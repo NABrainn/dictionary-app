@@ -1,6 +1,6 @@
 @import lule.dictionary.controller.translation.dto.TranslationModel
 
-@param TranslationModel translationModel 
+@param TranslationModel translationModel
 
 <script>
     function exitForm() {
@@ -23,11 +23,10 @@
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${translationModel.translation().userProfileSettings().sourceLanguage().name()}",
                 "targetLanguage": "${translationModel.translation().userProfileSettings().targetLanguage().name()}",
-                "owner": "${translationModel.translation().owner()}",
                 "importId": "${translationModel.importId()}",
                 "selectedWordId": "${translationModel.selectedWordId()}"
              }'
-             hx-target="#page-content"
+             hx-target="#main"
              hx-swap="outerHTML">
             <span>${level.getKey()}: </span>
             ${level.getValue()}
