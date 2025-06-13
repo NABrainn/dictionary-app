@@ -60,6 +60,7 @@ public class TranslationRepository {
             }
             return OptionalInt.empty();
         } catch (DataAccessException e) {
+            log.info(String.valueOf(e.getCause()));
             throw new RepositoryException(e.getCause());
         }
     }
