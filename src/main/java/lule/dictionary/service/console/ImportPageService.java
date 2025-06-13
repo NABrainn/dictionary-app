@@ -2,7 +2,7 @@ package lule.dictionary.service.console;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.controller.catalog.dto.CatalogModel;
+import lule.dictionary.controller.catalog.dto.ImportPageModel;
 import lule.dictionary.controller.catalog.dto.SaveTranslationRequest;
 import lule.dictionary.dto.application.interfaces.imports.Import;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
@@ -17,19 +17,19 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class CatalogService {
+public class ImportPageService {
 
     private final ImportService importService;
     private final TranslationService translationService;
     private final StringParsingService stringParsingService;
 
-    public void loadImportWithTranslations(@NonNull Model model, SaveTranslationRequest saveTranslationRequest) {
+    public void loadImportWithTranslations(Model model, SaveTranslationRequest saveTranslationRequest) {
         try {
             Import imported = importService.findById(saveTranslationRequest.importId());
             String title = imported.importDetails().title();
             List<String> content = stringParsingService.toWhitespaceSplit(imported.importDetails().content());
             Map<String, Translation> translations = translationService.findTranslationsByImport(imported);
-            model.addAttribute("dictionaryModel", new CatalogModel(title, content, translations, saveTranslationRequest.importId(), saveTranslationRequest.wordId()));
+            model.addAttribute("importPageModel", new ImportPageModel(title, content, translations, saveTranslationRequest.importId(), saveTranslationRequest.wordId()));
         } catch (ServiceException e) {
             throw new ServiceException(e.getMessage(), e.getCause());
         }
