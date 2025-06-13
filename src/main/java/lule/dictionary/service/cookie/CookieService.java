@@ -14,7 +14,7 @@ public class CookieService {
         tokenCookie.setPath("/");
         tokenCookie.setSecure(true);
         tokenCookie.setMaxAge(24 * 60 * 60);
-        tokenCookie.setAttribute("SameSite", "Strict");
+        tokenCookie.setAttribute("SameSite", "Lax");
         return tokenCookie;
     }
 
@@ -24,7 +24,7 @@ public class CookieService {
         tokenCookie.setPath("/");
         tokenCookie.setSecure(true);
         tokenCookie.setMaxAge(0);
-        tokenCookie.setAttribute("SameSite", "Strict");
+        tokenCookie.setAttribute("SameSite", "Lax");
         return tokenCookie;
     }
 }
