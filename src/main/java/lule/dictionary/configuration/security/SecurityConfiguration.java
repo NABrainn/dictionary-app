@@ -1,5 +1,6 @@
 package lule.dictionary.configuration.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
@@ -59,10 +60,22 @@ public class SecurityConfiguration {
                         .csrfTokenRepository(csrfTokenRepository())
                 )
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/htmx.min.js", "/output.css", "/images/icon.png").permitAll()
+                        .requestMatchers("/htmx.min.js", "/output.css", "/images/icon.png", "/error/**").permitAll()
                         .requestMatchers("/auth/login", "/auth/signup").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exceptionHandler -> exceptionHandler
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/auth/login");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            switch (accessDeniedException) {
+                                case MissingCsrfTokenException missingCsrfTokenException -> response.sendError(HttpServletResponse.SC_FORBIDDEN, "Missing CSRF token");
+                                case InvalidCsrfTokenException invalidCsrfTokenException -> response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
+                                default -> response.sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
+                            }
+                        })
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(daoAuthenticationProvider())
                 .build();
