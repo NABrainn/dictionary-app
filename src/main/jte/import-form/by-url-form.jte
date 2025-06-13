@@ -1,4 +1,5 @@
 <div class="flex flex-col" id="content">
+    <input type="hidden" name="content">
     <label for="url"></label>
     <input
     class="
