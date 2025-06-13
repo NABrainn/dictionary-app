@@ -10,6 +10,7 @@
         hx-post="/auth/login"
         hx-target="#main"
         hx-swap="outerHTML"
+        hx-push-url="true"
         class="flex flex-col bg-secondary w-2/5 p-8 mx-auto gap-8">
         <span class="text-accent text-2xl font-bold">Log in</span>
         <div class="flex flex-col">
