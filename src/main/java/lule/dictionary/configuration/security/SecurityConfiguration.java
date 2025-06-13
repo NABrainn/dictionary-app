@@ -1,6 +1,7 @@
 package lule.dictionary.configuration.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.context.annotation.Bean;
@@ -11,14 +12,16 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.*;
+
 
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfiguration {
 
     private final UserProfileService userProfileService;
@@ -27,6 +30,13 @@ public class SecurityConfiguration {
     @Bean
     public BCryptPasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CsrfTokenRepository csrfTokenRepository() {
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        repository.setHeaderName("X-XSRF-TOKEN");
+        return repository;
     }
 
     @Bean
@@ -45,12 +55,14 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(customizer -> customizer
+                        .csrfTokenRepository(csrfTokenRepository())
+                )
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("htmx.min.js", "output.css", "/images/icon.png").permitAll()
+                        .requestMatchers("/htmx.min.js", "/output.css", "/images/icon.png").permitAll()
                         .requestMatchers("/auth/login", "/auth/signup").permitAll()
                         .anyRequest().authenticated())
-                .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(daoAuthenticationProvider())
                 .build();
