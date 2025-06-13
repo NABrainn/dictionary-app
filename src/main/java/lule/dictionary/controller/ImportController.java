@@ -31,7 +31,7 @@ public class ImportController {
     public String importPageContent(Model model,
                                     @PathVariable("importId") String importId) {
         importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(0, Integer.parseInt(importId)));
-        return "import-page/import-page-content";
+        return "import-page/import-page";
     }
 
     @PostMapping({"new", "/new"})
