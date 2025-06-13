@@ -10,9 +10,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public class JteControllerAdvice {
 
     @ModelAttribute
-    public void csrf(Model model, CsrfToken csrf, Authentication authentication) {
+    public void csrf(Model model, CsrfToken csrf) {
         model.addAttribute("_csrf", csrf);
-        if(authentication != null) model.addAttribute("authenticated", authentication.isAuthenticated());
+    }
+
+    @ModelAttribute
+    public void authenticated(Model model, Authentication authentication) {
+        if(authentication != null && authentication.isAuthenticated()) model.addAttribute("authenticated", true);
         else model.addAttribute("authenticated", false);
     }
 }
