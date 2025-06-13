@@ -7,7 +7,6 @@ import lule.dictionary.controller.auth.dto.LoginRequest;
 import lule.dictionary.controller.auth.dto.SignupRequest;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.service.auth.AuthService;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,7 +22,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
 
     private final AuthService authService;
-    private final AuthenticationManager authenticationManager;
 
     @GetMapping({"/login", "/login/"})
     public String loginView() {
