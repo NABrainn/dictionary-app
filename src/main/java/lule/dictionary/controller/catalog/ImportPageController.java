@@ -21,7 +21,7 @@ public class ImportPageController {
 
     @GetMapping({"", "/"})
     public String getImportList(Authentication authentication, Model model) {
-        importService.findByOwner(authentication, model, authentication.getName());
+        importService.findByOwner(model, authentication.getName());
         return "catalog";
     }
 
@@ -30,13 +30,13 @@ public class ImportPageController {
                                @RequestParam("selectedWordId") int wordId,
                                @RequestParam("importId") int importId) {
         importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId));
-        return "import-page/import-page-content";
+        return "import-page/content";
     }
     @PutMapping({"/page/reload", "page/reload"})
     public String reloadOnPut(Model model,
                               @RequestParam("selectedWordId") int wordId,
                               @RequestParam("importId") int importId) {
         importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId));
-        return "import-page/import-page-content";
+        return "import-page/content";
     }
 }
