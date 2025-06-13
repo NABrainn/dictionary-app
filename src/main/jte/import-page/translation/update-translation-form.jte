@@ -15,12 +15,12 @@
     <span class="text-accent">${translationModel.translation().translationDetails().sourceWord()}</span>
     @for(var level : translationModel.familiarityLevels().entrySet())
         @if(level.getKey() == translationModel.currentFamiliarity())
-            <div class="font-bold text-tertiary flex gap-1">
+            <div class="font-bold text-primary flex gap-1">
                 <span>${level.getKey()}: </span>
                 ${level.getValue()}
             </div>
         @else
-            <div class="hover:text-accent font-bold text-primary flex gap-1 cursor-pointer"
+            <div class="hover:text-primary font-bold text-neutral flex gap-1 cursor-pointer"
                  hx-put="/translations/familiarity/update"
                  hx-vals='
                  {
@@ -32,7 +32,7 @@
                     "importId": "${translationModel.importId()}",
                     "selectedWordId": "${translationModel.selectedWordId()}"
                  }'
-                 hx-target="#main"
+                 hx-target="#page-content"
                  hx-swap="outerHTML">
                 <span>${level.getKey()}: </span>
                 ${level.getValue()}
