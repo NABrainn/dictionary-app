@@ -80,15 +80,12 @@ public class AuthService {
     }
 
     public void logout(
-            @NonNull Model model,
-            Authentication authentication,
+            @NonNull RedirectAttributes redirectAttributes,
             @NonNull HttpServletResponse httpServletResponse) {
-        if (authentication != null) {
-            SecurityContextHolder.clearContext();
-        }
+        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
         Cookie cookie = cookieService.deleteJwtCookie("jwt");
         httpServletResponse.addCookie(cookie);
-        model.addAttribute("result", new ServiceResult(false, ""));
-        model.addAttribute("authentication", null);
+        redirectAttributes.addFlashAttribute("result", new ServiceResult(false, ""));
     }
 }
