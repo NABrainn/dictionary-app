@@ -1,9 +1,13 @@
 @import gg.jte.Content
-@import org.springframework.security.core.Authentication
+@import lule.dictionary.enumeration.Language
+@import org.springframework.security.web.csrf.CsrfToken
 
 @param Content authView = null
 @param Content content = null
-@param Authentication authentication = null
+@param Language sourceLanguage = null
+@param Language targetLanguage = null
+@param boolean authenticated
+@param CsrfToken _csrf 
 
 <html lang="en">
     <head>
@@ -14,12 +18,12 @@
         <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
         <title>here is the required title element</title>
     </head>
-    <body class="bg-primary grow-1 flex flex-col gap-8 min-h-screen" id="main">
-        @template.navbar(authentication = authentication)
+    <body hx-headers='{"X-XSRF-TOKEN": "${_csrf.getToken()}"}' class="bg-primary grow-1 flex flex-col gap-8 min-h-screen" id="main">
+        @template.navbar(authenticated = authenticated)
         @if(authView != null)
             ${authView}
         @endif
-        @if(content != null && authentication != null)
+        @if(content != null)
             ${content}
         @endif
     </body>

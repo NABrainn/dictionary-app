@@ -1,13 +1,16 @@
-@import org.springframework.security.core.Authentication
+@import org.springframework.security.web.csrf.CsrfToken
 
-@param Authentication authentication
+@param boolean authenticated
+@param CsrfToken _csrf 
 
 @template.layout.base(content = @`
     <form
     class="flex flex-col gap-8 bg-secondary w-3/5 mx-auto p-8"
     hx-post="/imports/new"
     hx-target="#main"
-    hx-swap="innerHTML">
+    hx-swap="innerHTML"
+    hx-push-url="false">
+        <input type="hidden" name="${_csrf.getParameterName()}" value="${_csrf.getToken()}">
         <div class="flex flex-col gap-2">
             <label class="text-accent font-bold text-2xl" for="title">Title</label>
             <input
@@ -21,7 +24,7 @@
             <span class="text-accent font-bold text-2xl">Content</span>
             <div class="flex justify-center">
                 <button class="
-                border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
+                bg-primary border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
                 type="button"
                 id="url"
                 hx-get="/imports/by-url-form"
@@ -45,8 +48,6 @@
         </div>
     </form>
     <script>
-        document.getElementById('url').classList.add('bg-primary');
-
         if (!customElements.get('button-toggler')) {
             class ButtonToggler extends HTMLElement {
                 constructor() {
@@ -70,4 +71,4 @@
         }
     </script>
     <button-toggler></button-toggler>
-`, authentication = authentication)
+`, authenticated = authenticated, _csrf = _csrf)

@@ -1,10 +1,7 @@
-@import org.springframework.security.core.Authentication
-
-@param Authentication authentication
-
+@param boolean authenticated
 <nav class="flex justify-between bg-secondary p-4">
     <div class="text-lg text-neutral">Logo</div>
-    @if(authentication != null)
+    @if(authenticated)
         <a
         class="text-lg text-neutral underline cursor-pointer"
         hx-post="/auth/logout"
