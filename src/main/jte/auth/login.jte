@@ -1,13 +1,15 @@
 @import lule.dictionary.service.dto.ServiceResult
+@import org.springframework.security.web.csrf.CsrfToken
 
 @param ServiceResult result = null
+@param CsrfToken _csrf
+@param boolean authenticated
 
 @template.layout.base(authView = @`
     <form
         hx-post="/auth/login"
         hx-target="#main"
         hx-swap="outerHTML"
-        hx-push-url="/catalog"
         class="flex flex-col bg-secondary w-2/5 p-8 mx-auto gap-8">
         <span class="text-accent text-2xl font-bold">Log in</span>
         <div class="flex flex-col">
@@ -35,5 +37,5 @@
             hx-push-url="true">Create account</a>
         </div>
     </form>
-`)
+`, authenticated = authenticated,  _csrf = _csrf)
 
