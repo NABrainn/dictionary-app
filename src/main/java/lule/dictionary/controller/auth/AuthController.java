@@ -61,12 +61,11 @@ public class AuthController {
     }
 
     @PostMapping({"/logout", "/logout/"})
-    public String logout(@NonNull Model model, HttpServletResponse response) {
+    public String logout(@NonNull RedirectAttributes redirectAttributes, HttpServletResponse response) {
         authService.logout(
-                model,
-                SecurityContextHolder.getContext().getAuthentication(),
+                redirectAttributes,
                 response
         );
-        return "auth/login";
+        return "redirect:/auth/login";
     }
 }
