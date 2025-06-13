@@ -3,7 +3,6 @@ package lule.dictionary.service.jwt;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.*;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -11,12 +10,21 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.service.jwt.dto.TokenPair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
 
@@ -24,19 +32,27 @@ import java.util.Optional;
 @Slf4j
 public class JwtService {
 
-    @Value("${spring.security.jwt.secret}")
-    private String secret;
+    private final RSAKey privateKey;
+    private final RSAKey publicKey;
 
-    private RSAKey privateKey;
-    private RSAKey publicKey;
-
-    public JwtService() {
+    @Autowired
+    public JwtService(@Value("${spring.security.jwt.public}") String publicKeyArg, @Value("${spring.security.jwt.private}") String privateKeyArg) {
         try {
-            privateKey =  new RSAKeyGenerator(2048)
-                    .keyID(secret)
-                    .generate();
+            byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyArg);
+            PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
+
+            byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyArg);
+            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
+
+            privateKey = new RSAKey.Builder(rsaPublicKey)
+                    .privateKey(rsaPrivateKey)
+                    .keyID("jwt-key-id")
+                    .build();
             publicKey = privateKey.toPublicJWK();
-        } catch (JOSEException e) {
+        } catch ( InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
@@ -74,7 +90,7 @@ public class JwtService {
             JWSSigner signer = new RSASSASigner(privateKey);
             SignedJWT signedJWT = new SignedJWT(
                     new JWSHeader.Builder(JWSAlgorithm.RS256)
-                            .keyID(privateKey.getKeyID())
+                            .keyID("jwt-key-id")
                             .build(),
                     claimsSet
             );
