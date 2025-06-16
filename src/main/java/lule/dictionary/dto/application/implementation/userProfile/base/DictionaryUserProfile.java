@@ -1,11 +1,10 @@
-package lule.dictionary.dto.application.implementation.userProfile;
+package lule.dictionary.dto.application.implementation.userProfile.base;
 
 
 import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfileCredentials;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
+import lule.dictionary.dto.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.enumeration.Language;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,11 +12,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Builder
+@Builder(toBuilder = true)
 public record DictionaryUserProfile(
         @NonNull
-        UserProfileCredentials userProfileCredentials,
-        UserProfileSettings userProfileSettings) implements UserProfile, UserDetails {
+        String username,
+        @NonNull
+        String email,
+        @NonNull
+        String password,
+        @NonNull
+        Language sourceLanguage,
+        @NonNull
+        Language targetLanguage) implements UserProfile, UserDetails {
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
                 return List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -25,12 +31,12 @@ public record DictionaryUserProfile(
 
         @Override
         public String getPassword() {
-                return userProfileCredentials.password();
+                return password();
         }
 
         @Override
         public String getUsername() {
-                return userProfileCredentials.username();
+                return username();
         }
 
         @Override
