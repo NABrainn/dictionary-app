@@ -1,4 +1,4 @@
-package lule.dictionary.controller.auth.dto;
+package lule.dictionary.service.auth.dto;
 
 import lombok.NonNull;
 
