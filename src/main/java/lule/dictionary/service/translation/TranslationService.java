@@ -6,7 +6,7 @@ import lule.dictionary.controller.translation.dto.AddTranslationRequest;
 import lule.dictionary.controller.translation.dto.TranslationModel;
 import lule.dictionary.controller.translation.dto.FindTranslationRequest;
 import lule.dictionary.controller.translation.dto.UpdateFamiliarityRequest;
-import lule.dictionary.dto.application.interfaces.imports.Import;
+import lule.dictionary.dto.application.interfaces.imports.base.Import;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class TranslationService {
     private final StringParsingService stringParsingService;
     private final DocumentParsingService documentParsingService;
 
-    public int add(Model model, @NonNull AddTranslationRequest addTranslationRequest) throws ServiceException {
+    public int add(RedirectAttributes redirectAttributes, @NonNull AddTranslationRequest addTranslationRequest) throws ServiceException {
         try {
             String transformedTargetWord = translationUtilService.transformInput(addTranslationRequest.targetWord());
             Translation translationToAdd = TranslationFactory.createTranslation(
@@ -55,7 +56,7 @@ public class TranslationService {
                     translationToAdd.userProfileSettings(),
                     translationToAdd.owner(),
                     addTranslationRequest.importId()).orElseThrow(() -> new ServiceException("Failed to add new translation"));
-            model.addAttribute("translationModel", new TranslationModel(
+            redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
                     addTranslationRequest.importId(),
                     translationUtilService.getFamiliarityAsInt(addTranslationRequest.familiarity()),
                     translationToAdd,
@@ -127,12 +128,11 @@ public class TranslationService {
         }
     }
 
-    public void updateFamiliarity(Model model, UpdateFamiliarityRequest updateFamiliarityRequest) throws ServiceException{
+    public void updateFamiliarity(RedirectAttributes redirectAttributes, UpdateFamiliarityRequest updateFamiliarityRequest) throws ServiceException{
         try {
             String transformedTargetWord = translationUtilService.transformInput(updateFamiliarityRequest.targetWord());
             Translation translation = translationRepository.updateFamiliarity(transformedTargetWord, updateFamiliarityRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
-
-            model.addAttribute("translationModel", new TranslationModel(
+            redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
                     updateFamiliarityRequest.importId(),
                     translationUtilService.getFamiliarityAsInt(translation.translationDetails().familiarity()),
                     translation,
