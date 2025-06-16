@@ -2,10 +2,9 @@ package lule.dictionary.service.translation;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.service.translation.dto.AddTranslationRequest;
+import lule.dictionary.service.translation.dto.MutateTranslationRequest;
 import lule.dictionary.service.translation.dto.TranslationModel;
 import lule.dictionary.service.translation.dto.FindTranslationRequest;
-import lule.dictionary.service.translation.dto.UpdateFamiliarityRequest;
 import lule.dictionary.dto.application.interfaces.imports.base.Import;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
@@ -36,32 +35,32 @@ public class TranslationService {
     private final StringParsingService stringParsingService;
     private final DocumentParsingService documentParsingService;
 
-    public int add(RedirectAttributes redirectAttributes, @NonNull AddTranslationRequest addTranslationRequest) throws ServiceException {
+    public int add(RedirectAttributes redirectAttributes, @NonNull MutateTranslationRequest mutateTranslationRequest) throws ServiceException {
         try {
-            String transformedTargetWord = translationUtilService.transformInput(addTranslationRequest.targetWord());
+            String transformedTargetWord = translationUtilService.transformInput(mutateTranslationRequest.targetWord());
             Translation translationToAdd = TranslationFactory.createTranslation(
                     TranslationFactory.createTranslationDetails(
-                            addTranslationRequest.sourceWord(),
+                            mutateTranslationRequest.sourceWord(),
                             transformedTargetWord,
-                            addTranslationRequest.familiarity()
+                            mutateTranslationRequest.familiarity()
                     ),
                     UserProfileFactory.createSettings(
-                            addTranslationRequest.sourceLanguage(),
-                            addTranslationRequest.targetLanguage()
+                            mutateTranslationRequest.sourceLanguage(),
+                            mutateTranslationRequest.targetLanguage()
                     ),
-                    addTranslationRequest.owner()
+                    mutateTranslationRequest.owner()
             );
             int translationId = translationRepository.addTranslation(
                     translationToAdd.translationDetails(),
                     translationToAdd.userProfileSettings(),
                     translationToAdd.owner(),
-                    addTranslationRequest.importId()).orElseThrow(() -> new ServiceException("Failed to add new translation"));
+                    mutateTranslationRequest.importId()).orElseThrow(() -> new ServiceException("Failed to add new translation"));
             redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
-                    addTranslationRequest.importId(),
-                    translationUtilService.getFamiliarityAsInt(addTranslationRequest.familiarity()),
+                    mutateTranslationRequest.importId(),
+                    translationUtilService.getFamiliarityAsInt(mutateTranslationRequest.familiarity()),
                     translationToAdd,
                     translationUtilService.getSortedFamiliarityMap(),
-                    addTranslationRequest.selectedWordId()
+                    mutateTranslationRequest.selectedWordId()
             ));
             return translationId;
         } catch (RepositoryException e) {
@@ -104,7 +103,7 @@ public class TranslationService {
                             Language.EN,
                             Language.NO
                     ),
-                    "username"
+                    "login"
             );
             model.addAttribute("translationModel", new TranslationModel(
                     translationRequest.importId(),
@@ -128,16 +127,16 @@ public class TranslationService {
         }
     }
 
-    public void updateFamiliarity(RedirectAttributes redirectAttributes, UpdateFamiliarityRequest updateFamiliarityRequest) throws ServiceException{
+    public void updateFamiliarity(RedirectAttributes redirectAttributes, MutateTranslationRequest mutateTranslationRequest) throws ServiceException{
         try {
-            String transformedTargetWord = translationUtilService.transformInput(updateFamiliarityRequest.targetWord());
-            Translation translation = translationRepository.updateFamiliarity(transformedTargetWord, updateFamiliarityRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
+            String transformedTargetWord = translationUtilService.transformInput(mutateTranslationRequest.targetWord());
+            Translation translation = translationRepository.updateFamiliarity(transformedTargetWord, mutateTranslationRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
             redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
-                    updateFamiliarityRequest.importId(),
+                    mutateTranslationRequest.importId(),
                     translationUtilService.getFamiliarityAsInt(translation.translationDetails().familiarity()),
                     translation,
                     translationUtilService.getSortedFamiliarityMap(),
-                    updateFamiliarityRequest.selectedWordId()
+                    mutateTranslationRequest.selectedWordId()
             ));
         } catch (RepositoryException e) {
             throw new ServiceException("Failed to update familiarity", e.getCause());
