@@ -25,14 +25,7 @@ public class ImportPageController {
         return "catalog";
     }
 
-    @PostMapping({"/page/reload", "page/reload"})
-    public String reloadOnPost(Model model,
-                               @RequestParam("selectedWordId") int wordId,
-                               @RequestParam("importId") int importId) {
-        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId));
-        return "import-page/content";
-    }
-    @PutMapping({"/page/reload", "page/reload"})
+    @GetMapping({"/page/reload", "page/reload"})
     public String reloadOnPut(Model model,
                               @RequestParam("selectedWordId") int wordId,
                               @RequestParam("importId") int importId) {

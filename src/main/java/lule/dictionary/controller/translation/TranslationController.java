@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,21 +36,21 @@ public class TranslationController {
     }
 
     @PostMapping({"/new", "new"})
-    public String newTranslation(Model model,
-                                Authentication authentication,
-                                @RequestParam("sourceWord") String sourceWord,
-                                @RequestParam("targetWord") String targetWord,
-                                @RequestParam("familiarity") Familiarity familiarity,
-                                @RequestParam("sourceLanguage") Language sourceLanguage,
-                                @RequestParam("targetLanguage") Language targetLanguage,
-                                @RequestParam("importId") int importId,
-                                @RequestParam("selectedWordId") int selectedWordId) {
-        translationService.add(model, new AddTranslationRequest(sourceWord, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
-        return "forward:/catalog/page/reload";
+    public String newTranslation(RedirectAttributes redirectAttributes,
+                                 Authentication authentication,
+                                 @RequestParam("sourceWord") String sourceWord,
+                                 @RequestParam("targetWord") String targetWord,
+                                 @RequestParam("familiarity") Familiarity familiarity,
+                                 @RequestParam("sourceLanguage") Language sourceLanguage,
+                                 @RequestParam("targetLanguage") Language targetLanguage,
+                                 @RequestParam("importId") int importId,
+                                 @RequestParam("selectedWordId") int selectedWordId) {
+        translationService.add(redirectAttributes, new AddTranslationRequest(sourceWord, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
+        return "redirect:/catalog/page/reload";
     }
 
     @PutMapping({"/familiarity/update", "familiarity/update"})
-    public String updateFamiliarity(Model model,
+    public String updateFamiliarity(RedirectAttributes redirectAttributes,
                                     Authentication authentication,
                                     @RequestParam("sourceWord") String sourceWord,
                                     @RequestParam("targetWord") String targetWord,
@@ -58,7 +59,7 @@ public class TranslationController {
                                     @RequestParam("targetLanguage") Language targetLanguage,
                                     @RequestParam("importId") int importId,
                                     @RequestParam("selectedWordId") int selectedWordId) {
-        translationService.updateFamiliarity(model, new UpdateFamiliarityRequest(targetWord, familiarity, sourceWord, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
-        return "forward:/catalog/page/reload";
+        translationService.updateFamiliarity(redirectAttributes, new UpdateFamiliarityRequest(targetWord, familiarity, sourceWord, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
+        return "redirect:/catalog/page/reload";
     }
 }
