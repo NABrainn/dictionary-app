@@ -1,7 +1,7 @@
 //package lule.dictionary.service.console.command;
 //
 //import lombok.RequiredArgsConstructor;
-//import lule.dictionary.dto.application.implementation.translation.DictionaryTranslation;
+//import lule.dictionary.dto.application.implementation.translation.base.DictionaryTranslation;
 //import lule.dictionary.dto.application.interfaces.translation.Translation;
 //import lule.dictionary.enumeration.Familiarity;
 //import lule.dictionary.functionalInterface.Printer;
@@ -18,8 +18,8 @@
 //    private final Scanner scanner = new Scanner(System.in);
 //    private final TranslationService translationService;
 //
-//    public void fetchTranslations(String username) {
-//        for(Translation translation : translationService.findAllByOwner(username)) {
+//    public void fetchTranslations(String login) {
+//        for(Translation translation : translationService.findAllByOwner(login)) {
 //            System.out.println("Word: " + translation.translationDetails().targetWord());
 //            System.out.print("Meaning: ");
 //            System.out.println(translation.translationDetails().sourceWord());

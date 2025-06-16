@@ -1,9 +1,9 @@
 //package lule.dictionary.service.console.command;
 //
 //import lombok.RequiredArgsConstructor;
-//import lule.dictionary.dto.application.interfaces.imports.Import;
+//import lule.dictionary.dto.application.interfaces.imports.base.Import;
 //import lule.dictionary.dto.application.interfaces.translation.Translation;
-//import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
+//import lule.dictionary.dto.application.interfaces.userProfile.base.UserProfile;
 //import lule.dictionary.enumeration.Familiarity;
 //import lule.dictionary.enumeration.Language;
 //import lule.dictionary.factory.dto.ImportFactory;
@@ -32,13 +32,13 @@
 //        System.out.print("Title: ");
 //        String title = scanner.nextLine();
 //        System.out.print("Content: ");
-//        String content = scanner.nextLine();
+//        String content.jte = scanner.nextLine();
 //        System.out.print("Url: ");
 //        String url = scanner.nextLine();
 //        if(url.isEmpty()) url = "";
 //        return Map.of(
 //                "title", title,
-//                "content", content,
+//                "content.jte", content.jte,
 //                "url", url
 //        );
 //    }
@@ -47,7 +47,7 @@
 //        Import addedImport = ImportFactory.createImport(
 //                ImportFactory.createImportDetails(
 //                        imported.importDetails().title(),
-//                        imported.importDetails().content(),
+//                        imported.importDetails().content.jte(),
 //                        imported.importDetails().url()
 //                ),
 //                UserProfileFactory.createUserProfile(
@@ -59,8 +59,8 @@
 //        return importService.add(addedImport);
 //    }
 //
-//    public void processContent(String content, Language sourceLanguage, Language targetLanguage, String username, int importId) {
-//        for (String targetWord : parser.wordsAsList(content)) {
+//    public void processContent(String content.jte, Language sourceLanguage, Language targetLanguage, String login, int importId) {
+//        for (String targetWord : parser.wordsAsList(content.jte)) {
 //            System.out.println("Word: " + targetWord);
 //            System.out.print("Meaning: ");
 //            String sourceWord = scanner.nextLine();
