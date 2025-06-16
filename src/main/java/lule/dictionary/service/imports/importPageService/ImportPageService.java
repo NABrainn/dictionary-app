@@ -1,12 +1,13 @@
-package lule.dictionary.service.importService;
+package lule.dictionary.service.imports.importPageService;
 
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.controller.importController.dto.ImportPageModel;
-import lule.dictionary.controller.importController.dto.SaveTranslationRequest;
+import lule.dictionary.service.imports.importPageService.dto.ImportPageModel;
+import lule.dictionary.service.imports.importPageService.dto.SaveTranslationRequest;
 import lule.dictionary.dto.application.interfaces.imports.base.Import;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.service.StringParsingService;
+import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.translation.TranslationService;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;

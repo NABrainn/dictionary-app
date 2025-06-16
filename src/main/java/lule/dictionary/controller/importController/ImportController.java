@@ -2,9 +2,9 @@ package lule.dictionary.controller.importController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.controller.importController.dto.SaveTranslationRequest;
-import lule.dictionary.service.importService.ImportService;
-import lule.dictionary.service.importService.ImportPageService;
+import lule.dictionary.service.imports.importPageService.dto.SaveTranslationRequest;
+import lule.dictionary.service.imports.importService.ImportService;
+import lule.dictionary.service.imports.importPageService.ImportPageService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

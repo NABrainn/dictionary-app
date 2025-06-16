@@ -1,4 +1,4 @@
-package lule.dictionary.controller.importController.dto;
+package lule.dictionary.service.imports.importService.dto;
 
 import lombok.NonNull;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;

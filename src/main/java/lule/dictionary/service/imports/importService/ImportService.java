@@ -1,8 +1,8 @@
-package lule.dictionary.service.importService;
+package lule.dictionary.service.imports.importService;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.controller.importController.dto.AddImportRequest;
+import lule.dictionary.service.imports.importService.dto.AddImportRequest;
 import lule.dictionary.dto.application.interfaces.imports.base.Import;
 import lule.dictionary.dto.application.interfaces.imports.base.ImportWithId;
 import lule.dictionary.exception.ServiceException;
@@ -11,7 +11,7 @@ import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.service.DocumentParsingService;
 import lule.dictionary.service.auth.validator.exception.ValidationStrategyException;
-import lule.dictionary.service.importService.validator.UrlValidator;
+import lule.dictionary.service.imports.validator.UrlValidator;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
