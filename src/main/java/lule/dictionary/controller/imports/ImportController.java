@@ -1,4 +1,4 @@
-package lule.dictionary.controller;
+package lule.dictionary.controller.imports;
 
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
