@@ -1,4 +1,4 @@
-package lule.dictionary.controller.catalog.dto;
+package lule.dictionary.controller.importController.dto;
 
 public record SaveTranslationRequest(int wordId, int importId) {
 }

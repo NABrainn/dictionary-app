@@ -1,12 +1,12 @@
 package lule.dictionary.controller;
 
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.controller.catalog.dto.AddImportRequest;
-import lule.dictionary.controller.catalog.dto.SaveTranslationRequest;
+import lule.dictionary.controller.importController.dto.AddImportRequest;
+import lule.dictionary.controller.importController.dto.SaveTranslationRequest;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
 import lule.dictionary.factory.dto.UserProfileFactory;
-import lule.dictionary.service.console.ImportPageService;
-import lule.dictionary.service.imports.ImportService;
+import lule.dictionary.service.importService.ImportPageService;
+import lule.dictionary.service.importService.ImportService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;

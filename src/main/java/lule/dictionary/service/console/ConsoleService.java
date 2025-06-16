@@ -5,8 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.functionalInterface.Printer;
-import lule.dictionary.service.application.dto.UserProfileService;
-//import lule.dictionary.service.console.command.ConsoleImportService;
+import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.stereotype.Service;
 
 @Slf4j

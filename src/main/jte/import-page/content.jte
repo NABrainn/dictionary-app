@@ -1,4 +1,4 @@
-@import lule.dictionary.controller.catalog.dto.ImportPageModel
+@import lule.dictionary.controller.importController.dto.ImportPageModel
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
 @import org.springframework.security.web.csrf.CsrfToken

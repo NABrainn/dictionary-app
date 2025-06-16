@@ -1,4 +1,4 @@
-package lule.dictionary.controller.catalog.dto;
+package lule.dictionary.controller.importController.dto;
 
 import lombok.NonNull;
 import lule.dictionary.dto.application.interfaces.translation.Translation;

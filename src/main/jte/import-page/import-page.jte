@@ -1,4 +1,4 @@
-@import lule.dictionary.controller.catalog.dto.ImportPageModel
+@import lule.dictionary.controller.importController.dto.ImportPageModel
 @import org.springframework.security.web.csrf.CsrfToken
 
 @param ImportPageModel importPageModel

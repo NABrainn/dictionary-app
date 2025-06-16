@@ -1,9 +1,9 @@
-package lule.dictionary.service.imports.validator;
+package lule.dictionary.service.importService.validator;
 
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.service.auth.validator.exception.ValidationException;
 import lule.dictionary.service.auth.validator.exception.ValidationStrategyException;
-import lule.dictionary.service.imports.validator.strategy.ImportUrlValidationStrategy;
+import lule.dictionary.service.importService.validator.strategy.ImportUrlValidationStrategy;
 import org.springframework.stereotype.Service;
 
 @Service

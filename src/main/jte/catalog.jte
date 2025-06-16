@@ -1,4 +1,3 @@
-@import lule.dictionary.dto.application.implementation.imports.base.DictionaryImport
 @import lule.dictionary.dto.application.interfaces.imports.base.ImportWithId
 @import lule.dictionary.enumeration.Language
 @import org.springframework.security.web.csrf.CsrfToken

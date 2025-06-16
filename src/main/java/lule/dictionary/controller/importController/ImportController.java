@@ -1,10 +1,10 @@
-package lule.dictionary.controller.catalog;
+package lule.dictionary.controller.importController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.controller.catalog.dto.SaveTranslationRequest;
-import lule.dictionary.service.imports.ImportService;
-import lule.dictionary.service.console.ImportPageService;
+import lule.dictionary.controller.importController.dto.SaveTranslationRequest;
+import lule.dictionary.service.importService.ImportService;
+import lule.dictionary.service.importService.ImportPageService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping({"/catalog", "/catalog/"})
 @RequiredArgsConstructor
-public class ImportPageController {
+public class ImportController {
 
     private final ImportService importService;
     private final ImportPageService importPageService;
@@ -26,9 +26,9 @@ public class ImportPageController {
     }
 
     @GetMapping({"/page/reload", "page/reload"})
-    public String reloadOnPut(Model model,
-                              @RequestParam("selectedWordId") int wordId,
-                              @RequestParam("importId") int importId) {
+    public String reloadImportPage(Model model,
+                                   @RequestParam("selectedWordId") int wordId,
+                                   @RequestParam("importId") int importId) {
         importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId));
         return "import-page/content";
     }
