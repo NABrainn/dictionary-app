@@ -60,7 +60,7 @@ public class AuthService {
 
     public void signup(@NonNull Model model, @NonNull SignupRequest signupRequest) {
         try {
-            String login = authValidator.validateUsername(signupRequest.username());
+            String login = authValidator.validateUsername(signupRequest.login());
             String email = authValidator.validateEmail(signupRequest.email());
             String password = authValidator.validatePassword(signupRequest.password());
 
