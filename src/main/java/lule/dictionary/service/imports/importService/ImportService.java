@@ -2,11 +2,11 @@ package lule.dictionary.service.imports.importService;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.dto.application.implementation.imports.base.DictionaryImport;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
 import lule.dictionary.dto.application.interfaces.imports.base.Import;
-import lule.dictionary.dto.application.interfaces.imports.base.ImportWithId;
+import lule.dictionary.dto.application.interfaces.imports.ImportWithId;
 import lule.dictionary.exception.ServiceException;
-import lule.dictionary.factory.dto.ImportFactory;
 import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.service.DocumentParsingService;
@@ -36,19 +36,25 @@ public class ImportService {
                         urlValidator.validate(urlWithHttps);
                         Document document = contentParser.fetchContent(urlWithHttps);
                         String content = document.text();
-                        int importId =  importRepository.addImport(ImportFactory.createImportDetails(
-                                addImportRequest.title(),
-                                content,
-                                addImportRequest.url()
-                        ), addImportRequest.userProfileSettings(), addImportRequest.owner()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
+                        int importId = importRepository.addImport(DictionaryImport.builder()
+                                    .title(addImportRequest.title())
+                                    .content(content)
+                                    .url(addImportRequest.url())
+                                    .sourceLanguage(addImportRequest.sourceLanguage())
+                                    .targetLanguage(addImportRequest.targetLanguage())
+                                    .owner(addImportRequest.owner())
+                                    .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
                         return importId;
                     }
                     else {
-                        int importId =  importRepository.addImport(ImportFactory.createImportDetails(
-                                addImportRequest.title(),
-                                addImportRequest.content(),
-                                addImportRequest.url()
-                        ), addImportRequest.userProfileSettings(), addImportRequest.owner()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
+                        int importId = importRepository.addImport(DictionaryImport.builder()
+                                .title(addImportRequest.title())
+                                .content(addImportRequest.content())
+                                .url(addImportRequest.url())
+                                .sourceLanguage(addImportRequest.sourceLanguage())
+                                .targetLanguage(addImportRequest.targetLanguage())
+                                .owner(addImportRequest.owner())
+                                .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
                         return importId;
                     }
                 } catch (ValidationStrategyException e) {

@@ -3,8 +3,7 @@ package lule.dictionary.controller.imports;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
 import lule.dictionary.service.imports.importPageService.dto.SaveTranslationRequest;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
-import lule.dictionary.factory.dto.UserProfileFactory;
+import lule.dictionary.dto.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.imports.importPageService.ImportPageService;
 import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.userProfile.UserProfileService;
@@ -41,12 +40,14 @@ public class ImportController {
                             @RequestParam("content") String content,
                             @RequestParam("url") String url) {
         UserProfile userProfile = userProfileService.findByUsername(authentication.getName());
-        int importId = importService.addImport(new AddImportRequest(
-                title,
-                content,
-                url,
-                UserProfileFactory.createSettings(userProfile.userProfileSettings().sourceLanguage(), userProfile.userProfileSettings().targetLanguage()),
-                authentication.getName()));
+        int importId = importService.addImport(AddImportRequest.builder()
+                        .title(title)
+                        .content(content)
+                        .url(url)
+                        .sourceLanguage(userProfile.sourceLanguage())
+                        .targetLanguage(userProfile.targetLanguage())
+                        .owner(authentication.getName())
+                .build());
         return "redirect:/imports/" + importId;
     }
 

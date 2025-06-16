@@ -2,10 +2,10 @@ package lule.dictionary.service.userProfile;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
+import lule.dictionary.dto.application.implementation.userProfile.base.DictionaryUserProfile;
+import lule.dictionary.dto.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.exception.ResourceNotFoundException;
-import lule.dictionary.factory.dto.UserProfileFactory;
 import lule.dictionary.repository.UserProfileRepository;
 import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.exception.ServiceException;
@@ -29,18 +29,20 @@ public class UserProfileService implements UserDetailsService {
 
     public UserProfile addUserProfile(@NonNull String username, @NonNull String email, @NonNull String password) throws ServiceException {
         try {
-            UserProfile userProfile = UserProfileFactory.createUserProfile(
-                    UserProfileFactory.createCredentials(
-                            username,
-                            email,
-                            password
-                    ),
-                    UserProfileFactory.createSettings(
-                            Language.EN,
-                            Language.NO
-                    )
-            );
-            return userProfileRepository.addUserProfile(userProfile.userProfileCredentials(), userProfile.userProfileSettings()).orElseThrow(() -> new ServiceException("Failed to add user"));
+            UserProfile userProfile = DictionaryUserProfile.builder()
+                    .username(username)
+                    .email(email)
+                    .password(password)
+                    .sourceLanguage(Language.EN)
+                    .targetLanguage(Language.NO)
+                    .build();
+            return userProfileRepository.addUserProfile(DictionaryUserProfile.builder()
+                            .username(userProfile.username())
+                            .email(userProfile.email())
+                            .password(userProfile.password())
+                            .sourceLanguage(userProfile.sourceLanguage())
+                            .targetLanguage(userProfile.targetLanguage())
+                    .build()).orElseThrow(() -> new ServiceException("Failed to add user"));
         } catch (RepositoryException e) {
             throw new ServiceException("Failed to add user", e.getCause());
         }

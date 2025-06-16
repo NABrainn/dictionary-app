@@ -2,6 +2,8 @@ package lule.dictionary.service.translation;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.dto.application.implementation.translation.base.DictionaryTranslation;
+import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.service.translation.dto.MutateTranslationRequest;
 import lule.dictionary.service.translation.dto.TranslationModel;
 import lule.dictionary.service.translation.dto.FindTranslationRequest;
@@ -11,8 +13,6 @@ import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.exception.ServiceException;
-import lule.dictionary.factory.dto.TranslationFactory;
-import lule.dictionary.factory.dto.UserProfileFactory;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.DocumentParsingService;
 import lule.dictionary.service.StringParsingService;
@@ -38,22 +38,16 @@ public class TranslationService {
     public int add(RedirectAttributes redirectAttributes, @NonNull MutateTranslationRequest mutateTranslationRequest) throws ServiceException {
         try {
             String transformedTargetWord = translationUtilService.transformInput(mutateTranslationRequest.targetWord());
-            Translation translationToAdd = TranslationFactory.createTranslation(
-                    TranslationFactory.createTranslationDetails(
-                            mutateTranslationRequest.sourceWord(),
-                            transformedTargetWord,
-                            mutateTranslationRequest.familiarity()
-                    ),
-                    UserProfileFactory.createSettings(
-                            mutateTranslationRequest.sourceLanguage(),
-                            mutateTranslationRequest.targetLanguage()
-                    ),
-                    mutateTranslationRequest.owner()
-            );
+            Translation translationToAdd = DictionaryTranslation.builder()
+                    .sourceWord(mutateTranslationRequest.sourceWord())
+                    .targetWord(transformedTargetWord)
+                    .familiarity(mutateTranslationRequest.familiarity())
+                    .sourceLanguage(mutateTranslationRequest.sourceLanguage())
+                    .targetLanguage(mutateTranslationRequest.targetLanguage())
+                    .owner(mutateTranslationRequest.owner())
+                    .build();
             int translationId = translationRepository.addTranslation(
-                    translationToAdd.translationDetails(),
-                    translationToAdd.userProfileSettings(),
-                    translationToAdd.owner(),
+                    translationToAdd,
                     mutateTranslationRequest.importId()).orElseThrow(() -> new ServiceException("Failed to add new translation"));
             redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
                     mutateTranslationRequest.importId(),
@@ -85,26 +79,20 @@ public class TranslationService {
                 Translation translation = translationRepository.findByTargetWord(cleanTargetWord).get();
                 model.addAttribute("translationModel", new TranslationModel(
                         translationRequest.importId(),
-                        translationUtilService.getFamiliarityAsInt(translation.translationDetails().familiarity()),
+                        translationUtilService.getFamiliarityAsInt(translation.familiarity()),
                         translation,
                         translationUtilService.getSortedFamiliarityMap(),
                         translationRequest.selectedWordId()
                 ));
                 return true;
             }
-
-            Translation translation = TranslationFactory.createTranslation(
-                    TranslationFactory.createTranslationDetails(
-                            "translationFromApi",
-                            translationUtilService.transformInput(cleanTargetWord),
-                            Familiarity.UNKNOWN
-                    ),
-                    UserProfileFactory.createSettings(
-                            Language.EN,
-                            Language.NO
-                    ),
-                    "login"
-            );
+            Translation translation = DictionaryTranslation.builder()
+                    .sourceWord("translationFromApi")
+                    .targetWord(translationUtilService.transformInput(cleanTargetWord))
+                    .familiarity(Familiarity.UNKNOWN)
+                    .sourceLanguage(Language.EN)
+                    .targetLanguage(Language.NO)
+                    .build();
             model.addAttribute("translationModel", new TranslationModel(
                     translationRequest.importId(),
                     1,
@@ -133,7 +121,7 @@ public class TranslationService {
             Translation translation = translationRepository.updateFamiliarity(transformedTargetWord, mutateTranslationRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
             redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
                     mutateTranslationRequest.importId(),
-                    translationUtilService.getFamiliarityAsInt(translation.translationDetails().familiarity()),
+                    translationUtilService.getFamiliarityAsInt(translation.familiarity()),
                     translation,
                     translationUtilService.getSortedFamiliarityMap(),
                     mutateTranslationRequest.selectedWordId()
@@ -158,8 +146,8 @@ public class TranslationService {
 
     public Map<String, Translation> findTranslationsByImport(@NonNull Import imported) {
         try {
-            List<String> targetWords = documentParsingService.parse(imported.importDetails().content());
-            return findByTargetWords(targetWords).stream().collect(Collectors.toUnmodifiableMap((key) -> key.translationDetails().targetWord(), (value) -> value));
+            List<String> targetWords = documentParsingService.parse(imported.content());
+            return findByTargetWords(targetWords).stream().collect(Collectors.toUnmodifiableMap(TranslationDetails::targetWord, (value) -> value));
         } catch (ServiceException e) {
             throw new ServiceException(e.getMessage(), e.getCause());
         }
