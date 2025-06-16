@@ -28,7 +28,7 @@ public class TranslationRepository {
     private final JdbcTemplate template;
 
     @Transactional
-    public OptionalInt addTranslation(@NonNull TranslationDetails details, @NonNull UserProfileSettings userProfileSettings, @NonNull String owner, int importId) throws RepositoryException {
+    public OptionalInt addTranslation(@NonNull Translation translation, int importId) throws RepositoryException {
         String sql = """
                 WITH translation AS (
                     INSERT INTO dictionary.translations (source_word, target_word, source_lang, target_lang, translation_owner, familiarity)
@@ -46,12 +46,12 @@ public class TranslationRepository {
                 """;
         try {
             Integer translationId = template.queryForObject(sql, TRANSLATION_ID,
-                    details.sourceWord(),
-                    details.targetWord().toLowerCase(),
-                    userProfileSettings.sourceLanguage().toString(),
-                    userProfileSettings.targetLanguage().toString(),
-                    owner,
-                    details.familiarity().toString(),
+                    translation.sourceWord(),
+                    translation.targetWord().toLowerCase(),
+                    translation.sourceLanguage().toString(),
+                    translation.targetLanguage().toString(),
+                    translation.owner(),
+                    translation.familiarity().toString(),
                     importId,
                     1
             );

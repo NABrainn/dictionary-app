@@ -3,9 +3,7 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfileCredentials;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
+import lule.dictionary.dto.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -55,7 +53,7 @@ public class UserProfileRepository {
     }
 
     @Transactional
-    public Optional<UserProfile> addUserProfile(@NonNull UserProfileCredentials userProfileCredentials, @NonNull UserProfileSettings userProfileSettings) throws RepositoryException {
+    public Optional<UserProfile> addUserProfile(@NonNull UserProfile userProfile) throws RepositoryException {
         String sql = """
                     WITH settings AS (
                         INSERT INTO dictionary.user_profile_settings (source_lang, target_lang)
@@ -69,14 +67,14 @@ public class UserProfileRepository {
                         (SELECT target_lang FROM settings) AS target_lang
                 """;
         try {
-            UserProfile userProfile = template.queryForObject(sql, USER_PROFILE,
-                    userProfileSettings.sourceLanguage().toString(),
-                    userProfileSettings.targetLanguage().toString(),
-                    userProfileCredentials.username(),
-                    userProfileCredentials.email(),
-                    userProfileCredentials.password()
+            UserProfile addedUser = template.queryForObject(sql, USER_PROFILE,
+                    userProfile.sourceLanguage().toString(),
+                    userProfile.targetLanguage().toString(),
+                    userProfile.username(),
+                    userProfile.email(),
+                    userProfile.password()
             );
-            return Optional.ofNullable(userProfile);
+            return Optional.ofNullable(addedUser);
         } catch (DataAccessException e) {
             throw new RepositoryException(e.getCause());
         }

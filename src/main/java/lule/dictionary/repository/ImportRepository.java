@@ -4,9 +4,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.interfaces.imports.base.Import;
-import lule.dictionary.dto.application.interfaces.imports.ImportDetails;
-import lule.dictionary.dto.application.interfaces.imports.base.ImportWithId;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
+import lule.dictionary.dto.application.interfaces.imports.ImportWithId;
 import lule.dictionary.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,7 +23,7 @@ public class ImportRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt addImport(@NonNull ImportDetails importDetails, @NonNull UserProfileSettings userProfileSettings, @NonNull String owner) throws RepositoryException {
+    public OptionalInt addImport(Import importt) throws RepositoryException {
         final String sql = """
                 INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner)
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -33,12 +31,12 @@ public class ImportRepository {
                 """;
         try {
             Integer importsId = template.queryForObject(sql, IMPORT_ID,
-                    importDetails.title(),
-                    importDetails.content(),
-                    importDetails.url(),
-                    userProfileSettings.sourceLanguage().toString(),
-                    userProfileSettings.targetLanguage().toString(),
-                    owner);
+                    importt.title(),
+                    importt.content(),
+                    importt.url(),
+                    importt.sourceLanguage().toString(),
+                    importt.targetLanguage().toString(),
+                    importt.owner());
             if(importsId != null) return OptionalInt.of(importsId);
             return OptionalInt.empty();
         } catch (DataAccessException e) {
