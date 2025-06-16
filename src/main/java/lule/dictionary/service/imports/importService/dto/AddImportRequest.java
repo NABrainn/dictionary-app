@@ -1,12 +1,15 @@
 package lule.dictionary.service.imports.importService.dto;
 
+import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
+import lule.dictionary.enumeration.Language;
 
+@Builder
 public record AddImportRequest(
         @NonNull String title,
         @NonNull String content,
         @NonNull String url,
-        @NonNull UserProfileSettings userProfileSettings,
+        @NonNull Language sourceLanguage,
+        @NonNull Language targetLanguage,
         @NonNull String owner) {
 }
