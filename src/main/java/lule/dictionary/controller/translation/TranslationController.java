@@ -3,9 +3,9 @@ package lule.dictionary.controller.translation;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.controller.translation.dto.AddTranslationRequest;
-import lule.dictionary.controller.translation.dto.FindTranslationRequest;
-import lule.dictionary.controller.translation.dto.UpdateFamiliarityRequest;
+import lule.dictionary.service.translation.dto.AddTranslationRequest;
+import lule.dictionary.service.translation.dto.FindTranslationRequest;
+import lule.dictionary.service.translation.dto.UpdateFamiliarityRequest;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.service.translation.TranslationService;

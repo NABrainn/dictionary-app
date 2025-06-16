@@ -1,4 +1,4 @@
-@import lule.dictionary.controller.translation.dto.TranslationModel
+@import lule.dictionary.service.translation.dto.TranslationModel
 
 @param TranslationModel translationModel
 

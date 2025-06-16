@@ -2,10 +2,10 @@ package lule.dictionary.service.translation;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.controller.translation.dto.AddTranslationRequest;
-import lule.dictionary.controller.translation.dto.TranslationModel;
-import lule.dictionary.controller.translation.dto.FindTranslationRequest;
-import lule.dictionary.controller.translation.dto.UpdateFamiliarityRequest;
+import lule.dictionary.service.translation.dto.AddTranslationRequest;
+import lule.dictionary.service.translation.dto.TranslationModel;
+import lule.dictionary.service.translation.dto.FindTranslationRequest;
+import lule.dictionary.service.translation.dto.UpdateFamiliarityRequest;
 import lule.dictionary.dto.application.interfaces.imports.base.Import;
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;

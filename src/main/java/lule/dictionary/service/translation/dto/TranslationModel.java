@@ -1,4 +1,4 @@
-package lule.dictionary.controller.translation.dto;
+package lule.dictionary.service.translation.dto;
 
 import lule.dictionary.dto.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
