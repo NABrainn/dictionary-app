@@ -35,23 +35,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        final Optional<String> jwt = getJwtFromCookie(request);
-        final Optional<String> optionalUsername;
-        if (jwt.isEmpty()) {
+        final Optional<String> optionalJwt = getJwtFromCookie(request);
+
+        if (optionalJwt.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
-        if (!jwtService.isValidToken(jwt.get())) {
+        if (!jwtService.isValidToken(optionalJwt.get())) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        optionalUsername = jwtService.extractUsername(jwt.get());
+        final Optional<String> optionalUsername = jwtService.extractUsername(optionalJwt.get());
 
         if (optionalUsername.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userProfileService.loadUserByUsername(optionalUsername.get());
 
-            if (jwtService.validateTokenForUser(jwt.get(), userDetails)) {
+            if (jwtService.validateTokenForUser(optionalJwt.get(), userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
