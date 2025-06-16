@@ -70,8 +70,8 @@ public class SecurityConfiguration {
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             switch (accessDeniedException) {
-                                case MissingCsrfTokenException missingCsrfTokenException -> response.sendError(HttpServletResponse.SC_FORBIDDEN, "Missing CSRF token");
-                                case InvalidCsrfTokenException invalidCsrfTokenException -> response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
+                                case MissingCsrfTokenException ignored -> response.sendError(HttpServletResponse.SC_FORBIDDEN, "Missing CSRF token");
+                                case InvalidCsrfTokenException ignored -> response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
                                 default -> response.sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
                             }
                         })
