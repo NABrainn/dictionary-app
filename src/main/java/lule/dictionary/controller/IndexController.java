@@ -10,6 +10,6 @@ public class IndexController {
 
     @GetMapping({"/", ""})
     public String base() {
-        return "redirect:catalog/";
+        return "redirect:imports/";
     }
 }
