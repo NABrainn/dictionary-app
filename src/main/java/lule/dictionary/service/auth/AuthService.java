@@ -6,7 +6,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
+import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.service.auth.validator.AuthValidator;

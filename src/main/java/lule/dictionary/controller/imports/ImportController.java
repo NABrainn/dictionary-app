@@ -3,7 +3,7 @@ package lule.dictionary.controller.imports;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
 import lule.dictionary.service.imports.importPageService.dto.SaveTranslationRequest;
-import lule.dictionary.dto.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.imports.importPageService.ImportPageService;
 import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.userProfile.UserProfileService;

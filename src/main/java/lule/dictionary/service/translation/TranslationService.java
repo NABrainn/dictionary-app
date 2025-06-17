@@ -2,13 +2,13 @@ package lule.dictionary.service.translation;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.dto.application.implementation.translation.base.DictionaryTranslation;
-import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
+import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
+import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.service.translation.dto.MutateTranslationRequest;
 import lule.dictionary.service.translation.dto.TranslationModel;
 import lule.dictionary.service.translation.dto.FindTranslationRequest;
-import lule.dictionary.dto.application.interfaces.imports.base.Import;
-import lule.dictionary.dto.application.interfaces.translation.Translation;
+import lule.dictionary.entity.application.interfaces.imports.base.Import;
+import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.exception.RepositoryException;

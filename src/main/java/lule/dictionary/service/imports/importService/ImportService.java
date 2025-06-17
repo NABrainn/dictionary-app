@@ -2,10 +2,10 @@ package lule.dictionary.service.imports.importService;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.dto.application.implementation.imports.base.DictionaryImport;
+import lule.dictionary.entity.application.implementation.imports.base.DictionaryImport;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
-import lule.dictionary.dto.application.interfaces.imports.base.Import;
-import lule.dictionary.dto.application.interfaces.imports.ImportWithId;
+import lule.dictionary.entity.application.interfaces.imports.base.Import;
+import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.exception.RepositoryException;

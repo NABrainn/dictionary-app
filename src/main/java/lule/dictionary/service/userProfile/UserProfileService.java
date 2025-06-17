@@ -2,8 +2,8 @@ package lule.dictionary.service.userProfile;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.dto.application.implementation.userProfile.base.DictionaryUserProfile;
-import lule.dictionary.dto.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.entity.application.implementation.userProfile.base.DictionaryUserProfile;
+import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.repository.UserProfileRepository;

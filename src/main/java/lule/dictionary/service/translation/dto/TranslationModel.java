@@ -1,6 +1,6 @@
 package lule.dictionary.service.translation.dto;
 
-import lule.dictionary.dto.application.interfaces.translation.Translation;
+import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 
 import java.util.Map;

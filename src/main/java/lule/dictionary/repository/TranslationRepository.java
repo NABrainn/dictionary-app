@@ -3,9 +3,7 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.interfaces.translation.Translation;
-import lule.dictionary.dto.application.interfaces.translation.TranslationDetails;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
+import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
@@ -17,8 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import static lule.dictionary.factory.RowMapperFactory.TRANSLATION;
-import static lule.dictionary.factory.RowMapperFactory.TRANSLATION_ID;
+import static lule.dictionary.repository.factory.RowMapperFactory.TRANSLATION;
+import static lule.dictionary.repository.factory.RowMapperFactory.TRANSLATION_ID;
 
 @Slf4j
 @Repository

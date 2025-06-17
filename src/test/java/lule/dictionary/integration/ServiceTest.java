@@ -1,9 +1,9 @@
 package lule.dictionary.integration;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.service.imports.ImportService;
+import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.userProfile.UserProfileService;
-import lule.dictionary.service.console.DictionaryService;
+import lule.dictionary.service.imports.importPageService.ImportPageService;
 import lule.dictionary.service.translation.TranslationService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,7 +30,7 @@ public class ServiceTest {
     private TranslationService translationService;
 
     @Autowired
-    private DictionaryService dictionaryService;
+    private ImportPageService dictionaryService;
 
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
             "postgres:latest"
@@ -39,7 +39,7 @@ public class ServiceTest {
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.login", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
     }
 

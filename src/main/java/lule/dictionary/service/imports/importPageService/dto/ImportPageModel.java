@@ -1,7 +1,7 @@
 package lule.dictionary.service.imports.importPageService.dto;
 
 import lombok.NonNull;
-import lule.dictionary.dto.application.interfaces.translation.Translation;
+import lule.dictionary.entity.application.interfaces.translation.Translation;
 
 import java.util.List;
 import java.util.Map;

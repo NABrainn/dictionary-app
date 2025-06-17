@@ -2,7 +2,7 @@ package lule.dictionary.service.console;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.interfaces.userProfile.UserProfile;
+import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.functionalInterface.Printer;
 import lule.dictionary.service.userProfile.UserProfileService;
