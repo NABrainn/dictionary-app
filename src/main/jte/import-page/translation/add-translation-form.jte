@@ -11,18 +11,18 @@
     <div class="flex justify-end">
         <span class="text-red-400 font-bold text-2xl cursor-pointer" onclick="exitForm()">❌</span>
     </div>
-    <span class="font-bold text-lg text-accent">${translationModel.translation().translationDetails().targetWord()}</span>
-    <span class="text-accent">${translationModel.translation().translationDetails().sourceWord()}</span>
+    <span class="font-bold text-lg text-accent">${translationModel.translation().targetWord()}</span>
+    <span class="text-accent">${translationModel.translation().sourceWord()}</span>
     @for(var level : translationModel.familiarityLevels().entrySet())
         <div class="hover:text-primary font-bold text-neutral flex gap-1 cursor-pointer"
              hx-post="/translations/new"
              hx-vals='
              {
-                "sourceWord": "${translationModel.translation().translationDetails().sourceWord()}",
-                "targetWord": "${translationModel.translation().translationDetails().targetWord()}",
+                "sourceWord": "${translationModel.translation().sourceWord()}",
+                "targetWord": "${translationModel.translation().targetWord()}",
                 "familiarity": "${level.getValue().name()}",
-                "sourceLanguage": "${translationModel.translation().userProfileSettings().sourceLanguage().name()}",
-                "targetLanguage": "${translationModel.translation().userProfileSettings().targetLanguage().name()}",
+                "sourceLanguage": "${translationModel.translation().sourceLanguage().name()}",
+                "targetLanguage": "${translationModel.translation().targetLanguage().name()}",
                 "importId": "${translationModel.importId()}",
                 "selectedWordId": "${translationModel.selectedWordId()}"
              }'
