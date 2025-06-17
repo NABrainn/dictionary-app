@@ -22,6 +22,7 @@ public class UserProfileRepository {
 
     private final JdbcTemplate template;
 
+    @Transactional
     public Optional<UserProfile> findByUsername(@NonNull String username) {
         String sql = """
                 SELECT p.username, p.password, p.email, s.source_lang, s.target_lang
@@ -37,6 +38,7 @@ public class UserProfileRepository {
         }
     }
 
+    @Transactional
     public Optional<UserProfile> findByUsernameOrEmail(@NonNull String username, @NonNull String email) {
         String sql = """
                 SELECT p.username, p.password, p.email, s.source_lang, s.target_lang
@@ -80,6 +82,7 @@ public class UserProfileRepository {
         }
     }
 
+    @Transactional
     public List<UserProfile> findAll() throws RepositoryException {
         String sql = """
                 SELECT p.username, p.email, p.password, s.source_lang, s.target_lang
