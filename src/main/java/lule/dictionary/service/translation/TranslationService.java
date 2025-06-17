@@ -17,6 +17,7 @@ import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.DocumentParsingService;
 import lule.dictionary.service.StringParsingService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.server.ResponseStatusException;
@@ -70,7 +71,7 @@ public class TranslationService {
         }
     }
 
-    public boolean findByTargetWord(@NonNull Model model, @NonNull FindTranslationRequest translationRequest) throws ServiceException{
+    public boolean findByTargetWord(Authentication authentication, @NonNull Model model, @NonNull FindTranslationRequest translationRequest) throws ServiceException{
         try {
             String cleanTargetWord = translationUtilService.transformInput(translationRequest.targetWord());
             if(cleanTargetWord.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "String is not in a valid state");
@@ -92,6 +93,7 @@ public class TranslationService {
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(Language.EN)
                     .targetLanguage(Language.NO)
+                    .owner(authentication.getName())
                     .build();
             model.addAttribute("translationModel", new TranslationModel(
                     translationRequest.importId(),
@@ -117,7 +119,7 @@ public class TranslationService {
 
     public void updateFamiliarity(RedirectAttributes redirectAttributes, MutateTranslationRequest mutateTranslationRequest) throws ServiceException{
         try {
-            String transformedTargetWord = translationUtilService.transformInput(mutateTranslationRequest.targetWord());
+            String transformedTargetWord = translationUtilService.transformInput(mutateTranslationRequest.sourceWord());
             Translation translation = translationRepository.updateFamiliarity(transformedTargetWord, mutateTranslationRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
             redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
                     mutateTranslationRequest.importId(),
