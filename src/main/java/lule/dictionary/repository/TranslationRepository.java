@@ -137,6 +137,7 @@ public class TranslationRepository {
             List<Translation> translation = template.query(sql, TRANSLATION, targetWord.toLowerCase());
             return translation.stream().findFirst();
         } catch (DataAccessException e) {
+            log.error(String.valueOf(e.getCause()));
             throw new RepositoryException(e.getCause());
         }
     }
