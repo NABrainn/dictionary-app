@@ -16,15 +16,15 @@ CREATE TABLE IF NOT EXISTS dictionary.user_profile_settings (
 
 CREATE TABLE IF NOT EXISTS dictionary.user_profiles (
     username        				VARCHAR(50) NOT NULL UNIQUE,
-    email           				VARCHAR(50) NOT NULL PRIMARY KEY,
+    email           				VARCHAR(100) NOT NULL PRIMARY KEY,
     password        			    VARCHAR(500) NOT NULL,
 	settings_id						int REFERENCES dictionary.user_profile_settings(settings_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS dictionary.translations (
     translations_id              	SERIAL PRIMARY KEY,
-    source_word     				VARCHAR(50) NOT NULL,
-    target_word     				VARCHAR(50) NOT NULL,
+    source_word     				VARCHAR(200) NOT NULL,
+    target_word     				VARCHAR(200) NOT NULL,
     source_lang  					dictionary.lang NOT NULL,
     target_lang  					dictionary.lang NOT NULL,
   	translation_owner				VARCHAR(50) NOT NULL references dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
