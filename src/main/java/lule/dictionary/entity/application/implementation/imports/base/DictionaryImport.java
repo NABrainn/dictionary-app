@@ -9,7 +9,6 @@ import lule.dictionary.functionalInterface.validation.LengthValidator;
 import lule.dictionary.functionalInterface.validation.PatternValidator;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
 @Builder(toBuilder = true)
@@ -20,8 +19,6 @@ public record DictionaryImport(
         String content,
         @NonNull
         String url,
-        @NonNull
-        List<String> importDetailsSummary,
         @NonNull
         Language sourceLanguage,
         @NonNull
@@ -58,11 +55,6 @@ public record DictionaryImport(
                 maxLengthValidator.validate(100, title);
                 maxLengthValidator.validate(10000, content);
                 maxLengthValidator.validate(200, url);
-        }
-
-        @Override
-        public List<String> importDetailsSummary() {
-                return List.copyOf(importDetailsSummary);
         }
 }
 
