@@ -5,8 +5,6 @@ import lombok.NonNull;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.enumeration.Language;
 
-import java.util.List;
-
 @Builder(toBuilder = true)
 public record DictionaryImportWithId(
         @NonNull
@@ -15,8 +13,6 @@ public record DictionaryImportWithId(
         String content,
         @NonNull
         String url,
-        @NonNull
-        List<String> importDetailsSummary,
         @NonNull
         Language sourceLanguage,
         @NonNull
