@@ -24,10 +24,11 @@ public class TranslationController {
 
     @GetMapping({"/", ""})
     public String findByTargetWord(Model model,
+                                   Authentication authentication,
                                    @RequestParam int importId,
                                    @RequestParam String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId) {
-            boolean found = translationService.findByTargetWord(model, new FindTranslationRequest(importId, targetWord, selectedWordId));
+            boolean found = translationService.findByTargetWord(authentication, model, new FindTranslationRequest(importId, targetWord, selectedWordId));
             if(found) {
                 return "import-page/translation/update-translation-form";
             }
@@ -36,16 +37,16 @@ public class TranslationController {
 
     @PostMapping({"/new", "new"})
     public String newTranslation(RedirectAttributes redirectAttributes,
-                                 Authentication authentication,
-                                 @RequestParam("sourceWord") String sourceWord,
-                                 @RequestParam("targetWord") String targetWord,
-                                 @RequestParam("familiarity") Familiarity familiarity,
-                                 @RequestParam("sourceLanguage") Language sourceLanguage,
-                                 @RequestParam("targetLanguage") Language targetLanguage,
-                                 @RequestParam("importId") int importId,
-                                 @RequestParam("selectedWordId") int selectedWordId) {
+                                         Authentication authentication,
+                                         @RequestParam("sourceWord") String sourceWord,
+                                         @RequestParam("targetWord") String targetWord,
+                                         @RequestParam("familiarity") Familiarity familiarity,
+                                         @RequestParam("sourceLanguage") Language sourceLanguage,
+                                         @RequestParam("targetLanguage") Language targetLanguage,
+                                         @RequestParam("importId") int importId,
+                                         @RequestParam("selectedWordId") int selectedWordId) {
         translationService.add(redirectAttributes, new MutateTranslationRequest(sourceWord, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
-        return "redirect:/catalog/page/reload";
+        return "forward:/imports/page/reload";
     }
 
     @PutMapping({"/familiarity/update", "familiarity/update"})
@@ -59,6 +60,6 @@ public class TranslationController {
                                     @RequestParam("importId") int importId,
                                     @RequestParam("selectedWordId") int selectedWordId) {
         translationService.updateFamiliarity(redirectAttributes, new MutateTranslationRequest(targetWord, sourceWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
-        return "redirect:/catalog/page/reload";
+        return "forward:/imports/page/reload";
     }
 }
