@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@source "../jte/**/*.jte";
+
+@theme {
+    --color-primary: #52357B;
+    --color-secondary: #5459AC;
+    --color-tertiary: #648DB3;
+    --color-accent: #B2D8CE;
+    --color-neutral: #B8CFCE;
+    --color-error: #E55050;
+}
