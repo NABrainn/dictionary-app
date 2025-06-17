@@ -29,6 +29,7 @@ public class RowMapperFactory {
                     .familiarity(Familiarity.valueOf(rs.getString("familiarity")))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
                     .targetLanguage(Language.valueOf(rs.getString("target_lang")))
+                    .owner(rs.getString("translation_owner"))
                     .build()
     );
 
