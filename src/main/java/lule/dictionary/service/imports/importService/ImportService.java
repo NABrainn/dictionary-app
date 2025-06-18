@@ -9,7 +9,7 @@ import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.exception.RepositoryException;
-import lule.dictionary.service.DocumentParsingService;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -22,14 +22,13 @@ import java.util.List;
 public class ImportService {
 
     private final ImportRepository importRepository;
-    private final DocumentParsingService contentParser;
 
     public int addImport(AddImportRequest addImportRequest) throws ServiceException {
         try {
             if(!addImportRequest.url().startsWith("https://") || !addImportRequest.url().startsWith("http://")) {
                 String urlWithHttps = "https://".concat(addImportRequest.url());
                     if(addImportRequest.content().isEmpty()) {
-                        Document document = contentParser.fetchContent(urlWithHttps);
+                        Document document = Jsoup.connect(urlWithHttps).get();
                         String content = document.text();
                         int importId = importRepository.addImport(DictionaryImport.builder()
                                     .title(addImportRequest.title())
