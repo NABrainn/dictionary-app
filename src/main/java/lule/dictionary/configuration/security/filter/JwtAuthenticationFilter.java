@@ -28,14 +28,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserProfileService userProfileService;
-    private static final String JWT_COOKIE_NAME = "jwt";
 
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        final Optional<String> optionalJwt = getJwtFromCookie(request);
+
+        final Optional<String> optionalJwt = getJwtFromCookie("jwt", request);
 
         if (optionalJwt.isEmpty()) {
             filterChain.doFilter(request, response);
@@ -67,13 +67,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private Optional<String> getJwtFromCookie(HttpServletRequest request) {
+    private Optional<String> getJwtFromCookie(String JwtCookieName, HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             return Optional.empty();
         }
         return Arrays.stream(cookies)
-                .filter(cookie -> JWT_COOKIE_NAME.equals(cookie.getName()))
+                .filter(cookie -> JwtCookieName.equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst();
     }
