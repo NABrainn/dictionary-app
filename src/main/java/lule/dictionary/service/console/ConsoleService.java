@@ -27,17 +27,6 @@ public class ConsoleService {
 
     }
 
-    public void openMainMenu() {
-        print("""
-                ------------------------------
-                -----------MAIN MENU----------
-                ------------------------------
-                """
-        );
-    }
-
-    @Override
-    public void print(String text) {
-        System.out.println(text);
-    }
+//    public void openMainMenu() {
+//    }
 }

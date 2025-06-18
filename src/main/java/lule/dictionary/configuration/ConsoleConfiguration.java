@@ -20,7 +20,7 @@ public class ConsoleConfiguration {
             if (runnable) {
                 commandLineService.initialize();
                 ConsoleDialogManager.start(ConsoleDialogManager.createDialog(
-                        commandLineService::openMainMenu,
+                        () -> System.out.println("do nothing"),
                         ConsoleDialogManager.createOption(
                                 "Import a text", "i", ConsoleDialogManager.executeDialog(ConsoleDialogManager.createDialog(
                                         () -> System.out.println("placeholder"),

@@ -1,4 +1,4 @@
-package lule.dictionary.service.translation;
+package lule.dictionary.service.translation.util;
 
 import lule.dictionary.enumeration.Familiarity;
 import org.springframework.stereotype.Service;
@@ -7,10 +7,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @Service
-public class TranslationUtilService {
-    public String transformInput(String input) {
-        return input.replaceAll("[^\\p{L}\\p{N}]", "").trim().toLowerCase();
-    }
+public class TranslationFamiliarityService {
+
     public int getFamiliarityAsInt(Familiarity familiarity) {
         return switch (familiarity) {
             case UNKNOWN -> 1;
@@ -23,11 +21,11 @@ public class TranslationUtilService {
 
     public Map<Integer, Familiarity> getSortedFamiliarityMap() {
         return new TreeMap<>(Map.of(
-                1, Familiarity.UNKNOWN,
-                2, Familiarity.RECOGNIZED,
-                3, Familiarity.FAMILIAR,
-                4, Familiarity.KNOWN,
-                5, Familiarity.IGNORED)
+            1, Familiarity.UNKNOWN,
+            2, Familiarity.RECOGNIZED,
+            3, Familiarity.FAMILIAR,
+            4, Familiarity.KNOWN,
+            5, Familiarity.IGNORED)
         );
     }
 }
