@@ -10,8 +10,6 @@ import lule.dictionary.exception.ServiceException;
 import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.service.DocumentParsingService;
-import lule.dictionary.service.auth.validator.exception.ValidationStrategyException;
-import lule.dictionary.service.imports.validator.UrlValidator;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -24,16 +22,13 @@ import java.util.List;
 public class ImportService {
 
     private final ImportRepository importRepository;
-    private final UrlValidator urlValidator;
     private final DocumentParsingService contentParser;
 
     public int addImport(AddImportRequest addImportRequest) throws ServiceException {
         try {
             if(!addImportRequest.url().startsWith("https://") || !addImportRequest.url().startsWith("http://")) {
                 String urlWithHttps = "https://".concat(addImportRequest.url());
-                try {
                     if(addImportRequest.content().isEmpty()) {
-                        urlValidator.validate(urlWithHttps);
                         Document document = contentParser.fetchContent(urlWithHttps);
                         String content = document.text();
                         int importId = importRepository.addImport(DictionaryImport.builder()
@@ -57,17 +52,12 @@ public class ImportService {
                                 .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
                         return importId;
                     }
-                } catch (ValidationStrategyException e) {
-                    throw new ServiceException(e.getMessage());
-                }
             }
             throw new ServiceException("Invalid url");
         } catch (RepositoryException | IOException e) {
             throw new ServiceException("Failed to add a new import", e.getCause());
         }
     }
-
-
 
     public Import findById(int id) throws ServiceException {
         try {
