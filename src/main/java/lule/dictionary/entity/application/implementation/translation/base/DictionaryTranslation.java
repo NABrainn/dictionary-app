@@ -50,15 +50,17 @@ public record DictionaryTranslation(
                 EqualEnumValueValidator<Language> equalValueValidator = (Language lang1, Language lang2) -> {
                         if(lang1.equals(lang2)) throw new IllegalArgumentException("source language and target language cannot be equal");
                 };
-                emptyValidator.validate(sourceWord, targetWord, familiarity.name());
+                emptyValidator.validate(sourceWord, targetWord, owner, familiarity.name());
 
                 sourceWord = sourceWord.trim();
                 targetWord = targetWord.trim();
+                owner = owner.trim();
 
                 patternValidator.validate(INVALID_CHARS, sourceWord);
                 patternValidator.validate(INVALID_CHARS, targetWord);
 
-                maxLengthValidator.validate(50, sourceWord);
-                maxLengthValidator.validate(50, targetWord);
+                maxLengthValidator.validate(50, owner);
+                maxLengthValidator.validate(200, sourceWord);
+                maxLengthValidator.validate(200, targetWord);
         }
 }
