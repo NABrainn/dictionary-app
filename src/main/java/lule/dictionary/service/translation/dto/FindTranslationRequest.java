@@ -1,4 +1,11 @@
 package lule.dictionary.service.translation.dto;
 
-public record FindTranslationRequest(int importId, String targetWord, int selectedWordId) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record FindTranslationRequest(int importId,
+                                     @NotBlank(message = "Target word cannot be empty")
+                                     @Size(max = 200, message = "Target word cannot be longer than 200 characters")
+                                     String targetWord,
+                                     int selectedWordId) {
 }
