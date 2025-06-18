@@ -9,8 +9,6 @@ import lule.dictionary.service.auth.dto.SignupRequest;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.exception.ServiceException;
-import lule.dictionary.service.auth.validator.AuthValidator;
-import lule.dictionary.service.auth.validator.exception.ValidationException;
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.jwt.JwtService;
@@ -32,56 +30,47 @@ import java.util.Optional;
 public class AuthService {
 
     private final UserProfileService userProfileService;
-    private final AuthValidator authValidator;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final CookieService cookieService;
 
-    public void login(@NonNull Model model, @NonNull RedirectAttributes redirectAttributes, @NonNull HttpServletResponse response, @NonNull LoginRequest loginRequest) {
+    public void login(@NonNull Model model,
+                      @NonNull RedirectAttributes redirectAttributes,
+                      @NonNull HttpServletResponse response,
+                      @NonNull LoginRequest loginRequest) {
         try {
-            String login = authValidator.validateUsername(loginRequest.login());
-            String password = authValidator.validatePassword(loginRequest.password());
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            login,
-                            password
+                            loginRequest.login(),
+                            loginRequest.password()
                     )
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
             response.addCookie(cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication)));
             redirectAttributes.addFlashAttribute("result", new ServiceResult(false, ""));
-        } catch (AuthenticationException | ResourceNotFoundException | ValidationException e) {
+        } catch (AuthenticationException | ResourceNotFoundException e) {
             model.addAttribute("result", new ServiceResult(true, e.getMessage()));
             model.addAttribute("authentication", null);
             throw new ServiceException(e.getMessage());
         }
     }
 
-    public void signup(@NonNull Model model, @NonNull SignupRequest signupRequest) {
-        try {
-            String login = authValidator.validateUsername(signupRequest.login());
-            String email = authValidator.validateEmail(signupRequest.email());
-            String password = authValidator.validatePassword(signupRequest.password());
-
-            Optional<UserProfile> optionalUserProfile = userProfileService.findByUsernameOrEmail(login, email);
-            if(optionalUserProfile.isPresent()) {
-                String error = "User with given username or email already exists.";
-                model.addAttribute("result", new ServiceResult(true, error));
-                throw new ServiceException(error);
-            }
-            String encodedPassword = bCryptPasswordEncoder.encode(password);
-            userProfileService.addUserProfile(login, email, encodedPassword);
-            model.addAttribute("result", new ServiceResult(false, ""));
-        } catch (ValidationException e) {
-            model.addAttribute("result", new ServiceResult(true, e.getMessage()));
-            throw new ServiceException(e.getMessage());
+    public void signup(@NonNull Model model,
+                       @NonNull SignupRequest signupRequest) {
+        Optional<UserProfile> optionalUserProfile = userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email());
+        if(optionalUserProfile.isPresent()) {
+            String error = "User with given username or email already exists.";
+            model.addAttribute("result", new ServiceResult(true, error));
+            throw new ServiceException(error);
         }
+        String encodedPassword = bCryptPasswordEncoder.encode(signupRequest.password());
+        userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword);
+        model.addAttribute("result", new ServiceResult(false, ""));
     }
 
-    public void logout(
-            @NonNull RedirectAttributes redirectAttributes,
-            @NonNull HttpServletResponse httpServletResponse) {
+    public void logout(@NonNull RedirectAttributes redirectAttributes,
+                       @NonNull HttpServletResponse httpServletResponse) {
         SecurityContextHolder.getContext().setAuthentication(null);
         SecurityContextHolder.clearContext();
         Cookie cookie = cookieService.deleteJwtCookie("jwt");
