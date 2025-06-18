@@ -15,7 +15,8 @@ import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.DocumentParsingService;
-import lule.dictionary.service.StringParsingService;
+import lule.dictionary.service.util.StringRegexService;
+import lule.dictionary.service.translation.util.TranslationFamiliarityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -32,13 +33,13 @@ import java.util.stream.Collectors;
 public class TranslationService {
 
     private final TranslationRepository translationRepository;
-    private final TranslationUtilService translationUtilService;
-    private final StringParsingService stringParsingService;
+    private final TranslationFamiliarityService translationUtilService;
+    private final StringRegexService stringRegexService;
     private final DocumentParsingService documentParsingService;
 
     public int add(RedirectAttributes redirectAttributes, @NonNull MutateTranslationRequest mutateTranslationRequest) throws ServiceException {
         try {
-            String transformedTargetWord = translationUtilService.transformInput(mutateTranslationRequest.targetWord());
+            String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
             Translation translationToAdd = DictionaryTranslation.builder()
                     .sourceWord(mutateTranslationRequest.sourceWord())
                     .targetWord(transformedTargetWord)
@@ -73,7 +74,7 @@ public class TranslationService {
 
     public boolean findByTargetWord(Authentication authentication, @NonNull Model model, @NonNull FindTranslationRequest translationRequest) throws ServiceException{
         try {
-            String cleanTargetWord = translationUtilService.transformInput(translationRequest.targetWord());
+            String cleanTargetWord = stringRegexService.removeNonLetters(translationRequest.targetWord());
             if(cleanTargetWord.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "String is not in a valid state");
 
             if(translationRepository.findByTargetWord(cleanTargetWord).isPresent()) {
@@ -89,7 +90,7 @@ public class TranslationService {
             }
             Translation translation = DictionaryTranslation.builder()
                     .sourceWord("translationFromApi")
-                    .targetWord(translationUtilService.transformInput(cleanTargetWord))
+                    .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(Language.EN)
                     .targetLanguage(Language.NO)
@@ -119,7 +120,7 @@ public class TranslationService {
 
     public void updateFamiliarity(RedirectAttributes redirectAttributes, MutateTranslationRequest mutateTranslationRequest) throws ServiceException{
         try {
-            String transformedTargetWord = translationUtilService.transformInput(mutateTranslationRequest.sourceWord());
+            String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.sourceWord());
             Translation translation = translationRepository.updateFamiliarity(transformedTargetWord, mutateTranslationRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
             redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
                     mutateTranslationRequest.importId(),
@@ -136,7 +137,7 @@ public class TranslationService {
     public List<Translation> findByTargetWords(List<String> targetWords) {
         try {
             List<String> validTargetWords = targetWords.stream()
-                    .map(word -> stringParsingService.removeNonLetters(word).trim().toLowerCase())
+                    .map(word -> stringRegexService.removeNonLetters(word).trim().toLowerCase())
                     .filter(word -> !word.isEmpty())
                     .distinct()
                     .toList();
