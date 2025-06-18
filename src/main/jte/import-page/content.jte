@@ -46,7 +46,7 @@
                     ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                         <span
-                                class="bg-tertiary bg-accent/40 relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
+                                class="bg-tertiary relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
                                 id="target-word-${word.getIndex()}"
                                 hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
                                 hx-target="#translation-form-${word.getIndex()}"
@@ -98,7 +98,7 @@
                     ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                         <span
-                                class="bg-accent/40 relative text-primary px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
+                                class="relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
                                 id="target-word-${word.getIndex()}"
                                 hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
                                 hx-target="#translation-form-${word.getIndex()}"
