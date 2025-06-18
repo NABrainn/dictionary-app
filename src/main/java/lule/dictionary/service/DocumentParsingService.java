@@ -12,14 +12,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DocumentParsingService {
 
-    private final StringParsingService stringParsingService;
-
     public Document fetchContent(String url) throws IOException {
         return Jsoup.connect(url).get();
     }
 
     public List<String> parse(String content) {
-        String wordsNormalized = stringParsingService.normalizeSpaces(content);
-        return stringParsingService.toWhitespaceSplit(wordsNormalized);
+        String wordsNormalized = content.trim().replaceAll("\\s{2,}", " ");
+        return List.of(wordsNormalized.split(" "));
     }
 }
