@@ -54,8 +54,10 @@ public class ImportService {
                     }
             }
             throw new ServiceException("Invalid url");
-        } catch (RepositoryException | IOException e) {
+        } catch (RepositoryException e) {
             throw new ServiceException("Failed to add a new import", e.getCause());
+        } catch (IOException e) {
+            throw new ServiceException("Failed to parse import: " + e.getMessage(), e.getCause());
         }
     }
 
