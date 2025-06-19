@@ -25,34 +25,31 @@ public class ImportService {
 
     public int addImport(AddImportRequest addImportRequest) throws ServiceException {
         try {
-            if(!addImportRequest.url().startsWith("https://") || !addImportRequest.url().startsWith("http://")) {
-                String urlWithHttps = "https://".concat(addImportRequest.url());
-                    if(addImportRequest.content().isEmpty()) {
-                        Document document = Jsoup.connect(urlWithHttps).get();
-                        String content = document.text();
-                        int importId = importRepository.addImport(DictionaryImport.builder()
-                                    .title(addImportRequest.title())
-                                    .content(content)
-                                    .url(addImportRequest.url())
-                                    .sourceLanguage(addImportRequest.sourceLanguage())
-                                    .targetLanguage(addImportRequest.targetLanguage())
-                                    .owner(addImportRequest.owner())
-                                    .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
-                        return importId;
-                    }
-                    else {
-                        int importId = importRepository.addImport(DictionaryImport.builder()
-                                .title(addImportRequest.title())
-                                .content(addImportRequest.content())
-                                .url(addImportRequest.url())
-                                .sourceLanguage(addImportRequest.sourceLanguage())
-                                .targetLanguage(addImportRequest.targetLanguage())
-                                .owner(addImportRequest.owner())
-                                .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
-                        return importId;
-                    }
+            String url = normalizeURL(addImportRequest.url());
+            if(addImportRequest.content().isEmpty()) {
+                Document document = Jsoup.connect(url).get();
+                String content = document.text();
+                int importId = importRepository.addImport(DictionaryImport.builder()
+                            .title(addImportRequest.title())
+                            .content(content)
+                            .url(addImportRequest.url())
+                            .sourceLanguage(addImportRequest.sourceLanguage())
+                            .targetLanguage(addImportRequest.targetLanguage())
+                            .owner(addImportRequest.owner())
+                            .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
+                return importId;
             }
-            throw new ServiceException("Invalid url");
+            else {
+                int importId = importRepository.addImport(DictionaryImport.builder()
+                        .title(addImportRequest.title())
+                        .content(addImportRequest.content())
+                        .url(addImportRequest.url())
+                        .sourceLanguage(addImportRequest.sourceLanguage())
+                        .targetLanguage(addImportRequest.targetLanguage())
+                        .owner(addImportRequest.owner())
+                        .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
+                return importId;
+            }
         } catch (RepositoryException e) {
             throw new ServiceException("Failed to add a new import", e.getCause());
         } catch (IOException e) {
@@ -83,5 +80,12 @@ public class ImportService {
         } catch (RepositoryException e) {
             throw new ServiceException("Failed to fetch imports", e.getCause());
         }
+    }
+
+    private String normalizeURL(String url) {
+        if(!url.startsWith("https://") && !url.startsWith("http://")) {
+            return "https://".concat(url);
+        }
+        return url;
     }
 }
