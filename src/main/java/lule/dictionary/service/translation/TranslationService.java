@@ -14,7 +14,6 @@ import lule.dictionary.enumeration.Language;
 import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.repository.TranslationRepository;
-import lule.dictionary.service.DocumentParsingService;
 import lule.dictionary.service.util.StringRegexService;
 import lule.dictionary.service.translation.util.TranslationFamiliarityService;
 import org.springframework.http.HttpStatus;
@@ -24,6 +23,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,7 +35,6 @@ public class TranslationService {
     private final TranslationRepository translationRepository;
     private final TranslationFamiliarityService translationUtilService;
     private final StringRegexService stringRegexService;
-    private final DocumentParsingService documentParsingService;
 
     public int add(RedirectAttributes redirectAttributes, @NonNull MutateTranslationRequest mutateTranslationRequest) throws ServiceException {
         try {
@@ -149,7 +148,9 @@ public class TranslationService {
 
     public Map<String, Translation> findTranslationsByImport(@NonNull Import imported) {
         try {
-            List<String> targetWords = documentParsingService.parse(imported.content());
+            List<String> targetWords = Arrays.stream(imported.content().split(" "))
+                    .map(stringRegexService::removeNonLetters)
+                    .toList();
             return findByTargetWords(targetWords).stream().collect(Collectors.toUnmodifiableMap(TranslationDetails::targetWord, (value) -> value));
         } catch (ServiceException e) {
             throw new ServiceException(e.getMessage(), e.getCause());
