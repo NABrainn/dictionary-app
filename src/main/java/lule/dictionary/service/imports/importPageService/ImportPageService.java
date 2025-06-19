@@ -24,7 +24,7 @@ public class ImportPageService {
         try {
             Import imported = importService.findById(saveTranslationRequest.importId());
             String title = imported.title();
-            List<String> content = List.of(imported.content().split(" "));
+            List<String> content = List.of(imported.content().split("[ \\n]+"));
             Map<String, Translation> translations = translationService.findTranslationsByImport(imported);
             model.addAttribute("importPageModel", new ImportPageModel(title, content, translations, saveTranslationRequest.importId(), saveTranslationRequest.wordId()));
         } catch (ServiceException e) {
