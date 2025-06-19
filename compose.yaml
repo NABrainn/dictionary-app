@@ -12,6 +12,11 @@ services:
       - postgres:/var/lib/postgresql/data
     networks:
       - postgres
+  libre_translate:
+    container_name: libre_translate
+    image: 'libretranslate/libretranslate:latest'
+    ports:
+      - '5000:5000'
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4
