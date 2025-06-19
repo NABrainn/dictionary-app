@@ -15,13 +15,13 @@
             @if(importPageModel.translations().get(cleanWord) != null)
                 @if(importPageModel.selectedWordId() == word.getIndex())
                     @if(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent", textColor = "text-primary")
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent", textColor = "text-neutral")
 
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/80", textColor = "text-primary")
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/80", textColor = "text-neutral")
 
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/60", textColor = "text-primary")
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/60", textColor = "text-neutral")
 
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                         @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-primary", textColor = "text-neutral")
