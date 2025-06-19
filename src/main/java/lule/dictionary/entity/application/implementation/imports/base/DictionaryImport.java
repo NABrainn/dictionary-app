@@ -53,7 +53,7 @@ public record DictionaryImport(
                 patternValidator.validate(INVALID_FIRST_CHAR, title);
 
                 maxLengthValidator.validate(100, title);
-                maxLengthValidator.validate(10000, content);
+                maxLengthValidator.validate(20000, content);
                 maxLengthValidator.validate(200, url);
         }
 }
