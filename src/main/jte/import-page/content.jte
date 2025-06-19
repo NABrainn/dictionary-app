@@ -15,130 +15,36 @@
             @if(importPageModel.translations().get(cleanWord) != null)
                 @if(importPageModel.selectedWordId() == word.getIndex())
                     @if(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                        <span
-                                class="bg-tertiary bg-accent relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent", textColor = "text-primary")
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                        <span
-                                class="bg-tertiary bg-accent/80 relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/80", textColor = "text-primary")
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                        <span
-                                class="bg-tertiary bg-accent/60 relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/60", textColor = "text-primary")
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
-                        <span
-                                class="bg-tertiary relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-primary", textColor = "text-neutral")
                     @else
-                        <span
-                                class="bg-tertiary bg-primary relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-primary", textColor = "text-neutral")
                     @endif
                 @else
                     @if(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                        <span
-                                class="bg-accent relative text-primary px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent", textColor = "text-primary")
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                        <span
-                                class="bg-accent/80 relative text-primary px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent/80", textColor = "text-primary")
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                        <span
-                                class="bg-accent/60 relative text-primary px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent/60", textColor = "text-primary")
                     @elseif(importPageModel.translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
-                        <span
-                                class="relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral")
                     @else
-                        <span
-                                class="bg-primary relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                                id="target-word-${word.getIndex()}"
-                                hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                                hx-target="#translation-form-${word.getIndex()}"
-                                hx-swap="innerHTML"
-                                hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                                hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                    ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral")
+
                     @endif
                 @endif
             @else
                 @if(importPageModel.selectedWordId() == word.getIndex())
-                    <span
-                            class="bg-tertiary relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                            id="target-word-${word.getIndex()}"
-                            hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                            hx-target="#translation-form-${word.getIndex()}"
-                            hx-swap="innerHTML"
-                            hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                            hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                    @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary", textColor = "text-neutral")
+
                 @else
-                    <span
-                            class="bg-primary relative text-neutral px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
-                            id="target-word-${word.getIndex()}"
-                            hx-get="/translations?targetWord=${cleanWord}&importId=${importPageModel.importId()}"
-                            hx-target="#translation-form-${word.getIndex()}"
-                            hx-swap="innerHTML"
-                            hx-vals='{"selectedWordId": "${word.getIndex()}"}'
-                            hx-on::before-request="document.querySelector('import-page').onWordClick(${word.getIndex()})">
-                ${word.get()}<div class="cursor-default z-2 inline absolute -left-4 top-16" id="translation-form-${word.getIndex()}" onclick="event.stopPropagation();"></div></span>
+                    @template.import-page.word(wordIndex = word.getIndex(), importId = importPageModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral")
                 @endif
             @endif
         @endfor
