@@ -4,6 +4,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
+import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.service.translation.dto.MutateTranslationRequest;
 import lule.dictionary.service.translation.dto.TranslationModel;
 import lule.dictionary.service.translation.dto.FindTranslationRequest;
@@ -35,6 +36,7 @@ public class TranslationService {
     private final TranslationRepository translationRepository;
     private final TranslationFamiliarityService translationUtilService;
     private final StringRegexService stringRegexService;
+    private final LibreTranslateService libreTranslateService;
 
     public int add(RedirectAttributes redirectAttributes, @NonNull MutateTranslationRequest mutateTranslationRequest) throws ServiceException {
         try {
@@ -88,7 +90,11 @@ public class TranslationService {
                 return true;
             }
             Translation translation = DictionaryTranslation.builder()
-                    .sourceWord("translationFromApi")
+                    .sourceWord(libreTranslateService.translate(
+                            stringRegexService.removeNonLetters(cleanTargetWord),
+                            Language.EN,
+                            Language.NO
+                    ).translatedText())
                     .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(Language.EN)
