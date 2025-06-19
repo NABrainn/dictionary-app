@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,19 +50,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final Optional<String> optionalUsername = jwtService.extractUsername(optionalJwt.get());
 
         if (optionalUsername.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userProfileService.loadUserByUsername(optionalUsername.get());
+            try {
+                UserDetails userDetails = userProfileService.loadUserByUsername(optionalUsername.get());
 
-            if (jwtService.validateTokenForUser(optionalJwt.get(), userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (jwtService.validateTokenForUser(optionalJwt.get(), userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (ResourceNotFoundException e) {
+                filterChain.doFilter(request, response);
+                return;
             }
         }
         filterChain.doFilter(request, response);
