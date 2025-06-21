@@ -123,10 +123,10 @@ public class TranslationService {
         }
     }
 
-    public void updateFamiliarity(RedirectAttributes redirectAttributes, MutateTranslationRequest mutateTranslationRequest) throws ServiceException{
+    public void updateFamiliarityAndSourceWord(RedirectAttributes redirectAttributes, MutateTranslationRequest mutateTranslationRequest) throws ServiceException{
         try {
-            String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.sourceWord());
-            Translation translation = translationRepository.updateFamiliarity(transformedTargetWord, mutateTranslationRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
+            String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
+            Translation translation = translationRepository.updateFamiliarityAndSourceWord(transformedTargetWord, mutateTranslationRequest.sourceWord(), mutateTranslationRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
             redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
                     mutateTranslationRequest.importId(),
                     translationUtilService.getFamiliarityAsInt(translation.familiarity()),

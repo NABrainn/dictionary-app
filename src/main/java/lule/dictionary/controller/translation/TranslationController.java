@@ -59,7 +59,7 @@ public class TranslationController {
                                     @RequestParam("targetLanguage") Language targetLanguage,
                                     @RequestParam("importId") int importId,
                                     @RequestParam("selectedWordId") int selectedWordId) {
-        translationService.updateFamiliarity(redirectAttributes, new MutateTranslationRequest(targetWord, sourceWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
+        translationService.updateFamiliarityAndSourceWord(redirectAttributes, new MutateTranslationRequest(sourceWord, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
         return "forward:/imports/page/reload";
     }
 }

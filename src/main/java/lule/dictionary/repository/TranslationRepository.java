@@ -81,16 +81,17 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateFamiliarity(@NonNull String targetWord, @NonNull Familiarity familiarity) throws RepositoryException {
+    public Optional<Translation> updateFamiliarityAndSourceWord(@NonNull String targetWord, @NonNull String sourceWord, @NonNull Familiarity familiarity) throws RepositoryException {
         String sql = """
                 UPDATE dictionary.translations
-                SET familiarity = ?
+                SET familiarity = ?, source_word = ?
                 WHERE target_word = ?
                 RETURNING *
                 """;
         try {
             Translation translation = template.queryForObject(sql, TRANSLATION,
                     familiarity.name(),
+                    sourceWord.toLowerCase(),
                     targetWord.toLowerCase()
             );
             return Optional.ofNullable(translation);
