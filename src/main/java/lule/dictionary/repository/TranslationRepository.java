@@ -8,9 +8,13 @@ import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -29,13 +33,8 @@ public class TranslationRepository {
     public OptionalInt addTranslation(@NonNull Translation translation, int importId) throws RepositoryException {
         String sql = """
                 WITH translation AS (
-                    INSERT INTO dictionary.translations (source_word, target_word, source_lang, target_lang, translation_owner, familiarity)
+                    INSERT INTO dictionary.translations (source_words, target_word, source_lang, target_lang, translation_owner, familiarity)
                     VALUES (?, ?, ?, ?, ?, ?)
-                    ON CONFLICT ON CONSTRAINT unique_translations_per_owner
-                    DO UPDATE SET
-                        source_lang = EXCLUDED.source_lang,
-                        target_lang = EXCLUDED.target_lang,
-                        familiarity = EXCLUDED.familiarity
                     RETURNING translations_id
                 )
                 INSERT INTO dictionary.imports_translations (imports_id, translations_id, amount)
@@ -43,16 +42,18 @@ public class TranslationRepository {
                 RETURNING (SELECT translations_id FROM translation)
                 """;
         try {
-            Integer translationId = template.queryForObject(sql, TRANSLATION_ID,
-                    translation.sourceWord(),
-                    translation.targetWord().toLowerCase(),
-                    translation.sourceLanguage().toString(),
-                    translation.targetLanguage().toString(),
-                    translation.owner(),
-                    translation.familiarity().toString(),
-                    importId,
-                    1
-            );
+            Integer translationId = template.query(con -> {
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setArray(1, con.createArrayOf("text", translation.sourceWords().toArray()));
+                ps.setString(2, translation.targetWord().toLowerCase());
+                ps.setString(3, translation.sourceLanguage().toString());
+                ps.setString(4, translation.targetLanguage().toString());
+                ps.setString(5, translation.owner());
+                ps.setString(6, translation.familiarity().toString());
+                ps.setInt(7, importId);
+                ps.setInt(8, 1);
+                return ps;
+            }, TRANSLATION_ID).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
             if(translationId != null) {
                 return OptionalInt.of(translationId);
             }
@@ -63,38 +64,42 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateSourceWord(@NonNull String sourceWord, @NonNull String targetWord) throws RepositoryException {
+    public Optional<Translation> updateSourceWord(@NonNull List<String> sourceWords, @NonNull String targetWord) throws RepositoryException {
         String sql = """
                 UPDATE dictionary.translations
-                SET source_word = ?
+                SET source_words = ?
                 WHERE target_word = ?
                 RETURNING *
                 """;
         try {
-            Translation translation = template.queryForObject(sql, TRANSLATION,
-                    sourceWord,
-                    targetWord
-            );
-            return Optional.ofNullable(translation);
+            Optional<Translation> translation = template.query((PreparedStatementCreator) con -> {
+                var ps = con.prepareStatement(sql);
+                ps.setArray(1, con.createArrayOf("text", sourceWords.toArray()));
+                ps.setString(2, targetWord);
+                return ps;
+            }, TRANSLATION).stream().findFirst();
+            return translation;
         } catch (DataAccessException e) {
             throw new RepositoryException(e.getCause());
         }
     }
 
-    public Optional<Translation> updateFamiliarityAndSourceWord(@NonNull String targetWord, @NonNull String sourceWord, @NonNull Familiarity familiarity) throws RepositoryException {
+    public Optional<Translation> updateFamiliarityAndSourceWord(@NonNull String targetWord, @NonNull List<String> sourceWords, @NonNull Familiarity familiarity) throws RepositoryException {
         String sql = """
                 UPDATE dictionary.translations
-                SET familiarity = ?, source_word = ?
+                SET familiarity = ?, source_words = ?
                 WHERE target_word = ?
                 RETURNING *
                 """;
         try {
-            Translation translation = template.queryForObject(sql, TRANSLATION,
-                    familiarity.name(),
-                    sourceWord.toLowerCase(),
-                    targetWord.toLowerCase()
-            );
-            return Optional.ofNullable(translation);
+            Optional<Translation> translation = template.query((PreparedStatementCreator) con -> {
+                var ps = con.prepareStatement(sql);
+                ps.setString(1, familiarity.name());
+                ps.setArray(2, con.createArrayOf("text", sourceWords.toArray()));
+                ps.setString(3, targetWord);
+                return ps;
+            }, TRANSLATION).stream().findFirst();
+            return translation;
         } catch (DataAccessException e) {
             log.error(e.getMessage(), e.getCause());
             throw new RepositoryException(e.getCause());

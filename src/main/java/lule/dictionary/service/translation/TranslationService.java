@@ -38,11 +38,11 @@ public class TranslationService {
     private final StringRegexService stringRegexService;
     private final LibreTranslateService libreTranslateService;
 
-    public int add(RedirectAttributes redirectAttributes, @NonNull MutateTranslationRequest mutateTranslationRequest) throws ServiceException {
+    public int add(RedirectAttributes redirectAttributes, @NonNull MutateTranslationRequest mutateTranslationRequest) {
         try {
             String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
             Translation translationToAdd = DictionaryTranslation.builder()
-                    .sourceWord(mutateTranslationRequest.sourceWord())
+                    .sourceWords(mutateTranslationRequest.sourceWords())
                     .targetWord(transformedTargetWord)
                     .familiarity(mutateTranslationRequest.familiarity())
                     .sourceLanguage(mutateTranslationRequest.sourceLanguage())
@@ -73,7 +73,9 @@ public class TranslationService {
         }
     }
 
-    public boolean findByTargetWord(Authentication authentication, @NonNull Model model, @NonNull FindTranslationRequest translationRequest) throws ServiceException{
+    public boolean findByTargetWord(@NonNull Authentication authentication,
+                                    @NonNull Model model, @NonNull
+                                    FindTranslationRequest translationRequest) throws ServiceException{
         try {
             String cleanTargetWord = stringRegexService.removeNonLetters(translationRequest.targetWord());
             if(cleanTargetWord.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "String is not in a valid state");
@@ -89,12 +91,13 @@ public class TranslationService {
                 ));
                 return true;
             }
+            List<String> sourceWords = libreTranslateService.translate(
+                    stringRegexService.removeNonLetters(cleanTargetWord),
+                    Language.EN,
+                    Language.NO
+            );
             Translation translation = DictionaryTranslation.builder()
-                    .sourceWord(libreTranslateService.translate(
-                            stringRegexService.removeNonLetters(cleanTargetWord),
-                            Language.EN,
-                            Language.NO
-                    ).translatedText())
+                    .sourceWords(sourceWords)
                     .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(Language.EN)
@@ -115,9 +118,9 @@ public class TranslationService {
         }
     }
 
-    public void updateSourceWord(@NonNull String sourceWord, @NonNull String targetWord) throws ServiceException{
+    public void updateSourceWord(@NonNull List<String> sourceWords, @NonNull String targetWord) throws ServiceException{
         try {
-            translationRepository.updateSourceWord(sourceWord, targetWord).orElseThrow(() -> new ServiceException("Failed to update source word for " + targetWord));
+            translationRepository.updateSourceWord(sourceWords, targetWord).orElseThrow(() -> new ServiceException("Failed to update source word for " + targetWord));
         } catch (RepositoryException e) {
             throw new ServiceException("Failed to update source word for " + targetWord, e.getCause());
         }
@@ -126,7 +129,10 @@ public class TranslationService {
     public void updateFamiliarityAndSourceWord(RedirectAttributes redirectAttributes, MutateTranslationRequest mutateTranslationRequest) throws ServiceException{
         try {
             String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
-            Translation translation = translationRepository.updateFamiliarityAndSourceWord(transformedTargetWord, mutateTranslationRequest.sourceWord(), mutateTranslationRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
+            Translation translation = translationRepository.updateFamiliarityAndSourceWord(
+                    transformedTargetWord,
+                    mutateTranslationRequest.sourceWords(),
+                    mutateTranslationRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
             redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
                     mutateTranslationRequest.importId(),
                     translationUtilService.getFamiliarityAsInt(translation.familiarity()),

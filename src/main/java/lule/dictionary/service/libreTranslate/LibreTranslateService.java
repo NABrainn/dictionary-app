@@ -5,7 +5,9 @@ import lule.dictionary.enumeration.Language;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -13,8 +15,8 @@ public class LibreTranslateService {
 
     private final RestClient libreTranslateClient;
 
-    public TranslateResponse translate(String targetWord, Language sourceLanguage, Language targetLanguage) {
-        return libreTranslateClient
+    public List<String> translate(String targetWord, Language sourceLanguage, Language targetLanguage) {
+        TranslateResponse response = libreTranslateClient
                 .post()
                 .uri("/translate")
                 .body(Map.of(
@@ -27,6 +29,10 @@ public class LibreTranslateService {
                 ))
                 .retrieve()
                 .body(TranslateResponse.class);
+        if(response != null) {
+            return List.of(response.translatedText());
+        }
+        return List.of();
     }
 
     public Map<String, String> languageMap() {

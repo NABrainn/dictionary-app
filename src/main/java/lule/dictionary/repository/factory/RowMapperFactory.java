@@ -12,6 +12,9 @@ import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class RowMapperFactory {
     public static final RowMapper<UserProfile> USER_PROFILE = ((rs, rowNum) ->
             DictionaryUserProfile.builder()
@@ -24,7 +27,7 @@ public class RowMapperFactory {
     );
     public static final RowMapper<Translation> TRANSLATION = ((rs, rowNum) ->
             DictionaryTranslation.builder()
-                    .sourceWord(rs.getString("source_word"))
+                    .sourceWords(Arrays.asList((String[]) rs.getArray("source_words").getArray()))
                     .targetWord(rs.getString("target_word"))
                     .familiarity(Familiarity.valueOf(rs.getString("familiarity")))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))

@@ -9,27 +9,54 @@
 
     if(!customElements.get('source-word-adder')) {
         class SourceWordAdder extends HTMLElement {
-            sourceWord = ['${translationModel.translation().sourceWord()}']
+
+            sourceWords = []
+            textInput = document.getElementById('input-source-word');
+            vals = document.getElementById('source-word-vals');
+            
+
             constructor(){
                 super();
             }
+
             connectedCallback() {
+                @for(var word : translationModel.translation().sourceWords())
+                    this.sourceWords.push('${word}');
+                @endfor
+                this.updateVals()
                 document.getElementById('submit-source-word').addEventListener('click', () => {
-                    if(!this.sourceWord.includes(document.getElementById('input-source-word').value)) {
-                        this.sourceWord.push(document.getElementById('input-source-word').value)
-                        this.addToDisplay(document.getElementById('input-source-word').value)
-                        document.getElementById('source-word-hidden').value = this.sourceWord.join(" ");
+                    if(this.textInput.value) {
+                        if(!this.sourceWords.includes(this.textInput.value)) {
+                            if(this.sourceWords.length < 3) {
+                                this.sourceWords.push(this.textInput.value)
+                                this.updateUI(this.textInput.value)
+                                this.updateVals()
+                            }
+                        }
                     }
+
                 })
             }
 
-            addToDisplay(val) {
-                const sourceWordSpan = document.createElement('span')
-                sourceWordSpan.classList.add('text-accent')
-                sourceWordSpan.textContent = val
-                console.log(sourceWordSpan.innerContent)
-                document.getElementById('source-word-container').append(sourceWordSpan);
+            updateUI(val) {
+                const span = document.createElement('span')
+                span.classList.add('text-accent')
+                span.textContent = val
+                document.getElementById('source-word-container').append(span);
+            }
 
+            updateVals() {
+                while(this.vals.firstChild) {
+                    this.vals.removeChild(this.vals.firstChild)
+                }
+
+                for(const word of this.sourceWords) {
+                    const val = document.createElement('input')
+                    val.setAttribute("type", "hidden")
+                    val.setAttribute("name", "sourceWords")
+                    val.setAttribute("value", word)
+                    this.vals.appendChild(val)
+                }
             }
         }
         customElements.define('source-word-adder', SourceWordAdder)
@@ -41,7 +68,9 @@
     </div>
     <span class="font-bold text-lg text-accent">${translationModel.translation().targetWord()}</span>
     <div id="source-word-container" class="flex flex-col">
-        <span class="text-accent">${translationModel.translation().sourceWord()}</span>
+        @for(String word : translationModel.translation().sourceWords())
+            <span class="text-accent">${word}</span>
+        @endfor
     </div>
     <div class="flex gap-2">
         <input
@@ -50,13 +79,13 @@
         outline-none border border-2 border-primary rounded text-neutral text-sm
         focus:border-accent"
         type="text" placeholder="Custom translation" name="sourceWord">
-        <input type="hidden" name="sourceWord" id="source-word-hidden" value="${translationModel.translation().sourceWord()}">
+        <div id="source-word-vals"></div>
         <button id="submit-source-word" class="text-2xl cursor-pointer" type="button">+</button>
     </div>
     @for(var level : translationModel.familiarityLevels().entrySet())
         <div class="hover:text-primary font-bold text-neutral flex gap-1 cursor-pointer"
              hx-post="/translations/new"
-             hx-include="#source-word-hidden"
+             hx-include="#source-word-vals"
              hx-vals='
              {
                 "targetWord": "${translationModel.translation().targetWord()}",

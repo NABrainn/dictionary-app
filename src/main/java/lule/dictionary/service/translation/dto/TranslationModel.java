@@ -5,5 +5,9 @@ import lule.dictionary.enumeration.Familiarity;
 
 import java.util.Map;
 
-public record TranslationModel(int importId, int currentFamiliarity, Translation translation, Map<Integer, Familiarity> familiarityLevels, int selectedWordId) {
+public record TranslationModel(int importId,
+                               int currentFamiliarity,
+                               Translation translation,
+                               Map<Integer, Familiarity> familiarityLevels,
+                               int selectedWordId) {
 }

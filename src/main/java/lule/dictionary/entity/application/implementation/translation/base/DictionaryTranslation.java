@@ -11,12 +11,13 @@ import lule.dictionary.functionalInterface.validation.LengthValidator;
 import lule.dictionary.functionalInterface.validation.PatternValidator;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Builder(toBuilder = true)
 public record DictionaryTranslation(
         @NonNull
-        String sourceWord,
+        List<String> sourceWords,
         @NonNull
         String targetWord,
         @NonNull
@@ -50,17 +51,21 @@ public record DictionaryTranslation(
                 EqualEnumValueValidator<Language> equalValueValidator = (Language lang1, Language lang2) -> {
                         if(lang1.equals(lang2)) throw new IllegalArgumentException("source language and target language cannot be equal");
                 };
-                emptyValidator.validate(sourceWord, targetWord, owner, familiarity.name());
 
-                sourceWord = sourceWord.trim();
+                for(var word : sourceWords) {
+                        emptyValidator.validate(word);
+                        patternValidator.validate(INVALID_CHARS, word);
+                        maxLengthValidator.validate(200, word);
+                }
+
+                emptyValidator.validate(targetWord, owner, familiarity.name());
+
                 targetWord = targetWord.trim();
                 owner = owner.trim();
 
-                patternValidator.validate(INVALID_CHARS, sourceWord);
                 patternValidator.validate(INVALID_CHARS, targetWord);
 
                 maxLengthValidator.validate(50, owner);
-                maxLengthValidator.validate(200, sourceWord);
                 maxLengthValidator.validate(200, targetWord);
         }
 }

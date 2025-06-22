@@ -14,6 +14,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping({"/translations", "/translations/"})
@@ -38,28 +40,33 @@ public class TranslationController {
     @PostMapping({"/new", "new"})
     public String newTranslation(RedirectAttributes redirectAttributes,
                                          Authentication authentication,
-                                         @RequestParam("sourceWord") String sourceWord,
+                                         @RequestParam("sourceWords") List<String> sourceWords,
                                          @RequestParam("targetWord") String targetWord,
                                          @RequestParam("familiarity") Familiarity familiarity,
                                          @RequestParam("sourceLanguage") Language sourceLanguage,
                                          @RequestParam("targetLanguage") Language targetLanguage,
                                          @RequestParam("importId") int importId,
                                          @RequestParam("selectedWordId") int selectedWordId) {
-        translationService.add(redirectAttributes, new MutateTranslationRequest(sourceWord, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
+        translationService.add(redirectAttributes, new MutateTranslationRequest(
+                sourceWords, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId
+        ));
         return "forward:/imports/page/reload";
     }
 
     @PutMapping({"/familiarity/update", "familiarity/update"})
     public String updateFamiliarity(RedirectAttributes redirectAttributes,
                                     Authentication authentication,
-                                    @RequestParam("sourceWord") String sourceWord,
+                                    @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord,
                                     @RequestParam("familiarity") Familiarity familiarity,
                                     @RequestParam("sourceLanguage") Language sourceLanguage,
                                     @RequestParam("targetLanguage") Language targetLanguage,
                                     @RequestParam("importId") int importId,
                                     @RequestParam("selectedWordId") int selectedWordId) {
-        translationService.updateFamiliarityAndSourceWord(redirectAttributes, new MutateTranslationRequest(sourceWord, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId));
+        translationService.updateFamiliarityAndSourceWord(redirectAttributes, new MutateTranslationRequest(
+                sourceWords, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId
+        ));
+        System.out.println();
         return "forward:/imports/page/reload";
     }
 }
