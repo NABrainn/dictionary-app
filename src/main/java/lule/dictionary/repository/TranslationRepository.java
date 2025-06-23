@@ -8,13 +8,10 @@ import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -64,15 +61,15 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateSourceWord(@NonNull List<String> sourceWords, @NonNull String targetWord) throws RepositoryException {
+    public Optional<Translation> updateSourceWords(@NonNull List<String> sourceWords, @NonNull String targetWord) throws RepositoryException {
         String sql = """
                 UPDATE dictionary.translations
-                SET source_words = ?
+                SET source_words =  ?
                 WHERE target_word = ?
                 RETURNING *
                 """;
         try {
-            Optional<Translation> translation = template.query((PreparedStatementCreator) con -> {
+            Optional<Translation> translation = template.query(con -> {
                 var ps = con.prepareStatement(sql);
                 ps.setArray(1, con.createArrayOf("text", sourceWords.toArray()));
                 ps.setString(2, targetWord);
@@ -80,23 +77,23 @@ public class TranslationRepository {
             }, TRANSLATION).stream().findFirst();
             return translation;
         } catch (DataAccessException e) {
+            log.error(e.getMessage(), e.getCause());
             throw new RepositoryException(e.getCause());
         }
     }
 
-    public Optional<Translation> updateFamiliarityAndSourceWord(@NonNull String targetWord, @NonNull List<String> sourceWords, @NonNull Familiarity familiarity) throws RepositoryException {
+    public Optional<Translation> updateFamiliarity(@NonNull String targetWord, @NonNull Familiarity familiarity) throws RepositoryException {
         String sql = """
                 UPDATE dictionary.translations
-                SET familiarity = ?, source_words = ?
+                SET familiarity = ?
                 WHERE target_word = ?
                 RETURNING *
                 """;
         try {
-            Optional<Translation> translation = template.query((PreparedStatementCreator) con -> {
+            Optional<Translation> translation = template.query(con -> {
                 var ps = con.prepareStatement(sql);
                 ps.setString(1, familiarity.name());
-                ps.setArray(2, con.createArrayOf("text", sourceWords.toArray()));
-                ps.setString(3, targetWord);
+                ps.setString(2, targetWord);
                 return ps;
             }, TRANSLATION).stream().findFirst();
             return translation;

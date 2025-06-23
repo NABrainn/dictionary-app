@@ -33,17 +33,11 @@ public record MutateTranslationRequest(
                                 throw new IllegalArgumentException(field + " contains invalid characters");
                         }
                 };
-                for(var word : sourceWords) {
-                        patternValidator.validate(INVALID_CHARS, word);
-                }
                 patternValidator.validate(INVALID_CHARS, targetWord);
         }
 
         @Override
         public List<String> sourceWords() {
-                if(sourceWords == null) {
-                        return List.of();
-                }
                 return List.copyOf(sourceWords);
         }
 }

@@ -38,6 +38,8 @@ public class RowMapperFactory {
 
     public static final RowMapper<Integer> TRANSLATION_ID = ((rs, rowNum) -> rs.getInt("translations_id"));
 
+    public static final RowMapper<Object> SOURCE_WORDS = ((rs, rowNum) -> rs.getArray("source_words"));
+
 
     public static final RowMapper<ImportWithId> IMPORT_WITH_ID = ((rs, rowNum) ->
             DictionaryImportWithId.builder()

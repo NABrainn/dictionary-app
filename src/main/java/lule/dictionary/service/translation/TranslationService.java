@@ -1,13 +1,12 @@
 package lule.dictionary.service.translation;
 
+import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
-import lule.dictionary.service.translation.dto.MutateTranslationRequest;
-import lule.dictionary.service.translation.dto.TranslationModel;
-import lule.dictionary.service.translation.dto.FindTranslationRequest;
+import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
@@ -22,11 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,8 +33,10 @@ public class TranslationService {
     private final TranslationFamiliarityService translationUtilService;
     private final StringRegexService stringRegexService;
     private final LibreTranslateService libreTranslateService;
+    private final Validator validator;
 
-    public int add(RedirectAttributes redirectAttributes, @NonNull MutateTranslationRequest mutateTranslationRequest) {
+    public int add(Model model,
+                   @NonNull MutateTranslationRequest mutateTranslationRequest) {
         try {
             String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
             Translation translationToAdd = DictionaryTranslation.builder()
@@ -52,7 +50,7 @@ public class TranslationService {
             int translationId = translationRepository.addTranslation(
                     translationToAdd,
                     mutateTranslationRequest.importId()).orElseThrow(() -> new ServiceException("Failed to add new translation"));
-            redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
+            model.addAttribute("translationModel", new TranslationModel(
                     mutateTranslationRequest.importId(),
                     translationUtilService.getFamiliarityAsInt(mutateTranslationRequest.familiarity()),
                     translationToAdd,
@@ -118,27 +116,18 @@ public class TranslationService {
         }
     }
 
-    public void updateSourceWord(@NonNull List<String> sourceWords, @NonNull String targetWord) throws ServiceException{
+    public void updateFamiliarity(Model model, UpdateTranslationFamiliarityRequest updateFamiliarityDto) throws ServiceException{
         try {
-            translationRepository.updateSourceWord(sourceWords, targetWord).orElseThrow(() -> new ServiceException("Failed to update source word for " + targetWord));
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to update source word for " + targetWord, e.getCause());
-        }
-    }
-
-    public void updateFamiliarityAndSourceWord(RedirectAttributes redirectAttributes, MutateTranslationRequest mutateTranslationRequest) throws ServiceException{
-        try {
-            String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
-            Translation translation = translationRepository.updateFamiliarityAndSourceWord(
+            String transformedTargetWord = stringRegexService.removeNonLetters(updateFamiliarityDto.targetWord());
+            Translation translation = translationRepository.updateFamiliarity(
                     transformedTargetWord,
-                    mutateTranslationRequest.sourceWords(),
-                    mutateTranslationRequest.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
-            redirectAttributes.addFlashAttribute("translationModel", new TranslationModel(
-                    mutateTranslationRequest.importId(),
+                    updateFamiliarityDto.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
+            model.addAttribute("translationModel", new TranslationModel(
+                    updateFamiliarityDto.importId(),
                     translationUtilService.getFamiliarityAsInt(translation.familiarity()),
                     translation,
                     translationUtilService.getSortedFamiliarityMap(),
-                    mutateTranslationRequest.selectedWordId()
+                    updateFamiliarityDto.selectedWordId()
             ));
         } catch (RepositoryException e) {
             throw new ServiceException("Failed to update familiarity", e.getCause());
@@ -167,5 +156,11 @@ public class TranslationService {
         } catch (ServiceException e) {
             throw new ServiceException(e.getMessage(), e.getCause());
         }
+    }
+
+    public void updateSourceWords(Model model, UpdateSourceWordsRequest request) {
+        Optional<Translation> translation = translationRepository.updateSourceWords(request.sourceWords(), request.targetWord());
+        translation.ifPresent(value -> model.addAttribute("sourceWords", value.sourceWords()));
+
     }
 }

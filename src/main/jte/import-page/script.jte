@@ -2,9 +2,16 @@
 <script>
     if (!customElements.get('import-page')) {
         class ImportPage extends HTMLElement {
+
             static observedAttributes = ['selected-word-id'];
+
             constructor() {
                 super();
+            }
+
+            connectedCallback() {
+                this.setAttribute('selected-word-id', 0);
+                this.highlightWord(0);
             }
 
             closeAllTranslationForms() {
@@ -44,17 +51,21 @@
                 }
             }
 
-            onWordClick(id) {;
+            onWordClick(id) {
                 this.setAttribute('selected-word-id', id);
             }
 
-            connectedCallback() {
-                this.setAttribute('selected-word-id', 0);
-                this.highlightWord(0);
-            }
+            // openTranslationDialog(targetWord, importId, wordId) {
+            //         htmx.ajax(
+            //             'GET',
+            //             `/translations?targetWord=${targetWord}&importId=${importId}&selectedWordId=${wordId}`,
+            //             {target:"#translation-form-wordId", swap: 'innerHTML'}
+            //         )
+            // }
 
             attributeChangedCallback(name, oldValue, newValue) {
-                if (name === 'selected-word-id') {
+                console.log('changed from ' + oldValue + " to " + newValue)
+                if (name === 'selected-word-id' && oldValue !== newValue) {
                     this.highlightWord(parseInt(newValue));
                 }
             }

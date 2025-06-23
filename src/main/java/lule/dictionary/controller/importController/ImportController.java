@@ -7,6 +7,7 @@ import lule.dictionary.service.imports.importPageService.dto.SaveTranslationRequ
 import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.imports.importPageService.ImportPageService;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
+import lule.dictionary.service.translation.dto.TranslationModel;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -31,17 +32,19 @@ public class ImportController {
 
     @PostMapping({"/page/reload", "page/reload"})
     public String reloadImportPageOnPost(Model model,
-                                       @RequestParam("selectedWordId") int wordId,
-                                       @RequestParam("importId") int importId) {
-        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId));
+                                         @RequestAttribute("translationModel")TranslationModel translationModel,
+                                         @RequestParam("selectedWordId") int wordId,
+                                         @RequestParam("importId") int importId) {
+        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId, translationModel));
         return "import-page/content";
     }
 
     @PutMapping({"/page/reload", "page/reload"})
     public String reloadImportPageOnPut(Model model,
+                                    @RequestAttribute("translationModel")TranslationModel translationModel,
                                    @RequestParam("selectedWordId") int wordId,
                                    @RequestParam("importId") int importId) {
-        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId));
+        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId, translationModel));
         return "import-page/content";
     }
 
@@ -53,7 +56,7 @@ public class ImportController {
     @GetMapping({"{importId}", "/{importId}"})
     public String importPageContent(Model model,
                                     @PathVariable("importId") String importId) {
-        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(0, Integer.parseInt(importId)));
+        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(0, Integer.parseInt(importId), null));
         return "import-page/import-page";
     }
 
