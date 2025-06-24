@@ -155,7 +155,10 @@ public class TranslationService {
             throw new ServiceException("Constraints violated at " + request);
         }
         Optional<Translation> translation = translationRepository.updateSourceWords(request.sourceWords(), request.targetWord());
-        translation.ifPresent(value -> model.addAttribute("sourceWords", value.sourceWords()));
+        translation.ifPresent(value -> {
+            model.addAttribute("targetWord", value.targetWord());
+            model.addAttribute("sourceWords", value.sourceWords());
+        });
         model.addAttribute("result", new ServiceResult(false, Map.of()));
     }
 
