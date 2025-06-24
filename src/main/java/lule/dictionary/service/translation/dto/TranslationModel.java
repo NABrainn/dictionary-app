@@ -4,6 +4,7 @@ import lombok.NonNull;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 
+import java.util.Collections;
 import java.util.Map;
 
 public record TranslationModel(int importId,
@@ -13,6 +14,6 @@ public record TranslationModel(int importId,
                                int selectedWordId) {
     @Override
     public Map<Integer, Familiarity> familiarityLevels() {
-        return Map.copyOf(familiarityLevels);
+        return Collections.unmodifiableMap(familiarityLevels);
     }
 }
