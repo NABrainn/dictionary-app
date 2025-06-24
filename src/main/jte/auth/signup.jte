@@ -27,7 +27,7 @@
         <div class="flex gap-4 items-center">
             <button type="submit" class="text-left px-2 py-1 bg-accent text-primary rounded cursor-pointer">Submit</button>
             @if(result != null && result.error())
-                <span class="font-bold text-error grow-1">${result.message()}</span>
+                <span class="font-bold text-error grow-1">${result.message().get("password")}</span>
             @else
                 <span class="grow-1"></span>
             @endif
