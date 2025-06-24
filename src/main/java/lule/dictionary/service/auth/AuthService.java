@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.exception.ServiceException;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
@@ -43,10 +44,11 @@ public class AuthService {
                       @NonNull HttpServletResponse response,
                       @NonNull LoginRequest loginRequest) {
         try {
-            var result = validator.validate(loginRequest);
-            if(!result.isEmpty()) {
-                model.addAttribute("result", new ServiceResult(true, ServiceResultFactory.fromSet(result)));
-                return;
+            var constraints = validator.validate(loginRequest);
+            if(!constraints.isEmpty()) {
+                var result = new ServiceResult(true, ServiceResultFactory.fromSet(constraints));
+                model.addAttribute("result", result);
+                throw new ServiceException("validation failure");
             }
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -56,27 +58,34 @@ public class AuthService {
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
             response.addCookie(cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication)));
-            redirectAttributes.addFlashAttribute("result", new ServiceResult(false, Map.of()));
+            var result = new ServiceResult(false, Map.of());
+            redirectAttributes.addFlashAttribute("result", result);
         } catch (AuthenticationException | ResourceNotFoundException e) {
-            model.addAttribute("result", new ServiceResult(true, Map.of()));
+            var result = new ServiceResult(false, Map.of());
+            model.addAttribute("result", result);
             model.addAttribute("authentication", null);
+            throw new ServiceException("Authentication exception");
         }
     }
 
     public void signup(@NonNull Model model,
                        @NonNull SignupRequest signupRequest) {
-        var result = validator.validate(signupRequest);
-        if(!result.isEmpty()) {
-            model.addAttribute("result", new ServiceResult(true, ServiceResultFactory.fromSet(result)));
-            return;
+        var constraints = validator.validate(signupRequest);
+        if(!constraints.isEmpty()) {
+            var result = new ServiceResult(true, ServiceResultFactory.fromSet(constraints));
+            model.addAttribute("result", result);
+            throw new ServiceException("validation failure");
         }
         Optional<UserProfile> optionalUserProfile = userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email());
         if(optionalUserProfile.isPresent()) {
-            model.addAttribute("result", new ServiceResult(true, Map.of("found", "User with given username or email already exists.")));
+            var result = new ServiceResult(true, Map.of("found", "User with given username or email already exists."));
+            model.addAttribute("result", result);
+            throw new ServiceException("User with given username or email already exists.");
         }
         String encodedPassword = bCryptPasswordEncoder.encode(signupRequest.password());
         userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword);
-        model.addAttribute("result", new ServiceResult(false, Map.of()));
+        var result = new ServiceResult(false, Map.of());
+        model.addAttribute("result", result);
     }
 
     public void logout(@NonNull RedirectAttributes redirectAttributes,
