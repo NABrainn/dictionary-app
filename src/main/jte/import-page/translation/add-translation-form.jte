@@ -12,37 +12,14 @@
         <span class="text-red-400 font-bold text-lg cursor-pointer" onclick="exitForm()">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationModel.translation().targetWord()}</span>
-    <form
-    class="flex flex-col gap-2"
-    hx-vals='
-     {
-        "targetWord": "${translationModel.translation().targetWord()}",
-        "familiarity": "UNKNOWN",
-        "sourceLanguage": "${translationModel.translation().sourceLanguage().name()}",
-        "targetLanguage": "${translationModel.translation().targetLanguage().name()}",
-        "importId": "${translationModel.importId()}",
-        "selectedWordId": "${translationModel.selectedWordId()}"
-     }'
-    hx-post="/translations/new"
-    hx-target="#page-content"
-    hx-swap="outerHTML">
-        <div id="source-word-container" class="flex flex-col">
-            @template.import-page.translation.source-words-list(sourceWords =  translationModel.translation().sourceWords(), targetWord = translationModel.translation().targetWord())
-        </div>
-        <div class="flex gap-2">
-            <input
-            id="input-source-word"
-            class="
-            outline-none border border-2 border-primary rounded text-neutral text-sm
-            focus:border-accent"
-            type="text" placeholder="Custom translation"
-            name="sourceWords">
-            <button
-            id="submit-source-word"
-            class="text-2xl cursor-pointer"
-            type="submit">+</button>
-        </div>
-    </form>
+    @template.import-page.translation.add-source-words-form(
+        targetWord = translationModel.translation().targetWord(),
+        sourceLanguage = translationModel.translation().sourceLanguage().name(),
+        targetLanguage = translationModel.translation().targetLanguage().name(),
+        importId = translationModel.importId(),
+        selectedWordId = translationModel.selectedWordId(),
+        sourceWords = translationModel.translation().sourceWords()
+    )
     @for(var level : translationModel.familiarityLevels().entrySet())
         <div class="hover:text-primary font-bold text-neutral flex gap-1 cursor-pointer"
              hx-post="/translations/new"
