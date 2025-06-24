@@ -37,125 +37,100 @@ public class TranslationService {
 
     public int add(Model model,
                    @NonNull MutateTranslationRequest mutateTranslationRequest) {
-        try {
-            String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
-            Translation translationToAdd = DictionaryTranslation.builder()
-                    .sourceWords(mutateTranslationRequest.sourceWords())
-                    .targetWord(transformedTargetWord)
-                    .familiarity(mutateTranslationRequest.familiarity())
-                    .sourceLanguage(mutateTranslationRequest.sourceLanguage())
-                    .targetLanguage(mutateTranslationRequest.targetLanguage())
-                    .owner(mutateTranslationRequest.owner())
-                    .build();
-            int translationId = translationRepository.addTranslation(
-                    translationToAdd,
-                    mutateTranslationRequest.importId()).orElseThrow(() -> new ServiceException("Failed to add new translation"));
-            model.addAttribute("translationModel", new TranslationModel(
-                    mutateTranslationRequest.importId(),
-                    translationUtilService.getFamiliarityAsInt(mutateTranslationRequest.familiarity()),
-                    translationToAdd,
-                    translationUtilService.getSortedFamiliarityMap(),
-                    mutateTranslationRequest.selectedWordId()
-            ));
-            return translationId;
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to add new translation", e.getCause());
-        }
+        String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
+        Translation translationToAdd = DictionaryTranslation.builder()
+                .sourceWords(mutateTranslationRequest.sourceWords())
+                .targetWord(transformedTargetWord)
+                .familiarity(mutateTranslationRequest.familiarity())
+                .sourceLanguage(mutateTranslationRequest.sourceLanguage())
+                .targetLanguage(mutateTranslationRequest.targetLanguage())
+                .owner(mutateTranslationRequest.owner())
+                .build();
+        int translationId = translationRepository.addTranslation(
+                translationToAdd,
+                mutateTranslationRequest.importId()).orElseThrow(() -> new ServiceException("Failed to add new translation"));
+        model.addAttribute("translationModel", new TranslationModel(
+                mutateTranslationRequest.importId(),
+                translationUtilService.getFamiliarityAsInt(mutateTranslationRequest.familiarity()),
+                translationToAdd,
+                translationUtilService.getSortedFamiliarityMap(),
+                mutateTranslationRequest.selectedWordId()
+        ));
+        return translationId;
     }
 
     public List<Translation> findAllByOwner(@NonNull String owner) throws ServiceException{
-        try {
-            return translationRepository.findByOwner(owner);
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch translations", e.getCause());
-        }
+        return translationRepository.findByOwner(owner);
     }
 
     public boolean findByTargetWord(@NonNull Authentication authentication,
                                     @NonNull Model model, @NonNull
                                     FindTranslationRequest translationRequest) throws ServiceException{
-        try {
-            String cleanTargetWord = stringRegexService.removeNonLetters(translationRequest.targetWord());
-            if(cleanTargetWord.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "String is not in a valid state");
+        String cleanTargetWord = stringRegexService.removeNonLetters(translationRequest.targetWord());
+        if(cleanTargetWord.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "String is not in a valid state");
 
-            if(translationRepository.findByTargetWord(cleanTargetWord).isPresent()) {
-                Translation translation = translationRepository.findByTargetWord(cleanTargetWord).get();
-                model.addAttribute("translationModel", new TranslationModel(
-                        translationRequest.importId(),
-                        translationUtilService.getFamiliarityAsInt(translation.familiarity()),
-                        translation,
-                        translationUtilService.getSortedFamiliarityMap(),
-                        translationRequest.selectedWordId()
-                ));
-                return true;
-            }
-            List<String> sourceWords = libreTranslateService.translate(
-                    stringRegexService.removeNonLetters(cleanTargetWord),
-                    Language.EN,
-                    Language.NO
-            );
-            Translation translation = DictionaryTranslation.builder()
-                    .sourceWords(sourceWords)
-                    .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
-                    .familiarity(Familiarity.UNKNOWN)
-                    .sourceLanguage(Language.EN)
-                    .targetLanguage(Language.NO)
-                    .owner(authentication.getName())
-                    .build();
+        if(translationRepository.findByTargetWord(cleanTargetWord).isPresent()) {
+            Translation translation = translationRepository.findByTargetWord(cleanTargetWord).get();
             model.addAttribute("translationModel", new TranslationModel(
                     translationRequest.importId(),
-                    1,
+                    translationUtilService.getFamiliarityAsInt(translation.familiarity()),
                     translation,
                     translationUtilService.getSortedFamiliarityMap(),
                     translationRequest.selectedWordId()
             ));
-            return false;
+            return true;
         }
-        catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch translation for word " + translationRequest.targetWord(), e.getCause());
-        }
+        List<String> sourceWords = libreTranslateService.translate(
+                stringRegexService.removeNonLetters(cleanTargetWord),
+                Language.EN,
+                Language.NO
+        );
+        Translation translation = DictionaryTranslation.builder()
+                .sourceWords(sourceWords)
+                .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
+                .familiarity(Familiarity.UNKNOWN)
+                .sourceLanguage(Language.EN)
+                .targetLanguage(Language.NO)
+                .owner(authentication.getName())
+                .build();
+        model.addAttribute("translationModel", new TranslationModel(
+                translationRequest.importId(),
+                1,
+                translation,
+                translationUtilService.getSortedFamiliarityMap(),
+                translationRequest.selectedWordId()
+        ));
+        return false;
     }
 
     public void updateFamiliarity(Model model, UpdateTranslationFamiliarityRequest updateFamiliarityDto) throws ServiceException{
-        try {
-            String transformedTargetWord = stringRegexService.removeNonLetters(updateFamiliarityDto.targetWord());
-            Translation translation = translationRepository.updateFamiliarity(
-                    transformedTargetWord,
-                    updateFamiliarityDto.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
-            model.addAttribute("translationModel", new TranslationModel(
-                    updateFamiliarityDto.importId(),
-                    translationUtilService.getFamiliarityAsInt(translation.familiarity()),
-                    translation,
-                    translationUtilService.getSortedFamiliarityMap(),
-                    updateFamiliarityDto.selectedWordId()
-            ));
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to update familiarity", e.getCause());
-        }
+        String transformedTargetWord = stringRegexService.removeNonLetters(updateFamiliarityDto.targetWord());
+        Translation translation = translationRepository.updateFamiliarity(
+                transformedTargetWord,
+                updateFamiliarityDto.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
+        model.addAttribute("translationModel", new TranslationModel(
+                updateFamiliarityDto.importId(),
+                translationUtilService.getFamiliarityAsInt(translation.familiarity()),
+                translation,
+                translationUtilService.getSortedFamiliarityMap(),
+                updateFamiliarityDto.selectedWordId()
+        ));
     }
 
     public List<Translation> findByTargetWords(List<String> targetWords) {
-        try {
-            List<String> validTargetWords = targetWords.stream()
-                    .map(word -> stringRegexService.removeNonLetters(word).trim().toLowerCase())
-                    .filter(word -> !word.isEmpty())
-                    .distinct()
-                    .toList();
-            return translationRepository.findByTargetWords(validTargetWords);
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch translations", e.getCause());
-        }
+        List<String> validTargetWords = targetWords.stream()
+                .map(word -> stringRegexService.removeNonLetters(word).trim().toLowerCase())
+                .filter(word -> !word.isEmpty())
+                .distinct()
+                .toList();
+        return translationRepository.findByTargetWords(validTargetWords);
     }
 
     public Map<String, Translation> findTranslationsByImport(@NonNull Import imported) {
-        try {
-            List<String> targetWords = Arrays.stream(imported.content().split(" "))
-                    .map(stringRegexService::removeNonLetters)
-                    .toList();
-            return findByTargetWords(targetWords).stream().collect(Collectors.toUnmodifiableMap(TranslationDetails::targetWord, (value) -> value));
-        } catch (ServiceException e) {
-            throw new ServiceException(e.getMessage(), e.getCause());
-        }
+        List<String> targetWords = Arrays.stream(imported.content().split(" "))
+                .map(stringRegexService::removeNonLetters)
+                .toList();
+        return findByTargetWords(targetWords).stream().collect(Collectors.toUnmodifiableMap(TranslationDetails::targetWord, (value) -> value));
     }
 
     public void updateSourceWords(Model model, UpdateSourceWordsRequest request) {
@@ -168,9 +143,8 @@ public class TranslationService {
         Optional<Translation> translation = translationRepository.deleteSourceWord(deleteSourceWordRequest.sourceWord(), deleteSourceWordRequest.targetWord());
         if(translation.isPresent()) {
             model.addAttribute("sourceWords", translation.get().sourceWords());
+            return;
         }
-        else {
-            model.addAttribute("sourceWords", List.of());
-        }
+        model.addAttribute("sourceWords", List.of());
     }
 }

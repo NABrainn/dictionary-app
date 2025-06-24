@@ -22,19 +22,15 @@ public class ImportPageService {
     private final TranslationService translationService;
 
     public void loadImportWithTranslations(Model model, SaveTranslationRequest saveTranslationRequest) {
+        Import imported = importService.findById(saveTranslationRequest.importId());
+        String title = imported.title();
+        List<String> content = List.of(imported.content().split("[ \\n]+"));
+        Map<String, Translation> translations = translationService.findTranslationsByImport(imported);
+        model.addAttribute("importPageModel", new ImportPageModel(title, content, translations, saveTranslationRequest.importId(), saveTranslationRequest.wordId()));
         try {
-            Import imported = importService.findById(saveTranslationRequest.importId());
-            String title = imported.title();
-            List<String> content = List.of(imported.content().split("[ \\n]+"));
-            Map<String, Translation> translations = translationService.findTranslationsByImport(imported);
-            model.addAttribute("importPageModel", new ImportPageModel(title, content, translations, saveTranslationRequest.importId(), saveTranslationRequest.wordId()));
-            try {
-                model.addAttribute("translationModel", saveTranslationRequest.translationModel());
-            } catch (NullPointerException e) {
-                model.addAttribute("translationModel", null);
-            }
-        } catch (ServiceException e) {
-            throw new ServiceException(e.getMessage(), e.getCause());
+            model.addAttribute("translationModel", saveTranslationRequest.translationModel());
+        } catch (NullPointerException e) {
+            model.addAttribute("translationModel", null);
         }
     }
 }

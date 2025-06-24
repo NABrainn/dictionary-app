@@ -28,41 +28,29 @@ public class UserProfileService implements UserDetailsService {
     }
 
     public UserProfile addUserProfile(@NonNull String username, @NonNull String email, @NonNull String password) throws ServiceException {
-        try {
-            UserProfile userProfile = DictionaryUserProfile.builder()
-                    .username(username)
-                    .email(email)
-                    .password(password)
-                    .sourceLanguage(Language.EN)
-                    .targetLanguage(Language.NO)
-                    .build();
-            return userProfileRepository.addUserProfile(DictionaryUserProfile.builder()
-                            .username(userProfile.username())
-                            .email(userProfile.email())
-                            .password(userProfile.password())
-                            .sourceLanguage(userProfile.sourceLanguage())
-                            .targetLanguage(userProfile.targetLanguage())
-                    .build()).orElseThrow(() -> new ServiceException("Failed to add user"));
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to add user", e.getCause());
-        }
+        UserProfile userProfile = DictionaryUserProfile.builder()
+                .username(username)
+                .email(email)
+                .password(password)
+                .sourceLanguage(Language.EN)
+                .targetLanguage(Language.NO)
+                .build();
+        return userProfileRepository.addUserProfile(DictionaryUserProfile.builder()
+                        .username(userProfile.username())
+                        .email(userProfile.email())
+                        .password(userProfile.password())
+                        .sourceLanguage(userProfile.sourceLanguage())
+                        .targetLanguage(userProfile.targetLanguage())
+                .build()).orElseThrow(() -> new ServiceException("Failed to add user"));
     }
 
     public List<UserProfile> findAll() throws ServiceException {
-        try {
-            return userProfileRepository.findAll();
-        } catch (RepositoryException e) {
-            throw new ServiceException("User not found", e.getCause());
-        }
+        return userProfileRepository.findAll();
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        try {
-            return (UserDetails) userProfileRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch user", e.getCause());
-        }
+        return (UserDetails) userProfileRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     public Optional<UserProfile> findByUsernameOrEmail(String username, String email) {

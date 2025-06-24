@@ -29,7 +29,7 @@ public class ImportService {
             if(addImportRequest.content().isEmpty()) {
                 Document document = Jsoup.connect(url).get();
                 String content = document.text();
-                int importId = importRepository.addImport(DictionaryImport.builder()
+                return importRepository.addImport(DictionaryImport.builder()
                             .title(addImportRequest.title())
                             .content(content)
                             .url(addImportRequest.url())
@@ -37,10 +37,9 @@ public class ImportService {
                             .targetLanguage(addImportRequest.targetLanguage())
                             .owner(addImportRequest.owner())
                             .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
-                return importId;
             }
             else {
-                int importId = importRepository.addImport(DictionaryImport.builder()
+                return importRepository.addImport(DictionaryImport.builder()
                         .title(addImportRequest.title())
                         .content(addImportRequest.content())
                         .url(addImportRequest.url())
@@ -48,38 +47,23 @@ public class ImportService {
                         .targetLanguage(addImportRequest.targetLanguage())
                         .owner(addImportRequest.owner())
                         .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
-                return importId;
             }
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to add a new import", e.getCause());
         } catch (IOException e) {
             throw new ServiceException("Failed to parse import: " + e.getMessage(), e.getCause());
         }
     }
 
     public Import findById(int id) throws ServiceException {
-        try {
-            return importRepository.findById(id).orElseThrow(() -> new ServiceException("Failed to fetch import"));
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch import", e.getCause());
-        }
+        return importRepository.findById(id).orElseThrow(() -> new ServiceException("Failed to fetch import"));
     }
-    public List<ImportWithId> findByOwner(@NonNull Model model, @NonNull String owner) throws ServiceException {
-        try {
-            List<ImportWithId> imports = importRepository.findByOwner(owner);
-            model.addAttribute("imports", imports);
-            return imports;
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch imports", e.getCause());
-        }
+    public void findByOwner(@NonNull Model model, @NonNull String owner) throws ServiceException {
+        List<ImportWithId> imports = importRepository.findByOwner(owner);
+        model.addAttribute("imports", imports);
+
     }
 
     public List<Import> findAll() throws ServiceException {
-        try {
-            return importRepository.findAll();
-        } catch (RepositoryException e) {
-            throw new ServiceException("Failed to fetch imports", e.getCause());
-        }
+        return importRepository.findAll();
     }
 
     private String normalizeURL(String url) {
