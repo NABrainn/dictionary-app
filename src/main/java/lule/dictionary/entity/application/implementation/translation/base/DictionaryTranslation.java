@@ -31,9 +31,9 @@ public record DictionaryTranslation(
 
         public DictionaryTranslation {
                 EmptyValidator emptyValidator = (String... fields) -> {
-                        Arrays.stream(fields).forEach(field -> {
+                        for(var field : fields) {
                                 if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");
-                        });
+                        }
                 };
 
                 final Pattern INVALID_CHARS = Pattern.compile("[%&/^!<>@#$'\"*;`:=\\-_+.,(){}\\[\\]?\\\\]");

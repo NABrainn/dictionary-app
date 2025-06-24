@@ -5,17 +5,18 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
+import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
-import lule.dictionary.exception.RepositoryException;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.util.StringRegexService;
 import lule.dictionary.service.translation.util.TranslationFamiliarityService;
+import lule.dictionary.util.errors.ErrorMapFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,16 @@ public class TranslationService {
     private final Validator validator;
 
     public int add(Model model,
+                   Authentication authentication,
                    @NonNull MutateTranslationRequest mutateTranslationRequest) {
+        if(!authentication.getName().equals(mutateTranslationRequest.owner())) {
+            throw new ServiceException("Authentication name value does not match owner value");
+        }
+        var constraints = validator.validate(mutateTranslationRequest);
+        if(!constraints.isEmpty()) {
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            throw new ServiceException("Constraints violated at " + mutateTranslationRequest);
+        }
         String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
         Translation translationToAdd = DictionaryTranslation.builder()
                 .sourceWords(mutateTranslationRequest.sourceWords())
@@ -56,6 +66,7 @@ public class TranslationService {
                 translationUtilService.getSortedFamiliarityMap(),
                 mutateTranslationRequest.selectedWordId()
         ));
+        model.addAttribute("result", new ServiceResult(true, Map.of()));
         return translationId;
     }
 
@@ -66,9 +77,13 @@ public class TranslationService {
     public boolean findByTargetWord(@NonNull Authentication authentication,
                                     @NonNull Model model, @NonNull
                                     FindTranslationRequest translationRequest) throws ServiceException{
+        var constraints = validator.validate(translationRequest);
+        if(!constraints.isEmpty()) {
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            throw new ServiceException("Constraints violated at " + translationRequest);
+        }
         String cleanTargetWord = stringRegexService.removeNonLetters(translationRequest.targetWord());
-        if(cleanTargetWord.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "String is not in a valid state");
-
+        if(cleanTargetWord.isEmpty()) throw new ServiceException("String is not in a valid state");
         if(translationRepository.findByTargetWord(cleanTargetWord).isPresent()) {
             Translation translation = translationRepository.findByTargetWord(cleanTargetWord).get();
             model.addAttribute("translationModel", new TranslationModel(
@@ -134,14 +149,25 @@ public class TranslationService {
     }
 
     public void updateSourceWords(Model model, UpdateSourceWordsRequest request) {
+        var constraints = validator.validate(request);
+        if(!constraints.isEmpty()) {
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            throw new ServiceException("Constraints violated at " + request);
+        }
         Optional<Translation> translation = translationRepository.updateSourceWords(request.sourceWords(), request.targetWord());
         translation.ifPresent(value -> model.addAttribute("sourceWords", value.sourceWords()));
-
+        model.addAttribute("result", new ServiceResult(false, Map.of()));
     }
 
     public void deleteSourceWord(Model model, DeleteSourceWordRequest deleteSourceWordRequest) {
+        var constraints = validator.validate(deleteSourceWordRequest);
+        if(!constraints.isEmpty()) {
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            throw new ServiceException("Constraints violated at " + deleteSourceWordRequest);
+        }
         Optional<Translation> translation = translationRepository.deleteSourceWord(deleteSourceWordRequest.sourceWord(), deleteSourceWordRequest.targetWord());
         if(translation.isPresent()) {
+            model.addAttribute("targetWord", deleteSourceWordRequest.targetWord());
             model.addAttribute("sourceWords", translation.get().sourceWords());
             return;
         }

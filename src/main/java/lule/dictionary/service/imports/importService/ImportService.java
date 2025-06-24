@@ -1,14 +1,16 @@
 package lule.dictionary.service.imports.importService;
 
+import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.imports.base.DictionaryImport;
+import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.repository.ImportRepository;
-import lule.dictionary.exception.RepositoryException;
+import lule.dictionary.util.errors.ErrorMapFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
@@ -16,19 +18,28 @@ import org.springframework.ui.Model;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ImportService {
 
     private final ImportRepository importRepository;
+    private final Validator validator;
 
-    public int addImport(AddImportRequest addImportRequest) throws ServiceException {
+    public int addImport(Model model,
+                         AddImportRequest addImportRequest) throws ServiceException {
+        var constraints = validator.validate(addImportRequest);
+        if(!constraints.isEmpty()) {
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            throw new ServiceException("Constraints violated at " + addImportRequest);
+        }
         try {
             String url = normalizeURL(addImportRequest.url());
             if(addImportRequest.content().isEmpty()) {
                 Document document = Jsoup.connect(url).get();
                 String content = document.text();
+                model.addAttribute("result", new ServiceResult(false, Map.of()));
                 return importRepository.addImport(DictionaryImport.builder()
                             .title(addImportRequest.title())
                             .content(content)
@@ -39,6 +50,7 @@ public class ImportService {
                             .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
             }
             else {
+                model.addAttribute("result", new ServiceResult(false, Map.of()));
                 return importRepository.addImport(DictionaryImport.builder()
                         .title(addImportRequest.title())
                         .content(addImportRequest.content())
@@ -49,6 +61,7 @@ public class ImportService {
                         .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
             }
         } catch (IOException e) {
+            model.addAttribute("result", new ServiceResult(true, Map.of()));
             throw new ServiceException("Failed to parse import: " + e.getMessage(), e.getCause());
         }
     }

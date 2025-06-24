@@ -7,13 +7,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ServiceResultFactory {
+public class ErrorMapFactory {
 
     public static <T> Map<String, String> fromSet(Set<ConstraintViolation<T>> result) {
         return result.stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableMap(
                         ConstraintViolation::getMessage,
-                        v -> v.getPropertyPath().toString()));
+                        v -> v.getPropertyPath().toString(),
+                        (existing, replacement) -> existing + "; " + replacement));
     }
 }

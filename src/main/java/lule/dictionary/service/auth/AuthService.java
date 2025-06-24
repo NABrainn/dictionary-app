@@ -12,7 +12,7 @@ import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfil
 import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.dto.ServiceResult;
-import lule.dictionary.util.errors.ServiceResultFactory;
+import lule.dictionary.util.errors.ErrorMapFactory;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,7 +46,7 @@ public class AuthService {
         try {
             var constraints = validator.validate(loginRequest);
             if(!constraints.isEmpty()) {
-                var result = new ServiceResult(true, ServiceResultFactory.fromSet(constraints));
+                var result = new ServiceResult(true, ErrorMapFactory.fromSet(constraints));
                 model.addAttribute("result", result);
                 throw new ServiceException("validation failure");
             }
@@ -72,7 +72,7 @@ public class AuthService {
                        @NonNull SignupRequest signupRequest) {
         var constraints = validator.validate(signupRequest);
         if(!constraints.isEmpty()) {
-            var result = new ServiceResult(true, ServiceResultFactory.fromSet(constraints));
+            var result = new ServiceResult(true, ErrorMapFactory.fromSet(constraints));
             model.addAttribute("result", result);
             throw new ServiceException("validation failure");
         }
@@ -83,7 +83,12 @@ public class AuthService {
             throw new ServiceException("User with given username or email already exists.");
         }
         String encodedPassword = bCryptPasswordEncoder.encode(signupRequest.password());
-        userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword);
+        try {
+            userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword);
+        } catch (ServiceException e) {
+            var result = new ServiceResult(true, Map.of());
+            model.addAttribute("result", result);
+        }
         var result = new ServiceResult(false, Map.of());
         model.addAttribute("result", result);
     }

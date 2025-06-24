@@ -18,14 +18,4 @@ public record UpdateTranslationFamiliarityRequest(@NotBlank
                                                 @NonNull String owner,
                                                 int importId,
                                                 int selectedWordId) {
-    public UpdateTranslationFamiliarityRequest {
-        final Pattern INVALID_CHARS = Pattern.compile("[%&/^!<>@#$'\"*;`:=\\-_+.,(){}\\[\\]?\\\\]");
-
-        PatternValidator patternValidator = (Pattern pattern, String field) -> {
-            if(pattern.matcher(field).find()) {
-                throw new IllegalArgumentException(field + " contains invalid characters");
-            }
-        };
-        patternValidator.validate(INVALID_CHARS, targetWord);
-    }
 }

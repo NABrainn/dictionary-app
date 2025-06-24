@@ -27,7 +27,9 @@ public class UserProfileService implements UserDetailsService {
         return userProfileRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    public UserProfile addUserProfile(@NonNull String username, @NonNull String email, @NonNull String password) throws ServiceException {
+    public UserProfile addUserProfile(@NonNull String username,
+                                      @NonNull String email,
+                                      @NonNull String password) throws ServiceException {
         UserProfile userProfile = DictionaryUserProfile.builder()
                 .username(username)
                 .email(email)
@@ -35,13 +37,15 @@ public class UserProfileService implements UserDetailsService {
                 .sourceLanguage(Language.EN)
                 .targetLanguage(Language.NO)
                 .build();
-        return userProfileRepository.addUserProfile(DictionaryUserProfile.builder()
-                        .username(userProfile.username())
-                        .email(userProfile.email())
-                        .password(userProfile.password())
-                        .sourceLanguage(userProfile.sourceLanguage())
-                        .targetLanguage(userProfile.targetLanguage())
-                .build()).orElseThrow(() -> new ServiceException("Failed to add user"));
+        return userProfileRepository.addUserProfile(
+                DictionaryUserProfile.builder()
+                .username(userProfile.username())
+                .email(userProfile.email())
+                .password(userProfile.password())
+                .sourceLanguage(userProfile.sourceLanguage())
+                .targetLanguage(userProfile.targetLanguage())
+                .build()
+        ).orElseThrow(() -> new ServiceException("Failed to add user"));
     }
 
     public List<UserProfile> findAll() throws ServiceException {

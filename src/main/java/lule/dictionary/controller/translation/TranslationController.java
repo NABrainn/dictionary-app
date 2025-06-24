@@ -3,6 +3,7 @@ package lule.dictionary.controller.translation;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.exception.ServiceException;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
@@ -46,7 +47,7 @@ public class TranslationController {
                                          @RequestParam("targetLanguage") Language targetLanguage,
                                          @RequestParam("importId") int importId,
                                          @RequestParam("selectedWordId") int selectedWordId) {
-        translationService.add(model, new MutateTranslationRequest(
+        translationService.add(model, authentication, new MutateTranslationRequest(
                 sourceWords, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId
         ));
         return "forward:/imports/page/reload";

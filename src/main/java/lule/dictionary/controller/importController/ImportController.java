@@ -3,6 +3,7 @@ package lule.dictionary.controller.importController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.exception.ServiceException;
 import lule.dictionary.service.imports.importPageService.dto.SaveTranslationRequest;
 import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.imports.importPageService.ImportPageService;
@@ -62,20 +63,25 @@ public class ImportController {
 
     @PostMapping({"new", "/new"})
     public String addImport(
+            Model model,
             Authentication authentication,
             @RequestParam("title") String title,
             @RequestParam("content") String content,
             @RequestParam("url") String url) {
         UserProfile userProfile = userProfileService.findByUsername(authentication.getName());
-        int importId = importService.addImport(AddImportRequest.builder()
-                .title(title)
-                .content(content)
-                .url(url)
-                .sourceLanguage(userProfile.sourceLanguage())
-                .targetLanguage(userProfile.targetLanguage())
-                .owner(authentication.getName())
-                .build());
-        return "redirect:/imports/" + importId;
+        try {
+            int importId = importService.addImport(model, AddImportRequest.builder()
+                    .title(title)
+                    .content(content)
+                    .url(url)
+                    .sourceLanguage(userProfile.sourceLanguage())
+                    .targetLanguage(userProfile.targetLanguage())
+                    .owner(authentication.getName())
+                    .build());
+            return "redirect:/imports/" + importId;
+        } catch (ServiceException e) {
+            return "import-form/import-form";
+        }
     }
 
     @GetMapping({"by-url-form", "/by-url-form"})

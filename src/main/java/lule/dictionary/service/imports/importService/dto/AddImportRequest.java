@@ -16,7 +16,7 @@ public record AddImportRequest(
         String title,
 
         @NotBlank(message = "Content cannot be empty")
-        @Size(max = 10000, message = "Content must be no longer than 10000 characters")
+        @Size(max = 1000000, message = "Content cannot be longer than 1000000 characters")
         String content,
 
         @NotNull(message = "Title cannot be null")
