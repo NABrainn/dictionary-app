@@ -2,12 +2,12 @@ package lule.dictionary.service.libreTranslate;
 
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.libreTranslate.dto.TranslateResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
