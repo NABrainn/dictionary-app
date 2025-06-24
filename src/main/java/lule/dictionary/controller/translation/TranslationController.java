@@ -74,4 +74,12 @@ public class TranslationController {
         translationService.updateSourceWords(model, new UpdateSourceWordsRequest(sourceWords, targetWord));
         return "import-page/translation/source-words-list";
     }
+
+    @DeleteMapping({"/sourceWords/delete", "sourceWords/delete"})
+    public String deleteSourceWord(Model model,
+                                   @RequestParam("sourceWord") String sourceWord,
+                                   @RequestParam("targetWord") String targetWord) {
+        translationService.deleteSourceWord(model, new DeleteSourceWordRequest(sourceWord, targetWord));
+        return "import-page/translation/source-words-list";
+    }
 }

@@ -163,4 +163,14 @@ public class TranslationService {
         translation.ifPresent(value -> model.addAttribute("sourceWords", value.sourceWords()));
 
     }
+
+    public void deleteSourceWord(Model model, DeleteSourceWordRequest deleteSourceWordRequest) {
+        Optional<Translation> translation = translationRepository.deleteSourceWord(deleteSourceWordRequest.sourceWord(), deleteSourceWordRequest.targetWord());
+        if(translation.isPresent()) {
+            model.addAttribute("sourceWords", translation.get().sourceWords());
+        }
+        else {
+            model.addAttribute("sourceWords", List.of());
+        }
+    }
 }

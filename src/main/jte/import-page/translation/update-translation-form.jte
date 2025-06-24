@@ -21,7 +21,7 @@
     hx-target="#source-word-container"
     hx-swap="innerHTML">
         <div id="source-word-container" class="flex flex-col">
-        @template.import-page.translation.source-words-list(sourceWords = translationModel.translation().sourceWords())
+            @template.import-page.translation.source-words-list(sourceWords = translationModel.translation().sourceWords(), targetWord = translationModel.translation().targetWord())
         </div>
         <div class="flex gap-2">
             <input

@@ -159,4 +159,19 @@ public class TranslationRepository {
             throw new RepositoryException(e.getCause());
         }
     }
+
+    public Optional<Translation> deleteSourceWord(String sourceWord, String targetWord) {
+        String sql = """
+                UPDATE dictionary.translations
+                SET source_words = array_remove(source_words, ?)
+                WHERE target_word = ?
+                RETURNING *
+                """;
+        try {
+            return template.query(sql, TRANSLATION, sourceWord, targetWord).stream().findFirst();
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e.getCause());
+        }
+    }
 }
