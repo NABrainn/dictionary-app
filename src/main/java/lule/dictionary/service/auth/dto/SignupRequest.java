@@ -5,7 +5,6 @@ import jakarta.validation.constraints.*;
 public record SignupRequest(
         @NotBlank(message = "Login cannot be empty")
         @Size(min = 8, max = 50, message = "Login must be between 8 and 50 characters")
-        @Pattern(regexp = "[%&/^!<>@#$'\"*;`:=\\-_+.,(){}\\[\\]?\\\\]", message = "Invalid characters")
         String login,
 
         @NotBlank(message = "Email cannot be empty")
