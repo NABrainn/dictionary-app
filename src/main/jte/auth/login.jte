@@ -26,9 +26,7 @@
             type="submit"
             class="text-left px-2 py-1 bg-accent text-primary rounded cursor-pointer">Submit</button>
             @if(result != null && result.error())
-                @if(result.message().values().stream().findFirst().isPresent())
-                    <span class="font-bold text-error grow-1">${result.message().values().stream().findFirst().get()}</span>
-                @endif
+                <span class="font-bold text-error grow-1">${result.errors().get("login")}</span>
             @else
                 <span class="grow-1"></span>
             @endif
