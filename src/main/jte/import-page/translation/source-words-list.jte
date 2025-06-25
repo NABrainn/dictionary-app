@@ -14,7 +14,7 @@
             <span class="text-accent">${word}</span>
             <form
             hx-delete="/translations/sourceWords/delete?sourceWord=${word}&targetWord=${targetWord}"
-            hx-target="#source-word-container"
+            hx-target="#source-words-list"
             hx-swap="innerHTML"
             hx-params="none">
                 <button class="cursor-pointer" type="submit">🗑️</button>
