@@ -13,8 +13,8 @@ public class ErrorMapFactory {
         return result.stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableMap(
+                        k -> k.getPropertyPath().toString(),
                         ConstraintViolation::getMessage,
-                        v -> v.getPropertyPath().toString(),
-                        (existing, replacement) -> existing + "; " + replacement));
+                        (existing, replacement) -> existing));
     }
 }
