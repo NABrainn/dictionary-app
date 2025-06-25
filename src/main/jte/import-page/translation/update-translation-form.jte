@@ -1,4 +1,6 @@
+@import lule.dictionary.service.dto.ServiceResult
 @import lule.dictionary.service.translation.dto.TranslationModel
+@import java.util.Map
 
 @param TranslationModel translationModel 
 
@@ -12,8 +14,11 @@
         <span class="text-red-400 font-bold text-lg cursor-pointer" onclick="exitForm()">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationModel.translation().targetWord()}</span>
-        <div id="source-word-container" class="flex flex-col">
-            @template.import-page.translation.update-source-words-form(sourceWords = translationModel.translation().sourceWords(), targetWord = translationModel.translation().targetWord())
+        <div id="source-word-form" class="flex flex-col">
+            @template.import-page.translation.update-source-words-form(
+            sourceWords = translationModel.translation().sourceWords(), 
+            targetWord = translationModel.translation().targetWord(),
+            result = new ServiceResult(false, Map.of()))
         </div>
     @for(var level : translationModel.familiarityLevels().entrySet())
         @if(level.getKey() == translationModel.currentFamiliarity())
