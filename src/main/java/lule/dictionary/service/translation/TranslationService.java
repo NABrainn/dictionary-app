@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
+import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.service.translation.dto.*;
@@ -17,13 +18,12 @@ import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.util.StringRegexService;
 import lule.dictionary.service.translation.util.TranslationFamiliarityService;
 import lule.dictionary.util.errors.ErrorMapFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +44,13 @@ public class TranslationService {
         }
         var constraints = validator.validate(mutateTranslationRequest);
         if(!constraints.isEmpty()) {
+            model.addAttribute("translationModel", new TranslationModel(
+                    mutateTranslationRequest.importId(),
+                    translationUtilService.getFamiliarityAsInt(mutateTranslationRequest.familiarity()),
+                    null,
+                    translationUtilService.getSortedFamiliarityMap(),
+                    mutateTranslationRequest.selectedWordId()
+            ));
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
             throw new ServiceException("Constraints violated at " + mutateTranslationRequest);
         }
@@ -66,7 +73,7 @@ public class TranslationService {
                 translationUtilService.getSortedFamiliarityMap(),
                 mutateTranslationRequest.selectedWordId()
         ));
-        model.addAttribute("result", new ServiceResult(true, Map.of()));
+        model.addAttribute("result", new ServiceResult(false, Map.of()));
         return translationId;
     }
 
@@ -150,7 +157,16 @@ public class TranslationService {
 
     public void updateSourceWords(Model model, UpdateSourceWordsRequest request) {
         var constraints = validator.validate(request);
-        if(!constraints.isEmpty()) {
+        Pattern validWordPattern = Pattern.compile("^[\\p{L}0-9 ]+$");
+
+        if (!constraints.isEmpty()) {
+            model.addAttribute("targetWord", request.targetWord());
+            model.addAttribute("sourceWords", request.sourceWords()
+                    .stream()
+                    .filter(word -> !word.isBlank())
+                    .filter(word -> validWordPattern.matcher(word).matches())
+                    .toList()
+            );
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
             throw new ServiceException("Constraints violated at " + request);
         }
@@ -158,7 +174,10 @@ public class TranslationService {
         translation.ifPresent(value -> {
             model.addAttribute("targetWord", value.targetWord());
             model.addAttribute("sourceWords", value.sourceWords());
+            model.addAttribute("result", new ServiceResult(false, Map.of()));
         });
+        model.addAttribute("targetWord", request.targetWord());
+        model.addAttribute("sourceWords", request.sourceWords());
         model.addAttribute("result", new ServiceResult(false, Map.of()));
     }
 
@@ -172,8 +191,10 @@ public class TranslationService {
         if(translation.isPresent()) {
             model.addAttribute("targetWord", deleteSourceWordRequest.targetWord());
             model.addAttribute("sourceWords", translation.get().sourceWords());
+            model.addAttribute("result", new ServiceResult(false, Map.of()));
             return;
         }
         model.addAttribute("sourceWords", List.of());
+        throw new ResourceNotFoundException("Source word not found");
     }
 }
