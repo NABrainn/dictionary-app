@@ -1,6 +1,7 @@
 package lule.dictionary.service.translation.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.NonNull;
@@ -8,6 +9,7 @@ import lombok.NonNull;
 import java.util.List;
 
 public record UpdateSourceWordsRequest(@NonNull
+                                       @NotEmpty
                                        List<
                                        @NotBlank(message = "Source word cannot be blank")
                                        @Size(max = 200, message = "Source word cannot be longer than 200 characters")
