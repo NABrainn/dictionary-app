@@ -3,6 +3,7 @@ package lule.dictionary.controller.translation;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.exception.ServiceException;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.enumeration.Familiarity;
@@ -12,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -47,10 +47,14 @@ public class TranslationController {
                                          @RequestParam("targetLanguage") Language targetLanguage,
                                          @RequestParam("importId") int importId,
                                          @RequestParam("selectedWordId") int selectedWordId) {
-        translationService.add(model, authentication, new MutateTranslationRequest(
-                sourceWords, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId
-        ));
-        return "forward:/imports/page/reload";
+        try {
+            translationService.add(model, authentication, new MutateTranslationRequest(
+                    sourceWords, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId
+            ));
+            return "forward:/imports/page/reload";
+        } catch (ServiceException e) {
+            throw new RuntimeException("Illegal value provided");
+        }
     }
 
     @PutMapping({"/familiarity/update", "familiarity/update"})
@@ -72,15 +76,23 @@ public class TranslationController {
     public String updateSourceWords(Model model,
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord) {
-        translationService.updateSourceWords(model, new UpdateSourceWordsRequest(sourceWords, targetWord));
-        return "import-page/translation/update-source-words-form";
+        try {
+            translationService.updateSourceWords(model, new UpdateSourceWordsRequest(sourceWords, targetWord));
+            return "import-page/translation/update-source-words-form";
+        } catch (ServiceException e) {
+            return "import-page/translation/update-source-words-form";
+        }
     }
 
     @DeleteMapping({"/sourceWords/delete", "sourceWords/delete"})
     public String deleteSourceWord(Model model,
                                    @RequestParam("sourceWord") String sourceWord,
                                    @RequestParam("targetWord") String targetWord) {
-        translationService.deleteSourceWord(model, new DeleteSourceWordRequest(sourceWord, targetWord));
-        return "import-page/translation/update-source-words-form";
+        try {
+            translationService.deleteSourceWord(model, new DeleteSourceWordRequest(sourceWord, targetWord));
+            return "import-page/translation/source-words-list";
+        } catch (ResourceNotFoundException e) {
+            return "import-page/translation/source-words-list";
+        }
     }
 }
