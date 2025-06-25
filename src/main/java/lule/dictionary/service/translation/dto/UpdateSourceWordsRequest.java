@@ -19,7 +19,10 @@ public record UpdateSourceWordsRequest(@NonNull
                                        @NotBlank(message = "Target word cannot be blank")
                                        @Size(max = 200, message = "Target word cannot be longer than 200 characters")
                                        @Pattern(regexp = "^[\\p{L}0-9 ]+$", message = "Source word contains invalid characters")
-                                       String targetWord) {
+                                       String targetWord,
+
+                                       @NonNull
+                                       String owner) {
 
     @Override
     public List<String> sourceWords() {

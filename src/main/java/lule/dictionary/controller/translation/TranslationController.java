@@ -67,17 +67,28 @@ public class TranslationController {
                                     @RequestParam("importId") int importId,
                                     @RequestParam("selectedWordId") int selectedWordId) {
         translationService.updateFamiliarity(model, new UpdateTranslationFamiliarityRequest(
-                targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId
+                targetWord,
+                familiarity,
+                sourceLanguage,
+                targetLanguage,
+                authentication.getName(),
+                importId,
+                selectedWordId
         ));
         return "forward:/imports/page/reload";
     }
 
     @PutMapping({"/sourceWords/update", "sourceWords/update"})
     public String updateSourceWords(Model model,
+                                    Authentication authentication,
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord) {
         try {
-            translationService.updateSourceWords(model, new UpdateSourceWordsRequest(sourceWords, targetWord));
+            translationService.updateSourceWords(model, new UpdateSourceWordsRequest(
+                    sourceWords,
+                    targetWord,
+                    authentication.getName()
+            ));
             return "import-page/translation/update-source-words-form";
         } catch (ServiceException e) {
             return "import-page/translation/update-source-words-form";
@@ -86,10 +97,15 @@ public class TranslationController {
 
     @DeleteMapping({"/sourceWords/delete", "sourceWords/delete"})
     public String deleteSourceWord(Model model,
+                                   Authentication authentication,
                                    @RequestParam("sourceWord") String sourceWord,
                                    @RequestParam("targetWord") String targetWord) {
         try {
-            translationService.deleteSourceWord(model, new DeleteSourceWordRequest(sourceWord, targetWord));
+            translationService.deleteSourceWord(model, new DeleteSourceWordRequest(
+                    sourceWord,
+                    targetWord,
+                    authentication.getName()
+            ));
             return "import-page/translation/source-words-list";
         } catch (ResourceNotFoundException e) {
             return "import-page/translation/source-words-list";

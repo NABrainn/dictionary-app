@@ -3,6 +3,7 @@ package lule.dictionary.service.translation.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.NonNull;
 
 public record DeleteSourceWordRequest(@NotBlank(message = "Source word cannot be blank")
                                       @Size(max = 200, message = "Source word cannot be longer than 200 characters")
@@ -11,5 +12,8 @@ public record DeleteSourceWordRequest(@NotBlank(message = "Source word cannot be
 
                                       @NotBlank(message = "Target word cannot be blank")
                                       @Size(max = 200, message = "Target word cannot be longer than 200 characters")
-                                      String targetWord) {
+                                      String targetWord,
+
+                                      @NonNull
+                                      String owner) {
 }

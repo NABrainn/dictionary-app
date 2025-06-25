@@ -125,17 +125,19 @@ public class TranslationService {
         return false;
     }
 
-    public void updateFamiliarity(Model model, UpdateTranslationFamiliarityRequest updateFamiliarityDto) throws ServiceException{
-        String transformedTargetWord = stringRegexService.removeNonLetters(updateFamiliarityDto.targetWord());
+    public void updateFamiliarity(Model model, UpdateTranslationFamiliarityRequest request) throws ServiceException{
+        String transformedTargetWord = stringRegexService.removeNonLetters(request.targetWord());
         Translation translation = translationRepository.updateFamiliarity(
                 transformedTargetWord,
-                updateFamiliarityDto.familiarity()).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
+                request.familiarity(),
+                request.owner()
+                ).orElseThrow(() -> new ServiceException("Failed to update familiarity for " + transformedTargetWord));
         model.addAttribute("translationModel", new TranslationModel(
-                updateFamiliarityDto.importId(),
+                request.importId(),
                 translationUtilService.getFamiliarityAsInt(translation.familiarity()),
                 translation,
                 translationUtilService.getSortedFamiliarityMap(),
-                updateFamiliarityDto.selectedWordId()
+                request.selectedWordId()
         ));
     }
 
@@ -170,7 +172,11 @@ public class TranslationService {
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
             throw new ServiceException("Constraints violated at " + request);
         }
-        Optional<Translation> translation = translationRepository.updateSourceWords(request.sourceWords(), request.targetWord());
+        Optional<Translation> translation = translationRepository.updateSourceWords(
+                request.sourceWords(),
+                request.targetWord(),
+                request.owner()
+        );
         translation.ifPresent(value -> {
             model.addAttribute("targetWord", value.targetWord());
             model.addAttribute("sourceWords", value.sourceWords());
@@ -181,15 +187,19 @@ public class TranslationService {
         model.addAttribute("result", new ServiceResult(false, Map.of()));
     }
 
-    public void deleteSourceWord(Model model, DeleteSourceWordRequest deleteSourceWordRequest) {
-        var constraints = validator.validate(deleteSourceWordRequest);
+    public void deleteSourceWord(Model model, DeleteSourceWordRequest request) {
+        var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
-            throw new ServiceException("Constraints violated at " + deleteSourceWordRequest);
+            throw new ServiceException("Constraints violated at " + request);
         }
-        Optional<Translation> translation = translationRepository.deleteSourceWord(deleteSourceWordRequest.sourceWord(), deleteSourceWordRequest.targetWord());
+        Optional<Translation> translation = translationRepository.deleteSourceWord(
+                request.sourceWord(),
+                request.targetWord(),
+                request.owner()
+        );
         if(translation.isPresent()) {
-            model.addAttribute("targetWord", deleteSourceWordRequest.targetWord());
+            model.addAttribute("targetWord", request.targetWord());
             model.addAttribute("sourceWords", translation.get().sourceWords());
             model.addAttribute("result", new ServiceResult(false, Map.of()));
             return;

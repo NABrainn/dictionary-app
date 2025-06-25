@@ -61,11 +61,12 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateSourceWords(@NonNull List<String> sourceWords, @NonNull String targetWord) throws RepositoryException {
+    public Optional<Translation> updateSourceWords(@NonNull List<String> sourceWords, @NonNull String targetWord, @NonNull String owner) throws RepositoryException {
         String sql = """
                 UPDATE dictionary.translations
                 SET source_words =  ?
                 WHERE target_word = ?
+                AND translation_owner = ?
                 RETURNING *
                 """;
         try {
@@ -73,6 +74,7 @@ public class TranslationRepository {
                 var ps = con.prepareStatement(sql);
                 ps.setArray(1, con.createArrayOf("text", sourceWords.toArray()));
                 ps.setString(2, targetWord);
+                ps.setString(3, owner);
                 return ps;
             }, TRANSLATION).stream().findFirst();
             return translation;
@@ -82,11 +84,12 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateFamiliarity(@NonNull String targetWord, @NonNull Familiarity familiarity) throws RepositoryException {
+    public Optional<Translation> updateFamiliarity(@NonNull String targetWord, @NonNull Familiarity familiarity, @NonNull String owner) throws RepositoryException {
         String sql = """
                 UPDATE dictionary.translations
                 SET familiarity = ?
                 WHERE target_word = ?
+                AND translation_owner = ?
                 RETURNING *
                 """;
         try {
@@ -94,6 +97,7 @@ public class TranslationRepository {
                 var ps = con.prepareStatement(sql);
                 ps.setString(1, familiarity.name());
                 ps.setString(2, targetWord);
+                ps.setString(3, owner);
                 return ps;
             }, TRANSLATION).stream().findFirst();
             return translation;
@@ -160,15 +164,19 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> deleteSourceWord(String sourceWord, String targetWord) {
+    public Optional<Translation> deleteSourceWord(@NonNull String sourceWord, @NonNull String targetWord, @NonNull String owner) {
         String sql = """
                 UPDATE dictionary.translations
                 SET source_words = array_remove(source_words, ?)
                 WHERE target_word = ?
+                AND translation_owner = ?
                 RETURNING *
                 """;
         try {
-            return template.query(sql, TRANSLATION, sourceWord, targetWord).stream().findFirst();
+            return template.query(sql, TRANSLATION,
+                    sourceWord,
+                    targetWord,
+                    owner).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e.getCause());
