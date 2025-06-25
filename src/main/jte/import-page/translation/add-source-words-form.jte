@@ -23,7 +23,7 @@ hx-target="#page-content"
 hx-swap="outerHTML"
 hx-on::before-request="document.querySelector('source-word-field').isEmpty()">
     <div id="source-words-list">
-        @template.import-page.translation.source-words-list(sourceWords =  sourceWords, targetWord = targetWord)
+        @template.import-page.translation.source-words-list(sourceWords =  sourceWords, targetWord = targetWord, update = false)
     </div>
     <div class="flex gap-2">
         <input
