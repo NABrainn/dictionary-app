@@ -20,8 +20,9 @@ hx-vals='
 }'
 hx-post="/translations/new"
 hx-target="#page-content"
-hx-swap="outerHTML">
-    <div id="source-word-container" class="flex flex-col">
+hx-swap="outerHTML"
+hx-on::before-request="document.querySelector('source-word-field').isEmpty()">
+    <div id="source-words-list">
         @template.import-page.translation.source-words-list(sourceWords =  sourceWords, targetWord = targetWord)
     </div>
     <div class="flex gap-2">
