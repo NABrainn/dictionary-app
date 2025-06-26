@@ -19,45 +19,45 @@ class="flex flex-col gap-8 w-3/5 min-h-full justify-between mx-auto">
             @if(importModel.translations().get(cleanWord) != null)
                 @if(importModel.selectedWordId() == word.getIndex())
                     @if(importModel.translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent", textColor = "text-neutral", translationModel = translationModel)
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent", textColor = "text-neutral", translationModel = translationModel, page = importModel.currentPage())
 
                     @elseif(importModel.translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/80", textColor = "text-neutral", translationModel = translationModel)
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/80", textColor = "text-neutral", translationModel = translationModel, page = importModel.currentPage())
 
                     @elseif(importModel.translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/60", textColor = "text-neutral", translationModel = translationModel)
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-accent/60", textColor = "text-neutral", translationModel = translationModel, page = importModel.currentPage())
 
                     @elseif(importModel.translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-primary", textColor = "text-neutral", translationModel = translationModel)
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-primary", textColor = "text-neutral", translationModel = translationModel, page = importModel.currentPage())
 
                     @else
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-primary", textColor = "text-neutral", translationModel = translationModel)
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary bg-primary", textColor = "text-neutral", translationModel = translationModel, page = importModel.currentPage())
 
                     @endif
                 @else
                     @if(importModel.translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent", textColor = "text-primary")
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent", textColor = "text-primary", page = importModel.currentPage())
 
                     @elseif(importModel.translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent/80", textColor = "text-primary")
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent/80", textColor = "text-primary", page = importModel.currentPage())
 
                     @elseif(importModel.translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent/60", textColor = "text-primary")
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent/60", textColor = "text-primary", page = importModel.currentPage())
 
                     @elseif(importModel.translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral")
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral", page = importModel.currentPage())
 
                     @else
-                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral")
+                        @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral", page = importModel.currentPage())
 
 
                     @endif
                 @endif
             @else
                 @if(importModel.selectedWordId() == word.getIndex())
-                    @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary", textColor = "text-neutral")
+                    @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary", textColor = "text-neutral", page = importModel.currentPage())
                 @else
-                    @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral")
+                    @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral", page = importModel.currentPage())
 
                 @endif
             @endif

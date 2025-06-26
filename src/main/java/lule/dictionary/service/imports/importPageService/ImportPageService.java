@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.service.imports.importPageService.dto.ImportModel;
 import lule.dictionary.service.imports.importPageService.dto.LoadImportRequest;
-import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.translation.TranslationService;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class ImportPageService {
             if(request.page() <= 0 || request.page() > pagesTotal) {
                 throw new IllegalArgumentException("Invalid url parameter provided");
             }
-            model.addAttribute("importPageModel", new ImportModel(
+            model.addAttribute("importModel", new ImportModel(
                     imported.title(),
                     List.of(imported.pageContent().split("[ \\n]+")),
                     translationService.findTranslationsByImport(imported),

@@ -11,5 +11,6 @@ public record FindTranslationRequest(int importId,
                                      @Pattern(regexp = "^[\\p{L}0-9 ]+$", message = "Source word contains invalid characters")
                                      String targetWord,
 
-                                     int selectedWordId) {
+                                     int selectedWordId,
+                                     int page) {
 }

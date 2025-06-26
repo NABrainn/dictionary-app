@@ -11,7 +11,8 @@ public record TranslationModel(int importId,
                                int currentFamiliarity,
                                Translation translation,
                                @NonNull Map<Integer, Familiarity> familiarityLevels,
-                               int selectedWordId) {
+                               int selectedWordId,
+                               int page) {
     @Override
     public Map<Integer, Familiarity> familiarityLevels() {
         return Collections.unmodifiableMap(familiarityLevels);

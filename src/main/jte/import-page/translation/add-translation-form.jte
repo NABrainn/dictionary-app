@@ -55,7 +55,8 @@
                 "sourceLanguage": "${translationModel.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationModel.translation().targetLanguage().name()}",
                 "importId": "${translationModel.importId()}",
-                "selectedWordId": "${translationModel.selectedWordId()}"
+                "selectedWordId": "${translationModel.selectedWordId()}",
+                "page": "${translationModel.page()}"
              }'
              hx-target="#page-content"
              hx-swap="outerHTML">

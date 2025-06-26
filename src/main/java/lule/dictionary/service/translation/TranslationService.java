@@ -38,40 +38,42 @@ public class TranslationService {
 
     public int add(Model model,
                    Authentication authentication,
-                   @NonNull MutateTranslationRequest mutateTranslationRequest) {
-        if(!authentication.getName().equals(mutateTranslationRequest.owner())) {
+                   @NonNull MutateTranslationRequest request) {
+        if(!authentication.getName().equals(request.owner())) {
             throw new ServiceException("Authentication name value does not match owner value");
         }
-        var constraints = validator.validate(mutateTranslationRequest);
+        var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
             model.addAttribute("translationModel", new TranslationModel(
-                    mutateTranslationRequest.importId(),
-                    translationUtilService.getFamiliarityAsInt(mutateTranslationRequest.familiarity()),
+                    request.importId(),
+                    translationUtilService.getFamiliarityAsInt(request.familiarity()),
                     null,
                     translationUtilService.getSortedFamiliarityMap(),
-                    mutateTranslationRequest.selectedWordId()
+                    request.selectedWordId(),
+                    request.page()
             ));
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
-            throw new ServiceException("Constraints violated at " + mutateTranslationRequest);
+            throw new ServiceException("Constraints violated at " + request);
         }
-        String transformedTargetWord = stringRegexService.removeNonLetters(mutateTranslationRequest.targetWord());
+        String transformedTargetWord = stringRegexService.removeNonLetters(request.targetWord());
         Translation translationToAdd = DictionaryTranslation.builder()
-                .sourceWords(mutateTranslationRequest.sourceWords())
+                .sourceWords(request.sourceWords())
                 .targetWord(transformedTargetWord)
-                .familiarity(mutateTranslationRequest.familiarity())
-                .sourceLanguage(mutateTranslationRequest.sourceLanguage())
-                .targetLanguage(mutateTranslationRequest.targetLanguage())
-                .owner(mutateTranslationRequest.owner())
+                .familiarity(request.familiarity())
+                .sourceLanguage(request.sourceLanguage())
+                .targetLanguage(request.targetLanguage())
+                .owner(request.owner())
                 .build();
         int translationId = translationRepository.addTranslation(
                 translationToAdd,
-                mutateTranslationRequest.importId()).orElseThrow(() -> new ServiceException("Failed to add new translation"));
+                request.importId()).orElseThrow(() -> new ServiceException("Failed to add new translation"));
         model.addAttribute("translationModel", new TranslationModel(
-                mutateTranslationRequest.importId(),
-                translationUtilService.getFamiliarityAsInt(mutateTranslationRequest.familiarity()),
+                request.importId(),
+                translationUtilService.getFamiliarityAsInt(request.familiarity()),
                 translationToAdd,
                 translationUtilService.getSortedFamiliarityMap(),
-                mutateTranslationRequest.selectedWordId()
+                request.selectedWordId(),
+                request.page()
         ));
         model.addAttribute("result", new ServiceResult(false, Map.of()));
         return translationId;
@@ -83,22 +85,23 @@ public class TranslationService {
 
     public boolean findByTargetWord(@NonNull Authentication authentication,
                                     @NonNull Model model, @NonNull
-                                    FindTranslationRequest translationRequest) throws ServiceException{
-        var constraints = validator.validate(translationRequest);
+                                    FindTranslationRequest request) throws ServiceException{
+        var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
-            throw new ServiceException("Constraints violated at " + translationRequest);
+            throw new ServiceException("Constraints violated at " + request);
         }
-        String cleanTargetWord = stringRegexService.removeNonLetters(translationRequest.targetWord());
+        String cleanTargetWord = stringRegexService.removeNonLetters(request.targetWord());
         if(cleanTargetWord.isEmpty()) throw new ServiceException("String is not in a valid state");
         if(translationRepository.findByTargetWord(cleanTargetWord).isPresent()) {
             Translation translation = translationRepository.findByTargetWord(cleanTargetWord).get();
             model.addAttribute("translationModel", new TranslationModel(
-                    translationRequest.importId(),
+                    request.importId(),
                     translationUtilService.getFamiliarityAsInt(translation.familiarity()),
                     translation,
                     translationUtilService.getSortedFamiliarityMap(),
-                    translationRequest.selectedWordId()
+                    request.selectedWordId(),
+                    request.page()
             ));
             return true;
         }
@@ -116,11 +119,12 @@ public class TranslationService {
                 .owner(authentication.getName())
                 .build();
         model.addAttribute("translationModel", new TranslationModel(
-                translationRequest.importId(),
+                request.importId(),
                 1,
                 translation,
                 translationUtilService.getSortedFamiliarityMap(),
-                translationRequest.selectedWordId()
+                request.selectedWordId(),
+                request.page()
         ));
         return false;
     }
@@ -137,7 +141,8 @@ public class TranslationService {
                 translationUtilService.getFamiliarityAsInt(translation.familiarity()),
                 translation,
                 translationUtilService.getSortedFamiliarityMap(),
-                request.selectedWordId()
+                request.selectedWordId(),
+                request.page()
         ));
     }
 
@@ -154,7 +159,12 @@ public class TranslationService {
         List<String> targetWords = Arrays.stream(imported.content().split(" "))
                 .map(stringRegexService::removeNonLetters)
                 .toList();
-        return findByTargetWords(targetWords).stream().collect(Collectors.toUnmodifiableMap(TranslationDetails::targetWord, (value) -> value));
+        return findByTargetWords(targetWords).stream()
+                .collect(Collectors.toUnmodifiableMap(
+                    TranslationDetails::targetWord,
+                    (value) -> value,
+                    (first, second) -> first
+                ));
     }
 
     public void updateSourceWords(Model model, UpdateSourceWordsRequest request) {

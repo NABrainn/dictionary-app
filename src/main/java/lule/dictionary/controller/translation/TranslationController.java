@@ -29,8 +29,9 @@ public class TranslationController {
                                    Authentication authentication,
                                    @RequestParam int importId,
                                    @RequestParam String targetWord,
-                                   @RequestParam("selectedWordId") int selectedWordId) {
-            boolean found = translationService.findByTargetWord(authentication, model, new FindTranslationRequest(importId, targetWord, selectedWordId));
+                                   @RequestParam("selectedWordId") int selectedWordId,
+                                   @RequestParam("page") int page) {
+            boolean found = translationService.findByTargetWord(authentication, model, new FindTranslationRequest(importId, targetWord, selectedWordId, page));
             if(found) {
                 return "import-page/translation/update-translation-form";
             }
