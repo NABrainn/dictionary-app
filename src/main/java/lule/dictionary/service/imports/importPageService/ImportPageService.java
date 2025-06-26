@@ -1,10 +1,10 @@
 package lule.dictionary.service.imports.importPageService;
 
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.service.imports.importPageService.dto.ImportPageModel;
-import lule.dictionary.service.imports.importPageService.dto.SaveTranslationRequest;
+import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
+import lule.dictionary.service.imports.importPageService.dto.ImportModel;
+import lule.dictionary.service.imports.importPageService.dto.LoadImportRequest;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
-import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.translation.TranslationService;
 import org.springframework.stereotype.Service;
@@ -19,14 +19,23 @@ public class ImportPageService {
     private final ImportService importService;
     private final TranslationService translationService;
 
-    public void loadImportWithTranslations(Model model, SaveTranslationRequest saveTranslationRequest) {
-        Import imported = importService.findById(saveTranslationRequest.importId());
-        String title = imported.title();
-        List<String> content = List.of(imported.content().split("[ \\n]+"));
-        Map<String, Translation> translations = translationService.findTranslationsByImport(imported);
-        model.addAttribute("importPageModel", new ImportPageModel(title, content, translations, saveTranslationRequest.importId(), saveTranslationRequest.wordId()));
+    public void loadImportWithTranslations(Model model, LoadImportRequest request) {
         try {
-            model.addAttribute("translationModel", saveTranslationRequest.translationModel());
+            ImportWithPagination imported = importService.findById(request.importId(), request.page());
+            int pagesTotal = (int) Math.ceil((double) imported.content().length() / 2000);
+            if(request.page() <= 0 || request.page() > pagesTotal) {
+                throw new IllegalArgumentException("Invalid url parameter provided");
+            }
+            model.addAttribute("importPageModel", new ImportModel(
+                    imported.title(),
+                    List.of(imported.pageContent().split("[ \\n]+")),
+                    translationService.findTranslationsByImport(imported),
+                    request.importId(),
+                    request.wordId(),
+                    request.page(),
+                    pagesTotal
+            ));
+            model.addAttribute("translationModel", request.translationModel());
         } catch (NullPointerException e) {
             model.addAttribute("translationModel", null);
         }

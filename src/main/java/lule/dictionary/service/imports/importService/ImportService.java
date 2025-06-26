@@ -4,6 +4,7 @@ import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.imports.base.DictionaryImport;
+import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
@@ -66,8 +67,8 @@ public class ImportService {
         }
     }
 
-    public Import findById(int id) throws ServiceException {
-        return importRepository.findById(id).orElseThrow(() -> new ServiceException("Failed to fetch import"));
+    public ImportWithPagination findById(int id, int page) throws ServiceException {
+        return importRepository.findById(id, page).orElseThrow(() -> new ServiceException("Failed to fetch import"));
     }
     public void findByOwner(@NonNull Model model, @NonNull String owner) throws ServiceException {
         List<ImportWithId> imports = importRepository.findByOwner(owner);

@@ -39,17 +39,26 @@ public class TranslationController {
 
     @PostMapping({"/new", "new"})
     public String newTranslation(Model model,
-                                         Authentication authentication,
-                                         @RequestParam("sourceWords") List<String> sourceWords,
-                                         @RequestParam("targetWord") String targetWord,
-                                         @RequestParam("familiarity") Familiarity familiarity,
-                                         @RequestParam("sourceLanguage") Language sourceLanguage,
-                                         @RequestParam("targetLanguage") Language targetLanguage,
-                                         @RequestParam("importId") int importId,
-                                         @RequestParam("selectedWordId") int selectedWordId) {
+                                 Authentication authentication,
+                                 @RequestParam("sourceWords") List<String> sourceWords,
+                                 @RequestParam("targetWord") String targetWord,
+                                 @RequestParam("familiarity") Familiarity familiarity,
+                                 @RequestParam("sourceLanguage") Language sourceLanguage,
+                                 @RequestParam("targetLanguage") Language targetLanguage,
+                                 @RequestParam("importId") int importId,
+                                 @RequestParam("selectedWordId") int selectedWordId,
+                                 @RequestParam("page") int page) {
         try {
             translationService.add(model, authentication, new MutateTranslationRequest(
-                    sourceWords, targetWord, familiarity, sourceLanguage, targetLanguage, authentication.getName(), importId, selectedWordId
+                    sourceWords,
+                    targetWord,
+                    familiarity,
+                    sourceLanguage,
+                    targetLanguage,
+                    authentication.getName(),
+                    importId,
+                    selectedWordId,
+                    page
             ));
             return "forward:/imports/page/reload";
         } catch (ServiceException e) {
@@ -65,7 +74,8 @@ public class TranslationController {
                                     @RequestParam("sourceLanguage") Language sourceLanguage,
                                     @RequestParam("targetLanguage") Language targetLanguage,
                                     @RequestParam("importId") int importId,
-                                    @RequestParam("selectedWordId") int selectedWordId) {
+                                    @RequestParam("selectedWordId") int selectedWordId,
+                                    @RequestParam("page") int page) {
         translationService.updateFamiliarity(model, new UpdateTranslationFamiliarityRequest(
                 targetWord,
                 familiarity,
@@ -73,7 +83,8 @@ public class TranslationController {
                 targetLanguage,
                 authentication.getName(),
                 importId,
-                selectedWordId
+                selectedWordId,
+                page
         ));
         return "forward:/imports/page/reload";
     }

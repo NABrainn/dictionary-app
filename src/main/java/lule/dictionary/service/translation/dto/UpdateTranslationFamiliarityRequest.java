@@ -17,5 +17,6 @@ public record UpdateTranslationFamiliarityRequest(@NotBlank
                                                 @NonNull Language targetLanguage,
                                                 @NonNull String owner,
                                                 int importId,
-                                                int selectedWordId) {
+                                                int selectedWordId,
+                                                int page) {
 }

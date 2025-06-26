@@ -6,11 +6,13 @@ import lule.dictionary.entity.application.interfaces.translation.Translation;
 import java.util.List;
 import java.util.Map;
 
-public record ImportPageModel(@NonNull String title,
-                              List<String> content,
-                              @NonNull Map<String, Translation> translations,
-                              int importId,
-                              int selectedWordId) {
+public record ImportModel(@NonNull String title,
+                          List<String> content,
+                          @NonNull Map<String, Translation> translations,
+                          int importId,
+                          int selectedWordId,
+                          int currentPage,
+                          int pages) {
     @Override
     public List<String> content() {
         return List.copyOf(content);

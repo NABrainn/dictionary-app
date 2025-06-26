@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.ServiceException;
-import lule.dictionary.service.imports.importPageService.dto.SaveTranslationRequest;
+import lule.dictionary.service.imports.importPageService.dto.LoadImportRequest;
 import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.imports.importPageService.ImportPageService;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
@@ -26,7 +26,8 @@ public class ImportController {
     private final UserProfileService userProfileService;
 
     @GetMapping({"", "/"})
-    public String getImportList(Authentication authentication, Model model) {
+    public String getImportList(Authentication authentication,
+                                Model model) {
         importService.findByOwner(model, authentication.getName());
         return "imports";
     }
@@ -35,17 +36,19 @@ public class ImportController {
     public String reloadImportPageOnPost(Model model,
                                          @RequestAttribute("translationModel")TranslationModel translationModel,
                                          @RequestParam("selectedWordId") int wordId,
-                                         @RequestParam("importId") int importId) {
-        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId, translationModel));
+                                         @RequestParam("importId") int importId,
+                                         @RequestParam("page") int page) {
+        importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
         return "import-page/content";
     }
 
     @PutMapping({"/page/reload", "page/reload"})
     public String reloadImportPageOnPut(Model model,
-                                    @RequestAttribute("translationModel")TranslationModel translationModel,
-                                   @RequestParam("selectedWordId") int wordId,
-                                   @RequestParam("importId") int importId) {
-        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(wordId, importId, translationModel));
+                                        @RequestAttribute("translationModel")TranslationModel translationModel,
+                                        @RequestParam("selectedWordId") int wordId,
+                                        @RequestParam("importId") int importId,
+                                        @RequestParam("page") int page) {
+        importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
         return "import-page/content";
     }
 
@@ -56,18 +59,18 @@ public class ImportController {
 
     @GetMapping({"{importId}", "/{importId}"})
     public String importPageContent(Model model,
-                                    @PathVariable("importId") String importId) {
-        importPageService.loadImportWithTranslations(model, new SaveTranslationRequest(0, Integer.parseInt(importId), null));
+                                    @PathVariable("importId") String importId,
+                                    @RequestParam("page") int page) {
+        importPageService.loadImportWithTranslations(model, new LoadImportRequest(0, Integer.parseInt(importId), page, null));
         return "import-page/import-page";
     }
 
     @PostMapping({"new", "/new"})
-    public String addImport(
-            Model model,
-            Authentication authentication,
-            @RequestParam("title") String title,
-            @RequestParam("content") String content,
-            @RequestParam("url") String url) {
+    public String addImport(Model model,
+                            Authentication authentication,
+                            @RequestParam("title") String title,
+                            @RequestParam("content") String content,
+                            @RequestParam("url") String url) {
         UserProfile userProfile = userProfileService.findByUsername(authentication.getName());
         try {
             int importId = importService.addImport(model, AddImportRequest.builder()

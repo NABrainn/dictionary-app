@@ -4,4 +4,5 @@ public interface ImportDetails {
     String title();
     String content();
     String url();
+
 }

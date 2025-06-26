@@ -28,7 +28,7 @@
                         @for(var item : imports)
                             <div
                             class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer"
-                            hx-get="/imports/${item.id()}"
+                            hx-get="/imports/${item.id()}?page=1"
                             hx-target="#main"
                             hx-swap="innerHTML"
                             hx-push-url="true">
@@ -43,12 +43,12 @@
                 @endif
                 <div class="flex justify-end">
                     <button
-                            class="cursor-pointer bg-tertiary px-2 py-1 rounded text-lg font-bold text-neutral"
-                            hx-get="/imports/new"
-                            hx-target="#main"
-                            hx-swap="innerHTML"
-                            hx-push-url="/imports/new"
-                            type="button">Add book</button>
+                    class="cursor-pointer bg-tertiary px-2 py-1 rounded text-lg font-bold text-neutral"
+                    hx-get="/imports/new"
+                    hx-target="#main"
+                    hx-swap="innerHTML"
+                    hx-push-url="/imports/new"
+                    type="button">Add book</button>
                 </div>
             </div>
     @endif

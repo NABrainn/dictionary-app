@@ -12,31 +12,32 @@ import lule.dictionary.enumeration.Language;
 import java.util.List;
 
 @Builder
-public record MutateTranslationRequest(
-        @NonNull
-        @NotEmpty
-        List<
-        @NotBlank(message = "Source word cannot be blank")
-        @Size(max = 200, message = "Source word cannot be longer than 200 characters")
-        @Pattern(regexp = "^[\\p{L}0-9 ]+$", message = "Source word contains invalid characters")
-        String
-        > sourceWords,
+public record MutateTranslationRequest(@NonNull
+                                       @NotEmpty
+                                       List<
+                                       @NotBlank(message = "Source word cannot be blank")
+                                       @Size(max = 200, message = "Source word cannot be longer than 200 characters")
+                                       @Pattern(regexp = "^[\\p{L}0-9 ]+$", message = "Source word contains invalid characters")
+                                       String> sourceWords,
 
-        @NotBlank(message = "Target word cannot be blank")
-        @Size(max = 200, message = "Target word cannot be longer than 200 characters")
-        @Pattern(regexp = "^[\\p{L}0-9 ]+$", message = "Source word contains invalid characters")
-        String targetWord,
+                                       @NotBlank(message = "Target word cannot be blank")
+                                       @Size(max = 200, message = "Target word cannot be longer than 200 characters")
+                                       @Pattern(regexp = "^[\\p{L}0-9 ]+$", message = "Source word contains invalid characters")
+                                       String targetWord,
 
-        @NonNull
-        Familiarity familiarity,
-        @NonNull
-        Language sourceLanguage,
-        @NonNull
-        Language targetLanguage,
-        @NonNull
-        String owner,
-        int importId,
-        int selectedWordId) {
+                                       @NonNull
+                                       Familiarity familiarity,
+                                       @NonNull
+                                       Language sourceLanguage,
+
+                                       @NonNull
+                                       Language targetLanguage,
+                                       @NonNull
+                                       String owner,
+
+                                       int importId,
+                                       int selectedWordId,
+                                       int page) {
 
         @Override
         public List<String> sourceWords() {

@@ -2,8 +2,10 @@ package lule.dictionary.repository.factory;
 
 import lule.dictionary.entity.application.implementation.imports.DictionaryImportWithId;
 import lule.dictionary.entity.application.implementation.imports.base.DictionaryImport;
+import lule.dictionary.entity.application.implementation.imports.base.DictionaryImportWithPagination;
 import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
 import lule.dictionary.entity.application.implementation.userProfile.base.DictionaryUserProfile;
+import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
@@ -62,6 +64,19 @@ public class RowMapperFactory {
                     .owner(rs.getString("import_owner"))
                     .build()
     );
+
+    public static final RowMapper<ImportWithPagination> IMPORT_WITH_PAGINATION = ((rs, rowNum) ->
+            DictionaryImportWithPagination.builder()
+                    .title(rs.getString("title"))
+                    .content(rs.getString("content"))
+                    .url(rs.getString("url"))
+                    .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
+                    .targetLanguage(Language.valueOf(rs.getString("target_lang")))
+                    .owner(rs.getString("import_owner"))
+                    .pageContent(rs.getString("page_content"))
+                    .build()
+    );
+
     public static final RowMapper<Integer> IMPORT_ID = ((rs, rowNum) -> rs.getInt("imports_id"));
 
 }

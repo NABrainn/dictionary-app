@@ -24,7 +24,9 @@ public record DictionaryImport(
         @NonNull
         Language targetLanguage,
         @NonNull
-        String owner) implements Import {
+        String owner,
+        @NonNull
+        String pageContent) implements Import {
 
         public DictionaryImport {
                 EmptyValidator emptyValidator = (String... fields) -> Arrays.stream(fields).forEach(field -> {

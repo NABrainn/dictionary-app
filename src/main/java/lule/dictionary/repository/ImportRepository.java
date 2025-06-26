@@ -3,6 +3,7 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.exception.RepositoryException;
@@ -45,17 +46,32 @@ public class ImportRepository {
     }
 
 
-    public Optional<Import> findById(int id) throws RepositoryException {
+    public Optional<ImportWithPagination> findById(int id, int page) throws RepositoryException {
         String sql = """
-                SELECT *
+                SELECT
+                    imports_id,
+                    title,
+                    content,
+                    url,
+                    source_lang,
+                    target_lang,
+                    import_owner,
+                    substring(
+                        content
+                        FROM ((? - 1) * 2000 + 1)
+                        FOR 2000
+                    ) as page_content
                 FROM dictionary.imports
                 WHERE imports.imports_id=?
                 """;
         try {
-            Import found = template.queryForObject(sql, IMPORT, id);
-            return Optional.ofNullable(found);
+            List<ImportWithPagination> found = template.query(sql, IMPORT_WITH_PAGINATION,
+                    page,
+                    id
+            );
+            return found.stream().findFirst();
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException(e);
         }
     }
 
@@ -68,7 +84,7 @@ public class ImportRepository {
         try {
             return template.query(sql, IMPORT_WITH_ID, owner);
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException(e);
         }
     }
     public List<Import> findAll() throws RepositoryException {
