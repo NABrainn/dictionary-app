@@ -31,7 +31,7 @@
                             hx-get="/imports/${item.id()}?page=1"
                             hx-target="#main"
                             hx-swap="innerHTML"
-                            hx-push-url="true">
+                            hx-push-url="/imports/${item.id()}">
                                 <p class="font-bold text-xl">${item.title()}</p>
                                 <span>Url: ${item.url()}</span>
                                 <span>Created by:
