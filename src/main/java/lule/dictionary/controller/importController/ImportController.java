@@ -83,7 +83,7 @@ public class ImportController {
                     .targetLanguage(userProfile.targetLanguage())
                     .owner(authentication.getName())
                     .build());
-            return "redirect:/imports/" + importId;
+            return "redirect:/imports/" + importId + "?page=1";
         } catch (ServiceException e) {
             return "import-form/import-form";
         } catch (IOException e) {
