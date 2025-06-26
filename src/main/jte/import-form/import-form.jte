@@ -1,6 +1,8 @@
+@import lule.dictionary.service.dto.ServiceResult
 @import org.springframework.security.web.csrf.CsrfToken
 
 @param boolean authenticated
+@param ServiceResult result = null
 @param CsrfToken _csrf 
 
 @template.layout.base(content = @`
@@ -19,6 +21,15 @@
             focus:border-accent"
             name="title"
             id="title">
+            @if(result != null)
+                @if(result.error() && result.errors().get("title") != null)
+                    <span class="text-error font-semibold text-sm">${result.errors().get("title")}</span>
+                @else
+                    <span class="invisible text-sm">fallback</span>
+                @endif
+            @else
+                <span class="invisible text-sm">fallback</span>
+            @endif
         </div>
         <div class="flex flex-col gap-4">
             <span class="text-accent font-bold text-2xl">Content</span>
@@ -39,7 +50,7 @@
                 hx-target="#content"
                 hx-swap="outerHTML">Insert manually</button>
             </div>
-            @template.import-form.by-url-form()
+            @template.import-form.by-url-form(result = result)
         </div>
         <div>
             <button
