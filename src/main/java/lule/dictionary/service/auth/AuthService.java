@@ -50,9 +50,10 @@ public class AuthService {
                 model.addAttribute("result", result);
                 throw new ServiceException("validation failure");
             }
+            UserProfile user = userProfileService.findByUsername(loginRequest.login());
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            loginRequest.login(),
+                            user.username(),
                             loginRequest.password()
                     )
             );
@@ -60,11 +61,15 @@ public class AuthService {
             response.addCookie(cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication)));
             var result = new ServiceResult(false, Map.of());
             redirectAttributes.addFlashAttribute("result", result);
-        } catch (AuthenticationException | ResourceNotFoundException e) {
+        } catch (AuthenticationException e) {
             var result = new ServiceResult(false, Map.of());
             model.addAttribute("result", result);
-            model.addAttribute("authentication", null);
             throw new ServiceException("Authentication exception");
+        } catch (ResourceNotFoundException e) {
+            var result = new ServiceResult(true, Map.of("login", "User does not exist"));
+            model.addAttribute("result", result);
+            model.addAttribute("authentication", null);
+            throw new ServiceException("User does not exist");
         }
     }
 
@@ -78,9 +83,9 @@ public class AuthService {
         }
         Optional<UserProfile> optionalUserProfile = userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email());
         if(optionalUserProfile.isPresent()) {
-            var result = new ServiceResult(true, Map.of("found", "User with given username or email already exists."));
+            var result = new ServiceResult(true, Map.of("login", "User with given username or email already exists."));
             model.addAttribute("result", result);
-            throw new ServiceException("User with given username or email already exists.");
+            throw new ServiceException("User with given username already exists.");
         }
         String encodedPassword = bCryptPasswordEncoder.encode(signupRequest.password());
         try {

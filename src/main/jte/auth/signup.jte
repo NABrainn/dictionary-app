@@ -20,8 +20,10 @@
             focus:border-accent"
             type="text" name="login" id="login">
             @if(result != null)
-                @if(result.error())
+                @if(result.error() && result.errors().get("login") != null)
                     <span class="text-error font-semibold text-sm">${result.errors().get("login")}</span>
+                @else
+                    <span class="invisible text-sm">fallback</span>
                 @endif
             @else
                 <span class="invisible text-sm">fallback</span>
@@ -35,8 +37,10 @@
             focus:border-accent"
             type="email" name="email" id="email">
             @if(result != null)
-                @if(result.error())
+                @if(result.error() && result.errors().get("email") != null)
                     <span class="text-error font-semibold text-sm">${result.errors().get("email")}</span>
+                @else
+                    <span class="invisible text-sm">fallback</span>
                 @endif
             @else
                 <span class="invisible text-sm">fallback</span>
@@ -48,10 +52,12 @@
             class="
             outline-none border border-2 border-primary rounded text-neutral text-sm
             focus:border-accent"
-            type="text" name="password" id="password">
+            type="password" name="password" id="password">
             @if(result != null)
-                @if(result.error())
+                @if(result.error() && result.errors().get("password") != null)
                     <span class="text-error font-semibold text-sm">${result.errors().get("password")}</span>
+                @else
+                    <span class="invisible text-sm">fallback</span>
                 @endif
             @else
                 <span class="invisible text-sm">fallback</span>
