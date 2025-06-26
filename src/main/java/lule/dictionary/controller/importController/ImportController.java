@@ -15,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Slf4j
 @Controller
 @RequestMapping({"/imports", "/imports/"})
@@ -84,6 +86,8 @@ public class ImportController {
             return "redirect:/imports/" + importId;
         } catch (ServiceException e) {
             return "import-form/import-form";
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

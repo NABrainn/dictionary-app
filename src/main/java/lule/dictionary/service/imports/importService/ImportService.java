@@ -29,42 +29,39 @@ public class ImportService {
     private final Validator validator;
 
     public int addImport(Model model,
-                         AddImportRequest addImportRequest) throws ServiceException {
+                         AddImportRequest addImportRequest) throws ServiceException, IOException {
         var constraints = validator.validate(addImportRequest);
         if(!constraints.isEmpty()) {
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
             throw new ServiceException("Constraints violated at " + addImportRequest);
         }
-        try {
-            String url = normalizeURL(addImportRequest.url());
-            if(addImportRequest.content().isEmpty()) {
-                Document document = Jsoup.connect(url).get();
-                String content = document.text();
-                model.addAttribute("result", new ServiceResult(false, Map.of()));
-                return importRepository.addImport(DictionaryImport.builder()
-                            .title(addImportRequest.title())
-                            .content(content)
-                            .url(addImportRequest.url())
-                            .sourceLanguage(addImportRequest.sourceLanguage())
-                            .targetLanguage(addImportRequest.targetLanguage())
-                            .owner(addImportRequest.owner())
-                            .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
-            }
-            else {
-                model.addAttribute("result", new ServiceResult(false, Map.of()));
-                return importRepository.addImport(DictionaryImport.builder()
+        String url = normalizeURL(addImportRequest.url());
+        if(addImportRequest.content().isEmpty()) {
+            Document document = Jsoup.connect(url).get();
+            String content = document.text();
+            model.addAttribute("result", new ServiceResult(false, Map.of()));
+            return importRepository.addImport(DictionaryImport.builder()
                         .title(addImportRequest.title())
-                        .content(addImportRequest.content())
+                        .content(content)
                         .url(addImportRequest.url())
                         .sourceLanguage(addImportRequest.sourceLanguage())
                         .targetLanguage(addImportRequest.targetLanguage())
                         .owner(addImportRequest.owner())
                         .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
-            }
-        } catch (IOException e) {
-            model.addAttribute("result", new ServiceResult(true, Map.of()));
-            throw new ServiceException("Failed to parse import: " + e.getMessage(), e.getCause());
         }
+        else {
+            model.addAttribute("result", new ServiceResult(false, Map.of()));
+            return importRepository.addImport(DictionaryImport.builder()
+                    .title(addImportRequest.title())
+                    .content(addImportRequest.content())
+                    .url(addImportRequest.url())
+                    .sourceLanguage(addImportRequest.sourceLanguage())
+                    .targetLanguage(addImportRequest.targetLanguage())
+                    .owner(addImportRequest.owner())
+                    .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
+        }
+        model.addAttribute("result", new ServiceResult(true, Map.of()));
+        throw new ServiceException("Failed to parse import");
     }
 
     public ImportWithPagination findById(int id, int page) throws ServiceException {
