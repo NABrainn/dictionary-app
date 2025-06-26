@@ -41,7 +41,8 @@
         targetLanguage = translationModel.translation().targetLanguage().name(),
         importId = translationModel.importId(),
         selectedWordId = translationModel.selectedWordId(),
-        sourceWords = translationModel.translation().sourceWords()
+        sourceWords = translationModel.translation().sourceWords(),
+        page = translationModel.page()
     )
     </div>
     @for(var level : translationModel.familiarityLevels().entrySet())

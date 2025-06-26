@@ -5,6 +5,7 @@
 @param String targetLanguage
 @param int importId
 @param int selectedWordId
+@param int page
 @param List<String> sourceWords
 
 <form
@@ -16,7 +17,8 @@ hx-vals='
     "sourceLanguage": "${sourceLanguage}",
     "targetLanguage": "${targetLanguage}",
     "importId": "${importId}",
-    "selectedWordId": "${selectedWordId}"
+    "selectedWordId": "${selectedWordId}",
+    "page": "${page}"
 }'
 hx-post="/translations/new"
 hx-target="#page-content"
@@ -31,7 +33,8 @@ hx-on::before-request="document.querySelector('source-word-field').isEmpty()">
         class="
         outline-none border border-2 border-primary rounded text-neutral text-sm
         focus:border-accent"
-        type="text" placeholder="Custom translation"
+        type="text"
+        placeholder="Custom translation"
         name="sourceWords">
         <button
         id="submit-source-word"
