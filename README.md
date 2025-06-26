@@ -16,3 +16,7 @@ An application that makes language learning fun and engaging through reading.
 
 ### 24/06/2025
 ![image](https://github.com/user-attachments/assets/09cd9cb4-f07d-4b84-8f39-a0196701d89b)
+
+### 26/06/2025 - pagination
+![image](https://github.com/user-attachments/assets/4ff714d6-b816-4ff5-8382-c7c15c0ba39e)
+
