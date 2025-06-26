@@ -12,10 +12,10 @@ import org.hibernate.validator.constraints.URL;
 @Builder
 public record AddImportRequest(
         @NotBlank(message = "Title cannot be empty")
-        @Size(min = 50, max = 100, message = "Title must be 50 to 100 characters long")
+        @Size(min = 50, max = 150, message = "Title must be 50 to 100 characters long")
         String title,
 
-        @NotBlank(message = "Content cannot be empty")
+        @NonNull
         @Size(max = 1000000, message = "Content cannot be longer than 1000000 characters")
         String content,
 
