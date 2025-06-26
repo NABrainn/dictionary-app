@@ -60,8 +60,6 @@ public class ImportService {
                     .owner(addImportRequest.owner())
                     .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
         }
-        model.addAttribute("result", new ServiceResult(true, Map.of()));
-        throw new ServiceException("Failed to parse import");
     }
 
     public ImportWithPagination findById(int id, int page) throws ServiceException {
