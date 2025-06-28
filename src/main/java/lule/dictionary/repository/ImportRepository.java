@@ -31,17 +31,20 @@ public class ImportRepository {
                 RETURNING imports_id
                 """;
         try {
-            Integer importsId = template.queryForObject(sql, IMPORT_ID,
+            List<Integer> importsId = template.query(sql, IMPORT_ID,
                     importt.title(),
                     importt.content(),
                     importt.url(),
                     importt.sourceLanguage().toString(),
                     importt.targetLanguage().toString(),
                     importt.owner());
-            if(importsId != null) return OptionalInt.of(importsId);
+
+            if(importsId.stream().findFirst().isPresent())
+                return OptionalInt.of(importsId.stream().findFirst().get());
             return OptionalInt.empty();
         } catch (DataAccessException e) {
-            throw new RepositoryException(e.getCause());
+            log.warn(e.getMessage());
+            return OptionalInt.empty();
         }
     }
 
@@ -71,7 +74,8 @@ public class ImportRepository {
             );
             return found.stream().findFirst();
         } catch (DataAccessException e) {
-            throw new RepositoryException(e);
+            log.warn(e.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -84,7 +88,8 @@ public class ImportRepository {
         try {
             return template.query(sql, IMPORT_WITH_ID, owner);
         } catch (DataAccessException e) {
-            throw new RepositoryException(e);
+            log.info(e.getMessage());
+            return List.of();
         }
     }
     public List<Import> findAll() throws RepositoryException {
@@ -95,7 +100,8 @@ public class ImportRepository {
         try {
             return template.query(sql, IMPORT);
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            log.warn(e.getMessage());
+            return List.of();
         }
     }
 }

@@ -26,7 +26,6 @@ public class TranslationRepository {
 
     private final JdbcTemplate template;
 
-    @Transactional
     public OptionalInt addTranslation(@NonNull Translation translation, int importId) throws RepositoryException {
         String sql = """
                 WITH translation AS (
@@ -56,8 +55,8 @@ public class TranslationRepository {
             }
             return OptionalInt.empty();
         } catch (DataAccessException e) {
-            log.info(String.valueOf(e.getCause()));
-            throw new RepositoryException(e.getCause());
+            log.warn(e.getMessage());
+            return OptionalInt.empty();
         }
     }
 
@@ -79,8 +78,8 @@ public class TranslationRepository {
             }, TRANSLATION).stream().findFirst();
             return translation;
         } catch (DataAccessException e) {
-            log.error(e.getMessage(), e.getCause());
-            throw new RepositoryException(e.getCause());
+            log.error(e.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -101,8 +100,8 @@ public class TranslationRepository {
                 return ps;
             }, TRANSLATION).stream().findFirst();
         } catch (DataAccessException e) {
-            log.error(e.getMessage(), e.getCause());
-            throw new RepositoryException(e.getCause());
+            log.error(e.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -116,7 +115,8 @@ public class TranslationRepository {
         try {
             return template.query(sql, TRANSLATION, username);
         } catch (DataAccessException e) {
-            throw new RepositoryException(e.getCause());
+            log.error(e.getMessage());
+            return List.of();
         }
     }
 
@@ -128,7 +128,8 @@ public class TranslationRepository {
         try {
             return template.query(sql, TRANSLATION);
         } catch (DataAccessException e) {
-            throw new RepositoryException(e.getCause());
+            log.error(e.getMessage());
+            return List.of();
         }
     }
 
@@ -143,8 +144,8 @@ public class TranslationRepository {
             List<Translation> translation = template.query(sql, TRANSLATION, targetWord.toLowerCase());
             return translation.stream().findFirst();
         } catch (DataAccessException e) {
-            log.error(String.valueOf(e.getCause()));
-            throw new RepositoryException(e.getCause());
+            log.error(e.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -159,7 +160,8 @@ public class TranslationRepository {
             String[] targetWordsArray = targetWords.toArray(new String[0]);
             return template.query(sql, TRANSLATION, (Object[]) targetWordsArray);
         } catch (DataAccessException e) {
-            throw new RepositoryException(e.getCause());
+            log.error(e.getMessage());
+            return List.of();
         }
     }
 
@@ -178,7 +180,7 @@ public class TranslationRepository {
                     owner).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(e.getMessage());
-            throw new RuntimeException(e.getCause());
+            return Optional.empty();
         }
     }
 }
