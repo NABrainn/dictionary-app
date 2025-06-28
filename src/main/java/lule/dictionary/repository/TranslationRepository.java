@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.exception.RepositoryException;
+import lule.dictionary.repository.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -93,14 +93,13 @@ public class TranslationRepository {
                 RETURNING *
                 """;
         try {
-            Optional<Translation> translation = template.query(con -> {
+            return template.query(con -> {
                 var ps = con.prepareStatement(sql);
                 ps.setString(1, familiarity.name());
                 ps.setString(2, targetWord);
                 ps.setString(3, owner);
                 return ps;
             }, TRANSLATION).stream().findFirst();
-            return translation;
         } catch (DataAccessException e) {
             log.error(e.getMessage(), e.getCause());
             throw new RepositoryException(e.getCause());

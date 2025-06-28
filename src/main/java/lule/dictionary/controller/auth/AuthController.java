@@ -3,9 +3,9 @@ package lule.dictionary.controller.auth;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
-import lule.dictionary.exception.ServiceException;
 import lule.dictionary.service.auth.AuthService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,7 +36,7 @@ public class AuthController {
         try {
             authService.login(model, redirectAttributes, response, new LoginRequest(login, password));
             return "redirect:/";
-        } catch (ServiceException e) {
+        } catch (RetryViewException e) {
             return "auth/login";
         }
     }
@@ -54,7 +54,7 @@ public class AuthController {
         try {
             authService.signup(model, new SignupRequest(login, email, password));
             return "auth/login";
-        } catch (ServiceException e) {
+        } catch (RetryViewException e) {
             return "auth/signup";
         }
     }

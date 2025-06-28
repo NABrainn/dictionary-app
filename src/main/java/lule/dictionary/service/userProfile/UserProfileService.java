@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.userProfile.base.DictionaryUserProfile;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Language;
-import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.repository.UserProfileRepository;
-import lule.dictionary.exception.RepositoryException;
-import lule.dictionary.exception.ServiceException;
+import lule.dictionary.service.userProfile.exception.UserExistsException;
+import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,13 +22,13 @@ public class UserProfileService implements UserDetailsService {
 
     private final UserProfileRepository userProfileRepository;
 
-    public UserProfile findByUsername(@NonNull String username) throws ServiceException {
-        return userProfileRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public UserProfile findByUsername(@NonNull String username) {
+        return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public UserProfile addUserProfile(@NonNull String username,
                                       @NonNull String email,
-                                      @NonNull String password) throws ServiceException {
+                                      @NonNull String password) {
         UserProfile userProfile = DictionaryUserProfile.builder()
                 .username(username)
                 .email(email)
@@ -45,16 +44,16 @@ public class UserProfileService implements UserDetailsService {
                 .sourceLanguage(userProfile.sourceLanguage())
                 .targetLanguage(userProfile.targetLanguage())
                 .build()
-        ).orElseThrow(() -> new ServiceException("Failed to add user"));
+        ).orElseThrow(() -> new UserExistsException("User already exists"));
     }
 
-    public List<UserProfile> findAll() throws ServiceException {
+    public List<UserProfile> findAll() {
         return userProfileRepository.findAll();
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return (UserDetails) userProfileRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return (UserDetails) userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public Optional<UserProfile> findByUsernameOrEmail(String username, String email) {

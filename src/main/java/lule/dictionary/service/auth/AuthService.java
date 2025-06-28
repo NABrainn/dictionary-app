@@ -5,13 +5,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.exception.ServiceException;
+import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
-import lule.dictionary.exception.ResourceNotFoundException;
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.dto.ServiceResult;
+import lule.dictionary.service.userProfile.exception.UserExistsException;
+import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
@@ -48,7 +49,7 @@ public class AuthService {
             if(!constraints.isEmpty()) {
                 var result = new ServiceResult(true, ErrorMapFactory.fromSet(constraints));
                 model.addAttribute("result", result);
-                throw new ServiceException("validation failure");
+                throw new RetryViewException("validation failure");
             }
             UserProfile user = userProfileService.findByUsername(loginRequest.login());
             Authentication authentication = authenticationManager.authenticate(
@@ -61,41 +62,50 @@ public class AuthService {
             response.addCookie(cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication)));
             var result = new ServiceResult(false, Map.of());
             redirectAttributes.addFlashAttribute("result", result);
+
         } catch (AuthenticationException e) {
             var result = new ServiceResult(false, Map.of());
             model.addAttribute("result", result);
-            throw new ServiceException("Authentication exception");
-        } catch (ResourceNotFoundException e) {
+            throw new RetryViewException("Authentication exception");
+
+        } catch (UserNotFoundException e) {
             var result = new ServiceResult(true, Map.of("login", "User does not exist"));
             model.addAttribute("result", result);
             model.addAttribute("authentication", null);
-            throw new ServiceException("User does not exist");
+            throw new RetryViewException("User does not exist");
         }
     }
 
     public void signup(@NonNull Model model,
                        @NonNull SignupRequest signupRequest) {
         var constraints = validator.validate(signupRequest);
+
         if(!constraints.isEmpty()) {
             var result = new ServiceResult(true, ErrorMapFactory.fromSet(constraints));
             model.addAttribute("result", result);
-            throw new ServiceException("validation failure");
+            throw new RetryViewException("validation failure");
         }
+
         Optional<UserProfile> optionalUserProfile = userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email());
         if(optionalUserProfile.isPresent()) {
             var result = new ServiceResult(true, Map.of("login", "User with given username or email already exists."));
             model.addAttribute("result", result);
-            throw new ServiceException("User with given username already exists.");
+            throw new RetryViewException("User with given username already exists.");
         }
+
         String encodedPassword = bCryptPasswordEncoder.encode(signupRequest.password());
+
         try {
             userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword);
-        } catch (ServiceException e) {
+        } catch (UserExistsException e) {
             var result = new ServiceResult(true, Map.of());
             model.addAttribute("result", result);
+            throw new RetryViewException(e.getMessage());
         }
+
         var result = new ServiceResult(false, Map.of());
         model.addAttribute("result", result);
+
     }
 
     public void logout(@NonNull RedirectAttributes redirectAttributes,

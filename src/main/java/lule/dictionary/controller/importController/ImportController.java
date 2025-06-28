@@ -3,17 +3,19 @@ package lule.dictionary.controller.importController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
-import lule.dictionary.exception.ServiceException;
+import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.imports.importPageService.dto.LoadImportRequest;
 import lule.dictionary.service.imports.importService.ImportService;
 import lule.dictionary.service.imports.importPageService.ImportPageService;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
 import lule.dictionary.service.translation.dto.TranslationModel;
 import lule.dictionary.service.userProfile.UserProfileService;
+import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.InvalidUrlException;
 
 import java.io.IOException;
 
@@ -40,8 +42,13 @@ public class ImportController {
                                          @RequestParam("selectedWordId") int wordId,
                                          @RequestParam("importId") int importId,
                                          @RequestParam("page") int page) {
-        importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
-        return "import-page/content";
+        try {
+            importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
+            return "import-page/content";
+        } catch (InvalidUrlException e) {
+            return "error";
+        }
+
     }
 
     @PutMapping({"/page/reload", "page/reload"})
@@ -50,8 +57,12 @@ public class ImportController {
                                         @RequestParam("selectedWordId") int wordId,
                                         @RequestParam("importId") int importId,
                                         @RequestParam("page") int page) {
-        importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
-        return "import-page/content";
+        try {
+            importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
+            return "import-page/content";
+        } catch (InvalidUrlException e) {
+            return "error";
+        }
     }
 
     @GetMapping({"new", "/new"})
@@ -63,8 +74,12 @@ public class ImportController {
     public String importPageContent(Model model,
                                     @PathVariable("importId") String importId,
                                     @RequestParam(name = "page", defaultValue = "1") int page) {
-        importPageService.loadImportWithTranslations(model, new LoadImportRequest(0, Integer.parseInt(importId), page, null));
-        return "import-page/import-page";
+        try {
+            importPageService.loadImportWithTranslations(model, new LoadImportRequest(0, Integer.parseInt(importId), page, null));
+            return "import-page/import-page";
+        } catch (InvalidUrlException e) {
+            return "error";
+        }
     }
 
     @PostMapping({"new", "/new"})
@@ -73,8 +88,8 @@ public class ImportController {
                             @RequestParam("title") String title,
                             @RequestParam("content") String content,
                             @RequestParam("url") String url) {
-        UserProfile userProfile = userProfileService.findByUsername(authentication.getName());
         try {
+            UserProfile userProfile = userProfileService.findByUsername(authentication.getName());
             int importId = importService.addImport(model, AddImportRequest.builder()
                     .title(title)
                     .content(content)
@@ -84,10 +99,15 @@ public class ImportController {
                     .owner(authentication.getName())
                     .build());
             return "redirect:/imports/" + importId + "?page=1";
-        } catch (ServiceException e) {
-            return "import-form/import-form";
+
+        } catch (UserNotFoundException e) {
+            return "redirect:/auth/login";
+
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return "error";
+
+        } catch (RetryViewException e) {
+            return "import-form/import-form";
         }
     }
 

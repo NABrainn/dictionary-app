@@ -1,4 +1,4 @@
-package lule.dictionary.exception;
+package lule.dictionary.repository.exception;
 
 public class RepositoryException extends RuntimeException {
     public RepositoryException(String message) {

@@ -3,12 +3,13 @@ package lule.dictionary.controller.translation;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.exception.ResourceNotFoundException;
-import lule.dictionary.exception.ServiceException;
+import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.service.translation.TranslationService;
+import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
+import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,11 +32,12 @@ public class TranslationController {
                                    @RequestParam String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId,
                                    @RequestParam("page") int page) {
-            boolean found = translationService.findByTargetWord(authentication, model, new FindTranslationRequest(importId, targetWord, selectedWordId, page));
-            if(found) {
-                return "import-page/translation/update-translation-form";
-            }
+        try {
+            translationService.findByTargetWord(authentication, model, new FindTranslationRequest(importId, targetWord, selectedWordId, page));
+            return "import-page/translation/update-translation-form";
+        } catch (RetryViewException e) {
             return "import-page/translation/add-translation-form";
+        }
     }
 
     @PostMapping({"/new", "new"})
@@ -62,7 +64,7 @@ public class TranslationController {
                     page
             ));
             return "forward:/imports/page/reload";
-        } catch (ServiceException e) {
+        } catch (IllegalArgumentException e) {
             throw new RuntimeException("Illegal value provided");
         }
     }
@@ -77,17 +79,21 @@ public class TranslationController {
                                     @RequestParam("importId") int importId,
                                     @RequestParam("selectedWordId") int selectedWordId,
                                     @RequestParam("page") int page) {
-        translationService.updateFamiliarity(model, new UpdateTranslationFamiliarityRequest(
-                targetWord,
-                familiarity,
-                sourceLanguage,
-                targetLanguage,
-                authentication.getName(),
-                importId,
-                selectedWordId,
-                page
-        ));
-        return "forward:/imports/page/reload";
+        try {
+            translationService.updateFamiliarity(model, new UpdateTranslationFamiliarityRequest(
+                    targetWord,
+                    familiarity,
+                    sourceLanguage,
+                    targetLanguage,
+                    authentication.getName(),
+                    importId,
+                    selectedWordId,
+                    page
+            ));
+            return "forward:/imports/page/reload";
+        } catch (TranslationNotFoundException e) {
+            return  "error";
+        }
     }
 
     @PutMapping({"/sourceWords/update", "sourceWords/update"})
@@ -102,7 +108,7 @@ public class TranslationController {
                     authentication.getName()
             ));
             return "import-page/translation/update-source-words-form";
-        } catch (ServiceException e) {
+        } catch (RetryViewException e) {
             return "import-page/translation/update-source-words-form";
         }
     }
@@ -119,7 +125,7 @@ public class TranslationController {
                     authentication.getName()
             ));
             return "import-page/translation/source-words-list";
-        } catch (ResourceNotFoundException e) {
+        } catch (RetryViewException | SourceWordNotFoundException e) {
             return "import-page/translation/source-words-list";
         }
     }

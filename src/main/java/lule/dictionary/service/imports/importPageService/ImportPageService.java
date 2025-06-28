@@ -2,6 +2,7 @@ package lule.dictionary.service.imports.importPageService;
 
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
+import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importPageService.dto.ImportModel;
 import lule.dictionary.service.imports.importPageService.dto.LoadImportRequest;
 import lule.dictionary.service.imports.importService.ImportService;
@@ -9,6 +10,7 @@ import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.translation.TranslationService;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.util.InvalidUrlException;
 
 import java.util.*;
 
@@ -25,7 +27,7 @@ public class ImportPageService {
             ImportWithPagination imported = importService.findById(request.importId(), request.page());
             int pagesTotal = (int) Math.ceil((double) imported.content().length() / 2000);
             if(request.page() <= 0 || request.page() > pagesTotal) {
-                throw new IllegalArgumentException("Invalid url parameter provided");
+                throw new InvalidUrlException("Invalid url parameter provided");
             }
             model.addAttribute("importModel", new ImportModel(
                     imported.title(),
@@ -40,7 +42,7 @@ public class ImportPageService {
                     paginationService.getFirstPageOfRow(request.page(), paginationService.getMaxRowSize()))
             );
             model.addAttribute("translationModel", request.translationModel());
-        } catch (NullPointerException e) {
+        } catch (NullPointerException | ImportNotFoundException e) {
             model.addAttribute("translationModel", null);
         }
     }

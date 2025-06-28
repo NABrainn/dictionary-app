@@ -5,11 +5,12 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.imports.base.DictionaryImport;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
+import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.dto.ServiceResult;
+import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.AddImportRequest;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
-import lule.dictionary.exception.ServiceException;
 import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import org.jsoup.Jsoup;
@@ -29,11 +30,11 @@ public class ImportService {
     private final Validator validator;
 
     public int addImport(Model model,
-                         AddImportRequest addImportRequest) throws ServiceException, IOException {
+                         AddImportRequest addImportRequest) throws IOException {
         var constraints = validator.validate(addImportRequest);
         if(!constraints.isEmpty()) {
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
-            throw new ServiceException("Constraints violated at " + addImportRequest);
+            throw new RetryViewException("Constraints violated at " + addImportRequest);
         }
         String url = normalizeURL(addImportRequest.url());
         if(addImportRequest.content().isEmpty()) {
@@ -47,7 +48,7 @@ public class ImportService {
                         .sourceLanguage(addImportRequest.sourceLanguage())
                         .targetLanguage(addImportRequest.targetLanguage())
                         .owner(addImportRequest.owner())
-                        .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
+                        .build()).orElseThrow(() -> new RetryViewException("Failed to add a new import"));
         }
         else {
             model.addAttribute("result", new ServiceResult(false, Map.of()));
@@ -58,20 +59,20 @@ public class ImportService {
                     .sourceLanguage(addImportRequest.sourceLanguage())
                     .targetLanguage(addImportRequest.targetLanguage())
                     .owner(addImportRequest.owner())
-                    .build()).orElseThrow(() -> new ServiceException("Failed to add a new import"));
+                    .build()).orElseThrow(() -> new RetryViewException("Failed to add a new import"));
         }
     }
 
-    public ImportWithPagination findById(int id, int page) throws ServiceException {
-        return importRepository.findById(id, page).orElseThrow(() -> new ServiceException("Failed to fetch import"));
+    public ImportWithPagination findById(int id, int page) {
+        return importRepository.findById(id, page).orElseThrow(() -> new ImportNotFoundException("Import not found"));
     }
-    public void findByOwner(@NonNull Model model, @NonNull String owner) throws ServiceException {
+    public void findByOwner(@NonNull Model model, @NonNull String owner) {
         List<ImportWithId> imports = importRepository.findByOwner(owner);
         model.addAttribute("imports", imports);
 
     }
 
-    public List<Import> findAll() throws ServiceException {
+    public List<Import> findAll() {
         return importRepository.findAll();
     }
 
