@@ -16,6 +16,13 @@
             hx-target="#main"
             hx-swap="outerHTML"
             hx-push-url="false">⬅️</div>
+@else
+    <div
+            class="text-2xl cursor-pointer select-none invisible"
+            hx-get="/imports/${importId}?page=${currentPage + 1}"
+            hx-target="#main"
+            hx-swap="outerHTML"
+            hx-push-url="false">➡️</div>
 @endif
 @for(var row : ForSupport.of(rows.get(currentRow)))
     @if(currentPage == row.get())
@@ -46,4 +53,11 @@
         hx-target="#main"
         hx-swap="outerHTML"
         hx-push-url="false">➡️</div>
+@else
+    <div
+            class="text-2xl cursor-pointer select-none invisible"
+            hx-get="/imports/${importId}?page=${currentPage + 1}"
+            hx-target="#main"
+            hx-swap="outerHTML"
+            hx-push-url="false">➡️</div>
 @endif
