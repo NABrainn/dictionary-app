@@ -46,6 +46,7 @@ public class ImportController {
             importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
             return "import-page/content";
         } catch (InvalidUrlException e) {
+            log.warn("Sending to error page due to invalid url: {}", e.getMessage());
             return "error";
         }
 
@@ -61,6 +62,7 @@ public class ImportController {
             importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
             return "import-page/content";
         } catch (InvalidUrlException e) {
+            log.warn("Sending to error page due to invalid url: {}", e.getMessage());
             return "error";
         }
     }
@@ -78,6 +80,7 @@ public class ImportController {
             importPageService.loadImportWithTranslations(model, new LoadImportRequest(0, Integer.parseInt(importId), page, null));
             return "import-page/import-page";
         } catch (InvalidUrlException e) {
+            log.warn("Sending to error page due to invalid url: {}", e.getMessage());
             return "error";
         }
     }
@@ -101,12 +104,15 @@ public class ImportController {
             return "redirect:/imports/" + importId + "?page=1";
 
         } catch (UserNotFoundException e) {
+            log.info("Redirecting to login page due to user not found: {}", e.getMessage());
             return "redirect:/auth/login";
 
         } catch (IOException e) {
+            log.warn("Sending to error page due to IO exception: {}", e.getMessage());
             return "error";
 
         } catch (RetryViewException e) {
+            log.warn("Retrying view due to input issue: {}", e.getMessage());
             return "import-form/import-form";
         }
     }

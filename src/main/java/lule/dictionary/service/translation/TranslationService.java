@@ -41,7 +41,7 @@ public class TranslationService {
                    Authentication authentication,
                    @NonNull MutateTranslationRequest request) {
         if(!authentication.getName().equals(request.owner())) {
-            throw new IllegalArgumentException("Authentication name value does not match owner value");
+            throw new IllegalCallerException("Authentication name value does not match owner value");
         }
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {

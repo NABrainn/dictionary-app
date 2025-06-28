@@ -36,8 +36,10 @@ public class TranslationController {
             translationService.findByTargetWord(authentication, model, new FindTranslationRequest(importId, targetWord, selectedWordId, page));
             return "import-page/translation/update-translation-form";
         } catch (RetryViewException e) {
+            log.warn("Retrying view due to input issue: {}", e.getMessage());
             return "import-page/translation/update-translation-form";
         } catch (TranslationNotFoundException e) {
+            log.info("Translation not found for '{}', showing creation form. Details: {}", targetWord, e.getMessage());
             return "import-page/translation/add-translation-form";
         }
     }
@@ -66,8 +68,9 @@ public class TranslationController {
                     page
             ));
             return "forward:/imports/page/reload";
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Illegal value provided");
+        } catch (IllegalCallerException e) {
+            log.warn("Illegal resource mutation attempt: {}", e.getMessage());
+            return "error";
         }
     }
 
@@ -94,7 +97,8 @@ public class TranslationController {
             ));
             return "forward:/imports/page/reload";
         } catch (TranslationNotFoundException e) {
-            return  "error";
+            log.info("Sending to error page due to translation not found: {}", e.getMessage());
+            return "error";
         }
     }
 
@@ -111,6 +115,7 @@ public class TranslationController {
             ));
             return "import-page/translation/update-source-words-form";
         } catch (RetryViewException e) {
+            log.warn("Retrying view due to input issue: {}", e.getMessage());
             return "import-page/translation/update-source-words-form";
         }
     }
@@ -128,6 +133,7 @@ public class TranslationController {
             ));
             return "import-page/translation/source-words-list";
         } catch (RetryViewException | SourceWordNotFoundException e) {
+            log.warn("Retrying view due to input issue: {}", e.getMessage());
             return "import-page/translation/source-words-list";
         }
     }

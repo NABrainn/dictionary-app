@@ -3,6 +3,7 @@ package lule.dictionary.controller.auth;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping({"/auth", "/auth/"})
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
@@ -37,6 +39,7 @@ public class AuthController {
             authService.login(model, redirectAttributes, response, new LoginRequest(login, password));
             return "redirect:/";
         } catch (RetryViewException e) {
+            log.warn("Retrying view due to input issue: {}", e.getMessage());
             return "auth/login";
         }
     }
@@ -55,6 +58,7 @@ public class AuthController {
             authService.signup(model, new SignupRequest(login, email, password));
             return "auth/login";
         } catch (RetryViewException e) {
+            log.warn("Retrying view due to input issue: {}", e.getMessage());
             return "auth/signup";
         }
     }
