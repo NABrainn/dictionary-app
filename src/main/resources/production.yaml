@@ -1,0 +1,20 @@
+spring:
+  security:
+    jwt:
+      public: ${JWT_PUBLIC}
+      private: ${JWT_PRIVATE}
+  application:
+    name: "dictionary"
+  datasource:
+    url: "jdbc:postgresql://localhost:6000/dictionary"
+    username: "1234"
+    password: "1234"
+gg:
+  jte:
+    templateLocation: src/main/jte
+    templateSuffix: .jte
+    developmentMode: true
+server:
+  compression:
+    enabled: true
+    min-response-size: 2048
