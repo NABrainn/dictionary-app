@@ -14,7 +14,7 @@
     hx-push-url="true">
         <input type="hidden" name="${_csrf.getParameterName()}" value="${_csrf.getToken()}">
         <div class="flex flex-col gap-2">
-            <label class="text-accent font-bold text-2xl" for="title">Title</label>
+            <label class="text-accent font-bold text-2xl min-h-8" for="title">Title</label>
             <input
             class="
             outline-none border border-2 border-primary rounded text-neutral
@@ -41,6 +41,7 @@
                 hx-get="/imports/by-url-form"
                 hx-target="#content"
                 hx-swap="outerHTML"
+                hx-push-url="false"
                 autofocus>Import by URL</button>
                 <button class="
                 border border-2 border-l-1 border-primary text-accent px-4 py-1 grow-1"
@@ -48,7 +49,8 @@
                 id="insert"
                 hx-get="/imports/insert-manually-form"
                 hx-target="#content"
-                hx-swap="outerHTML">Insert manually</button>
+                hx-swap="outerHTML"
+                hx-push-url="false">Insert manually</button>
             </div>
             @template.import-form.by-url-form(result = result)
         </div>

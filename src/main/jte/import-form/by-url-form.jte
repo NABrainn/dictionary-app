@@ -8,7 +8,7 @@
         <label for="url"></label>
         <input
         class="
-        outline-none border border-2 border-primary rounded text-neutral
+        outline-none border border-2 border-primary rounded text-neutral min-h-8
         focus:border-accent w-full"
         name="url"
         id="url"
