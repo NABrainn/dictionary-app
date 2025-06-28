@@ -12,13 +12,20 @@ public record ImportModel(@NonNull String title,
                           int importId,
                           int selectedWordId,
                           int currentPage,
-                          int pages) {
+                          int pages,
+                          List<List<Integer>> rows,
+                          int currentRow,
+                          int firstPageOfRow) {
     @Override
     public List<String> content() {
         return List.copyOf(content);
     }
     @Override
-    public Map<String, Translation> translations() {
+    public List<List<Integer>> rows() {
+        return List.copyOf(rows);
+    }
+    @Override
+    public @NonNull Map<String, Translation> translations() {
         return Map.copyOf(translations);
     }
 }

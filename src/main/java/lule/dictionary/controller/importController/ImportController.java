@@ -62,7 +62,7 @@ public class ImportController {
     @GetMapping({"{importId}", "/{importId}"})
     public String importPageContent(Model model,
                                     @PathVariable("importId") String importId,
-                                    @RequestParam("page") int page) {
+                                    @RequestParam(name = "page", defaultValue = "1") int page) {
         importPageService.loadImportWithTranslations(model, new LoadImportRequest(0, Integer.parseInt(importId), page, null));
         return "import-page/import-page";
     }

@@ -64,6 +64,13 @@ class="flex flex-col gap-8 w-3/5 min-h-full justify-between mx-auto">
         @endfor
     </div>
     <div class="flex gap-4 justify-center max-w-2/5 mx-auto items-center">
-        @template.import-page.pagination.paginator(id = importModel.importId(), currentPage = importModel.currentPage(), pages = importModel.pages(), importId = importModel.importId())
+        @template.import-page.pagination.paginator(
+        id = importModel.importId(),
+        currentPage = importModel.currentPage(),
+        pages = importModel.pages(),
+        importId = importModel.importId(),
+        rows = importModel.rows(),
+        currentRow = importModel.currentRow(),
+        firstPageOfRow = importModel.firstPageOfRow())
     </div>
 </div>

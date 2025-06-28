@@ -5,6 +5,7 @@ import lule.dictionary.entity.application.interfaces.imports.ImportWithPaginatio
 import lule.dictionary.service.imports.importPageService.dto.ImportModel;
 import lule.dictionary.service.imports.importPageService.dto.LoadImportRequest;
 import lule.dictionary.service.imports.importService.ImportService;
+import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.translation.TranslationService;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -17,6 +18,7 @@ public class ImportPageService {
 
     private final ImportService importService;
     private final TranslationService translationService;
+    private final PaginationService paginationService;
 
     public void loadImportWithTranslations(Model model, LoadImportRequest request) {
         try {
@@ -32,8 +34,11 @@ public class ImportPageService {
                     request.importId(),
                     request.wordId(),
                     request.page(),
-                    pagesTotal
-            ));
+                    pagesTotal,
+                    paginationService.getRows(pagesTotal),
+                    paginationService.getCurrentRow(request.page(), paginationService.getMaxRowSize()),
+                    paginationService.getFirstPageOfRow(request.page(), paginationService.getMaxRowSize()))
+            );
             model.addAttribute("translationModel", request.translationModel());
         } catch (NullPointerException e) {
             model.addAttribute("translationModel", null);
