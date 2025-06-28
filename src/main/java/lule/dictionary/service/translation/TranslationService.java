@@ -128,6 +128,7 @@ public class TranslationService {
                 request.selectedWordId(),
                 request.page()
         ));
+        throw new TranslationNotFoundException("Translation not found");
     }
 
     public void updateFamiliarity(Model model, UpdateTranslationFamiliarityRequest request){

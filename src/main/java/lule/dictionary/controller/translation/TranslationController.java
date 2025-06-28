@@ -36,6 +36,8 @@ public class TranslationController {
             translationService.findByTargetWord(authentication, model, new FindTranslationRequest(importId, targetWord, selectedWordId, page));
             return "import-page/translation/update-translation-form";
         } catch (RetryViewException e) {
+            return "import-page/translation/update-translation-form";
+        } catch (TranslationNotFoundException e) {
             return "import-page/translation/add-translation-form";
         }
     }

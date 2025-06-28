@@ -8,6 +8,7 @@
 @param String bgColor
 @param String textColor
 @param TranslationModel translationModel = null
+@param boolean found = false
 
 <span
 class="${bgColor} relative ${textColor} px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
@@ -18,7 +19,8 @@ hx-swap="innerHTML"
 hx-vals='{"selectedWordId": "${wordIndex}"}'
 hx-on::before-request="document.querySelector('import-page').onWordClick(${wordIndex})">
 ${word}<div class="cursor-default z-2 inline absolute top-8" id="translation-form-${wordIndex}" onclick="event.stopPropagation();">
+
         @if(translationModel != null)
-            @template.import-page.translation.update-translation-form(translationModel = translationModel)
+                @template.import-page.translation.update-translation-form(translationModel = translationModel)
         @endif
     </div></span>
