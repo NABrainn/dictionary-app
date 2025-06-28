@@ -16,6 +16,7 @@ import lule.dictionary.util.errors.ErrorMapFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class ImportService {
     private final ImportRepository importRepository;
     private final Validator validator;
 
+    @Transactional
     public int addImport(Model model,
                          AddImportRequest addImportRequest) throws IOException {
         var constraints = validator.validate(addImportRequest);

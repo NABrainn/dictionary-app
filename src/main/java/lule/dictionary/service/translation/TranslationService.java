@@ -21,6 +21,7 @@ import lule.dictionary.service.translation.util.TranslationFamiliarityService;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import java.util.*;
@@ -37,6 +38,7 @@ public class TranslationService {
     private final LibreTranslateService libreTranslateService;
     private final Validator validator;
 
+    @Transactional
     public int add(Model model,
                    Authentication authentication,
                    @NonNull MutateTranslationRequest request) {
@@ -131,6 +133,7 @@ public class TranslationService {
         throw new TranslationNotFoundException("Translation not found");
     }
 
+    @Transactional
     public void updateFamiliarity(Model model, UpdateTranslationFamiliarityRequest request){
         String transformedTargetWord = stringRegexService.removeNonLetters(request.targetWord());
         Translation translation = translationRepository.updateFamiliarity(
@@ -169,6 +172,7 @@ public class TranslationService {
                 ));
     }
 
+    @Transactional
     public void updateSourceWords(Model model, UpdateSourceWordsRequest request) {
         var constraints = validator.validate(request);
         Pattern validWordPattern = Pattern.compile("^[\\p{L}0-9 ]+$");
@@ -199,6 +203,7 @@ public class TranslationService {
         model.addAttribute("result", new ServiceResult(false, Map.of()));
     }
 
+    @Transactional
     public void deleteSourceWord(Model model, DeleteSourceWordRequest request) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {

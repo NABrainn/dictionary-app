@@ -23,6 +23,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -76,6 +77,7 @@ public class AuthService {
         }
     }
 
+    @Transactional
     public void signup(@NonNull Model model,
                        @NonNull SignupRequest signupRequest) {
         var constraints = validator.validate(signupRequest);
