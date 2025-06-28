@@ -16,7 +16,7 @@
             <label class="text-accent" for="login">Username</label>
             <input
             class="
-            outline-none border border-2 border-primary rounded text-neutral text-sm
+            outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="text" name="login" id="login">
             @if(result != null)
@@ -33,7 +33,7 @@
             <label class="text-accent" for="email">Email</label>
             <input
             class="
-            outline-none border border-2 border-primary rounded text-neutral text-sm
+            outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="email" name="email" id="email">
             @if(result != null)
@@ -50,7 +50,7 @@
             <label class="text-accent" for="password">Password</label>
             <input
             class="
-            outline-none border border-2 border-primary rounded text-neutral text-sm
+            outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="password" name="password" id="password">
             @if(result != null)

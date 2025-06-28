@@ -17,12 +17,12 @@
             <label class="text-accent" for="login">Username</label>
             <input
             class="
-            outline-none border border-2 border-primary rounded text-neutral text-sm
+            outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="text" name="login" id="login">
             @if(result != null)
                 @if(result.error() && result.errors().get("login") != null)
-                    <span class="text-error font-semibold text-sm">${result.errors().get("login")}</span>
+                    <span class="text-error font-semibold text-sm>${result.errors().get("login")}</span>
                 @else
                     <span class="invisible text-sm">fallback</span>
                 @endif
@@ -34,7 +34,7 @@
             <label class="text-accent" for="password">Password</label>
             <input
             class="
-            outline-none border border-2 border-primary rounded text-neutral text-sm
+            outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="password" name="password" id="password">
             @if(result != null)
