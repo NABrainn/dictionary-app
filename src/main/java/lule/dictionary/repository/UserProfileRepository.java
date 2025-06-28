@@ -66,14 +66,14 @@ public class UserProfileRepository {
                         (SELECT target_lang FROM settings) AS target_lang
                 """;
         try {
-            UserProfile addedUser = template.queryForObject(sql, USER_PROFILE,
+            List<UserProfile> addedUser = template.query(sql, USER_PROFILE,
                     userProfile.sourceLanguage().toString(),
                     userProfile.targetLanguage().toString(),
                     userProfile.username(),
                     userProfile.email(),
                     userProfile.password()
             );
-            return Optional.ofNullable(addedUser);
+            return addedUser.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             return Optional.empty();
