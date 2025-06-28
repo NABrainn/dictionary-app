@@ -4,7 +4,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
-import lule.dictionary.repository.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -53,7 +52,7 @@ public class UserProfileRepository {
         }
     }
 
-    public Optional<UserProfile> addUserProfile(@NonNull UserProfile userProfile) throws RepositoryException {
+    public Optional<UserProfile> addUserProfile(@NonNull UserProfile userProfile) {
         String sql = """
                     WITH settings AS (
                         INSERT INTO dictionary.user_profile_settings (source_lang, target_lang)
@@ -81,7 +80,7 @@ public class UserProfileRepository {
         }
     }
 
-    public List<UserProfile> findAll() throws RepositoryException {
+    public List<UserProfile> findAll() {
         String sql = """
                 SELECT p.username, p.email, p.password, s.source_lang, s.target_lang
                 FROM dictionary.user_profiles as p

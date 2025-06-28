@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
-import lule.dictionary.repository.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -24,7 +23,7 @@ public class ImportRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt addImport(Import importt) throws RepositoryException {
+    public OptionalInt addImport(Import importt) {
         final String sql = """
                 INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner)
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -49,7 +48,7 @@ public class ImportRepository {
     }
 
 
-    public Optional<ImportWithPagination> findById(int id, int page) throws RepositoryException {
+    public Optional<ImportWithPagination> findById(int id, int page) {
         String sql = """
                 SELECT
                     imports_id,
@@ -79,7 +78,7 @@ public class ImportRepository {
         }
     }
 
-    public List<ImportWithId> findByOwner(@NonNull String owner) throws RepositoryException {
+    public List<ImportWithId> findByOwner(@NonNull String owner) {
         String sql = """
                 SELECT *
                 FROM dictionary.imports
@@ -92,7 +91,7 @@ public class ImportRepository {
             return List.of();
         }
     }
-    public List<Import> findAll() throws RepositoryException {
+    public List<Import> findAll() {
         String sql = """
                 SELECT *
                 FROM dictionary.imports

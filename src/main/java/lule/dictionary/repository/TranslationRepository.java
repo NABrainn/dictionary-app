@@ -5,11 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.repository.exception.RepositoryException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -26,7 +24,7 @@ public class TranslationRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt addTranslation(@NonNull Translation translation, int importId) throws RepositoryException {
+    public OptionalInt addTranslation(@NonNull Translation translation, int importId) {
         String sql = """
                 WITH translation AS (
                     INSERT INTO dictionary.translations (source_words, target_word, source_lang, target_lang, translation_owner, familiarity)
@@ -60,7 +58,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateSourceWords(@NonNull List<String> sourceWords, @NonNull String targetWord, @NonNull String owner) throws RepositoryException {
+    public Optional<Translation> updateSourceWords(@NonNull List<String> sourceWords, @NonNull String targetWord, @NonNull String owner) {
         String sql = """
                 UPDATE dictionary.translations
                 SET source_words =  ?
@@ -83,7 +81,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateFamiliarity(@NonNull String targetWord, @NonNull Familiarity familiarity, @NonNull String owner) throws RepositoryException {
+    public Optional<Translation> updateFamiliarity(@NonNull String targetWord, @NonNull Familiarity familiarity, @NonNull String owner) {
         String sql = """
                 UPDATE dictionary.translations
                 SET familiarity = ?
@@ -105,7 +103,7 @@ public class TranslationRepository {
         }
     }
 
-    public List<Translation> findByOwner(@NonNull String username) throws RepositoryException {
+    public List<Translation> findByOwner(@NonNull String username) {
         String sql = """
                 SELECT *
                 FROM dictionary.translations
@@ -120,7 +118,7 @@ public class TranslationRepository {
         }
     }
 
-    public List<Translation> findAll() throws RepositoryException {
+    public List<Translation> findAll() {
         String sql = """
                 SELECT *
                 FROM dictionary.translations
@@ -133,7 +131,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> findByTargetWord(@NonNull String targetWord) throws RepositoryException {
+    public Optional<Translation> findByTargetWord(@NonNull String targetWord) {
         String sql = """
                 SELECT *
                 FROM dictionary.translations
