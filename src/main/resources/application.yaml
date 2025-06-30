@@ -1,4 +1,7 @@
 spring:
+  mvc:
+    trailing-slash:
+      match: true
   security:
     jwt:
       public: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw6QAOU3eL9JT8M81wurzA+69YP6mBidtAUkR8dN9W//CPLSvihvDZwfseFSOMbcNBK3B80LuR0sWYFnaL3lIaj6tteCK9LgTIx4FT3sIgyNqoFnpCDWGXddEZA50oHOnC+u3DIPKJ3f9Tr86U6iSJDBye+bIiQM9a/uqZhZr38P1TOJ9EnVaOio+ipAXS67QMrtxSHkWU66CCcKz815h83oWVPjmXHU/JqXY048CEVTrRDCj6ggvl3QmfKx8bhlAEgV29N4hSpc6XatJR2XEWHQIAAed7804Ckzn8FP0QQ3vAiWlBjPLHyAfxUepdJyRMH8bCVZNVLpv3AhSL+4ZgwIDAQAB"
@@ -9,20 +12,25 @@ spring:
     url: "jdbc:postgresql://localhost:6000/dictionary"
     username: "1234"
     password: "1234"
+translation:
+  libreTranslate:
+    base:
+      url: "/translate"
+
 gg:
   jte:
     templateLocation: src/main/jte
     templateSuffix: .jte
     developmentMode: true
+flyway:
+  url: "jdbc:postgresql://localhost:6000/dictionary"
+  user: "1234"
+  password: "1234"
 logging:
   level:
     org:
-      springframework.jdbc.core: DEBUG
       springframework.jdbc.core.JdbcTemplate: DEBUG
-      springframework.jdbc.core.StatementCreatorUtils: TRACE
-      springframework:
-        web:
-          - "DEBUG"
+      org.springframework.security.web.FilterChainProxy: DEBUG
 server:
   compression:
     enabled: true

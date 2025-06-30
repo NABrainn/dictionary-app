@@ -3,6 +3,7 @@ package lule.dictionary.service.libreTranslate;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.service.libreTranslate.dto.TranslateResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -14,11 +15,13 @@ import java.util.Map;
 public class LibreTranslateService {
 
     private final RestClient libreTranslateClient;
+    @Value("${translation.libreTranslate.base.url}")
+    private String baseUrl;
 
     public List<String> translate(String targetWord, Language sourceLanguage, Language targetLanguage) {
         TranslateResponse response = libreTranslateClient
                 .post()
-                .uri("/translate")
+                .uri(baseUrl)
                 .body(Map.of(
                         "q", targetWord,
                         "source", languageMap().get(targetLanguage.name()),
