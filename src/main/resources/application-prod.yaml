@@ -28,7 +28,8 @@ logging:
   level:
     gg:
       jte: DEBUG
-    org.springframework.security.web.FilterChainProxy: DEBUG
+    org.springframework.web.servlet.view: DEBUG
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
 server:
   compression:
     enabled: true
