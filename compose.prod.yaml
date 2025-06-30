@@ -20,7 +20,7 @@ services:
       - backend
 
   postgres:
-    container_name: postgres
+    container_name: postgres-prod
     image: postgres:17
     restart: unless-stopped
     ports:
@@ -34,7 +34,7 @@ services:
     networks:
       - backend
   pgadmin:
-    container_name: pgadmin
+    container_name: pgadmin-prod
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
@@ -50,7 +50,7 @@ services:
       - backend
 
   libretranslate:
-    container_name: libretranslate
+    container_name: libretranslate-prod
     image: libretranslate/libretranslate
     ports:
       - "5010:5000"
