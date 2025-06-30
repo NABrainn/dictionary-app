@@ -26,6 +26,8 @@ flyway:
   password: ${DB_PASS}
 logging:
   level:
+    gg:
+      jte: DEBUG
     org.springframework.security.web.FilterChainProxy: DEBUG
 server:
   compression:
