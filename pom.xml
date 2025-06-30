@@ -121,6 +121,11 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>10.17.0</version>
+			</plugin>
+			<plugin>
 				<groupId>gg.jte</groupId>
 				<artifactId>jte-maven-plugin</artifactId>
 				<version>3.2.1</version>
