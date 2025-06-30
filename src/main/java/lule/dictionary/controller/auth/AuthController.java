@@ -46,7 +46,7 @@ public class AuthController {
 
     @GetMapping("signup")
     public String signupView() {
-        return "auth/signup.jte";
+        return "auth/signup";
     }
 
     @PostMapping("signup")
