@@ -31,6 +31,7 @@ logging:
       jte: DEBUG
     org.springframework.web.servlet.view: DEBUG
     org.springframework.web.servlet.DispatcherServlet: DEBUG
+
 server:
   compression:
     enabled: true

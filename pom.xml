@@ -119,17 +119,17 @@
 	</dependencies>
 
 	<build>
-		<resources>
-			<resource>
-				<directory>${project.build.outputDirectory}/jte-classes</directory>
-				<includes>
-					<include>**/*.class</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-		</resources>
+<!--		<resources>-->
+<!--			<resource>-->
+<!--				<directory>${project.build.outputDirectory}/jte-classes</directory>-->
+<!--				<includes>-->
+<!--					<include>**/*.class</include>-->
+<!--				</includes>-->
+<!--			</resource>-->
+<!--			<resource>-->
+<!--				<directory>src/main/resources</directory>-->
+<!--			</resource>-->
+<!--		</resources>-->
 		<plugins>
 
 			<plugin>
