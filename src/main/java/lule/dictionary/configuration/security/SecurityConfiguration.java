@@ -64,6 +64,7 @@ public class SecurityConfiguration {
                                 "/htmx.min.js",
                                 "/output.css",
                                 "/images/icon.png",
+                                "/favicon.ico",
                                 "/error/**",
                                 "/auth/**"
                         ).permitAll()
