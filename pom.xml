@@ -119,19 +119,7 @@
 	</dependencies>
 
 	<build>
-<!--		<resources>-->
-<!--			<resource>-->
-<!--				<directory>${project.build.outputDirectory}/jte-classes</directory>-->
-<!--				<includes>-->
-<!--					<include>**/*.class</include>-->
-<!--				</includes>-->
-<!--			</resource>-->
-<!--			<resource>-->
-<!--				<directory>src/main/resources</directory>-->
-<!--			</resource>-->
-<!--		</resources>-->
 		<plugins>
-
 			<plugin>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-maven-plugin</artifactId>
@@ -142,8 +130,10 @@
 				<artifactId>jte-maven-plugin</artifactId>
 				<version>3.2.1</version>
 				<configuration>
+					<!-- This is the directory where your .jte files are located. -->
 					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
-					<targetDirectory>${project.build.outputDirectory}/jte-classes</targetDirectory>
+					<!-- This is the directory where compiled templates are located. -->
+					<targetDirectory>${project.build.directory}/jte-classes</targetDirectory>
 					<contentType>Html</contentType>
 				</configuration>
 				<executions>
