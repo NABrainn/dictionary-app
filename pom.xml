@@ -119,6 +119,17 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>${project.build.outputDirectory}/jte-classes</directory>
+				<includes>
+					<include>**/*.class</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
 		<plugins>
 
 			<plugin>
@@ -127,17 +138,6 @@
 				<version>10.17.0</version>
 			</plugin>
 			<plugin>
-				<resources>
-					<resource>
-						<directory>${project.build.outputDirectory}/jte-classes</directory>
-						<includes>
-							<include>**/*.class</include>
-						</includes>
-					</resource>
-					<resource>
-						<directory>src/main/resources</directory>
-					</resource>
-				</resources>
 				<groupId>gg.jte</groupId>
 				<artifactId>jte-maven-plugin</artifactId>
 				<version>3.2.1</version>
