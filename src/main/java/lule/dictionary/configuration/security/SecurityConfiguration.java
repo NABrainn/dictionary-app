@@ -60,14 +60,15 @@ public class SecurityConfiguration {
                         .csrfTokenRepository(csrfTokenRepository())
                 )
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers(
-                                "/htmx.min.js",
-                                "/output.css",
-                                "/images/icon.png",
-                                "/error/**",
-                                "/auth/**"
-                        ).permitAll()
-                        .anyRequest().authenticated())
+//                        .requestMatchers(
+//                                "/htmx.min.js",
+//                                "/output.css",
+//                                "/images/icon.png",
+//                                "/error/**",
+//                                "/auth/**"
+//                        ).permitAll()
+//                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandler -> exceptionHandler
                         .authenticationEntryPoint((request, response, authException) -> {
