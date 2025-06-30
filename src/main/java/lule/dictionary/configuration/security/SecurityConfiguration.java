@@ -60,13 +60,22 @@ public class SecurityConfiguration {
                         .csrfTokenRepository(csrfTokenRepository())
                 )
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/htmx.min.js", "/output.css", "/images/icon.png", "/error/**").permitAll()
-                        .requestMatchers("/auth/login", "/auth/signup").permitAll()
+                        .requestMatchers(
+                                "/htmx.min.js",
+                                "/output.css",
+                                "/images/icon.png",
+                                "/error/**",
+                                "/auth/**"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandler -> exceptionHandler
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendRedirect("/auth/login");
+                            if (!request.getRequestURI().startsWith("/auth")) {
+                                response.sendRedirect("/auth/login");
+                            } else {
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                            }
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             switch (accessDeniedException) {
