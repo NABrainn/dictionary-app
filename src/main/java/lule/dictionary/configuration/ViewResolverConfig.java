@@ -7,7 +7,7 @@ import org.springframework.web.servlet.ViewResolver;
 import java.util.List;
 
 @Configuration
-public class DebuggingViewResolver {
+public class ViewResolverConfig {
     @Bean
     public ViewResolver debuggingViewResolver(List<ViewResolver> resolvers) {
         return (viewName, locale) -> {
