@@ -64,7 +64,7 @@ public class SecurityConfiguration {
                                 "/htmx.min.js",
                                 "/output.css",
                                 "/images/icon.png",
-                                "/error/",
+                                "/error/**",
                                 "/auth/**"
                         ).permitAll()
                         .anyRequest().authenticated())
