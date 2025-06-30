@@ -1,4 +1,7 @@
 spring:
+  mvc:
+    trailing-slash:
+      match: true
   security:
     jwt:
       public: ${JWT_PUBLIC}
@@ -8,13 +11,24 @@ spring:
   datasource:
     url: ${DB_URL}
     username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    password: ${DB_PASS}
+translation:
+  libreTranslate:
+    base:
+      url: "/translate"
 gg:
   jte:
-    templateLocation: src/main/jte
-    templateSuffix: .jte
-    developmentMode: false
+    development-mode: false
+    use-precompiled-templates: true
+flyway:
+  url: ${DB_URL}
+  user: ${DB_USER}
+  password: ${DB_PASS}
+logging:
+  level:
+    org.springframework.security.web.FilterChainProxy: DEBUG
 server:
   compression:
     enabled: true
     min-response-size: 2048
+
