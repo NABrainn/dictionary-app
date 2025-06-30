@@ -72,10 +72,12 @@ public class SecurityConfiguration {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandler -> exceptionHandler
                         .authenticationEntryPoint((request, response, authException) -> {
-                            if (!request.getRequestURI().startsWith("/auth")) {
+                            String path = request.getRequestURI();
+                            log.warn("Unauthenticated access to {}", path);
+                            if (!"/auth/login".equals(path)) {
                                 response.sendRedirect("/auth/login");
                             } else {
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                             }
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
