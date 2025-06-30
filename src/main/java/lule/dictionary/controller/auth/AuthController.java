@@ -26,7 +26,7 @@ public class AuthController {
 
     @GetMapping("login")
     public String loginView() {
-        return "auth/login.jte";
+        return "auth/login";
     }
 
     @PostMapping("login")
@@ -40,7 +40,7 @@ public class AuthController {
             return "redirect:/";
         } catch (RetryViewException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
-            return "auth/login.jte";
+            return "auth/login";
         }
     }
 
@@ -56,10 +56,10 @@ public class AuthController {
                          @RequestParam("password") @NonNull String password) {
         try {
             authService.signup(model, new SignupRequest(login, email, password));
-            return "auth/login.jte";
+            return "auth/login";
         } catch (RetryViewException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
-            return "auth/signup.jte";
+            return "auth/signup";
         }
     }
 
@@ -69,6 +69,6 @@ public class AuthController {
                 redirectAttributes,
                 response
         );
-        return "redirect:/auth/login.jte";
+        return "redirect:/auth/login";
     }
 }
