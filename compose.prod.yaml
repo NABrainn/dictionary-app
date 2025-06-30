@@ -1,0 +1,70 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8080"
+    depends_on:
+      - libretranslate
+      - postgres
+    environment:
+      JWT_PUBLIC: ${JWT_PUBLIC}
+      JWT_PRIVATE: ${JWT_PRIVATE}
+      DB_URL: ${DB_URL}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      LT_BASE_URL: http://libretranslate:5000
+    networks:
+      - backend
+
+  postgres:
+    container_name: postgres
+    image: postgres:17
+    restart: unless-stopped
+    ports:
+      - "5442:5432"
+    environment:
+      POSTGRES_DB: dictionary
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - '8081:80'
+    networks:
+      - backend
+
+  libretranslate:
+    container_name: libretranslate
+    image: libretranslate/libretranslate
+    ports:
+      - "5010:5000"
+    restart: unless-stopped
+    environment:
+      LT_LOAD_ONLY: "pl,en,nb"
+    networks:
+      - backend
+
+volumes:
+  postgres_data: {}
+  pgadmin: {}
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
