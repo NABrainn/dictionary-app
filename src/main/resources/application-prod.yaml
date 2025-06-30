@@ -19,7 +19,7 @@ translation:
 gg:
   jte:
     development-mode: false
-    use-precompiled-templates: true
+    usePrecompiledTemplates: true
 flyway:
   url: ${DB_URL}
   user: ${DB_USER}
