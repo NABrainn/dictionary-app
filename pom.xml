@@ -119,18 +119,6 @@
 	</dependencies>
 
 	<build>
-		<resources>
-			<resource>
-				<directory>${project.build.directory}/jte-classes</directory>
-				<targetPath>.</targetPath>
-				<includes>
-					<include>**/*.class</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.flywaydb</groupId>
@@ -143,7 +131,7 @@
 				<version>3.2.1</version>
 				<configuration>
 					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
-					<targetDirectory>${project.build.directory}/jte-classes</targetDirectory>
+					<targetDirectory>${project.build.outputDirectory}/jte-classes</targetDirectory>
 					<contentType>Html</contentType>
 				</configuration>
 				<executions>
