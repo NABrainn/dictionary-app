@@ -1,6 +1,6 @@
 services:
   postgres:
-    container_name: postgres
+    container_name: postgres_dev
     image: 'postgres:latest'
     environment:
       POSTGRES_USER: 1234
@@ -13,12 +13,12 @@ services:
     networks:
       - postgres
   libre_translate:
-    container_name: libre_translate
+    container_name: libre_translate_dev
     image: 'libretranslate/libretranslate:latest'
     ports:
       - '5000:5000'
   pgadmin:
-    container_name: pgadmin_container
+    container_name: pgadmin_dev
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
