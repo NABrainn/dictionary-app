@@ -133,7 +133,7 @@
 					<!-- This is the directory where your .jte files are located. -->
 					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
 					<!-- This is the directory where compiled templates are located. -->
-					<targetDirectory>${project.build.directory}/jte-classes</targetDirectory>
+					<targetDirectory>${project.build.outputDirectory}</targetDirectory>
 					<contentType>Html</contentType>
 				</configuration>
 				<executions>

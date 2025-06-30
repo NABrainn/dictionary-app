@@ -20,6 +20,8 @@ gg:
   jte:
     development-mode: false
     usePrecompiledTemplates: true
+    precompiled: gg.jte.generated.precompiled
+
 flyway:
   url: ${DB_URL}
   user: ${DB_USER}
