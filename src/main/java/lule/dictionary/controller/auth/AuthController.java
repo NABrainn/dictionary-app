@@ -26,7 +26,7 @@ public class AuthController {
 
     @GetMapping("login")
     public String loginView() {
-        return "auth/login";
+        return "/auth/login";
     }
 
     @PostMapping("login")
@@ -40,13 +40,13 @@ public class AuthController {
             return "redirect:/";
         } catch (RetryViewException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
-            return "auth/login";
+            return "/auth/login";
         }
     }
 
     @GetMapping("signup")
     public String signupView() {
-        return "auth/signup";
+        return "/auth/signup";
     }
 
     @PostMapping("signup")
@@ -59,7 +59,7 @@ public class AuthController {
             return "auth/login";
         } catch (RetryViewException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
-            return "auth/signup";
+            return "/auth/signup";
         }
     }
 
