@@ -21,7 +21,7 @@ import java.io.IOException;
 
 @Slf4j
 @Controller
-@RequestMapping({"/imports", "/imports/"})
+@RequestMapping("/imports")
 @RequiredArgsConstructor
 public class ImportController {
 
@@ -29,14 +29,14 @@ public class ImportController {
     private final ImportPageService importPageService;
     private final UserProfileService userProfileService;
 
-    @GetMapping({"", "/"})
+    @GetMapping("")
     public String getImportList(Authentication authentication,
                                 Model model) {
         importService.findByOwner(model, authentication.getName());
         return "imports";
     }
 
-    @PostMapping({"/page/reload", "page/reload"})
+    @PostMapping({"/page/reload", "/page/reload/"})
     public String reloadImportPageOnPost(Model model,
                                          @RequestAttribute("translationModel")TranslationModel translationModel,
                                          @RequestParam("selectedWordId") int wordId,
@@ -52,7 +52,7 @@ public class ImportController {
 
     }
 
-    @PutMapping({"/page/reload", "page/reload"})
+    @PutMapping({"/page/reload", "/page/reload/"})
     public String reloadImportPageOnPut(Model model,
                                         @RequestAttribute("translationModel")TranslationModel translationModel,
                                         @RequestParam("selectedWordId") int wordId,
@@ -67,12 +67,12 @@ public class ImportController {
         }
     }
 
-    @GetMapping({"new", "/new"})
+    @GetMapping({"/new", "/new/"})
     public String addImportForm() {
         return "import-form/import-form";
     }
 
-    @GetMapping({"{importId}", "/{importId}"})
+    @GetMapping({"/{importId}", "/{importId}/"})
     public String importPageContent(Model model,
                                     @PathVariable("importId") String importId,
                                     @RequestParam(name = "page", defaultValue = "1") int page) {
@@ -85,7 +85,7 @@ public class ImportController {
         }
     }
 
-    @PostMapping({"new", "/new"})
+    @PostMapping({"/new", "/new/"})
     public String addImport(Model model,
                             Authentication authentication,
                             @RequestParam("title") String title,
@@ -117,12 +117,12 @@ public class ImportController {
         }
     }
 
-    @GetMapping({"by-url-form", "/by-url-form"})
+    @GetMapping({"/by-url-form", "/by-url-form/"})
     public String byUrlForm() {
         return "import-form/by-url-form";
     }
 
-    @GetMapping({"insert-manually-form", "/insert-manually-form"})
+    @GetMapping({"/insert-manually-form", "/insert-manually-form/"})
     public String insertManuallyForm() {
         return "import-form/insert-manually-form";
     }

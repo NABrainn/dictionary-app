@@ -24,12 +24,12 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @GetMapping("login")
+    @GetMapping({"/login", "/login/"})
     public String loginView() {
         return "auth/login";
     }
 
-    @PostMapping("login")
+    @PostMapping({"/login", "/login/"})
     public String login(Model model,
                         RedirectAttributes redirectAttributes,
                         @RequestParam("login") @NonNull String login,
@@ -44,12 +44,12 @@ public class AuthController {
         }
     }
 
-    @GetMapping("signup")
+    @GetMapping({"/signup", "/signup/"})
     public String signupView() {
         return "auth/signup";
     }
 
-    @PostMapping("signup")
+    @PostMapping({"/signup", "/signup/"})
     public String signup(@NonNull Model model,
                          @RequestParam("login") @NonNull String login,
                          @RequestParam("email") @NonNull String email,
@@ -63,7 +63,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("logout")
+    @PostMapping({"/logout", "/logout/"})
     public String logout(@NonNull RedirectAttributes redirectAttributes, HttpServletResponse response) {
         authService.logout(
                 redirectAttributes,

@@ -19,13 +19,13 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping({"/translations", "/translations/"})
+@RequestMapping("/translations")
 @Slf4j
 public class TranslationController {
 
     private final TranslationService translationService;
 
-    @GetMapping({"/", ""})
+    @GetMapping("")
     public String findByTargetWord(Model model,
                                    Authentication authentication,
                                    @RequestParam int importId,
@@ -44,7 +44,7 @@ public class TranslationController {
         }
     }
 
-    @PostMapping({"/new", "new"})
+    @PostMapping({"/new", "/new/"})
     public String newTranslation(Model model,
                                  Authentication authentication,
                                  @RequestParam("sourceWords") List<String> sourceWords,
@@ -74,7 +74,7 @@ public class TranslationController {
         }
     }
 
-    @PutMapping({"/familiarity/update", "familiarity/update"})
+    @PutMapping({"/familiarity/update", "/familiarity/update/"})
     public String updateFamiliarity(Model model,
                                     Authentication authentication,
                                     @RequestParam("targetWord") String targetWord,
@@ -102,7 +102,7 @@ public class TranslationController {
         }
     }
 
-    @PutMapping({"/sourceWords/update", "sourceWords/update"})
+    @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
     public String updateSourceWords(Model model,
                                     Authentication authentication,
                                     @RequestParam("sourceWords") List<String> sourceWords,
@@ -120,7 +120,7 @@ public class TranslationController {
         }
     }
 
-    @DeleteMapping({"/sourceWords/delete", "sourceWords/delete"})
+    @DeleteMapping({"/sourceWords/delete", "/sourceWords/delete/"})
     public String deleteSourceWord(Model model,
                                    Authentication authentication,
                                    @RequestParam("sourceWord") String sourceWord,
