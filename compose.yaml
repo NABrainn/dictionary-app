@@ -17,6 +17,21 @@ services:
     image: 'libretranslate/libretranslate:latest'
     ports:
       - '5000:5000'
+  ollama:
+    container_name: ollama_dev
+    image: ollama/ollama:rocm
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: ["gpu"]
+              count: all
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    restart: always
   pgadmin:
     container_name: pgadmin_dev
     image: dpage/pgadmin4
@@ -38,5 +53,6 @@ networks:
     name: postgres-network
 
 volumes:
+  ollama: {}
   postgres: {}
   pgadmin: {}
