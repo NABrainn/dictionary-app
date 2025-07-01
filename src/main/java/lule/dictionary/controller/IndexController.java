@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("`")
+@RequestMapping("")
 public class IndexController {
 
     @GetMapping("/")
