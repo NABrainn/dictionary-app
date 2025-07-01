@@ -1,5 +1,6 @@
 package lule.dictionary.controller.ollama;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ollama4j.exceptions.OllamaBaseException;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,8 +27,10 @@ public class OllamaController {
                             Model model,
                             Authentication authentication) throws OllamaBaseException, IOException, InterruptedException {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        String translation = ollamaService.translate(principal.targetLanguage(), principal.sourceLanguage(), targetWord);
-        model.addAttribute("translation", translation);
+        String translationJson = ollamaService.translate(principal.targetLanguage(), principal.sourceLanguage(), targetWord);
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<?, ?> translation = objectMapper.readValue(translationJson, Map.class);
+        model.addAttribute("translation", translation.get("sourceWord"));
         model.addAttribute("targetWord", targetWord);
         return "import-page/translation/ai-translation";
     }
