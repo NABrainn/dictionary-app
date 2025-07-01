@@ -4,7 +4,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.userProfile.base.DictionaryUserProfile;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.UserProfileRepository;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;

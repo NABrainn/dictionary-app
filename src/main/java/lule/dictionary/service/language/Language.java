@@ -1,4 +1,4 @@
-package lule.dictionary.enumeration;
+package lule.dictionary.service.language;
 
 public enum Language {
     PL,

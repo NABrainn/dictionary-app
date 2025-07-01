@@ -57,8 +57,7 @@ class="flex flex-col gap-8 w-3/5 min-h-full justify-between mx-auto">
                 @if(importModel.selectedWordId() == word.getIndex())
                     @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-tertiary", textColor = "text-neutral", translationModel = translationModel, page = importModel.currentPage())
                 @else
-                    @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-primary", textColor = "text-neutral", page = importModel.currentPage())
-
+                    @template.import-page.word(wordIndex = word.getIndex(), importId = importModel.importId(), word = word.get(), processedWord = cleanWord, bgColor = "bg-accent", textColor = "text-primary", page = importModel.currentPage())
                 @endif
             @endif
         @endfor

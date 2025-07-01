@@ -1,6 +1,6 @@
 package lule.dictionary.entity.application.interfaces.userProfile;
 
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
 
 public interface UserProfileSettings {
     Language sourceLanguage();

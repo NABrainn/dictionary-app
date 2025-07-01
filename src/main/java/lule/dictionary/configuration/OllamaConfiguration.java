@@ -24,7 +24,12 @@ public class OllamaConfiguration {
         ollamaAPI.createModel(CustomModelRequest.builder()
                 .model("translator")
                 .from(OllamaModelType.MISTRAL)
-                .system("You are translator. Your task is to read user input and produce translation briefly.")
+                .system("""
+                        You are translator. Your task is to read user input and produce translation briefly. Return as following json:
+                        {
+                            "sourceWord": (output translation)
+                        }
+                        """)
                 .build());
         return ollamaAPI;
     }

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
 
 import java.util.List;
 

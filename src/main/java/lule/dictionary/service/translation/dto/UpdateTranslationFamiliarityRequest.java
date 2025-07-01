@@ -5,8 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.NonNull;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.enumeration.Language;
-import lule.dictionary.functionalInterface.validation.PatternValidator;
+import lule.dictionary.service.language.Language;
 
 public record UpdateTranslationFamiliarityRequest(@NotBlank
                                                 @Size(max = 200, message = "Target word cannot be longer than 200 characters")

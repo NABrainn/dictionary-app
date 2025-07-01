@@ -12,7 +12,7 @@ import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
@@ -223,5 +223,9 @@ public class TranslationService {
         }
         model.addAttribute("sourceWords", List.of());
         throw new SourceWordNotFoundException("Source word not found");
+    }
+
+    public int getWordsLearnedCount(String owner) {
+        return translationRepository.getWordsLearnedCount(owner);
     }
 }

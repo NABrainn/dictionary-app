@@ -11,11 +11,10 @@ import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class RowMapperFactory {
     public static final RowMapper<UserProfile> USER_PROFILE = ((rs, rowNum) ->

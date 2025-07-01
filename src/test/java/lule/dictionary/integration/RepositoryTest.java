@@ -9,7 +9,7 @@
 //import lule.dictionary.dto.application.interfaces.userProfile.UserProfileCredentials;
 //import lule.dictionary.dto.application.interfaces.userProfile.UserProfileSettings;
 //import lule.dictionary.enumeration.Familiarity;
-//import lule.dictionary.enumeration.Language;
+//import lule.dictionary.service.language.Language;
 //import lule.dictionary.factory.dto.ImportFactory;
 //import lule.dictionary.factory.dto.TranslationFactory;
 //import lule.dictionary.factory.dto.UserProfileFactory;

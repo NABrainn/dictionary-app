@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.service.translation.TranslationService;
 import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
