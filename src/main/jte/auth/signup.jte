@@ -9,6 +9,12 @@
 @param int wordsLearned
 
 @template.layout.base(authView = @`
+    @template.navbar(
+        username = username,
+        authenticated = authenticated,
+        targetLanguage = targetLanguage,
+        wordsLearned = wordsLearned
+    )
     <form
         hx-post="/auth/signup"
         hx-target="#main"

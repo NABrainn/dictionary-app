@@ -12,6 +12,12 @@
 @param int wordsLearned
 
 @template.layout.base(content = @`
+    @template.navbar(
+        username = username,
+        authenticated = authenticated,
+        targetLanguage = targetLanguage,
+        wordsLearned = wordsLearned
+    )
     @if(authenticated)
         <div class="grow-1 w-3/5 mx-auto flex flex-col justify-between gap-16 text-neutral">
                 @if(imports.isEmpty())

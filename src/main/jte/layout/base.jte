@@ -24,12 +24,6 @@
     hx-headers='{"X-XSRF-TOKEN": "${_csrf.getToken()}"}'
     class="bg-primary grow-1 flex flex-col gap-8 min-h-screen pb-8"
     id="main">
-        @template.navbar(
-            username = username,
-            authenticated = authenticated,
-            targetLanguage = targetLanguage,
-            wordsLearned = wordsLearned
-        )
         @if(authView != null)
             ${authView}
         @endif

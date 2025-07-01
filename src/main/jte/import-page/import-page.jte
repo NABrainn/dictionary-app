@@ -10,7 +10,14 @@
 @param int wordsLearned
 
 @template.layout.base(content = @`
-    @template.import-page.content(importModel = importModel, _csrf = _csrf, authenticated = authenticated)
+    @template.import-page.content(
+        importModel = importModel,
+        _csrf = _csrf,
+        authenticated = authenticated,
+        username = username,
+        targetLanguage = targetLanguage,
+        wordsLearned = wordsLearned
+    )
     @template.import-page.script(selectedWordId = importModel.selectedWordId())
 `,
 authenticated = authenticated,
