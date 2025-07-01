@@ -3,6 +3,7 @@ package lule.dictionary.entity.application.implementation.userProfile.base;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Language;
 import lule.dictionary.functionalInterface.validation.EmptyValidator;
@@ -10,7 +11,6 @@ import lule.dictionary.functionalInterface.validation.LengthValidator;
 import lule.dictionary.functionalInterface.validation.PatternValidator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +27,7 @@ public record DictionaryUserProfile(
         @NonNull
         Language sourceLanguage,
         @NonNull
-        Language targetLanguage) implements UserProfile, UserDetails {
+        Language targetLanguage) implements UserProfile, CustomUserDetails {
 
         public DictionaryUserProfile {
                 EmptyValidator emptyValidator = (String... fields) -> {
