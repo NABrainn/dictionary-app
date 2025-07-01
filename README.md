@@ -22,4 +22,6 @@ An application that makes language learning fun and engaging through reading.
 
 ### 01/07/2025 - AI translation integration
 
+![image](https://github.com/user-attachments/assets/16360693-bf8f-41e3-a269-1a42510eeb23)
+
 ![image](https://github.com/user-attachments/assets/adeaf5a4-f026-4563-8159-e0402d7e8406)
