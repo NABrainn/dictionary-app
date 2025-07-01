@@ -22,7 +22,7 @@ class="flex flex-col bg-tertiary rounded p-1.5  w-full">
             hx-swap="outerHTML">❌</span>
         </div>
     </div>
-    <div class="text-wrap leading-6 text-neutral">
+    <div class="text-wrap leading-6 text-neutral font-bold">
         ${translation}
     </div>
 </div>
