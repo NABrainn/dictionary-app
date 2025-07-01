@@ -1,13 +1,15 @@
 @import gg.jte.Content
-@import lule.dictionary.enumeration.Language
+@import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
 
 @param Content authView = null
 @param Content content = null
 @param Language sourceLanguage = null
-@param Language targetLanguage = null
+@param String targetLanguage
+@param String username
 @param boolean authenticated
-@param CsrfToken _csrf 
+@param CsrfToken _csrf
+@param int wordsLearned
 
 <html lang="en">
     <head>
@@ -22,7 +24,12 @@
     hx-headers='{"X-XSRF-TOKEN": "${_csrf.getToken()}"}'
     class="bg-primary grow-1 flex flex-col gap-8 min-h-screen pb-8"
     id="main">
-        @template.navbar(authenticated = authenticated)
+        @template.navbar(
+            username = username,
+            authenticated = authenticated,
+            targetLanguage = targetLanguage,
+            wordsLearned = wordsLearned
+        )
         @if(authView != null)
             ${authView}
         @endif

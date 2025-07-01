@@ -1,13 +1,15 @@
 @import lule.dictionary.entity.application.interfaces.imports.ImportWithId
-@import lule.dictionary.enumeration.Language
+@import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
 @import java.util.List
 
 @param List<ImportWithId> imports
 @param boolean authenticated
 @param Language sourceLanguage
-@param Language targetLanguage
+@param String targetLanguage
 @param CsrfToken _csrf 
+@param String username
+@param int wordsLearned
 
 @template.layout.base(content = @`
     @if(authenticated)
@@ -52,4 +54,11 @@
                 </div>
             </div>
     @endif
-`, authenticated = authenticated, sourceLanguage = sourceLanguage, targetLanguage = targetLanguage, _csrf = _csrf)
+`,
+authenticated = authenticated,
+sourceLanguage = sourceLanguage,
+targetLanguage = targetLanguage,
+_csrf = _csrf,
+username = username,
+wordsLearned = wordsLearned
+)

@@ -4,6 +4,9 @@
 @param ServiceResult result = null
 @param CsrfToken _csrf
 @param boolean authenticated
+@param String username
+@param String targetLanguage
+@param int wordsLearned
 
 @template.layout.base(authView = @`
     <form
@@ -73,4 +76,10 @@
             hx-push-url="true">Log in</a>
         </div>
     </form>
-`, authenticated = authenticated, _csrf = _csrf)
+`,
+authenticated = authenticated,
+_csrf = _csrf,
+username = username,
+targetLanguage = targetLanguage,
+wordsLearned = wordsLearned
+)

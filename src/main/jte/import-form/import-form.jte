@@ -3,7 +3,10 @@
 
 @param boolean authenticated
 @param ServiceResult result = null
-@param CsrfToken _csrf 
+@param CsrfToken _csrf
+@param String username
+@param String targetLanguage
+@param int wordsLearned
 
 @template.layout.base(content = @`
     <form
@@ -84,4 +87,10 @@
         }
     </script>
     <button-toggler></button-toggler>
-`, authenticated = authenticated, _csrf = _csrf)
+`,
+authenticated = authenticated,
+_csrf = _csrf,
+username = username,
+targetLanguage = targetLanguage,
+wordsLearned = wordsLearned
+)

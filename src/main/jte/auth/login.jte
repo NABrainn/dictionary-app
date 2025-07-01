@@ -1,9 +1,13 @@
+@import lule.dictionary.service.language.Language
 @import lule.dictionary.service.dto.ServiceResult
 @import org.springframework.security.web.csrf.CsrfToken
 
 @param ServiceResult result = null
 @param CsrfToken _csrf
 @param boolean authenticated
+@param String username
+@param String targetLanguage
+@param int wordsLearned
 
 @template.layout.base(authView = @`
     <form
@@ -22,7 +26,7 @@
             type="text" name="login" id="login">
             @if(result != null)
                 @if(result.error() && result.errors().get("login") != null)
-                    <span class="text-error font-semibold text-sm>${result.errors().get("login")}</span>
+                    <span class="text-error font-semibold text-sm">${result.errors().get("login")}</span>
                 @else
                     <span class="invisible text-sm">fallback</span>
                 @endif
@@ -59,5 +63,11 @@
             hx-push-url="true">Create account</a>
         </div>
     </form>
-`, authenticated = authenticated,  _csrf = _csrf)
+`,
+authenticated = authenticated,
+_csrf = _csrf,
+username = username,
+targetLanguage = targetLanguage,
+wordsLearned = wordsLearned
+)
 
