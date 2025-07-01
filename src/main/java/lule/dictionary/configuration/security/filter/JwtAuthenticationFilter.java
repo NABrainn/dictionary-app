@@ -35,7 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-
         final Optional<String> optionalJwt = getJwtFromCookie("jwt", request);
 
         if (optionalJwt.isEmpty()) {
