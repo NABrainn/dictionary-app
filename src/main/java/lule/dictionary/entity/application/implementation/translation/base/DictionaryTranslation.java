@@ -4,13 +4,12 @@ import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.functionalInterface.validation.EmptyValidator;
 import lule.dictionary.functionalInterface.validation.EqualEnumValueValidator;
 import lule.dictionary.functionalInterface.validation.LengthValidator;
 import lule.dictionary.functionalInterface.validation.PatternValidator;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 

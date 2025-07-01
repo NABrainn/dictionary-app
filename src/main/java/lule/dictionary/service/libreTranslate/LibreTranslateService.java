@@ -1,7 +1,7 @@
 package lule.dictionary.service.libreTranslate;
 
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.service.libreTranslate.dto.TranslateResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

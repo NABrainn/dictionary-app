@@ -27,10 +27,8 @@ public class OllamaController {
                             Model model,
                             Authentication authentication) throws OllamaBaseException, IOException, InterruptedException {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        String translationJson = ollamaService.translate(principal.targetLanguage(), principal.sourceLanguage(), targetWord);
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<?, ?> translation = objectMapper.readValue(translationJson, Map.class);
-        model.addAttribute("translation", translation.get("sourceWord"));
+        String sourceWord = ollamaService.translate(principal.targetLanguage(), principal.sourceLanguage(), targetWord);
+        model.addAttribute("translation", sourceWord);
         model.addAttribute("targetWord", targetWord);
         return "import-page/translation/ai-translation";
     }

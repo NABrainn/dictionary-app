@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.functionalInterface.validation.EmptyValidator;
 import lule.dictionary.functionalInterface.validation.LengthValidator;
 import lule.dictionary.functionalInterface.validation.PatternValidator;
@@ -70,12 +70,12 @@ public record DictionaryUserProfile(
 
         @Override
         public String getPassword() {
-                return password();
+                return password;
         }
 
         @Override
         public String getUsername() {
-                return username();
+                return username;
         }
 
         @Override
