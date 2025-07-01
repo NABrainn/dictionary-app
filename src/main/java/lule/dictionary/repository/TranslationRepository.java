@@ -181,4 +181,21 @@ public class TranslationRepository {
             return Optional.empty();
         }
     }
+
+    public int getWordsLearnedCount(String owner) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM dictionary.translations
+            WHERE translation_owner = ?
+            AND familiarity != CAST(? AS dictionary.familiarity)
+        """;
+
+        try {
+            Integer count = template.queryForObject(sql, Integer.class, owner, Familiarity.IGNORED.name());
+            return count != null ? count : 0;
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            return 0;
+        }
+    }
 }
