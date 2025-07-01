@@ -19,6 +19,9 @@ translation:
     base:
       url: "/translate"
 
+ollama:
+  api:
+    baseUrl: "http://localhost:11434"
 gg:
   jte:
     templateLocation: src/main/jte
