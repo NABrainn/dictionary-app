@@ -1,18 +1,20 @@
 package lule.dictionary.controllerAdvice;
 
+import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.enumeration.Language;
+import lule.dictionary.service.language.Language;
+import lule.dictionary.service.userProfile.AuthenticatedUserDataService;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.security.Principal;
-
 @ControllerAdvice
+@RequiredArgsConstructor
 public class JteControllerAdvice {
+
+    private final AuthenticatedUserDataService dataService;
 
     @ModelAttribute
     public void csrf(Model model, CsrfToken csrf) {
@@ -23,6 +25,15 @@ public class JteControllerAdvice {
     public void authenticated(Model model, Authentication authentication) {
         if(authentication != null && authentication.isAuthenticated()) model.addAttribute("authenticated", true);
         else model.addAttribute("authenticated", false);
+    }
+    @ModelAttribute
+    public void username(Model model, Authentication authentication) {
+        if(authentication == null) {
+            model.addAttribute("username", "");
+            return;
+        }
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        model.addAttribute("username", principal.getUsername());
     }
 
     @ModelAttribute
@@ -38,10 +49,26 @@ public class JteControllerAdvice {
     @ModelAttribute
     public void targetLanguage(Model model, Authentication authentication) {
         if(authentication == null) {
-            model.addAttribute("targetLanguage", Language.NO);
+            model.addAttribute("targetLanguage", "English");
             return;
         }
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        model.addAttribute("targetLanguage", principal.targetLanguage());
+        model.addAttribute(
+                "targetLanguage",
+                dataService.getFullName(principal.targetLanguage())
+        );
+    }
+
+    @ModelAttribute
+    public void wordsLearnedCount(Model model, Authentication authentication) {
+        if(authentication == null) {
+            model.addAttribute("targetLanguage", "English");
+            return;
+        }
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        model.addAttribute(
+                "wordsLearned",
+                dataService.getWordsLearned(principal.getUsername())
+        );
     }
 }
