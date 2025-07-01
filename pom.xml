@@ -34,6 +34,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.github.ollama4j/ollama4j -->
+		<dependency>
+			<groupId>io.github.ollama4j</groupId>
+			<artifactId>ollama4j</artifactId>
+			<version>1.0.100</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
