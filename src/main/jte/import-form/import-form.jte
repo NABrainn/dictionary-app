@@ -9,6 +9,12 @@
 @param int wordsLearned
 
 @template.layout.base(content = @`
+    @template.navbar(
+        username = username,
+        authenticated = authenticated,
+        targetLanguage = targetLanguage,
+        wordsLearned = wordsLearned
+    )
     <form
     class="flex flex-col gap-8 bg-secondary w-3/5 mx-auto p-8"
     hx-post="/imports/new"

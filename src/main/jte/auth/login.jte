@@ -1,4 +1,3 @@
-@import lule.dictionary.service.language.Language
 @import lule.dictionary.service.dto.ServiceResult
 @import org.springframework.security.web.csrf.CsrfToken
 
@@ -10,6 +9,12 @@
 @param int wordsLearned
 
 @template.layout.base(authView = @`
+    @template.navbar(
+        username = username,
+        authenticated = authenticated,
+        targetLanguage = targetLanguage,
+        wordsLearned = wordsLearned
+    )
     <form
         hx-post="/auth/login"
         hx-target="#main"

@@ -1,6 +1,6 @@
 @import lule.dictionary.service.language.Language
 
-@param String username = null
+@param String username
 @param Language sourceLanguage = null
 @param String targetLanguage
 @param boolean authenticated

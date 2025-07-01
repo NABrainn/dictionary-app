@@ -62,7 +62,7 @@ public class JteControllerAdvice {
     @ModelAttribute
     public void wordsLearnedCount(Model model, Authentication authentication) {
         if(authentication == null) {
-            model.addAttribute("targetLanguage", "English");
+            model.addAttribute("wordsLearned", 0);
             return;
         }
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
