@@ -3,6 +3,7 @@ package lule.dictionary.controller.translation;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.enumeration.Familiarity;
@@ -33,7 +34,11 @@ public class TranslationController {
                                    @RequestParam("selectedWordId") int selectedWordId,
                                    @RequestParam("page") int page) {
         try {
-            translationService.findByTargetWord(authentication, model, new FindTranslationRequest(importId, targetWord, selectedWordId, page));
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            translationService.findByTargetWord(model, new FindTranslationRequest(importId, targetWord, selectedWordId, page),
+                    principal.getUsername(),
+                    principal.sourceLanguage(),
+                    principal.targetLanguage());
             return "import-page/translation/update-translation-form";
         } catch (RetryViewException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
