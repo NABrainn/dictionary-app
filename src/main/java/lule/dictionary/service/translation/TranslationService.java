@@ -121,8 +121,8 @@ public class TranslationService {
         List<String> dbSourceWords = translationRepository.findMostFrequentSourceWords(cleanTargetWord, 3);
         Translation translation = DictionaryTranslation.builder()
                 .sourceWords(Stream.concat(
-                        libreTranslateSourceWords.stream(),
-                        dbSourceWords.stream()
+                        dbSourceWords.stream(),
+                        libreTranslateSourceWords.stream()
                 )
                 .distinct()
                 .toList())
