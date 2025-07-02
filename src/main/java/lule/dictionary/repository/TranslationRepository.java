@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Stream;
 
 import static lule.dictionary.repository.factory.RowMapperFactory.*;
 
@@ -130,15 +131,19 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> findByTargetWord(@NonNull String targetWord) {
+    public Optional<Translation> findByTargetWord(@NonNull String targetWord,
+                                                  String owner) {
         String sql = """
                 SELECT *
                 FROM dictionary.translations
                 WHERE translations.target_word=?
+                AND translation_owner=?
                 LIMIT 1
                 """;
         try {
-            List<Translation> translation = template.query(sql, TRANSLATION, targetWord.toLowerCase());
+            List<Translation> translation = template.query(sql, TRANSLATION,
+                    targetWord.toLowerCase(),
+                    owner);
             return translation.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(e.getMessage());
@@ -146,18 +151,32 @@ public class TranslationRepository {
         }
     }
 
-    public List<Translation> findByTargetWords(List<String> targetWords) {
+    public List<Translation> findByTargetWords(List<String> targetWords, String owner) {
+        if (targetWords.isEmpty()) {
+            return List.of();
+        }
+
+        String placeholders = String.join(
+                ",",
+                targetWords.stream()
+                        .map(w -> "?")
+                        .toArray(String[]::new)
+        );
         String sql = String.format("""
                 SELECT *
                 FROM dictionary.translations
                 WHERE translations.target_word IN (%s)
-                """, String.join(",", targetWords.stream().map(word -> "?").toArray(String[]::new)));
+                AND translation_owner = ?
+                """, placeholders);
 
         try {
-            String[] targetWordsArray = targetWords.toArray(new String[0]);
-            return template.query(sql, TRANSLATION, (Object[]) targetWordsArray);
+            Object[] params = Stream.concat(
+                    targetWords.stream(),
+                    Stream.of(owner)
+            ).toArray();
+            return template.query(sql, TRANSLATION, params);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return List.of();
         }
     }
@@ -200,18 +219,22 @@ public class TranslationRepository {
 
     public List<String> findMostFrequentSourceWords(String targetWord, int count) {
         String sql = """
-                SELECT source_word, COUNT(*) cunt
-                FROM dictionary.translations
-                GROUP BY source_word
-                ORDER BY cunt DESC
-                LIMIT ?
+                    SELECT word, COUNT(*) AS cunt
+                    FROM (
+                        SELECT unnest(source_words) AS word
+                        FROM dictionary.translations
+                        WHERE target_word = ?
+                    ) AS sub
+                    GROUP BY word
+                    ORDER BY cunt DESC
+                    LIMIT ?;
                 """;
         try {
             return template.query(sql, SOURCE_WORDS,
                     targetWord.toLowerCase(),
                     count);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return List.of();
         }
     }
