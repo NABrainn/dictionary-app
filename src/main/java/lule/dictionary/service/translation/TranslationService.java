@@ -5,9 +5,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
-import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.dto.ServiceResult;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
@@ -89,9 +89,11 @@ public class TranslationService {
     }
 
     @Transactional
-    public void findByTargetWord(@NonNull Authentication authentication,
-                                 @NonNull Model model, @NonNull
-                                 FindTranslationRequest request) {
+    public void findByTargetWord(@NonNull Model model, @NonNull
+                                 FindTranslationRequest request,
+                                 String owner,
+                                 Language sourceLanguage,
+                                 Language targetLanguage) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
@@ -99,8 +101,8 @@ public class TranslationService {
         }
         String cleanTargetWord = stringRegexService.removeNonLetters(request.targetWord());
         if(cleanTargetWord.isEmpty()) throw new RetryViewException("Target word contains illegal characters");
-        if(translationRepository.findByTargetWord(cleanTargetWord).isPresent()) {
-            Translation translation = translationRepository.findByTargetWord(cleanTargetWord).get();
+        if(translationRepository.findByTargetWord(cleanTargetWord, owner).isPresent()) {
+            Translation translation = translationRepository.findByTargetWord(cleanTargetWord, owner).get();
             model.addAttribute("translationModel", new TranslationModel(
                     request.importId(),
                     translationUtilService.getFamiliarityAsInt(translation.familiarity()),
@@ -111,11 +113,10 @@ public class TranslationService {
             ));
             return;
         }
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         List<String> libreTranslateSourceWords = libreTranslateService.translate(
                 stringRegexService.removeNonLetters(cleanTargetWord),
-                principal.sourceLanguage(),
-                principal.targetLanguage()
+                sourceLanguage,
+                targetLanguage
         );
         List<String> dbSourceWords = translationRepository.findMostFrequentSourceWords(cleanTargetWord, 3);
         Translation translation = DictionaryTranslation.builder()
@@ -125,9 +126,9 @@ public class TranslationService {
                 ).toList())
                 .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
                 .familiarity(Familiarity.UNKNOWN)
-                .sourceLanguage(principal.sourceLanguage())
-                .targetLanguage(principal.targetLanguage())
-                .owner(authentication.getName())
+                .sourceLanguage(sourceLanguage)
+                .targetLanguage(targetLanguage)
+                .owner(owner)
                 .build();
         model.addAttribute("translationModel", new TranslationModel(
                 request.importId(),
@@ -158,20 +159,22 @@ public class TranslationService {
         ));
     }
 
-    public List<Translation> findByTargetWords(List<String> targetWords) {
+    public List<Translation> findByTargetWords(List<String> targetWords,
+                                               String owner) {
         List<String> validTargetWords = targetWords.stream()
                 .map(word -> stringRegexService.removeNonLetters(word).trim().toLowerCase())
                 .filter(word -> !word.isEmpty())
                 .distinct()
                 .toList();
-        return translationRepository.findByTargetWords(validTargetWords);
+        return translationRepository.findByTargetWords(validTargetWords, owner);
     }
 
-    public Map<String, Translation> findTranslationsByImport(@NonNull Import imported) {
+    public Map<String, Translation> findTranslationsByImport(@NonNull Import imported,
+                                                             String owner) {
         List<String> targetWords = Arrays.stream(imported.content().split(" "))
                 .map(stringRegexService::removeNonLetters)
                 .toList();
-        return findByTargetWords(targetWords).stream()
+        return findByTargetWords(targetWords, owner).stream()
                 .collect(Collectors.toUnmodifiableMap(
                     TranslationDetails::targetWord,
                     (value) -> value,
