@@ -22,7 +22,9 @@ public class ImportPageService {
     private final TranslationService translationService;
     private final PaginationService paginationService;
 
-    public void loadImportWithTranslations(Model model, LoadImportRequest request) {
+    public void loadImportWithTranslations(Model model,
+                                           LoadImportRequest request,
+                                           String owner) {
         try {
             ImportWithPagination imported = importService.findById(request.importId(), request.page());
             int pagesTotal = (int) Math.ceil((double) imported.content().length() / 2000);
@@ -32,7 +34,7 @@ public class ImportPageService {
             model.addAttribute("importModel", new ImportModel(
                     imported.title(),
                     List.of(imported.pageContent().split("[ \\n]+")),
-                    translationService.findTranslationsByImport(imported),
+                    translationService.findTranslationsByImport(imported, owner),
                     request.importId(),
                     request.wordId(),
                     request.page(),

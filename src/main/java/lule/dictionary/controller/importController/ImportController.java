@@ -2,6 +2,7 @@ package lule.dictionary.controller.importController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.imports.importPageService.dto.LoadImportRequest;
@@ -38,12 +39,14 @@ public class ImportController {
 
     @PostMapping({"/page/reload", "/page/reload/"})
     public String reloadImportPageOnPost(Model model,
+                                         Authentication authentication,
                                          @RequestAttribute("translationModel")TranslationModel translationModel,
                                          @RequestParam("selectedWordId") int wordId,
                                          @RequestParam("importId") int importId,
                                          @RequestParam("page") int page) {
         try {
-            importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel), principal.getUsername());
             return "import-page/content";
         } catch (InvalidUrlException e) {
             log.warn("Sending to error page due to invalid url: {}", e.getMessage());
@@ -54,12 +57,14 @@ public class ImportController {
 
     @PutMapping({"/page/reload", "/page/reload/"})
     public String reloadImportPageOnPut(Model model,
+                                        Authentication authentication,
                                         @RequestAttribute("translationModel")TranslationModel translationModel,
                                         @RequestParam("selectedWordId") int wordId,
                                         @RequestParam("importId") int importId,
                                         @RequestParam("page") int page) {
         try {
-            importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel));
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel), principal.getUsername());
             return "import-page/content";
         } catch (InvalidUrlException e) {
             log.warn("Sending to error page due to invalid url: {}", e.getMessage());
@@ -74,10 +79,12 @@ public class ImportController {
 
     @GetMapping({"/{importId}", "/{importId}/"})
     public String importPageContent(Model model,
+                                    Authentication authentication,
                                     @PathVariable("importId") String importId,
                                     @RequestParam(name = "page", defaultValue = "1") int page) {
         try {
-            importPageService.loadImportWithTranslations(model, new LoadImportRequest(0, Integer.parseInt(importId), page, null));
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            importPageService.loadImportWithTranslations(model, new LoadImportRequest(0, Integer.parseInt(importId), page, null), principal.getUsername());
             return "import-page/import-page";
         } catch (InvalidUrlException e) {
             log.warn("Sending to error page due to invalid url: {}", e.getMessage());

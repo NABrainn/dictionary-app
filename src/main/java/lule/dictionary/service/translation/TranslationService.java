@@ -7,12 +7,12 @@ import lule.dictionary.entity.application.implementation.translation.base.Dictio
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.dto.ServiceResult;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
@@ -27,6 +27,7 @@ import org.springframework.ui.Model;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -40,9 +41,9 @@ public class TranslationService {
 
     @Transactional
     public int add(Model model,
-                   Authentication authentication,
+                   String owner,
                    @NonNull MutateTranslationRequest request) {
-        if(!authentication.getName().equals(request.owner())) {
+        if(!owner.equals(request.owner())) {
             throw new IllegalCallerException("Authentication name value does not match owner value");
         }
         var constraints = validator.validate(request);
@@ -87,9 +88,12 @@ public class TranslationService {
         return translationRepository.findByOwner(owner);
     }
 
-    public void findByTargetWord(@NonNull Authentication authentication,
-                                    @NonNull Model model, @NonNull
-                                    FindTranslationRequest request) {
+    @Transactional
+    public void findByTargetWord(@NonNull Model model, @NonNull
+                                 FindTranslationRequest request,
+                                 String owner,
+                                 Language sourceLanguage,
+                                 Language targetLanguage) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
@@ -97,8 +101,8 @@ public class TranslationService {
         }
         String cleanTargetWord = stringRegexService.removeNonLetters(request.targetWord());
         if(cleanTargetWord.isEmpty()) throw new RetryViewException("Target word contains illegal characters");
-        if(translationRepository.findByTargetWord(cleanTargetWord).isPresent()) {
-            Translation translation = translationRepository.findByTargetWord(cleanTargetWord).get();
+        if(translationRepository.findByTargetWord(cleanTargetWord, owner).isPresent()) {
+            Translation translation = translationRepository.findByTargetWord(cleanTargetWord, owner).get();
             model.addAttribute("translationModel", new TranslationModel(
                     request.importId(),
                     translationUtilService.getFamiliarityAsInt(translation.familiarity()),
@@ -109,18 +113,24 @@ public class TranslationService {
             ));
             return;
         }
-        List<String> sourceWords = libreTranslateService.translate(
+        List<String> libreTranslateSourceWords = libreTranslateService.translate(
                 stringRegexService.removeNonLetters(cleanTargetWord),
-                Language.EN,
-                Language.NO
+                sourceLanguage,
+                targetLanguage
         );
+        List<String> dbSourceWords = translationRepository.findMostFrequentSourceWords(cleanTargetWord, 3);
         Translation translation = DictionaryTranslation.builder()
-                .sourceWords(sourceWords)
+                .sourceWords(Stream.concat(
+                        libreTranslateSourceWords.stream(),
+                        dbSourceWords.stream()
+                )
+                .distinct()
+                .toList())
                 .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
                 .familiarity(Familiarity.UNKNOWN)
-                .sourceLanguage(Language.EN)
-                .targetLanguage(Language.NO)
-                .owner(authentication.getName())
+                .sourceLanguage(sourceLanguage)
+                .targetLanguage(targetLanguage)
+                .owner(owner)
                 .build();
         model.addAttribute("translationModel", new TranslationModel(
                 request.importId(),
@@ -151,20 +161,22 @@ public class TranslationService {
         ));
     }
 
-    public List<Translation> findByTargetWords(List<String> targetWords) {
+    public List<Translation> findByTargetWords(List<String> targetWords,
+                                               String owner) {
         List<String> validTargetWords = targetWords.stream()
                 .map(word -> stringRegexService.removeNonLetters(word).trim().toLowerCase())
                 .filter(word -> !word.isEmpty())
                 .distinct()
                 .toList();
-        return translationRepository.findByTargetWords(validTargetWords);
+        return translationRepository.findByTargetWords(validTargetWords, owner);
     }
 
-    public Map<String, Translation> findTranslationsByImport(@NonNull Import imported) {
+    public Map<String, Translation> findTranslationsByImport(@NonNull Import imported,
+                                                             String owner) {
         List<String> targetWords = Arrays.stream(imported.content().split(" "))
                 .map(stringRegexService::removeNonLetters)
                 .toList();
-        return findByTargetWords(targetWords).stream()
+        return findByTargetWords(targetWords, owner).stream()
                 .collect(Collectors.toUnmodifiableMap(
                     TranslationDetails::targetWord,
                     (value) -> value,

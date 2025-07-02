@@ -248,9 +248,6 @@
   .max-w-2\/5 {
     max-width: calc(2/5 * 100%);
   }
-  .max-w-3\/5 {
-    max-width: calc(3/5 * 100%);
-  }
   .grow-1 {
     flex-grow: 1;
   }
@@ -274,9 +271,6 @@
   }
   .items-center {
     align-items: center;
-  }
-  .justify-around {
-    justify-content: space-around;
   }
   .justify-between {
     justify-content: space-between;

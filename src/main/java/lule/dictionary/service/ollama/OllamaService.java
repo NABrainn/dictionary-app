@@ -32,7 +32,7 @@ public class OllamaService {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Map<?, ?> translation = objectMapper.readValue(json, Map.class);
-            if(translation.get("sourceWord") != null) return (String) translation.get("sourceWord");
+            if(translation.get("translatedWord") != null) return (String) translation.get("translatedWord");
             return "Something went wrong. Try again";
         } catch (JsonProcessingException e) {
             return "Something went wrong. Try again";
