@@ -14,13 +14,13 @@
             value="${word}">
             <span class="text-accent">${word}</span>
             @if(update)
-            <form
-                    hx-delete="/translations/sourceWords/delete?sourceWord=${word}&targetWord=${targetWord}"
-                    hx-target="#source-words-list"
-                    hx-swap="innerHTML"
-                    hx-params="none">
-                <button class="cursor-pointer" type="submit">🗑️</button>
-            </form>
+                <form
+                hx-delete="/translations/sourceWords/delete?sourceWord=${word}&targetWord=${targetWord}"
+                hx-target="#source-words-list"
+                hx-swap="innerHTML"
+                hx-params="none">
+                    <button class="cursor-pointer" type="submit">🗑️</button>
+                </form>
             @endif
         </div>
     @endfor

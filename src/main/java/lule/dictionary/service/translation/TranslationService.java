@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
+import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
@@ -12,7 +13,6 @@ import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
@@ -27,6 +27,7 @@ import org.springframework.ui.Model;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -87,9 +88,10 @@ public class TranslationService {
         return translationRepository.findByOwner(owner);
     }
 
+    @Transactional
     public void findByTargetWord(@NonNull Authentication authentication,
-                                    @NonNull Model model, @NonNull
-                                    FindTranslationRequest request) {
+                                 @NonNull Model model, @NonNull
+                                 FindTranslationRequest request) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
             model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
@@ -109,17 +111,22 @@ public class TranslationService {
             ));
             return;
         }
-        List<String> sourceWords = libreTranslateService.translate(
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        List<String> libreTranslateSourceWords = libreTranslateService.translate(
                 stringRegexService.removeNonLetters(cleanTargetWord),
-                Language.EN,
-                Language.NO
+                principal.sourceLanguage(),
+                principal.targetLanguage()
         );
+        List<String> dbSourceWords = translationRepository.findMostFrequentSourceWords(cleanTargetWord, 3);
         Translation translation = DictionaryTranslation.builder()
-                .sourceWords(sourceWords)
+                .sourceWords(Stream.concat(
+                        libreTranslateSourceWords.stream(),
+                        dbSourceWords.stream()
+                ).toList())
                 .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
                 .familiarity(Familiarity.UNKNOWN)
-                .sourceLanguage(Language.EN)
-                .targetLanguage(Language.NO)
+                .sourceLanguage(principal.sourceLanguage())
+                .targetLanguage(principal.targetLanguage())
                 .owner(authentication.getName())
                 .build();
         model.addAttribute("translationModel", new TranslationModel(

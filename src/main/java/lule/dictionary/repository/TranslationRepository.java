@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import static lule.dictionary.repository.factory.RowMapperFactory.TRANSLATION;
-import static lule.dictionary.repository.factory.RowMapperFactory.TRANSLATION_ID;
+import static lule.dictionary.repository.factory.RowMapperFactory.*;
 
 @Slf4j
 @Repository
@@ -196,6 +195,24 @@ public class TranslationRepository {
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             return 0;
+        }
+    }
+
+    public List<String> findMostFrequentSourceWords(String targetWord, int count) {
+        String sql = """
+                SELECT source_word, COUNT(*) cunt
+                FROM dictionary.translations
+                GROUP BY source_word
+                ORDER BY cunt DESC
+                LIMIT ?
+                """;
+        try {
+            return template.query(sql, SOURCE_WORDS,
+                    targetWord.toLowerCase(),
+                    count);
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            return List.of();
         }
     }
 }
