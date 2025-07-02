@@ -31,7 +31,7 @@ public class UserProfileRepository {
             List<UserProfile> result = template.query(sql, USER_PROFILE, username);
             return result.stream().findFirst();
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return Optional.empty();
         }
     }
@@ -47,7 +47,7 @@ public class UserProfileRepository {
             List<UserProfile> result = template.query(sql, USER_PROFILE, username, email);
             return result.stream().findFirst();
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return Optional.empty();
         }
     }
@@ -75,7 +75,7 @@ public class UserProfileRepository {
             );
             return addedUser.stream().findFirst();
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return Optional.empty();
         }
     }

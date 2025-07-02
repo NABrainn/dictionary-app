@@ -53,7 +53,7 @@ public class TranslationRepository {
             }
             return OptionalInt.empty();
         } catch (DataAccessException e) {
-            log.warn(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return OptionalInt.empty();
         }
     }
@@ -76,7 +76,7 @@ public class TranslationRepository {
             }, TRANSLATION).stream().findFirst();
             return translation;
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return Optional.empty();
         }
     }
@@ -98,7 +98,7 @@ public class TranslationRepository {
                 return ps;
             }, TRANSLATION).stream().findFirst();
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return Optional.empty();
         }
     }
@@ -113,7 +113,7 @@ public class TranslationRepository {
         try {
             return template.query(sql, TRANSLATION, username);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return List.of();
         }
     }
@@ -126,7 +126,7 @@ public class TranslationRepository {
         try {
             return template.query(sql, TRANSLATION);
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return List.of();
         }
     }
@@ -146,7 +146,7 @@ public class TranslationRepository {
                     owner);
             return translation.stream().findFirst();
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return Optional.empty();
         }
     }
@@ -195,7 +195,7 @@ public class TranslationRepository {
                     targetWord,
                     owner).stream().findFirst();
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return Optional.empty();
         }
     }
@@ -212,7 +212,7 @@ public class TranslationRepository {
             Integer count = template.queryForObject(sql, Integer.class, owner, Familiarity.IGNORED.name());
             return count != null ? count : 0;
         } catch (DataAccessException e) {
-            log.error(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return 0;
         }
     }
