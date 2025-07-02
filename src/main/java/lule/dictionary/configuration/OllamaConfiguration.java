@@ -25,9 +25,11 @@ public class OllamaConfiguration {
                 .model("translator")
                 .from(OllamaModelType.MISTRAL)
                 .system("""
-                        You are translator. Your task is to read user input and produce translation briefly. Return as following json:
+                        You are translator. Your task is to read user input and produce translation briefly.
+                        If there are more translations separate them with a comma
+                        Return as following json:
                         {
-                            "sourceWord": (output translation)
+                            "translatedWord": "translatedWord"
                         }
                         """)
                 .build());
