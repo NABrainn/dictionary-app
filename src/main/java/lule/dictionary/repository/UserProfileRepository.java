@@ -58,17 +58,21 @@ public class UserProfileRepository {
                         INSERT INTO dictionary.user_profile_settings (source_lang, target_lang)
                         VALUES (?, ?)
                         RETURNING settings_id, source_lang, target_lang
+                    ),
+                    user_insert AS (
+                        INSERT INTO dictionary.user_profiles (username, email, password, settings_id)
+                        SELECT ?, ?, ?, s.settings_id
+                        FROM settings s
+                        RETURNING username, email, password, settings_id
                     )
-                    INSERT INTO dictionary.user_profiles (username, email, password, settings_id)
-                    VALUES (?, ?, ?, (SELECT settings_id FROM settings))
-                    RETURNING username, email, password,
-                        (SELECT source_lang FROM settings) AS source_lang,
-                        (SELECT target_lang FROM settings) AS target_lang
+                    SELECT u.username, u.email, u.password, s.source_lang, s.target_lang
+                    FROM user_insert u
+                    JOIN settings s ON u.settings_id = s.settings_id;
                 """;
         try {
             List<UserProfile> addedUser = template.query(sql, USER_PROFILE,
-                    userProfile.sourceLanguage().toString(),
-                    userProfile.targetLanguage().toString(),
+                    userProfile.sourceLanguage().name(),
+                    userProfile.targetLanguage().name(),
                     userProfile.username(),
                     userProfile.email(),
                     userProfile.password()
