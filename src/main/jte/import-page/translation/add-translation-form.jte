@@ -48,24 +48,29 @@
     @template.import-page.translation.get-ai-translation-btn(targetWord = translationModel.translation().targetWord())
     <div class="flex flex-col gap-0.5">
         @for(var level : translationModel.familiarityLevels().entrySet())
-            <div class="hover:text-primary font-bold text-neutral flex gap-1 cursor-pointer"
-                 hx-post="/translations/new"
-                 hx-vals='
-                 {
-                    "sourceWords": "${translationModel.translation().sourceWords().getFirst()}",
-                    "targetWord": "${translationModel.translation().targetWord()}",
-                    "familiarity": "${level.getValue().name()}",
-                    "sourceLanguage": "${translationModel.translation().sourceLanguage().name()}",
-                    "targetLanguage": "${translationModel.translation().targetLanguage().name()}",
-                    "importId": "${translationModel.importId()}",
-                    "selectedWordId": "${translationModel.selectedWordId()}",
-                    "page": "${translationModel.page()}"
-                 }'
-                 hx-target="#page-content"
-                 hx-swap="outerHTML">
-                <span>${level.getKey()}: </span>
-                ${level.getValue()}
-            </div>
+            <form class="flex gap-1 cursor-pointer font-bold text-neutral hover:text-primary">
+                    <span class="cursor-pointer">${level.getKey()}: </span>
+                    <input
+                    class=" cursor-pointer"
+                    value="${level.getValue()}"
+                    type="submit"
+                    hx-post="/translations/new"
+                    hx-vals='
+                        {
+                        "targetWord": "${translationModel.translation().targetWord()}",
+                        "familiarity": "${level.getValue().name()}",
+                        "sourceLanguage": "${translationModel.translation().sourceLanguage().name()}",
+                        "targetLanguage": "${translationModel.translation().targetLanguage().name()}",
+                        "importId": "${translationModel.importId()}",
+                        "selectedWordId": "${translationModel.selectedWordId()}",
+                        "page": "${translationModel.page()}"
+                        }'
+                    hx-target="#page-content"
+                    hx-swap="outerHTML">
+                    @for(var word : translationModel.translation().sourceWords())
+                        <input type="hidden" name="sourceWords" value="${word}">
+                    @endfor
+            </form>
         @endfor
     </div>
 </div>
