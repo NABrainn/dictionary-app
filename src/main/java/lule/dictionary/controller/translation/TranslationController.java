@@ -61,7 +61,8 @@ public class TranslationController {
                                  @RequestParam("selectedWordId") int selectedWordId,
                                  @RequestParam("page") int page) {
         try {
-            translationService.add(model, authentication, new MutateTranslationRequest(
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            translationService.add(model, principal.getUsername(), new MutateTranslationRequest(
                     sourceWords,
                     targetWord,
                     familiarity,

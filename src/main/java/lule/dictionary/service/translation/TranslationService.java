@@ -41,9 +41,9 @@ public class TranslationService {
 
     @Transactional
     public int add(Model model,
-                   Authentication authentication,
+                   String owner,
                    @NonNull MutateTranslationRequest request) {
-        if(!authentication.getName().equals(request.owner())) {
+        if(!owner.equals(request.owner())) {
             throw new IllegalCallerException("Authentication name value does not match owner value");
         }
         var constraints = validator.validate(request);
@@ -123,7 +123,9 @@ public class TranslationService {
                 .sourceWords(Stream.concat(
                         libreTranslateSourceWords.stream(),
                         dbSourceWords.stream()
-                ).toList())
+                )
+                .distinct()
+                .toList())
                 .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
                 .familiarity(Familiarity.UNKNOWN)
                 .sourceLanguage(sourceLanguage)
