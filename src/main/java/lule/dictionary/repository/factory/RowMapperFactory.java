@@ -39,7 +39,7 @@ public class RowMapperFactory {
 
     public static final RowMapper<Integer> TRANSLATION_ID = ((rs, rowNum) -> rs.getInt("translations_id"));
 
-    public static final RowMapper<String> SOURCE_WORDS = ((rs, rowNum) -> rs.getString("source_word"));
+    public static final RowMapper<String> SOURCE_WORDS = ((rs, rowNum) -> rs.getString("word"));
 
 
     public static final RowMapper<ImportWithId> IMPORT_WITH_ID = ((rs, rowNum) ->
