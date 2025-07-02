@@ -14,18 +14,19 @@ CREATE TABLE IF NOT EXISTS dictionary.user_profile_settings (
     target_lang  					dictionary.lang
 );
 
-CREATE TABLE IF NOT EXISTS dictionary.streak (
-	day_count						int NOT NULL DEFAULT 0,
-	is_daily_goal_met				boolean	NOT NULL DEFAULT FALSE,
-	streak_owner					VARCHAR(50) REFERENCES dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
-	updated_at						TIMESTAMPTZ
-);
-
 CREATE TABLE IF NOT EXISTS dictionary.user_profiles (
     username        				VARCHAR(50) NOT NULL UNIQUE,
     email           				VARCHAR(100) NOT NULL PRIMARY KEY,
     password        			    VARCHAR(500) NOT NULL,
 	settings_id						int REFERENCES dictionary.user_profile_settings(settings_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS dictionary.streaks (
+	day_count						int NOT NULL DEFAULT 0,
+	is_daily_goal_met				boolean	NOT NULL DEFAULT FALSE,
+	streak_owner					VARCHAR(50) REFERENCES dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
+	timezone                        VARCHAR(10) NOT NULL DEFAULT 'CET',
+	updated_at						TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS dictionary.translations (
