@@ -2,7 +2,7 @@ CREATE SCHEMA IF NOT EXISTS dictionary;
 DROP TYPE IF EXISTS dictionary.lang CASCADE;
 DROP TYPE IF EXISTS dictionary.familiarity CASCADE;
 
-CREATE TYPE dictionary.lang as ENUM ('PL', 'EN', 'NO');
+CREATE TYPE dictionary.lang as ENUM ('PL', 'EN', 'NO', 'IT');
 CREATE TYPE dictionary.familiarity as ENUM ('UNKNOWN', 'RECOGNIZED', 'FAMILIAR', 'KNOWN', 'IGNORED');
 
 CREATE CAST (varchar AS dictionary.lang) WITH INOUT AS IMPLICIT;
