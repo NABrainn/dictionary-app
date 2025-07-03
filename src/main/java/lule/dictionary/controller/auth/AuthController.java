@@ -4,10 +4,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
 import lule.dictionary.service.auth.AuthService;
+import lule.dictionary.util.DateUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,12 +52,13 @@ public class AuthController {
     }
 
     @PostMapping({"/signup", "/signup/"})
-    public String signup(@NonNull Model model,
+    public String signup(Model model,
                          @RequestParam("login") @NonNull String login,
                          @RequestParam("email") @NonNull String email,
                          @RequestParam("password") @NonNull String password) {
         try {
-            authService.signup(model, new SignupRequest(login, email, password));
+            String timeZoneOffset = TimeZoneOffsetContext.get();
+            authService.signup(model, timeZoneOffset, new SignupRequest(login, email, password));
             return "auth/login";
         } catch (RetryViewException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
