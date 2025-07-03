@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS dictionary.streaks (
 	day_count						int NOT NULL DEFAULT 0,
 	words_added_today				int	NOT NULL DEFAULT 0,
 	streak_owner					VARCHAR(50) REFERENCES dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
-	tz_offset                        VARCHAR(10) NOT NULL DEFAULT 'CET',
+	tz_offset                       VARCHAR(100) NOT NULL DEFAULT 'CET',
+	last_day_counted                DATE;
 	updated_at						TIMESTAMPTZ
 );
 
