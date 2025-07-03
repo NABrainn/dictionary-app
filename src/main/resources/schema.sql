@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS dictionary.user_profiles (
 
 CREATE TABLE IF NOT EXISTS dictionary.streaks (
 	day_count						int NOT NULL DEFAULT 0,
-	is_daily_goal_met				boolean	NOT NULL DEFAULT FALSE,
+	words_added_today				int	NOT NULL DEFAULT 0,
 	streak_owner					VARCHAR(50) REFERENCES dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
-	timezone                        VARCHAR(10) NOT NULL DEFAULT 'CET',
+	tz_offset                        VARCHAR(10) NOT NULL DEFAULT 'CET',
 	updated_at						TIMESTAMPTZ
 );
 
