@@ -1,5 +1,6 @@
 package lule.dictionary.repository.factory;
 
+import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.entity.application.implementation.imports.DictionaryImportWithId;
 import lule.dictionary.entity.application.implementation.imports.base.DictionaryImport;
 import lule.dictionary.entity.application.implementation.imports.base.DictionaryImportWithPagination;
@@ -12,6 +13,7 @@ import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.service.language.Language;
+import lule.dictionary.util.DateUtil;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.Arrays;
@@ -24,6 +26,8 @@ public class RowMapperFactory {
                     .password(rs.getString("password"))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
                     .targetLanguage(Language.valueOf(rs.getString("target_lang")))
+                    .wordsAddedToday(rs.getInt("words_added_today"))
+                    .offset(rs.getString("tz_offset"))
                     .build()
     );
     public static final RowMapper<Translation> TRANSLATION = ((rs, rowNum) ->
