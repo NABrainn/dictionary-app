@@ -5,7 +5,7 @@ import lule.dictionary.service.language.Language;
 import lule.dictionary.service.translation.TranslationService;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import static lule.dictionary.service.language.LanguageHelper.languageMapNames;
 
 @Service
 @RequiredArgsConstructor
@@ -14,14 +14,8 @@ public class AuthenticatedUserDataService {
     private final TranslationService translationService;
     private final UserProfileService userProfileService;
 
-    private final Map<Language, String> languageFullNameMap = Map.of(
-            Language.NO, "Norwegian",
-            Language.PL, "Polish",
-            Language.EN, "English"
-    );
-
     public String getFullName(Language language) {
-        return languageFullNameMap.get(language);
+        return languageMapNames.get(language);
     }
 
     public int getWordsLearned(String owner) {
