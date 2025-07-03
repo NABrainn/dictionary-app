@@ -1,6 +1,8 @@
 @import gg.jte.Content
 @import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
+@import java.util.List
+@import java.util.Map
 
 @param Content authView = null
 @param Content content = null
@@ -10,6 +12,7 @@
 @param boolean authenticated
 @param CsrfToken _csrf
 @param int wordsLearned
+@param Map<Language, String> languages
 
 <script>
     document.addEventListener("htmx:configRequest", function(event) {

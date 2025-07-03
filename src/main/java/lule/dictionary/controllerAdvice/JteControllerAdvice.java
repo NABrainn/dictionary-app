@@ -3,12 +3,15 @@ package lule.dictionary.controllerAdvice;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.language.Language;
+import lule.dictionary.service.language.LanguageHelper;
 import lule.dictionary.service.userProfile.AuthenticatedUserDataService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+
+import java.util.Map;
 
 @ControllerAdvice
 @RequiredArgsConstructor
@@ -79,10 +82,22 @@ public class JteControllerAdvice {
             return;
         }
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        System.out.println("what is it: " + dataService.getDailyStreak(principal.getUsername()));
         model.addAttribute(
                 "dailyStreak",
                 dataService.getDailyStreak(principal.getUsername())
+        );
+    }
+
+    @ModelAttribute
+    public void languages(Model model, Authentication authentication) {
+        if(authentication == null) {
+            model.addAttribute("languages", Map.of());
+            return;
+        }
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        model.addAttribute(
+                "languages",
+                LanguageHelper.languageMapNames
         );
     }
 }

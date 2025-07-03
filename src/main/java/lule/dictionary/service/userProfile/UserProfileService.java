@@ -3,12 +3,15 @@ package lule.dictionary.service.userProfile;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.userProfile.base.DictionaryUserProfile;
+import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.UserProfileRepository;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.util.DateUtil;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -73,5 +76,15 @@ public class UserProfileService implements UserDetailsService {
 
     public int getDailyStreak(String owner) {
         return userProfileRepository.getDailyStreak(owner).orElseThrow(() -> new RuntimeException("Failed to fetch daily streak"));
+    }
+
+    public void updateTargetLanguage(String owner, Language newTargetLanguage) {
+        userProfileRepository.updateTargetLanguage(owner, newTargetLanguage.name());
+        CustomUserDetails userDetails = (CustomUserDetails) loadUserByUsername(owner);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        ));
     }
 }

@@ -1,8 +1,11 @@
 @import lule.dictionary.service.imports.importPageService.dto.ImportModel
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
+@import lule.dictionary.service.language.Language
 @import lule.dictionary.service.translation.dto.TranslationModel
 @import org.springframework.security.web.csrf.CsrfToken
+@import java.util.List
+@import java.util.Map
 
 @param ImportModel importModel
 @param TranslationModel translationModel = null
@@ -12,6 +15,8 @@
 @param String targetLanguage
 @param int wordsLearned
 @param int dailyStreak
+@param Map<Language, String> languages
+
 <div>
     <div
     id="page-content"
@@ -21,7 +26,8 @@
             authenticated = authenticated,
             targetLanguage = targetLanguage,
             wordsLearned = wordsLearned,
-            dailyStreak = dailyStreak
+            dailyStreak = dailyStreak,
+            languages = languages
         )
         <div class=" w-3/5 mx-auto">
             <span class="text-neutral font-bold text-4xl">${importModel.title()}</span>
@@ -77,13 +83,14 @@
         </div>
         <div class="flex gap-4 justify-center max-w-2/5 mx-auto items-center">
             @template.import-page.pagination.paginator(
-            id = importModel.importId(),
-            currentPage = importModel.currentPage(),
-            pages = importModel.pages(),
-            importId = importModel.importId(),
-            rows = importModel.rows(),
-            currentRow = importModel.currentRow(),
-            firstPageOfRow = importModel.firstPageOfRow())
+                id = importModel.importId(),
+                currentPage = importModel.currentPage(),
+                pages = importModel.pages(),
+                importId = importModel.importId(),
+                rows = importModel.rows(),
+                currentRow = importModel.currentRow(),
+                firstPageOfRow = importModel.firstPageOfRow()
+            )
         </div>
     </div>
 </div>

@@ -127,28 +127,28 @@ public class UserProfileRepository {
 
     public void resetStreaksIfMidnight() {
         String resetSql = """
-    UPDATE dictionary.streaks
-    SET
-        words_added_today = 0,
-        day_count = 0,
-        updated_at = now()
-    WHERE
-        date_trunc('day', updated_at + (tz_offset)::interval) <
-        date_trunc('day', now() + (tz_offset)::interval)
-        AND words_added_today < 10
-""";
+                            UPDATE dictionary.streaks
+                            SET
+                                words_added_today = 0,
+                                day_count = 0,
+                                updated_at = now()
+                            WHERE
+                                date_trunc('day', updated_at + (tz_offset)::interval) <
+                                date_trunc('day', now() + (tz_offset)::interval)
+                                AND words_added_today < 50
+        """;
 
         String incrementSql = """
-    UPDATE dictionary.streaks
-    SET
-        words_added_today = 0,
-        day_count = day_count + 1,
-        updated_at = now()
-    WHERE
-        date_trunc('day', updated_at + (tz_offset)::interval) <
-        date_trunc('day', now() + (tz_offset)::interval)
-        AND words_added_today >= 10
-""";
+                            UPDATE dictionary.streaks
+                            SET
+                                words_added_today = 0,
+                                day_count = day_count + 1,
+                                updated_at = now()
+                            WHERE
+                                date_trunc('day', updated_at + (tz_offset)::interval) <
+                                date_trunc('day', now() + (tz_offset)::interval)
+                                AND words_added_today >= 50
+        """;
         int updated = template.update(resetSql);
         template.update(incrementSql);
     }
@@ -166,6 +166,25 @@ public class UserProfileRepository {
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             return OptionalInt.empty();
+        }
+    }
+
+    public void updateTargetLanguage(String owner, String targetLanguage) {
+        String sql = """
+            UPDATE dictionary.user_profile_settings
+            SET target_lang = ?
+            WHERE settings_id = (
+                SELECT settings_id
+                FROM dictionary.user_profiles
+                WHERE username = ?
+            )
+        """;
+        try {
+            template.update(sql,
+                    targetLanguage,
+                    owner);
+        } catch (DataAccessException e) {
+            log.error(String.valueOf(e.getCause()));
         }
     }
 }
