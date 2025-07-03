@@ -1,6 +1,7 @@
 @import lule.dictionary.entity.application.interfaces.imports.ImportWithId
 @import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
+@import java.time.ZoneOffset
 @import java.util.List
 
 @param List<ImportWithId> imports
@@ -10,13 +11,16 @@
 @param CsrfToken _csrf 
 @param String username
 @param int wordsLearned
+@param int dailyStreak
+
 
 @template.layout.base(content = @`
     @template.navbar(
         username = username,
         authenticated = authenticated,
         targetLanguage = targetLanguage,
-        wordsLearned = wordsLearned
+        wordsLearned = wordsLearned,
+        dailyStreak = dailyStreak
     )
     @if(authenticated)
         <div class="grow-1 w-3/5 mx-auto flex flex-col justify-between gap-16 text-neutral">

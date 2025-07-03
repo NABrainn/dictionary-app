@@ -11,6 +11,7 @@
 @param String username
 @param String targetLanguage
 @param int wordsLearned
+@param int dailyStreak
 <div>
     <div
     id="page-content"
@@ -19,7 +20,8 @@
             username = username,
             authenticated = authenticated,
             targetLanguage = targetLanguage,
-            wordsLearned = wordsLearned
+            wordsLearned = wordsLearned,
+            dailyStreak = dailyStreak
         )
         <div class=" w-3/5 mx-auto">
             <span class="text-neutral font-bold text-4xl">${importModel.title()}</span>

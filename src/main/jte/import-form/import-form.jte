@@ -7,13 +7,15 @@
 @param String username
 @param String targetLanguage
 @param int wordsLearned
+@param int dailyStreak
 
 @template.layout.base(content = @`
     @template.navbar(
         username = username,
         authenticated = authenticated,
         targetLanguage = targetLanguage,
-        wordsLearned = wordsLearned
+        wordsLearned = wordsLearned,
+        dailyStreak = dailyStreak
     )
     <form
     class="flex flex-col gap-8 bg-secondary w-3/5 mx-auto p-8"
