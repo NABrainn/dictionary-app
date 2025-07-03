@@ -3,6 +3,7 @@ package lule.dictionary.service.translation;
 import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TranslationService {
 
     private final TranslationRepository translationRepository;
@@ -72,9 +74,12 @@ public class TranslationService {
                 .build();
         int translationId = translationRepository.addTranslation(
                 translationToAdd,
-                request.importId()).orElseThrow(() -> new IllegalArgumentException("Failed to add new translation"));
+                request.importId()).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
         if(TimeZoneOffsetContext.get() != null) {
-            userProfileService.updateTimezoneOffset(owner, TimeZoneOffsetContext.get());
+            userProfileService.updateTimezoneOffset(
+                    request.owner(),
+                    TimeZoneOffsetContext.get()
+            );
         }
 
         model.addAttribute("translationModel", new TranslationModel(
@@ -212,7 +217,10 @@ public class TranslationService {
                 request.owner()
         );
         if(TimeZoneOffsetContext.get() != null) {
-            userProfileService.updateTimezoneOffset(request.owner(), TimeZoneOffsetContext.get());
+            userProfileService.updateTimezoneOffset(
+                    request.owner(),
+                    TimeZoneOffsetContext.get()
+            );
         }
         translation.ifPresent(value -> {
             model.addAttribute("targetWord", value.targetWord());
