@@ -5,6 +5,7 @@
 @param String targetLanguage
 @param boolean authenticated
 @param int wordsLearned
+@param int dailyStreak
 
 <nav class="flex justify-between bg-secondary p-4 items-center">
     <div class="text-lg text-neutral">
@@ -20,7 +21,11 @@
             <div class="flex gap-6 items-center bg-tertiary p-2 rounded select-none">
                 <span class="font-bold text-neutral text-lg text-primary">${targetLanguage}</span>
                 <span class="font-bold text-neutral text-lg text-accent">🧠 words: ${wordsLearned}</span>
-                <span class="font-bold text-neutral text-lg text-accent">💪 streak: 420 days</span>
+                @if(dailyStreak == 1)
+                    <span class="font-bold text-neutral text-lg text-accent">💪 streak: ${dailyStreak} day</span>
+                @else
+                    <span class="font-bold text-neutral text-lg text-accent">💪 streak: ${dailyStreak} days</span>
+                @endif
             </div>
 
         </div>
