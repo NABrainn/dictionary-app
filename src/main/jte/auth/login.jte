@@ -1,5 +1,7 @@
 @import lule.dictionary.service.dto.ServiceResult
+@import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
+@import java.util.Map
 
 @param ServiceResult result = null
 @param CsrfToken _csrf
@@ -8,6 +10,7 @@
 @param String targetLanguage
 @param int wordsLearned
 @param int dailyStreak
+@param Map<Language, String> languages
 
 @template.layout.base(authView = @`
     @template.navbar(
@@ -15,7 +18,8 @@
         authenticated = authenticated,
         targetLanguage = targetLanguage,
         wordsLearned = wordsLearned,
-        dailyStreak = dailyStreak
+        dailyStreak = dailyStreak,
+        languages = languages
     )
     <form
         hx-post="/auth/login"
@@ -78,6 +82,7 @@ authenticated = authenticated,
 _csrf = _csrf,
 username = username,
 targetLanguage = targetLanguage,
-wordsLearned = wordsLearned
+wordsLearned = wordsLearned,
+languages = languages
 )
 
