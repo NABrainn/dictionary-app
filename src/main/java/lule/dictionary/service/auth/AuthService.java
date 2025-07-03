@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
@@ -59,6 +60,7 @@ public class AuthService {
                             loginRequest.password()
                     )
             );
+            TimeZoneOffsetContext.set(user.offset());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             response.addCookie(cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication)));
             var result = new ServiceResult(false, Map.of());

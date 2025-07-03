@@ -8,6 +8,7 @@ import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.UserProfileRepository;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
+import lule.dictionary.util.DateUtil;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -58,7 +59,12 @@ public class UserProfileService implements UserDetailsService {
     }
 
     public void updateTimezoneOffset(String owner, String offset) {
-        userProfileRepository.updateTimezoneOffset(owner, offset);
+        if(offset != null) {
+            userProfileRepository.updateTimezoneOffset(
+                    owner,
+                    DateUtil.stringToZoneOffset(offset).getId()
+            );
+        }
     }
 
     public void resetStreaksIfMidnight() {

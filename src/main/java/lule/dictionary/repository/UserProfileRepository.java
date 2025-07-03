@@ -127,28 +127,28 @@ public class UserProfileRepository {
 
     public void resetStreaksIfMidnight() {
         String resetSql = """
-                UPDATE dictionary.streaks
-                SET
-                    words_added_today = 0,
-                    day_count = 0,
-                    updated_at = now()
-                WHERE
-                    date_trunc('day', updated_at AT TIME ZONE make_interval(mins := -1 * tz_offset::int)) <
-                    date_trunc('day', now() AT TIME ZONE make_interval(mins := -1 * tz_offset::int))
-                    AND words_added_today < 50
-        """;
+    UPDATE dictionary.streaks
+    SET
+        words_added_today = 0,
+        day_count = 0,
+        updated_at = now()
+    WHERE
+        date_trunc('day', updated_at + (tz_offset)::interval) <
+        date_trunc('day', now() + (tz_offset)::interval)
+        AND words_added_today < 10
+""";
 
         String incrementSql = """
-                UPDATE dictionary.streaks
-                SET
-                    words_added_today = 0,
-                    day_count = day_count + 1,
-                    updated_at = now()
-                WHERE
-                    date_trunc('day', updated_at AT TIME ZONE make_interval(mins := -1 * tz_offset::int)) <
-                    date_trunc('day', now() AT TIME ZONE make_interval(mins := -1 * tz_offset::int))
-                    AND words_added_today >= 50
-        """;
+    UPDATE dictionary.streaks
+    SET
+        words_added_today = 0,
+        day_count = day_count + 1,
+        updated_at = now()
+    WHERE
+        date_trunc('day', updated_at + (tz_offset)::interval) <
+        date_trunc('day', now() + (tz_offset)::interval)
+        AND words_added_today >= 10
+""";
         int updated = template.update(resetSql);
         template.update(incrementSql);
     }

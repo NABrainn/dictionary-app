@@ -57,8 +57,8 @@ public class AuthController {
                          @RequestParam("email") @NonNull String email,
                          @RequestParam("password") @NonNull String password) {
         try {
-            String timeZoneOffset = TimeZoneOffsetContext.get();
-            authService.signup(model, timeZoneOffset, new SignupRequest(login, email, password));
+            String timeZoneId = DateUtil.stringToZoneOffset(TimeZoneOffsetContext.get()).getId();
+            authService.signup(model, timeZoneId, new SignupRequest(login, email, password));
             return "auth/login";
         } catch (RetryViewException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());

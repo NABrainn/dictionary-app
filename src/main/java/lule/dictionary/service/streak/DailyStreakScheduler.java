@@ -11,7 +11,7 @@ public class DailyStreakScheduler {
 
     private final UserProfileService userProfileService;
 
-    @Scheduled(fixedRate = 60 * 60 * 1000)
+    @Scheduled(cron = "0 0 0 * * *", fixedRate = 60 * 60 * 1000)
     public void resetStreaksIfMidnight() {
         userProfileService.resetStreaksIfMidnight();
     }
