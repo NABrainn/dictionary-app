@@ -3,6 +3,7 @@
 @import org.springframework.security.web.csrf.CsrfToken
 @import java.time.ZoneOffset
 @import java.util.List
+@import java.util.Map
 
 @param List<ImportWithId> imports
 @param boolean authenticated
@@ -12,6 +13,7 @@
 @param String username
 @param int wordsLearned
 @param int dailyStreak
+@param Map<Language, String> languages
 
 
 @template.layout.base(content = @`
@@ -20,7 +22,8 @@
         authenticated = authenticated,
         targetLanguage = targetLanguage,
         wordsLearned = wordsLearned,
-        dailyStreak = dailyStreak
+        dailyStreak = dailyStreak,
+        languages = languages
     )
     @if(authenticated)
         <div class="grow-1 w-3/5 mx-auto flex flex-col justify-between gap-16 text-neutral">
@@ -70,5 +73,6 @@ sourceLanguage = sourceLanguage,
 targetLanguage = targetLanguage,
 _csrf = _csrf,
 username = username,
-wordsLearned = wordsLearned
+wordsLearned = wordsLearned,
+languages = languages
 )
