@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import static lule.dictionary.repository.factory.RowMapperFactory.USER_PROFILE;
 
@@ -22,7 +23,7 @@ public class UserProfileRepository {
 
     public Optional<UserProfile> findByUsername(@NonNull String username) {
         String sql = """
-                    SELECT p.username, p.password, p.email, s.source_lang, s.target_lang, str.day_count, str.is_daily_goal_met, str.timezone, str.updated_at
+                    SELECT p.username, p.password, p.email, s.source_lang, s.target_lang, str.day_count, str.words_added_today, str.tz_offset, str.updated_at
                     FROM dictionary.user_profiles p
                     LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
@@ -39,7 +40,7 @@ public class UserProfileRepository {
 
     public Optional<UserProfile> findByUsernameOrEmail(@NonNull String username, @NonNull String email) {
         String sql = """
-                    SELECT p.username, p.password, p.email, s.source_lang, s.target_lang, str.day_count, str.is_daily_goal_met, str.timezone, str.updated_at
+                    SELECT p.username, p.password, p.email, s.source_lang, s.target_lang, str.day_count, str.words_added_today, str.tz_offset, str.updated_at
                     FROM dictionary.user_profiles p
                     LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
@@ -62,9 +63,9 @@ public class UserProfileRepository {
                         RETURNING settings_id, source_lang, target_lang
                     ),
                     streak AS (
-                        INSERT INTO dictionary.streaks (day_count, is_daily_goal_met, streak_owner, timezone, updated_at)
-                        VALUES (0, false, 'useruseruser', ?, ?)
-                        RETURNING day_count, is_daily_goal_met, streak_owner, updated_at
+                        INSERT INTO dictionary.streaks (day_count, words_added_today, streak_owner, tz_offset, updated_at)
+                        VALUES (0, 0, ?, ?, '2025-07-02 10:23:54+02')
+                        RETURNING day_count, words_added_today, streak_owner, tz_offset, updated_at
                     ),
                     user_insert AS (
                         INSERT INTO dictionary.user_profiles (username, email, password, settings_id)
@@ -72,7 +73,7 @@ public class UserProfileRepository {
                         FROM settings s
                         RETURNING username, email, password, settings_id
                     )
-                    SELECT u.username, u.email, u.password, s.source_lang, s.target_lang, str.day_count, str.is_daily_goal_met, str.timezone, str.updated_at
+                    SELECT u.username, u.email, u.password, s.source_lang, s.target_lang, str.day_count, str.words_added_today, str.tz_offset, str.updated_at
                     FROM user_insert u
                     LEFT JOIN settings s ON u.settings_id = s.settings_id
                     LEFT JOIN streak str ON u.username = str.streak_owner;
@@ -81,8 +82,8 @@ public class UserProfileRepository {
             List<UserProfile> addedUser = template.query(sql, USER_PROFILE,
                     userProfile.sourceLanguage().name(),
                     userProfile.targetLanguage().name(),
-                    //timezone
-                    //updatedAt
+                    userProfile.username(),
+                    userProfile.offset(),
                     userProfile.username(),
                     userProfile.email(),
                     userProfile.password()
@@ -96,7 +97,7 @@ public class UserProfileRepository {
 
     public List<UserProfile> findAll() {
         String sql = """
-                    SELECT p.username, p.email, p.password, s.source_lang, s.target_lang, str.day_count, str.is_daily_goal_met, str.timezone, str.updated_at
+                    SELECT p.username, p.email, p.password, s.source_lang, s.target_lang, str.day_count, str.words_added_today, str.tz_offset, str.updated_at
                     FROM dictionary.user_profiles as p
                     LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
@@ -106,6 +107,65 @@ public class UserProfileRepository {
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             return List.of();
+        }
+    }
+
+    public void updateTimezoneOffset(String owner, String offset) {
+        String sql = """
+                    UPDATE dictionary.streaks
+                    SET tz_offset=?
+                    WHERE streak_owner=?
+                """;
+        try {
+            template.update(sql,
+                    owner,
+                    offset);
+        } catch (DataAccessException e) {
+            log.error(String.valueOf(e.getCause()));
+        }
+    }
+
+    public void resetStreaksIfMidnight() {
+        String resetSql = """
+                UPDATE dictionary.streaks
+                SET
+                    words_added_today = 0,
+                    day_count = 0,
+                    updated_at = now()
+                WHERE
+                    date_trunc('day', updated_at AT TIME ZONE make_interval(mins := -1 * tz_offset::int)) <
+                    date_trunc('day', now() AT TIME ZONE make_interval(mins := -1 * tz_offset::int))
+                    AND words_added_today < 50
+        """;
+
+        String incrementSql = """
+                UPDATE dictionary.streaks
+                SET
+                    words_added_today = 0,
+                    day_count = day_count + 1,
+                    updated_at = now()
+                WHERE
+                    date_trunc('day', updated_at AT TIME ZONE make_interval(mins := -1 * tz_offset::int)) <
+                    date_trunc('day', now() AT TIME ZONE make_interval(mins := -1 * tz_offset::int))
+                    AND words_added_today >= 50
+        """;
+        int updated = template.update(resetSql);
+        template.update(incrementSql);
+    }
+
+    public OptionalInt getDailyStreak(String owner) {
+        String sql = """
+                    SELECT day_count
+                    FROM dictionary.streaks
+                    WHERE streak_owner=?
+                """;
+        try {
+            Integer result = template.queryForObject(sql, Integer.class, owner);
+            if(result != null) return OptionalInt.of(result);
+            return OptionalInt.empty();
+        } catch (DataAccessException e) {
+            log.error(String.valueOf(e.getCause()));
+            return OptionalInt.empty();
         }
     }
 }
