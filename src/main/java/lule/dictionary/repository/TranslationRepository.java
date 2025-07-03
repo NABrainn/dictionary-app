@@ -26,14 +26,39 @@ public class TranslationRepository {
 
     public OptionalInt addTranslation(@NonNull Translation translation, int importId) {
         String sql = """
-                WITH translation AS (
-                    INSERT INTO dictionary.translations (source_words, target_word, source_lang, target_lang, translation_owner, familiarity)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    RETURNING translations_id
-                )
-                INSERT INTO dictionary.imports_translations (imports_id, translations_id, amount)
-                VALUES (?, (SELECT translations_id FROM translation), ?)
-                RETURNING (SELECT translations_id FROM translation)
+                    WITH inserted_translation AS (
+                        INSERT INTO dictionary.translations (
+                            source_words, target_word, source_lang, target_lang, translation_owner, familiarity
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        RETURNING translations_id
+                    ),
+                    inserted_import AS (
+                        INSERT INTO dictionary.imports_translations (
+                            imports_id, translations_id, amount
+                        )
+                        VALUES (?, (SELECT translations_id FROM inserted_translation), ?)
+                        RETURNING translations_id
+                    ),
+                    updated_streaks AS (
+                        UPDATE dictionary.streaks
+                        SET words_added_today = words_added_today + 1,
+                            updated_at = now()
+                        WHERE streak_owner = ?
+                        RETURNING words_added_today
+                    ),
+                    streak_incremented AS (
+                        UPDATE dictionary.streaks
+                        SET day_count = day_count + 1
+                        WHERE streak_owner = ?
+                          AND (
+                              SELECT words_added_today
+                              FROM dictionary.streaks
+                              WHERE streak_owner=?
+                              LIMIT 1
+                          ) = 50
+                    )
+                    SELECT translations_id FROM inserted_translation;
                 """;
         try {
             Integer translationId = template.query(con -> {
@@ -46,6 +71,9 @@ public class TranslationRepository {
                 ps.setString(6, translation.familiarity().toString());
                 ps.setInt(7, importId);
                 ps.setInt(8, 1);
+                ps.setString(9, translation.owner());
+                ps.setString(10, translation.owner());
+                ps.setString(11, translation.owner());
                 return ps;
             }, TRANSLATION_ID).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
             if(translationId != null) {
