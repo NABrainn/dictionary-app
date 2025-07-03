@@ -10,6 +10,7 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 import java.util.Map;
 
+import static lule.dictionary.service.language.LanguageHelper.languageMapAbbreviations;
 @Service
 @RequiredArgsConstructor
 public class LibreTranslateService {
@@ -24,8 +25,8 @@ public class LibreTranslateService {
                 .uri(baseUrl)
                 .body(Map.of(
                         "q", targetWord,
-                        "source", languageMap().get(targetLanguage.name()),
-                        "target", languageMap().get(sourceLanguage.name()),
+                        "source", languageMapAbbreviations.get(targetLanguage),
+                        "target", languageMapAbbreviations.get(sourceLanguage),
                         "format", "text",
                         "alternatives", 3,
                         "api_key", ""
@@ -36,13 +37,5 @@ public class LibreTranslateService {
             return List.of(response.translatedText());
         }
         return List.of();
-    }
-
-    public Map<String, String> languageMap() {
-        return Map.of(
-          Language.PL.name(), "pl",
-          Language.EN.name(), "en",
-          Language.NO.name(), "nb"
-        );
     }
 }
