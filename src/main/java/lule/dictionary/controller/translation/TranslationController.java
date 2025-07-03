@@ -133,10 +133,11 @@ public class TranslationController {
                                    @RequestParam("sourceWord") String sourceWord,
                                    @RequestParam("targetWord") String targetWord) {
         try {
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             translationService.deleteSourceWord(model, new DeleteSourceWordRequest(
                     sourceWord,
                     targetWord,
-                    authentication.getName()
+                    userDetails.getUsername()
             ));
             return "import-page/translation/source-words-list";
         } catch (RetryViewException | SourceWordNotFoundException e) {
