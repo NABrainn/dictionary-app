@@ -7,18 +7,23 @@
 @param String username
 @param String targetLanguage
 @param int wordsLearned
+@param int dailyStreak
 
 @template.layout.base(authView = @`
     @template.navbar(
         username = username,
         authenticated = authenticated,
         targetLanguage = targetLanguage,
-        wordsLearned = wordsLearned
+        wordsLearned = wordsLearned,
+        dailyStreak = dailyStreak
     )
     <form
         hx-post="/auth/signup"
         hx-target="#main"
         hx-swap="outerHTML"
+        hx-headers='js:{
+            timeZoneOffset: new Date().getTimezoneOffset()
+        }'
         class="flex flex-col bg-secondary w-2/5 p-8 mx-auto gap-8">
         <span class="text-accent text-2xl font-bold">Sign up</span>
         <div class="flex flex-col">
