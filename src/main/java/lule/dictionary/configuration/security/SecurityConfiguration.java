@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
+import lule.dictionary.configuration.security.filter.timezone.TimezoneFilter;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,7 @@ public class SecurityConfiguration {
 
     private final UserProfileService userProfileService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final TimezoneFilter timezoneFilter;
 
     @Bean
     public BCryptPasswordEncoder encoder() {
@@ -88,6 +90,7 @@ public class SecurityConfiguration {
                             }
                         })
                 )
+                .addFilterBefore(timezoneFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(daoAuthenticationProvider())
                 .build();

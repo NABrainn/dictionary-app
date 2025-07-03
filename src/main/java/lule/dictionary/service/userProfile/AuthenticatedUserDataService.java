@@ -12,6 +12,7 @@ import java.util.Map;
 public class AuthenticatedUserDataService {
 
     private final TranslationService translationService;
+    private final UserProfileService userProfileService;
 
     private final Map<Language, String> languageFullNameMap = Map.of(
             Language.NO, "Norwegian",
@@ -25,5 +26,9 @@ public class AuthenticatedUserDataService {
 
     public int getWordsLearned(String owner) {
         return translationService.getWordsLearnedCount(owner);
+    }
+
+    public int getDailyStreak(String owner) {
+        return userProfileService.getDailyStreak(owner);
     }
 }

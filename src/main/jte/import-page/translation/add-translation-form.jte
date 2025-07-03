@@ -66,6 +66,9 @@
                         "page": "${translationModel.page()}"
                         }'
                     hx-target="#page-content"
+                    hx-headers='js:{
+                        timeZoneOffset: new Date().getTimezoneOffset()
+                    }'
                     hx-swap="outerHTML">
                     @for(var word : translationModel.translation().sourceWords())
                         <input type="hidden" name="sourceWords" value="${word}">

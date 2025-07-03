@@ -41,6 +41,9 @@
                         "selectedWordId": "${translationModel.selectedWordId()}",
                         "page": "${translationModel.page()}"
                      }'
+                     hx-headers='js:{
+                        timeZoneOffset: new Date().getTimezoneOffset()
+                    }'
                      hx-target="#page-content"
                      hx-swap="outerHTML">
                     <span>${level.getKey()}: </span>

@@ -79,6 +79,7 @@ public class AuthService {
 
     @Transactional
     public void signup(@NonNull Model model,
+                       @NonNull String timeZone,
                        @NonNull SignupRequest signupRequest) {
         var constraints = validator.validate(signupRequest);
 
@@ -98,7 +99,7 @@ public class AuthService {
         String encodedPassword = bCryptPasswordEncoder.encode(signupRequest.password());
 
         try {
-            userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword);
+            userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword, timeZone);
         } catch (UserExistsException e) {
             var result = new ServiceResult(true, Map.of());
             model.addAttribute("result", result);

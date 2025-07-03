@@ -30,23 +30,18 @@ public class UserProfileService implements UserDetailsService {
     @Transactional
     public UserProfile addUserProfile(@NonNull String username,
                                       @NonNull String email,
-                                      @NonNull String password) {
+                                      @NonNull String password,
+                                      @NonNull String timeZone) {
         UserProfile userProfile = DictionaryUserProfile.builder()
                 .username(username)
                 .email(email)
                 .password(password)
                 .sourceLanguage(Language.EN)
                 .targetLanguage(Language.NO)
+                .wordsAddedToday(0)
+                .offset(timeZone)
                 .build();
-        return userProfileRepository.addUserProfile(
-                DictionaryUserProfile.builder()
-                .username(userProfile.username())
-                .email(userProfile.email())
-                .password(userProfile.password())
-                .sourceLanguage(userProfile.sourceLanguage())
-                .targetLanguage(userProfile.targetLanguage())
-                .build()
-        ).orElseThrow(() -> new UserExistsException("User already exists"));
+        return userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new UserExistsException("Failed to signup"));
     }
 
     public List<UserProfile> findAll() {
@@ -60,5 +55,17 @@ public class UserProfileService implements UserDetailsService {
 
     public Optional<UserProfile> findByUsernameOrEmail(String username, String email) {
         return userProfileRepository.findByUsernameOrEmail(username, email);
+    }
+
+    public void updateTimezoneOffset(String owner, String offset) {
+        userProfileRepository.updateTimezoneOffset(owner, offset);
+    }
+
+    public void resetStreaksIfMidnight() {
+        userProfileRepository.resetStreaksIfMidnight();
+    }
+
+    public int getDailyStreak(String owner) {
+        return userProfileRepository.getDailyStreak(owner).orElseThrow(() -> new RuntimeException("Failed to fetch daily streak"));
     }
 }

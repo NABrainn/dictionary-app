@@ -21,6 +21,14 @@ CREATE TABLE IF NOT EXISTS dictionary.user_profiles (
 	settings_id						int REFERENCES dictionary.user_profile_settings(settings_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS dictionary.streaks (
+	day_count						int NOT NULL DEFAULT 0,
+	words_added_today				int	NOT NULL DEFAULT 0,
+	streak_owner					VARCHAR(50) REFERENCES dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
+	tz_offset                        VARCHAR(10) NOT NULL DEFAULT 'CET',
+	updated_at						TIMESTAMPTZ
+);
+
 CREATE TABLE IF NOT EXISTS dictionary.translations (
     translations_id              	SERIAL PRIMARY KEY,
     source_words     				TEXT[] NOT NULL,

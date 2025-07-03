@@ -11,6 +11,12 @@
 @param CsrfToken _csrf
 @param int wordsLearned
 
+<script>
+    document.addEventListener("htmx:configRequest", function(event) {
+        event.detail.headers["X-XSRF-TOKEN"] = "${_csrf.getToken()}";
+    });
+</script>
+
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -21,7 +27,6 @@
         <title>here is the required title element</title>
     </head>
     <body
-    hx-headers='{"X-XSRF-TOKEN": "${_csrf.getToken()}"}'
     class="bg-primary grow-1 flex flex-col gap-8 min-h-screen pb-8"
     id="main">
         @if(authView != null)

@@ -71,4 +71,18 @@ public class JteControllerAdvice {
                 dataService.getWordsLearned(principal.getUsername())
         );
     }
+
+    @ModelAttribute
+    public void dailyStreak(Model model, Authentication authentication) {
+        if(authentication == null) {
+            model.addAttribute("dailyStreak", 0);
+            return;
+        }
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        System.out.println("what is it: " + dataService.getDailyStreak(principal.getUsername()));
+        model.addAttribute(
+                "dailyStreak",
+                dataService.getDailyStreak(principal.getUsername())
+        );
+    }
 }

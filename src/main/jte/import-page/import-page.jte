@@ -8,6 +8,7 @@
 @param CsrfToken _csrf
 @param boolean authenticated
 @param int wordsLearned
+@param int dailyStreak
 
 @template.layout.base(content = @`
     @template.import-page.content(
@@ -16,7 +17,8 @@
         authenticated = authenticated,
         username = username,
         targetLanguage = targetLanguage,
-        wordsLearned = wordsLearned
+        wordsLearned = wordsLearned,
+        dailyStreak = dailyStreak
     )
     @template.import-page.script(selectedWordId = importModel.selectedWordId())
 `,

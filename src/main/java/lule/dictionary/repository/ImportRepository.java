@@ -42,7 +42,7 @@ public class ImportRepository {
                 return OptionalInt.of(importsId.stream().findFirst().get());
             return OptionalInt.empty();
         } catch (DataAccessException e) {
-            log.warn(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return OptionalInt.empty();
         }
     }
@@ -73,7 +73,7 @@ public class ImportRepository {
             );
             return found.stream().findFirst();
         } catch (DataAccessException e) {
-            log.warn(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return Optional.empty();
         }
     }
@@ -87,7 +87,7 @@ public class ImportRepository {
         try {
             return template.query(sql, IMPORT_WITH_ID, owner);
         } catch (DataAccessException e) {
-            log.info(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return List.of();
         }
     }
@@ -99,7 +99,7 @@ public class ImportRepository {
         try {
             return template.query(sql, IMPORT);
         } catch (DataAccessException e) {
-            log.warn(e.getMessage());
+            log.error(String.valueOf(e.getCause()));
             return List.of();
         }
     }
