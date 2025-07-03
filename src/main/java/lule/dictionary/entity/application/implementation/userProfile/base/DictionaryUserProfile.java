@@ -103,9 +103,4 @@ public record DictionaryUserProfile(
         public boolean isEnabled() {
                 return true;
         }
-
-        @Override
-        public String formattedDateTime(LocalDateTime localDateTime) {
-                return DateUtil.getFormattedDateTime(ZoneOffset.of(offset), localDateTime);
-        }
 }
