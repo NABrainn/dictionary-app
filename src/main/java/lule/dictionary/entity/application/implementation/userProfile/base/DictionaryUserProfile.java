@@ -9,9 +9,12 @@ import lule.dictionary.service.language.Language;
 import lule.dictionary.functionalInterface.validation.EmptyValidator;
 import lule.dictionary.functionalInterface.validation.LengthValidator;
 import lule.dictionary.functionalInterface.validation.PatternValidator;
+import lule.dictionary.util.DateUtil;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -27,7 +30,10 @@ public record DictionaryUserProfile(
         @NonNull
         Language sourceLanguage,
         @NonNull
-        Language targetLanguage) implements UserProfile, CustomUserDetails {
+        Language targetLanguage,
+        int wordsAddedToday,
+        @NonNull
+        String offset) implements UserProfile, CustomUserDetails {
 
         public DictionaryUserProfile {
                 EmptyValidator emptyValidator = (String... fields) -> {
@@ -96,5 +102,10 @@ public record DictionaryUserProfile(
         @Override
         public boolean isEnabled() {
                 return true;
+        }
+
+        @Override
+        public String formattedDateTime(LocalDateTime localDateTime) {
+                return DateUtil.getFormattedDateTime(ZoneOffset.of(offset), localDateTime);
         }
 }
