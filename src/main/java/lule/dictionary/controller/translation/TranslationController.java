@@ -113,11 +113,12 @@ public class TranslationController {
                                     Authentication authentication,
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         try {
             translationService.updateSourceWords(model, new UpdateSourceWordsRequest(
                     sourceWords,
                     targetWord,
-                    authentication.getName()
+                    userDetails.getUsername()
             ));
             return "import-page/translation/update-source-words-form";
         } catch (RetryViewException e) {
