@@ -3,6 +3,7 @@ package lule.dictionary.service.translation;
 import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.exception.RetryViewException;
@@ -16,10 +17,10 @@ import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
+import lule.dictionary.service.userProfile.UserProfileService;
 import lule.dictionary.service.util.StringRegexService;
 import lule.dictionary.service.translation.util.TranslationFamiliarityService;
 import lule.dictionary.util.errors.ErrorMapFactory;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -37,6 +38,7 @@ public class TranslationService {
     private final TranslationFamiliarityService translationUtilService;
     private final StringRegexService stringRegexService;
     private final LibreTranslateService libreTranslateService;
+    private final UserProfileService userProfileService;
     private final Validator validator;
 
     @Transactional
@@ -71,6 +73,9 @@ public class TranslationService {
         int translationId = translationRepository.addTranslation(
                 translationToAdd,
                 request.importId()).orElseThrow(() -> new IllegalArgumentException("Failed to add new translation"));
+        if(TimeZoneOffsetContext.get() != null) {
+            userProfileService.updateTimezoneOffset(owner, TimeZoneOffsetContext.get());
+        }
 
         model.addAttribute("translationModel", new TranslationModel(
                 request.importId(),
@@ -185,7 +190,8 @@ public class TranslationService {
     }
 
     @Transactional
-    public void updateSourceWords(Model model, UpdateSourceWordsRequest request) {
+    public void updateSourceWords(Model model,
+                                  UpdateSourceWordsRequest request) {
         var constraints = validator.validate(request);
         Pattern validWordPattern = Pattern.compile("^[\\p{L}0-9 ]+$");
 
@@ -205,6 +211,9 @@ public class TranslationService {
                 request.targetWord(),
                 request.owner()
         );
+        if(TimeZoneOffsetContext.get() != null) {
+            userProfileService.updateTimezoneOffset(request.owner(), TimeZoneOffsetContext.get());
+        }
         translation.ifPresent(value -> {
             model.addAttribute("targetWord", value.targetWord());
             model.addAttribute("sourceWords", value.sourceWords());
