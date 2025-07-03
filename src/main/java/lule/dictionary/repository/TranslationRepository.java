@@ -25,44 +25,38 @@ public class TranslationRepository {
     private final JdbcTemplate template;
 
     public OptionalInt addTranslation(@NonNull Translation translation, int importId) {
-        String sql = """
-                    WITH inserted_translation AS (
-                        INSERT INTO dictionary.translations (
-                            source_words, target_word, source_lang, target_lang, translation_owner, familiarity
-                        )
-                        VALUES (?, ?, ?, ?, ?, ?)
-                        RETURNING translations_id
-                    ),
-                    inserted_import AS (
-                        INSERT INTO dictionary.imports_translations (
-                            imports_id, translations_id, amount
-                        )
-                        VALUES (?, (SELECT translations_id FROM inserted_translation), ?)
-                        RETURNING translations_id
-                    ),
-                    updated_streaks AS (
-                        UPDATE dictionary.streaks
-                        SET words_added_today = words_added_today + 1,
-                            updated_at = now()
-                        WHERE streak_owner = ?
-                        RETURNING words_added_today
-                    ),
-                    streak_incremented AS (
-                        UPDATE dictionary.streaks
-                        SET day_count = day_count + 1
-                        WHERE streak_owner = ?
-                          AND (
-                              SELECT words_added_today
-                              FROM dictionary.streaks
-                              WHERE streak_owner=?
-                              LIMIT 1
-                          ) = 50
-                    )
-                    SELECT translations_id FROM inserted_translation;
+        String insertSql = """
+            WITH inserted_translation AS (
+                INSERT INTO dictionary.translations (
+                    source_words, target_word, source_lang, target_lang, translation_owner, familiarity
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+                RETURNING translations_id, translation_owner
+            ),
+            inserted_import AS (
+                INSERT INTO dictionary.imports_translations (
+                    imports_id, translations_id, amount
+                )
+                VALUES (?, (SELECT translations_id FROM inserted_translation), ?)
+                RETURNING translations_id
+            ),
+            updated_streaks AS (
+                UPDATE dictionary.streaks
+                SET words_added_today = words_added_today + 1,
+                    updated_at = now()
+                WHERE streak_owner = (SELECT translation_owner FROM inserted_translation)
+                RETURNING words_added_today, streak_owner, tz_offset, updated_at
+            )
+            SELECT translations_id FROM inserted_translation;
+            """;
+        String updateSql = """
+                UPDATE dictionary.streaks
+                SET day_count = day_count + 1
+                WHERE words_added_today = 10
                 """;
         try {
             Integer translationId = template.query(con -> {
-                PreparedStatement ps = con.prepareStatement(sql);
+                PreparedStatement ps = con.prepareStatement(insertSql);
                 ps.setArray(1, con.createArrayOf("text", translation.sourceWords().toArray()));
                 ps.setString(2, translation.targetWord().toLowerCase());
                 ps.setString(3, translation.sourceLanguage().toString());
@@ -71,11 +65,9 @@ public class TranslationRepository {
                 ps.setString(6, translation.familiarity().toString());
                 ps.setInt(7, importId);
                 ps.setInt(8, 1);
-                ps.setString(9, translation.owner());
-                ps.setString(10, translation.owner());
-                ps.setString(11, translation.owner());
                 return ps;
             }, TRANSLATION_ID).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
+            template.update(updateSql);
             if(translationId != null) {
                 return OptionalInt.of(translationId);
             }
@@ -221,7 +213,8 @@ public class TranslationRepository {
             return template.query(sql, TRANSLATION,
                     sourceWord,
                     targetWord,
-                    owner).stream().findFirst();
+                    owner
+            ).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             return Optional.empty();
