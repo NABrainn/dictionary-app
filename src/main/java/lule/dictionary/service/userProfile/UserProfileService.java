@@ -2,6 +2,7 @@ package lule.dictionary.service.userProfile;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.implementation.userProfile.base.UserProfileImp;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserProfileService implements UserDetailsService {
 
     private final UserProfileRepository userProfileRepository;
@@ -45,7 +47,7 @@ public class UserProfileService implements UserDetailsService {
                 .wordsAddedToday(0)
                 .offset(timeZone)
                 .build();
-        return userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new UserExistsException("Failed to signup"));
+        return userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new RuntimeException("Failed to add new user"));
     }
 
     public List<UserProfile> findAll() {
