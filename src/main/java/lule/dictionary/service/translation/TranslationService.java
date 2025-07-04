@@ -60,7 +60,7 @@ public class TranslationService {
                     request.selectedWordId(),
                     request.page()
             ));
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new IllegalArgumentException("Constraints violated at " + request);
         }
         String transformedTargetWord = stringRegexService.removeNonLetters(request.targetWord());
@@ -106,7 +106,7 @@ public class TranslationService {
                                  Language targetLanguage) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + request);
         }
         String cleanTargetWord = stringRegexService.removeNonLetters(request.targetWord());
@@ -208,7 +208,7 @@ public class TranslationService {
                     .filter(word -> validWordPattern.matcher(word).matches())
                     .toList()
             );
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + request);
         }
         Optional<Translation> translation = translationRepository.updateSourceWords(
@@ -236,7 +236,7 @@ public class TranslationService {
     public void deleteSourceWord(Model model, DeleteSourceWordRequest request) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + request);
         }
         Optional<Translation> translation = translationRepository.deleteSourceWord(

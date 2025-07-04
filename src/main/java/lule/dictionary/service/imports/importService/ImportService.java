@@ -35,7 +35,7 @@ public class ImportService {
                          AddImportRequest addImportRequest) throws IOException {
         var constraints = validator.validate(addImportRequest);
         if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + addImportRequest);
         }
         String url = normalizeURL(addImportRequest.url());
