@@ -8,7 +8,6 @@ import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetai
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.UserProfileRepository;
-import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.util.DateUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,7 +58,7 @@ public class UserProfileService implements UserDetailsService {
         return (UserDetails) userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
-    public Optional<UserProfile> findByUsernameOrEmail(String username, String email) {
+    public Optional<UserProfile> findByUsernameOrEmail(String username, String email) throws UserNotFoundException {
         return userProfileRepository.findByUsernameOrEmail(username, email);
     }
 
