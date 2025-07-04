@@ -8,15 +8,6 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --color-red-400: oklch(70.4% 0.191 22.216);
-    --color-blue-500: oklch(62.3% 0.214 259.815);
-    --color-gray-50: oklch(98.5% 0.002 247.839);
-    --color-gray-100: oklch(96.7% 0.003 264.542);
-    --color-gray-300: oklch(87.2% 0.01 258.338);
-    --color-gray-400: oklch(70.7% 0.022 261.325);
-    --color-gray-600: oklch(44.6% 0.03 256.802);
-    --color-gray-700: oklch(37.3% 0.034 259.733);
-    --color-gray-900: oklch(21% 0.034 264.665);
-    --color-white: #fff;
     --spacing: 0.25rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
@@ -30,7 +21,6 @@
     --text-4xl--line-height: calc(2.5 / 2.25);
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
-    --radius-lg: 0.5rem;
     --animate-spin: spin 1s linear infinite;
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
@@ -209,9 +199,6 @@
   .mx-auto {
     margin-inline: auto;
   }
-  .block {
-    display: block;
-  }
   .flex {
     display: flex;
   }
@@ -230,9 +217,6 @@
   .size-4 {
     width: calc(var(--spacing) * 4);
     height: calc(var(--spacing) * 4);
-  }
-  .h-full {
-    height: 100%;
   }
   .min-h-8 {
     min-height: calc(var(--spacing) * 8);
@@ -330,10 +314,6 @@
   .rounded-full {
     border-radius: calc(infinity * 1px);
   }
-  .rounded-e-lg {
-    border-start-end-radius: var(--radius-lg);
-    border-end-end-radius: var(--radius-lg);
-  }
   .border {
     border-style: var(--tw-border-style);
     border-width: 1px;
@@ -345,10 +325,6 @@
   .border-3 {
     border-style: var(--tw-border-style);
     border-width: 3px;
-  }
-  .border-s-2 {
-    border-inline-start-style: var(--tw-border-style);
-    border-inline-start-width: 2px;
   }
   .border-r-1 {
     border-right-style: var(--tw-border-style);
@@ -364,14 +340,8 @@
   .border-error {
     border-color: var(--color-error);
   }
-  .border-gray-300 {
-    border-color: var(--color-gray-300);
-  }
   .border-primary {
     border-color: var(--color-primary);
-  }
-  .border-s-gray-100 {
-    border-inline-start-color: var(--color-gray-100);
   }
   .border-t-transparent {
     border-top-color: transparent;
@@ -397,9 +367,6 @@
       background-color: color-mix(in oklab, var(--color-accent) 80%, transparent);
     }
   }
-  .bg-gray-50 {
-    background-color: var(--color-gray-50);
-  }
   .bg-primary {
     background-color: var(--color-primary);
   }
@@ -414,9 +381,6 @@
   }
   .p-2 {
     padding: calc(var(--spacing) * 2);
-  }
-  .p-2\.5 {
-    padding: calc(var(--spacing) * 2.5);
   }
   .p-4 {
     padding: calc(var(--spacing) * 4);
@@ -493,9 +457,6 @@
   .text-error {
     color: var(--color-error);
   }
-  .text-gray-900 {
-    color: var(--color-gray-900);
-  }
   .text-neutral {
     color: var(--color-neutral);
   }
@@ -529,57 +490,6 @@
   .focus\:border-accent {
     &:focus {
       border-color: var(--color-accent);
-    }
-  }
-  .focus\:border-blue-500 {
-    &:focus {
-      border-color: var(--color-blue-500);
-    }
-  }
-  .focus\:ring-blue-500 {
-    &:focus {
-      --tw-ring-color: var(--color-blue-500);
-    }
-  }
-  .dark\:border-gray-600 {
-    @media (prefers-color-scheme: dark) {
-      border-color: var(--color-gray-600);
-    }
-  }
-  .dark\:border-s-gray-700 {
-    @media (prefers-color-scheme: dark) {
-      border-inline-start-color: var(--color-gray-700);
-    }
-  }
-  .dark\:bg-gray-700 {
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--color-gray-700);
-    }
-  }
-  .dark\:text-white {
-    @media (prefers-color-scheme: dark) {
-      color: var(--color-white);
-    }
-  }
-  .dark\:placeholder-gray-400 {
-    @media (prefers-color-scheme: dark) {
-      &::placeholder {
-        color: var(--color-gray-400);
-      }
-    }
-  }
-  .dark\:focus\:border-blue-500 {
-    @media (prefers-color-scheme: dark) {
-      &:focus {
-        border-color: var(--color-blue-500);
-      }
-    }
-  }
-  .dark\:focus\:ring-blue-500 {
-    @media (prefers-color-scheme: dark) {
-      &:focus {
-        --tw-ring-color: var(--color-blue-500);
-      }
     }
   }
 }
