@@ -16,6 +16,7 @@ import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfil
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.dto.ServiceResultFactory;
+import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import lule.dictionary.service.jwt.JwtService;
@@ -65,7 +66,7 @@ public class AuthService {
 
         catch (AuthenticationException e) {
             log.warn("Authentication exception: {}", e.getMessage());
-            return ServiceResultFactory.createErrorResult(Map.of("auth", "Authentication failed"));
+            return ServiceResultFactory.createErrorResult(Map.of("password", e.getMessage()));
 
         }
     }
@@ -85,7 +86,7 @@ public class AuthService {
             return ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
         }
 
-        catch (UserNotFoundException e) {
+        catch (UserExistsException e) {
             log.info(e.getMessage());
             return ServiceResultFactory.createErrorResult(Map.of("login", e.getMessage()));
         }
@@ -155,7 +156,8 @@ public class AuthService {
     }
 
     private void getUserProfile(SignupRequest signupRequest) throws UserNotFoundException {
-        userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email()).orElseThrow(() -> new UserNotFoundException("Username with given username or email does not exist"));
+        if (userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email()).isPresent())
+            throw new UserExistsException("User with given username already exists");
     }
 
     private UserProfile getUserProfile(LoginRequest loginRequest) {
