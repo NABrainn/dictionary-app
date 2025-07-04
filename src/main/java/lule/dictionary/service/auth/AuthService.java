@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.auth.dto.AuthRequest;
@@ -28,8 +29,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +36,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserProfileService userProfileService;
@@ -46,57 +46,55 @@ public class AuthService {
     private final CookieService cookieService;
     private final Validator validator;
 
-    public void login(@NonNull Model clientModel,
-                      @NonNull RedirectAttributes redirectAttributes,
-                      @NonNull HttpServletResponse response,
-                      @NonNull LoginRequest loginRequest) {
+    public ServiceResult login(@NonNull HttpServletResponse response,
+                               @NonNull LoginRequest loginRequest) {
         try {
             var constraints = getConstraintViolations(loginRequest);
             if(!constraints.isEmpty()) {
-                sendResultAndRetry(clientModel, ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSet(constraints)));
+                log.warn("Login constraints violated at: {}", constraints.stream().findFirst());
+                return ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSet(constraints));
             }
             UserProfile user = getUserProfile(loginRequest);
             Authentication authentication = getAuthentication(loginRequest, user);
             setAuthentication(authentication);
             setTimezoneOffset(user);
             sendJwtCookie(response, authentication);
-            sendResult(redirectAttributes, ServiceResultFactory.createSuccessResult(Map.of()));
+            return ServiceResultFactory.createSuccessResult(Map.of());
 
         } catch (AuthenticationException e) {
-            sendResultAndRetry(clientModel, ServiceResultFactory.createErrorResult(Map.of("auth", "Authentication failed")));
+            log.warn("Authentication exception: {}", e.getMessage());
+            return ServiceResultFactory.createErrorResult(Map.of("auth", "Authentication failed"));
 
         } catch (UserNotFoundException e) {
-            sendResultAndRetry(clientModel, ServiceResultFactory.createErrorResult(Map.of("login", "User does not exist")));
+            log.info("UserNotFoundException exception: {}", e.getMessage());
+            return ServiceResultFactory.createErrorResult(Map.of("login", "User does not exist"));
         }
     }
 
     @Transactional
-    public void signup(@NonNull Model model,
-                       @NonNull String timeZone,
-                       @NonNull SignupRequest signupRequest) {
+    public ServiceResult signup(@NonNull String timeZone,
+                                @NonNull SignupRequest signupRequest) {
         var constraints = getConstraintViolations(signupRequest);
         if(!constraints.isEmpty()) {
-            sendResultAndRetry(model, ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSet(constraints)));
+            log.warn("Signup constraints violated at: {}", constraints.stream().findFirst());
+            return ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSet(constraints));
         }
+
         Optional<UserProfile> optionalUserProfile = getUserProfile(signupRequest);
         if(optionalUserProfile.isPresent()) {
-            sendResultAndRetry(model, ServiceResultFactory.createErrorResult(Map.of("login", "User with given username or email already exists.")));
+            log.info("User with given username or email already exists.");
+            return ServiceResultFactory.createErrorResult(Map.of("login", "User with given username or email already exists."));
         }
 
         String encodedPassword = getEncodedPassword(signupRequest);
-        try {
-            userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword, timeZone);
-        } catch (UserExistsException e) {
-            sendResultAndRetry(model, ServiceResultFactory.createErrorResult(Map.of()));
-        }
-        sendResult(model, ServiceResultFactory.createSuccessResult(Map.of()));
+        userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword, timeZone);
+        return ServiceResultFactory.createSuccessResult(Map.of());
     }
 
-    public void logout(@NonNull RedirectAttributes redirectAttributes,
-                       @NonNull HttpServletResponse httpServletResponse) {
+    public ServiceResult logout(@NonNull HttpServletResponse httpServletResponse) {
         clearAuthentication();
         deleteJwtCookie(httpServletResponse);
-        sendResult(redirectAttributes, ServiceResultFactory.createSuccessResult(Map.of()));
+        return ServiceResultFactory.createSuccessResult(Map.of());
     }
 
     private void clearAuthentication() {
@@ -112,22 +110,6 @@ public class AuthService {
     private Optional<UserProfile> getUserProfile(SignupRequest signupRequest) {
         Optional<UserProfile> optionalUserProfile = userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email());
         return optionalUserProfile;
-    }
-
-    private void sendResultAndRetry(Model model, ServiceResult result) throws RetryViewException {
-        sendResult(model, result);
-        String exceptionMessage = readMessageFromResult(result);
-        throw new RetryViewException(exceptionMessage);
-    }
-
-    private void sendResult(Model clientModel, ServiceResult serviceResult) {
-        clientModel.addAttribute("result", serviceResult);
-    }
-
-    private String readMessageFromResult(ServiceResult result) throws RuntimeException {
-        return result.errors().values().stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("ServiceResult is lacking message values"));
     }
 
     private void deleteJwtCookie(HttpServletResponse response) {
@@ -159,12 +141,7 @@ public class AuthService {
     }
 
     private Authentication getAuthentication(LoginRequest loginRequest, UserProfile user) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        user.username(),
-                        loginRequest.password()
-                )
-        );
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.username(), loginRequest.password()));
         return authentication;
     }
 
