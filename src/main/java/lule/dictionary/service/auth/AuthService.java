@@ -3,12 +3,12 @@ package lule.dictionary.service.auth;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.auth.dto.AuthRequest;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
@@ -16,7 +16,6 @@ import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfil
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.dto.ServiceResultFactory;
-import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import lule.dictionary.service.jwt.JwtService;
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -49,46 +47,48 @@ public class AuthService {
     public ServiceResult login(@NonNull HttpServletResponse response,
                                @NonNull LoginRequest loginRequest) {
         try {
-            var constraints = getConstraintViolations(loginRequest);
-            if(!constraints.isEmpty()) {
-                log.warn("Login constraints violated at: {}", constraints.stream().findFirst());
-                return ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSet(constraints));
-            }
+            validateInputs(loginRequest);
             UserProfile user = getUserProfile(loginRequest);
-            Authentication authentication = getAuthentication(loginRequest, user);
-            setAuthentication(authentication);
-            setTimezoneOffset(user);
-            sendJwtCookie(response, authentication);
+            setAuthenticationContext(user.username(), loginRequest.password(), user.offset(), response);
             return ServiceResultFactory.createSuccessResult(Map.of());
 
-        } catch (AuthenticationException e) {
+        }
+        catch (ConstraintViolationException e) {
+            log.warn("ConstraintViolationException: {}", e.getMessage());
+            return ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
+        }
+
+        catch (UserNotFoundException e) {
+            log.info("UserNotFoundException exception: {}", e.getMessage());
+            return ServiceResultFactory.createErrorResult(Map.of("login", "User does not exist"));
+        }
+
+        catch (AuthenticationException e) {
             log.warn("Authentication exception: {}", e.getMessage());
             return ServiceResultFactory.createErrorResult(Map.of("auth", "Authentication failed"));
 
-        } catch (UserNotFoundException e) {
-            log.info("UserNotFoundException exception: {}", e.getMessage());
-            return ServiceResultFactory.createErrorResult(Map.of("login", "User does not exist"));
         }
     }
 
     @Transactional
     public ServiceResult signup(@NonNull String timeZone,
                                 @NonNull SignupRequest signupRequest) {
-        var constraints = getConstraintViolations(signupRequest);
-        if(!constraints.isEmpty()) {
-            log.warn("Signup constraints violated at: {}", constraints.stream().findFirst());
-            return ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSet(constraints));
+        try {
+            validateInputs(signupRequest);
+            getUserProfile(signupRequest);
+            userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), getEncodedPassword(signupRequest), timeZone);
+            return ServiceResultFactory.createSuccessResult(Map.of());
         }
 
-        Optional<UserProfile> optionalUserProfile = getUserProfile(signupRequest);
-        if(optionalUserProfile.isPresent()) {
-            log.info("User with given username or email already exists.");
-            return ServiceResultFactory.createErrorResult(Map.of("login", "User with given username or email already exists."));
+        catch (ConstraintViolationException e) {
+            log.info(e.getMessage());
+            return ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
         }
 
-        String encodedPassword = getEncodedPassword(signupRequest);
-        userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword, timeZone);
-        return ServiceResultFactory.createSuccessResult(Map.of());
+        catch (UserNotFoundException e) {
+            log.info(e.getMessage());
+            return ServiceResultFactory.createErrorResult(Map.of("login", e.getMessage()));
+        }
     }
 
     public ServiceResult logout(@NonNull HttpServletResponse httpServletResponse) {
@@ -97,19 +97,30 @@ public class AuthService {
         return ServiceResultFactory.createSuccessResult(Map.of());
     }
 
+    private void setAuthenticationContext(String username,
+                                          String password,
+                                          String offset,
+                                          HttpServletResponse response) throws AuthenticationException {
+        Authentication authentication = authenticate(username, password);
+        setAuthentication(authentication);
+        setTimezoneOffset(offset);
+        sendJwtCookie(response, authentication);
+    }
+
+    private void validateInputs(AuthRequest authRequest) throws ConstraintViolationException {
+        var constraints = getConstraintViolations(authRequest);
+        if(!constraints.isEmpty()) {
+            throw new ConstraintViolationException(constraints);
+        }
+    }
+
     private void clearAuthentication() {
         setAuthentication(null);
         SecurityContextHolder.clearContext();
     }
 
     private String getEncodedPassword(SignupRequest signupRequest) {
-        String encodedPassword = bCryptPasswordEncoder.encode(signupRequest.password());
-        return encodedPassword;
-    }
-
-    private Optional<UserProfile> getUserProfile(SignupRequest signupRequest) {
-        Optional<UserProfile> optionalUserProfile = userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email());
-        return optionalUserProfile;
+        return bCryptPasswordEncoder.encode(signupRequest.password());
     }
 
     private void deleteJwtCookie(HttpServletResponse response) {
@@ -128,25 +139,26 @@ public class AuthService {
     }
 
     private Cookie createJwtCookie(Authentication authentication) {
-        Cookie jwtCookie = cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication));
-        return jwtCookie;
+        return cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication));
     }
 
     private void setAuthentication(Authentication authentication) {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    private void setTimezoneOffset(UserProfile user) {
-        TimeZoneOffsetContext.set(user.offset());
+    private void setTimezoneOffset(String offset) {
+        TimeZoneOffsetContext.set(offset);
     }
 
-    private Authentication getAuthentication(LoginRequest loginRequest, UserProfile user) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.username(), loginRequest.password()));
-        return authentication;
+    private Authentication authenticate(String login, String password) {
+        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login, password));
+    }
+
+    private void getUserProfile(SignupRequest signupRequest) throws UserNotFoundException {
+        userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email()).orElseThrow(() -> new UserNotFoundException("Username with given username or email does not exist"));
     }
 
     private UserProfile getUserProfile(LoginRequest loginRequest) {
-        UserProfile user = userProfileService.findByUsername(loginRequest.login());
-        return user;
+        return userProfileService.findByUsername(loginRequest.login());
     }
 }
