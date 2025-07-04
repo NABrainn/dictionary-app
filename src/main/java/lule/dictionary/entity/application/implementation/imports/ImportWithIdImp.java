@@ -1,8 +1,8 @@
-package lule.dictionary.entity.application.implementation.imports.base;
+package lule.dictionary.entity.application.implementation.imports;
 
 import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.entity.application.interfaces.imports.base.Import;
+import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.functionalInterface.validation.EmptyValidator;
 import lule.dictionary.functionalInterface.validation.LengthValidator;
@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 @Builder(toBuilder = true)
-public record DictionaryImport(
+public record ImportWithIdImp(
         @NonNull
         String title,
         @NonNull
@@ -24,9 +24,10 @@ public record DictionaryImport(
         @NonNull
         Language targetLanguage,
         @NonNull
-        String owner) implements Import {
+        String owner,
+        int id) implements ImportWithId {
 
-        public DictionaryImport {
+        public ImportWithIdImp {
                 EmptyValidator emptyValidator = (String... fields) -> Arrays.stream(fields).forEach(field -> {
                         if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");
                 });
@@ -44,17 +45,18 @@ public record DictionaryImport(
                         if(field.length() > length) throw new IllegalArgumentException("Field cannot be longer than " + length + " characters");
                 };
 
-                emptyValidator.validate(title, content);
+                emptyValidator.validate(title, content, owner);
 
                 title = title.trim();
                 content = content.trim();
                 url = url.trim();
+                owner = owner.trim();
 
                 patternValidator.validate(INVALID_FIRST_CHAR, title);
 
+                maxLengthValidator.validate(50, owner);
                 maxLengthValidator.validate(100, title);
                 maxLengthValidator.validate(20000, content);
                 maxLengthValidator.validate(200, url);
         }
 }
-

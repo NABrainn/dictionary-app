@@ -3,7 +3,7 @@ package lule.dictionary.service.imports.importService;
 import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.entity.application.implementation.imports.base.DictionaryImport;
+import lule.dictionary.entity.application.implementation.imports.base.ImportImp;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.dto.ServiceResult;
@@ -43,7 +43,7 @@ public class ImportService {
             Document document = Jsoup.connect(url).get();
             String content = document.text();
             model.addAttribute("result", new ServiceResult(false, Map.of()));
-            return importRepository.addImport(DictionaryImport.builder()
+            return importRepository.addImport(ImportImp.builder()
                         .title(addImportRequest.title())
                         .content(content)
                         .url(addImportRequest.url())
@@ -54,7 +54,7 @@ public class ImportService {
         }
         else {
             model.addAttribute("result", new ServiceResult(false, Map.of()));
-            return importRepository.addImport(DictionaryImport.builder()
+            return importRepository.addImport(ImportImp.builder()
                     .title(addImportRequest.title())
                     .content(addImportRequest.content())
                     .url(addImportRequest.url())

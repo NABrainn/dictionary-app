@@ -12,21 +12,21 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 @Builder
-public record DictionaryImportWithPagination(@NonNull
+public record ImportWithPaginationImp(@NonNull
                                              String title,
-                                             @NonNull
+                                      @NonNull
                                              String content,
-                                             @NonNull
+                                      @NonNull
                                              String url,
-                                             @NonNull
+                                      @NonNull
                                              Language sourceLanguage,
-                                             @NonNull
+                                      @NonNull
                                              Language targetLanguage,
-                                             @NonNull
+                                      @NonNull
                                              String owner,
-                                             @NonNull
+                                      @NonNull
                                              String pageContent) implements ImportWithPagination {
-    public DictionaryImportWithPagination {
+    public ImportWithPaginationImp {
         EmptyValidator emptyValidator = (String... fields) -> Arrays.stream(fields).forEach(field -> {
             if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");
         });

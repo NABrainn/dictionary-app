@@ -2,7 +2,7 @@ package lule.dictionary.service.userProfile;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.entity.application.implementation.userProfile.base.DictionaryUserProfile;
+import lule.dictionary.entity.application.implementation.userProfile.base.UserProfileImp;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.language.Language;
@@ -36,7 +36,7 @@ public class UserProfileService implements UserDetailsService {
                                       @NonNull String email,
                                       @NonNull String password,
                                       @NonNull String timeZone) {
-        UserProfile userProfile = DictionaryUserProfile.builder()
+        UserProfile userProfile = UserProfileImp.builder()
                 .username(username)
                 .email(email)
                 .password(password)

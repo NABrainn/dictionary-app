@@ -5,7 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
+import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.dto.ServiceResult;
@@ -64,7 +64,7 @@ public class TranslationService {
             throw new IllegalArgumentException("Constraints violated at " + request);
         }
         String transformedTargetWord = stringRegexService.removeNonLetters(request.targetWord());
-        Translation translationToAdd = DictionaryTranslation.builder()
+        Translation translationToAdd = TranslationImp.builder()
                 .sourceWords(request.sourceWords())
                 .targetWord(transformedTargetWord)
                 .familiarity(request.familiarity())
@@ -129,7 +129,7 @@ public class TranslationService {
                 targetLanguage
         );
         List<String> dbSourceWords = translationRepository.findMostFrequentSourceWords(cleanTargetWord, 3);
-        Translation translation = DictionaryTranslation.builder()
+        Translation translation = TranslationImp.builder()
                 .sourceWords(Stream.concat(
                         dbSourceWords.stream(),
                         libreTranslateSourceWords.stream()
