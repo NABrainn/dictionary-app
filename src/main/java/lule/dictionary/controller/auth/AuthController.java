@@ -41,7 +41,7 @@ public class AuthController {
             authService.login(model, redirectAttributes, response, new LoginRequest(login, password));
             return "redirect:/";
         } catch (RetryViewException e) {
-            log.warn("Retrying view due to input issue: {}", e.getMessage());
+            log.warn("Retrying login view due to input issue: {}", e.getMessage());
             return "auth/login";
         }
     }
@@ -61,7 +61,7 @@ public class AuthController {
             authService.signup(model, timeZoneId, new SignupRequest(login, email, password));
             return "auth/login";
         } catch (RetryViewException e) {
-            log.warn("Retrying view due to input issue: {}", e.getMessage());
+            log.warn("Retrying signup view due to input issue: {}", e.getMessage());
             return "auth/signup";
         }
     }
