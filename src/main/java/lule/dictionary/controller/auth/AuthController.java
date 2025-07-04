@@ -39,6 +39,7 @@ public class AuthController {
                         HttpServletResponse response) {
             ServiceResult result = authService.login(response, new LoginRequest(login, password));
             if (result.error()) {
+                model.addAttribute("result", result);
                 return "auth/login";
             }
             redirectAttributes.addFlashAttribute("result", result);
@@ -57,10 +58,10 @@ public class AuthController {
                          @RequestParam("password") @NonNull String password) {
             String timeZoneId = DateUtil.stringToZoneOffset(TimeZoneOffsetContext.get()).getId();
             ServiceResult result = authService.signup(timeZoneId, new SignupRequest(login, email, password));
+            model.addAttribute("result", result);
             if(result.error()) {
                 return "auth/signup";
             }
-            model.addAttribute("result", result);
             return "auth/login";
     }
 
