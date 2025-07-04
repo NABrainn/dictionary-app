@@ -29,7 +29,7 @@ public class UserProfileService implements UserDetailsService {
     private final UserProfileRepository userProfileRepository;
 
     public UserProfile findByUsername(@NonNull String username) {
-        return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with given username does not exist"));
     }
 
     @Transactional
