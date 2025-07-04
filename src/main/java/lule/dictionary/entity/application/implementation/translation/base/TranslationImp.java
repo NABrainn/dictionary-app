@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 @Builder(toBuilder = true)
-public record DictionaryTranslation(
+public record TranslationImp(
         @NonNull
         List<String> sourceWords,
         @NonNull
@@ -28,7 +28,7 @@ public record DictionaryTranslation(
         @NonNull
         String owner) implements Translation {
 
-        public DictionaryTranslation {
+        public TranslationImp {
                 EmptyValidator emptyValidator = (String... fields) -> {
                         for(var field : fields) {
                                 if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");

@@ -9,18 +9,15 @@ import lule.dictionary.service.language.Language;
 import lule.dictionary.functionalInterface.validation.EmptyValidator;
 import lule.dictionary.functionalInterface.validation.LengthValidator;
 import lule.dictionary.functionalInterface.validation.PatternValidator;
-import lule.dictionary.util.DateUtil;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
 @Builder(toBuilder = true)
-public record DictionaryUserProfile(
+public record UserProfileImp(
         @NonNull
         String username,
         @NonNull
@@ -35,7 +32,7 @@ public record DictionaryUserProfile(
         @NonNull
         String offset) implements UserProfile, CustomUserDetails {
 
-        public DictionaryUserProfile {
+        public UserProfileImp {
                 EmptyValidator emptyValidator = (String... fields) -> {
                         for(var field : fields) {
                                 if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");

@@ -17,5 +17,5 @@ public record SignupRequest(
 
         @NotBlank(message = "Password cannot be empty")
         @Size(min = 8, max = 200, message = "Login must be between 8 and 200 characters")
-        String password) {
+        String password) implements AuthRequest {
 }

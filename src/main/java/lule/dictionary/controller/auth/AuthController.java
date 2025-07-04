@@ -5,10 +5,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
 import lule.dictionary.service.auth.AuthService;
+import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.util.DateUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,13 +37,13 @@ public class AuthController {
                         @RequestParam("login") @NonNull String login,
                         @RequestParam("password") @NonNull String password,
                         HttpServletResponse response) {
-        try {
-            authService.login(model, redirectAttributes, response, new LoginRequest(login, password));
+            ServiceResult result = authService.login(response, new LoginRequest(login, password));
+            if (result.error()) {
+                model.addAttribute("result", result);
+                return "auth/login";
+            }
+            redirectAttributes.addFlashAttribute("result", result);
             return "redirect:/";
-        } catch (RetryViewException e) {
-            log.warn("Retrying view due to input issue: {}", e.getMessage());
-            return "auth/login";
-        }
     }
 
     @GetMapping({"/signup", "/signup/"})
@@ -56,22 +56,22 @@ public class AuthController {
                          @RequestParam("login") @NonNull String login,
                          @RequestParam("email") @NonNull String email,
                          @RequestParam("password") @NonNull String password) {
-        try {
             String timeZoneId = DateUtil.stringToZoneOffset(TimeZoneOffsetContext.get()).getId();
-            authService.signup(model, timeZoneId, new SignupRequest(login, email, password));
+            ServiceResult result = authService.signup(timeZoneId, new SignupRequest(login, email, password));
+            model.addAttribute("result", result);
+            if(result.error()) {
+                return "auth/signup";
+            }
             return "auth/login";
-        } catch (RetryViewException e) {
-            log.warn("Retrying view due to input issue: {}", e.getMessage());
-            return "auth/signup";
-        }
     }
 
     @PostMapping({"/logout", "/logout/"})
     public String logout(@NonNull RedirectAttributes redirectAttributes, HttpServletResponse response) {
-        authService.logout(
-                redirectAttributes,
-                response
-        );
+        ServiceResult result = authService.logout(response);
+        if(result.error()) {
+            return "/error";
+        }
+        redirectAttributes.addFlashAttribute("result", result);
         return "redirect:/auth/login";
     }
 }

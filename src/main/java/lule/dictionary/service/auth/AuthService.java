@@ -2,17 +2,20 @@ package lule.dictionary.service.auth;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.exception.RetryViewException;
+import lule.dictionary.service.auth.dto.AuthRequest;
 import lule.dictionary.service.auth.dto.LoginRequest;
 import lule.dictionary.service.auth.dto.SignupRequest;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.dto.ServiceResult;
-import lule.dictionary.service.userProfile.exception.UserExistsException;
+import lule.dictionary.service.dto.ServiceResultFactory;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import lule.dictionary.service.jwt.JwtService;
@@ -25,14 +28,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserProfileService userProfileService;
@@ -42,83 +44,121 @@ public class AuthService {
     private final CookieService cookieService;
     private final Validator validator;
 
-    public void login(@NonNull Model model,
-                      @NonNull RedirectAttributes redirectAttributes,
-                      @NonNull HttpServletResponse response,
-                      @NonNull LoginRequest loginRequest) {
+    public ServiceResult login(@NonNull HttpServletResponse response,
+                               @NonNull LoginRequest loginRequest) {
         try {
-            var constraints = validator.validate(loginRequest);
-            if(!constraints.isEmpty()) {
-                var result = new ServiceResult(true, ErrorMapFactory.fromSet(constraints));
-                model.addAttribute("result", result);
-                throw new RetryViewException("validation failure");
-            }
-            UserProfile user = userProfileService.findByUsername(loginRequest.login());
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            user.username(),
-                            loginRequest.password()
-                    )
-            );
-            TimeZoneOffsetContext.set(user.offset());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            response.addCookie(cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication)));
-            var result = new ServiceResult(false, Map.of());
-            redirectAttributes.addFlashAttribute("result", result);
+            validateInputs(loginRequest);
+            UserProfile user = getUserProfile(loginRequest);
+            setAuthenticationContext(user.username(), loginRequest.password(), user.offset(), response);
+            return ServiceResultFactory.createSuccessResult(Map.of());
 
-        } catch (AuthenticationException e) {
-            var result = new ServiceResult(false, Map.of());
-            model.addAttribute("result", result);
-            throw new RetryViewException("Authentication exception");
+        }
+        catch (ConstraintViolationException e) {
+            log.warn("ConstraintViolationException: {}", e.getMessage());
+            return ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
+        }
 
-        } catch (UserNotFoundException e) {
-            var result = new ServiceResult(true, Map.of("login", "User does not exist"));
-            model.addAttribute("result", result);
-            model.addAttribute("authentication", null);
-            throw new RetryViewException("User does not exist");
+        catch (UserNotFoundException e) {
+            log.info("UserNotFoundException exception: {}", e.getMessage());
+            return ServiceResultFactory.createErrorResult(Map.of("login", "User does not exist"));
+        }
+
+        catch (AuthenticationException e) {
+            log.warn("Authentication exception: {}", e.getMessage());
+            return ServiceResultFactory.createErrorResult(Map.of("auth", "Authentication failed"));
+
         }
     }
 
     @Transactional
-    public void signup(@NonNull Model model,
-                       @NonNull String timeZone,
-                       @NonNull SignupRequest signupRequest) {
-        var constraints = validator.validate(signupRequest);
-
-        if(!constraints.isEmpty()) {
-            var result = new ServiceResult(true, ErrorMapFactory.fromSet(constraints));
-            model.addAttribute("result", result);
-            throw new RetryViewException("validation failure");
-        }
-
-        Optional<UserProfile> optionalUserProfile = userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email());
-        if(optionalUserProfile.isPresent()) {
-            var result = new ServiceResult(true, Map.of("login", "User with given username or email already exists."));
-            model.addAttribute("result", result);
-            throw new RetryViewException("User with given username already exists.");
-        }
-
-        String encodedPassword = bCryptPasswordEncoder.encode(signupRequest.password());
-
+    public ServiceResult signup(@NonNull String timeZone,
+                                @NonNull SignupRequest signupRequest) {
         try {
-            userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), encodedPassword, timeZone);
-        } catch (UserExistsException e) {
-            var result = new ServiceResult(true, Map.of());
-            model.addAttribute("result", result);
-            throw new RetryViewException(e.getMessage());
+            validateInputs(signupRequest);
+            getUserProfile(signupRequest);
+            userProfileService.addUserProfile(signupRequest.login(), signupRequest.email(), getEncodedPassword(signupRequest), timeZone);
+            return ServiceResultFactory.createSuccessResult(Map.of());
         }
 
-        var result = new ServiceResult(false, Map.of());
-        model.addAttribute("result", result);
+        catch (ConstraintViolationException e) {
+            log.info(e.getMessage());
+            return ServiceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
+        }
 
+        catch (UserNotFoundException e) {
+            log.info(e.getMessage());
+            return ServiceResultFactory.createErrorResult(Map.of("login", e.getMessage()));
+        }
     }
 
-    public void logout(@NonNull RedirectAttributes redirectAttributes,
-                       @NonNull HttpServletResponse httpServletResponse) {
-        SecurityContextHolder.getContext().setAuthentication(null);
+    public ServiceResult logout(@NonNull HttpServletResponse httpServletResponse) {
+        clearAuthentication();
+        deleteJwtCookie(httpServletResponse);
+        return ServiceResultFactory.createSuccessResult(Map.of());
+    }
+
+    private void setAuthenticationContext(String username,
+                                          String password,
+                                          String offset,
+                                          HttpServletResponse response) throws AuthenticationException {
+        Authentication authentication = authenticate(username, password);
+        setAuthentication(authentication);
+        setTimezoneOffset(offset);
+        sendJwtCookie(response, authentication);
+    }
+
+    private void validateInputs(AuthRequest authRequest) throws ConstraintViolationException {
+        var constraints = getConstraintViolations(authRequest);
+        if(!constraints.isEmpty()) {
+            throw new ConstraintViolationException(constraints);
+        }
+    }
+
+    private void clearAuthentication() {
+        setAuthentication(null);
         SecurityContextHolder.clearContext();
+    }
+
+    private String getEncodedPassword(SignupRequest signupRequest) {
+        return bCryptPasswordEncoder.encode(signupRequest.password());
+    }
+
+    private void deleteJwtCookie(HttpServletResponse response) {
         Cookie cookie = cookieService.deleteJwtCookie("jwt");
-        httpServletResponse.addCookie(cookie);
-        redirectAttributes.addFlashAttribute("result", new ServiceResult(false, Map.of()));
+        response.addCookie(cookie);
+    }
+
+    private Set<ConstraintViolation<@NonNull AuthRequest>> getConstraintViolations(AuthRequest authRequest) {
+        return validator.validate(authRequest);
+    }
+
+
+    private void sendJwtCookie(HttpServletResponse response, Authentication authentication) {
+        Cookie jwtCookie = createJwtCookie(authentication);
+        response.addCookie(jwtCookie);
+    }
+
+    private Cookie createJwtCookie(Authentication authentication) {
+        return cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(authentication));
+    }
+
+    private void setAuthentication(Authentication authentication) {
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private void setTimezoneOffset(String offset) {
+        TimeZoneOffsetContext.set(offset);
+    }
+
+    private Authentication authenticate(String login, String password) {
+        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login, password));
+    }
+
+    private void getUserProfile(SignupRequest signupRequest) throws UserNotFoundException {
+        userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email()).orElseThrow(() -> new UserNotFoundException("Username with given username or email does not exist"));
+    }
+
+    private UserProfile getUserProfile(LoginRequest loginRequest) {
+        return userProfileService.findByUsername(loginRequest.login());
     }
 }

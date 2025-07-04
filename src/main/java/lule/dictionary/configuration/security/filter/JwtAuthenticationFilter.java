@@ -72,13 +72,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private Optional<String> getJwtFromCookie(String JwtCookieName, HttpServletRequest request) {
+    private Optional<String> getJwtFromCookie(String jwtCookieName, HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             return Optional.empty();
         }
         return Arrays.stream(cookies)
-                .filter(cookie -> JwtCookieName.equals(cookie.getName()))
+                .filter(cookie -> jwtCookieName.equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst();
     }

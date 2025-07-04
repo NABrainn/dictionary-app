@@ -2,12 +2,12 @@ package lule.dictionary.service.userProfile;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.entity.application.implementation.userProfile.base.DictionaryUserProfile;
+import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.entity.application.implementation.userProfile.base.UserProfileImp;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.UserProfileRepository;
-import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.util.DateUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +23,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserProfileService implements UserDetailsService {
 
     private final UserProfileRepository userProfileRepository;
@@ -36,7 +37,7 @@ public class UserProfileService implements UserDetailsService {
                                       @NonNull String email,
                                       @NonNull String password,
                                       @NonNull String timeZone) {
-        UserProfile userProfile = DictionaryUserProfile.builder()
+        UserProfile userProfile = UserProfileImp.builder()
                 .username(username)
                 .email(email)
                 .password(password)
@@ -45,7 +46,7 @@ public class UserProfileService implements UserDetailsService {
                 .wordsAddedToday(0)
                 .offset(timeZone)
                 .build();
-        return userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new UserExistsException("Failed to signup"));
+        return userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new RuntimeException("Failed to add new user"));
     }
 
     public List<UserProfile> findAll() {
@@ -57,7 +58,7 @@ public class UserProfileService implements UserDetailsService {
         return (UserDetails) userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
-    public Optional<UserProfile> findByUsernameOrEmail(String username, String email) {
+    public Optional<UserProfile> findByUsernameOrEmail(String username, String email) throws UserNotFoundException {
         return userProfileRepository.findByUsernameOrEmail(username, email);
     }
 

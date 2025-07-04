@@ -5,7 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
+import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.dto.ServiceResult;
@@ -60,11 +60,11 @@ public class TranslationService {
                     request.selectedWordId(),
                     request.page()
             ));
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new IllegalArgumentException("Constraints violated at " + request);
         }
         String transformedTargetWord = stringRegexService.removeNonLetters(request.targetWord());
-        Translation translationToAdd = DictionaryTranslation.builder()
+        Translation translationToAdd = TranslationImp.builder()
                 .sourceWords(request.sourceWords())
                 .targetWord(transformedTargetWord)
                 .familiarity(request.familiarity())
@@ -106,7 +106,7 @@ public class TranslationService {
                                  Language targetLanguage) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + request);
         }
         String cleanTargetWord = stringRegexService.removeNonLetters(request.targetWord());
@@ -129,7 +129,7 @@ public class TranslationService {
                 targetLanguage
         );
         List<String> dbSourceWords = translationRepository.findMostFrequentSourceWords(cleanTargetWord, 3);
-        Translation translation = DictionaryTranslation.builder()
+        Translation translation = TranslationImp.builder()
                 .sourceWords(Stream.concat(
                         dbSourceWords.stream(),
                         libreTranslateSourceWords.stream()
@@ -208,7 +208,7 @@ public class TranslationService {
                     .filter(word -> validWordPattern.matcher(word).matches())
                     .toList()
             );
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + request);
         }
         Optional<Translation> translation = translationRepository.updateSourceWords(
@@ -236,7 +236,7 @@ public class TranslationService {
     public void deleteSourceWord(Model model, DeleteSourceWordRequest request) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSet(constraints)));
+            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + request);
         }
         Optional<Translation> translation = translationRepository.deleteSourceWord(

@@ -1,11 +1,10 @@
 package lule.dictionary.repository.factory;
 
-import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.entity.application.implementation.imports.DictionaryImportWithId;
-import lule.dictionary.entity.application.implementation.imports.base.DictionaryImport;
-import lule.dictionary.entity.application.implementation.imports.base.DictionaryImportWithPagination;
-import lule.dictionary.entity.application.implementation.translation.base.DictionaryTranslation;
-import lule.dictionary.entity.application.implementation.userProfile.base.DictionaryUserProfile;
+import lule.dictionary.entity.application.implementation.imports.ImportWithIdImp;
+import lule.dictionary.entity.application.implementation.imports.base.ImportImp;
+import lule.dictionary.entity.application.implementation.imports.base.ImportWithPaginationImp;
+import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
+import lule.dictionary.entity.application.implementation.userProfile.base.UserProfileImp;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
@@ -13,14 +12,13 @@ import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.service.language.Language;
-import lule.dictionary.util.DateUtil;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.Arrays;
 
 public class RowMapperFactory {
     public static final RowMapper<UserProfile> USER_PROFILE = ((rs, rowNum) ->
-            DictionaryUserProfile.builder()
+            UserProfileImp.builder()
                     .username(rs.getString("username"))
                     .email(rs.getString("email"))
                     .password(rs.getString("password"))
@@ -31,7 +29,7 @@ public class RowMapperFactory {
                     .build()
     );
     public static final RowMapper<Translation> TRANSLATION = ((rs, rowNum) ->
-            DictionaryTranslation.builder()
+            TranslationImp.builder()
                     .sourceWords(Arrays.asList((String[]) rs.getArray("source_words").getArray()))
                     .targetWord(rs.getString("target_word"))
                     .familiarity(Familiarity.valueOf(rs.getString("familiarity")))
@@ -47,7 +45,7 @@ public class RowMapperFactory {
 
 
     public static final RowMapper<ImportWithId> IMPORT_WITH_ID = ((rs, rowNum) ->
-            DictionaryImportWithId.builder()
+            ImportWithIdImp.builder()
                     .title(rs.getString("title"))
                     .content(rs.getString("content"))
                     .url(rs.getString("url"))
@@ -58,7 +56,7 @@ public class RowMapperFactory {
                     .build()
     );
     public static final RowMapper<Import> IMPORT = ((rs, rowNum) ->
-            DictionaryImport.builder()
+            ImportImp.builder()
                     .title(rs.getString("title"))
                     .content(rs.getString("content"))
                     .url(rs.getString("url"))
@@ -69,7 +67,7 @@ public class RowMapperFactory {
     );
 
     public static final RowMapper<ImportWithPagination> IMPORT_WITH_PAGINATION = ((rs, rowNum) ->
-            DictionaryImportWithPagination.builder()
+            ImportWithPaginationImp.builder()
                     .title(rs.getString("title"))
                     .content(rs.getString("content"))
                     .url(rs.getString("url"))
