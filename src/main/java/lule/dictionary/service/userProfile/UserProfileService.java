@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.implementation.userProfile.base.UserProfileImp;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.UserProfileRepository;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
@@ -15,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,26 +29,24 @@ import java.util.Optional;
 public class UserProfileService implements UserDetailsService {
 
     private final UserProfileRepository userProfileRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserProfile findByUsername(@NonNull String username) {
-        return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with given username does not exist"));
     }
 
     @Transactional
-    public UserProfile addUserProfile(@NonNull String username,
-                                      @NonNull String email,
-                                      @NonNull String password,
-                                      @NonNull String timeZone) {
+    public void addUserProfile(@NonNull SignupRequest signupRequest) {
         UserProfile userProfile = UserProfileImp.builder()
-                .username(username)
-                .email(email)
-                .password(password)
+                .username(signupRequest.login())
+                .email(signupRequest.email())
+                .password(encode(signupRequest.password()))
                 .sourceLanguage(Language.EN)
                 .targetLanguage(Language.NO)
                 .wordsAddedToday(0)
-                .offset(timeZone)
+                .offset("")
                 .build();
-        return userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new RuntimeException("Failed to add new user"));
+        userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new RuntimeException("Failed to add new user"));
     }
 
     public List<UserProfile> findAll() {
@@ -70,7 +70,6 @@ public class UserProfileService implements UserDetailsService {
             );
         }
     }
-
     public void resetStreaksIfMidnight() {
         userProfileRepository.resetStreaksIfMidnight();
     }
@@ -87,5 +86,9 @@ public class UserProfileService implements UserDetailsService {
                 null,
                 userDetails.getAuthorities()
         ));
+    }
+
+    private String encode(String password) {
+        return bCryptPasswordEncoder.encode(password);
     }
 }

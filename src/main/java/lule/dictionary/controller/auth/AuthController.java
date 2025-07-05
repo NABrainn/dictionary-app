@@ -5,8 +5,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.service.auth.dto.LoginRequest;
-import lule.dictionary.service.auth.dto.SignupRequest;
+import lule.dictionary.service.auth.dto.request.AuthRequestFactory;
+import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
+import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.service.auth.AuthService;
 import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.util.DateUtil;
@@ -25,6 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
 
     private final AuthService authService;
+    private final AuthRequestFactory authRequestFactory;
 
     @GetMapping({"/login", "/login/"})
     public String loginView() {
@@ -32,12 +34,12 @@ public class AuthController {
     }
 
     @PostMapping({"/login", "/login/"})
-    public String login(Model model,
-                        RedirectAttributes redirectAttributes,
-                        @RequestParam("login") @NonNull String login,
+    public String login(@RequestParam("login") @NonNull String login,
                         @RequestParam("password") @NonNull String password,
+                        Model model,
+                        RedirectAttributes redirectAttributes,
                         HttpServletResponse response) {
-            ServiceResult result = authService.login(response, new LoginRequest(login, password));
+            ServiceResult result = authService.login(authRequestFactory.ofLoginRequest(login, password), response);
             if (result.error()) {
                 model.addAttribute("result", result);
                 return "auth/login";
@@ -52,21 +54,21 @@ public class AuthController {
     }
 
     @PostMapping({"/signup", "/signup/"})
-    public String signup(Model model,
-                         @RequestParam("login") @NonNull String login,
-                         @RequestParam("email") @NonNull String email,
-                         @RequestParam("password") @NonNull String password) {
-            String timeZoneId = DateUtil.stringToZoneOffset(TimeZoneOffsetContext.get()).getId();
-            ServiceResult result = authService.signup(timeZoneId, new SignupRequest(login, email, password));
-            model.addAttribute("result", result);
-            if(result.error()) {
-                return "auth/signup";
-            }
-            return "auth/login";
+    public String signup(@RequestParam("login") String login,
+                         @RequestParam("email") String email,
+                         @RequestParam("password") String password,
+                         Model model) {
+        ServiceResult result = authService.signup(authRequestFactory.ofSignupRequest(login, email, password));
+        model.addAttribute("result", result);
+        if(result.error()) {
+            return "auth/signup";
+        }
+        return "auth/login";
     }
 
     @PostMapping({"/logout", "/logout/"})
-    public String logout(@NonNull RedirectAttributes redirectAttributes, HttpServletResponse response) {
+    public String logout(RedirectAttributes redirectAttributes,
+                         HttpServletResponse response) {
         ServiceResult result = authService.logout(response);
         if(result.error()) {
             return "/error";

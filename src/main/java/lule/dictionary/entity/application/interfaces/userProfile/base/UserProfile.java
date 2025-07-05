@@ -5,4 +5,5 @@ import lule.dictionary.entity.application.interfaces.userProfile.UserProfileSett
 
 public interface UserProfile extends UserProfileCredentials, UserProfileSettings {
     String offset();
+    int wordsAddedToday();
 }

@@ -1,4 +1,4 @@
-package lule.dictionary.service.auth.dto;
+package lule.dictionary.service.auth.dto.request;
 
 public interface AuthRequest {
     String login();
