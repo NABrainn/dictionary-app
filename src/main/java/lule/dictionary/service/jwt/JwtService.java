@@ -57,30 +57,28 @@ public class JwtService {
         }
     }
 
-    public TokenPair generateTokenPair(Authentication authentication) {
-        String accessToken = generateAccessToken(authentication);
-        String refreshToken = generateRefreshToken(authentication);
+    public TokenPair generateTokenPair(String username) {
+        String accessToken = generateAccessToken(username);
+        String refreshToken = generateRefreshToken(username);
         return new TokenPair(accessToken, refreshToken);
     }
 
-    public String generateAccessToken(Authentication authentication) {
+    public String generateAccessToken(String username) {
         String claim = "access";
-        return generateToken(authentication, claim, 86400000);
+        return generateToken(username, claim, 86400000);
     }
 
-    public String generateRefreshToken(Authentication authentication) {
+    public String generateRefreshToken(String username) {
         String claim = "refresh";
-        return generateToken(authentication, claim, 864000000);
+        return generateToken(username, claim, 864000000);
     }
 
-    public String generateToken(Authentication authentication, String tokenType, int expiration) {
-
-        UserDetails principal = (UserDetails) authentication.getPrincipal();
+    public String generateToken(String username, String tokenType, int expiration) {
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(principal.getUsername())
+                .subject(username)
                 .issueTime(now)
                 .expirationTime(expiryDate)
                 .claim("tokenType", tokenType)
