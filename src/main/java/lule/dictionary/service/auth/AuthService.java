@@ -112,7 +112,7 @@ public class AuthService {
 
     private ServiceResult processSignupRequest(SignupRequest signupData) {
         AuthRequest validSignupData = validate(signupData);
-        getUserProfile(validSignupData);
+        checkIfUserExists((SignupRequest) validSignupData);
         userProfileService.addUserProfile((SignupRequest) validSignupData);
         return serviceResultFactory.createSuccessResult(Map.of());
     }
@@ -182,7 +182,7 @@ public class AuthService {
         return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.username(), userProfile.password()));
     }
 
-    private void getUserProfile(SignupRequest signupRequest) throws UserNotFoundException {
+    private void checkIfUserExists(SignupRequest signupRequest) throws UserNotFoundException {
         if (userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email()).isPresent())
             throw new UserExistsException("User with given username already exists");
     }
