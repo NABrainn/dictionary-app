@@ -61,17 +61,17 @@ public class AuthService {
 
         catch (ConstraintViolationException e) {
             log.warn("ConstraintViolationException: {}", e.getMessage());
-            return serviceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
+            return handleException(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
         }
 
         catch (UserNotFoundException e) {
             log.info("UserNotFoundException exception: {}", e.getMessage());
-            return serviceResultFactory.createErrorResult(Map.of("login", "User does not exist"));
+            return handleException(Map.of("login", "User does not exist"));
         }
 
         catch (AuthenticationException e) {
             log.warn("Authentication exception: {}", e.getMessage());
-            return serviceResultFactory.createErrorResult(Map.of("password", e.getMessage()));
+            return handleException(Map.of("password", e.getMessage()));
 
         }
     }
@@ -84,13 +84,18 @@ public class AuthService {
 
         catch (ConstraintViolationException e) {
             log.info(e.getMessage());
-            return serviceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
+            return handleException(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
         }
 
         catch (UserExistsException e) {
             log.info(e.getMessage());
-            return serviceResultFactory.createErrorResult(Map.of("login", e.getMessage()));
+            return handleException(Map.of("login", e.getMessage()));
         }
+    }
+
+
+    private ServiceResult handleException(Map<String, String> stringStringMap) {
+        return serviceResultFactory.createErrorResult(stringStringMap);
     }
 
     private ServiceResult processLoginRequest(LoginRequest loginData, HttpServletResponse response) {
