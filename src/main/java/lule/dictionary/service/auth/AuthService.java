@@ -56,12 +56,9 @@ public class AuthService {
     public ServiceResult login(@NonNull LoginRequest loginData,
                                @NonNull HttpServletResponse response) {
         try {
-            validate(loginData);
-            AuthenticationResult authResult = authenticateUser(loginData);
-            setAuthenticationContext(sessionContextFactory.of(authResult, response));
-            return serviceResultFactory.createSuccessResult(Map.of());
-
+            return processLoginRequest(loginData, response);
         }
+
         catch (ConstraintViolationException e) {
             log.warn("ConstraintViolationException: {}", e.getMessage());
             return serviceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
@@ -82,10 +79,7 @@ public class AuthService {
     @Transactional
     public ServiceResult signup(@NonNull SignupRequest signupRequest) {
         try {
-            validate(signupRequest);
-            getUserProfile(signupRequest);
-            userProfileService.addUserProfile(signupRequest);
-            return serviceResultFactory.createSuccessResult(Map.of());
+            return processSignupRequest(signupRequest);
         }
 
         catch (ConstraintViolationException e) {
@@ -99,9 +93,23 @@ public class AuthService {
         }
     }
 
+    private ServiceResult processLoginRequest(LoginRequest loginData, HttpServletResponse response) {
+        validate(loginData);
+        AuthenticationResult authResult = authenticateUser(loginData);
+        setAuthenticationContext(sessionContextFactory.of(authResult, response));
+        return serviceResultFactory.createSuccessResult(Map.of());
+    }
+
     public ServiceResult logout(@NonNull HttpServletResponse httpServletResponse) {
         clearAuthentication();
         deleteJwtCookie(httpServletResponse);
+        return serviceResultFactory.createSuccessResult(Map.of());
+    }
+
+    private ServiceResult processSignupRequest(SignupRequest signupRequest) {
+        validate(signupRequest);
+        getUserProfile(signupRequest);
+        userProfileService.addUserProfile(signupRequest);
         return serviceResultFactory.createSuccessResult(Map.of());
     }
 
