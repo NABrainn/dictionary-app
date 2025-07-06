@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.service.jwt.dto.TokenPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -97,13 +96,6 @@ public class JwtService {
         } catch (JOSEException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public boolean isRefreshToken(String token) {
-        boolean isRefreshToken = false;
-        if (extractAllClaims(token).isPresent())
-            isRefreshToken = extractAllClaims(token).get().getClaim("tokenType").equals("refresh");
-        return isRefreshToken;
     }
 
     public boolean validateTokenForUser(String token, UserDetails userDetails) {

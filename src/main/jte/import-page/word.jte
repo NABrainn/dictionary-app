@@ -1,4 +1,4 @@
-@import lule.dictionary.service.translation.dto.TranslationModel
+@import lule.dictionary.service.translation.dto.TranslationAttribute
 
 @param int wordIndex
 @param int importId
@@ -7,7 +7,7 @@
 @param String processedWord
 @param String bgColor
 @param String textColor
-@param TranslationModel translationModel = null
+@param TranslationAttribute translationModel = null
 @param boolean found = false
 
 <span

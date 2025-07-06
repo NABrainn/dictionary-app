@@ -1,11 +1,12 @@
 @import lule.dictionary.entity.application.interfaces.imports.ImportWithId
 @import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
-@import java.time.ZoneOffset
 @import java.util.List
 @import java.util.Map
 
 @param List<ImportWithId> imports
+
+<%--base data--%>
 @param boolean authenticated
 @param Language sourceLanguage
 @param String targetLanguage

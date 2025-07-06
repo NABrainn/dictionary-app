@@ -1,6 +1,6 @@
-@import lule.dictionary.service.translation.dto.TranslationModel
+@import lule.dictionary.service.translation.dto.TranslationAttribute
 
-@param TranslationModel translationModel
+@param TranslationAttribute translationModel
 
 <script>
     function exitForm() {

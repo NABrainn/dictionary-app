@@ -1,8 +1,8 @@
 @import lule.dictionary.service.dto.ServiceResult
-@import lule.dictionary.service.translation.dto.TranslationModel
+@import lule.dictionary.service.translation.dto.TranslationAttribute
 @import java.util.Map
 
-@param TranslationModel translationModel 
+@param TranslationAttribute translationModel
 
 <script>
     function exitForm() {

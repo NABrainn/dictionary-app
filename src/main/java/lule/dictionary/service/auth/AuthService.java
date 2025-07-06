@@ -23,6 +23,7 @@ import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.dto.ServiceResultFactory;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
+import lule.dictionary.service.validation.ValidationService;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
@@ -46,7 +47,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final CookieService cookieService;
-    private final Validator validator;
+    private final ValidationService validationService;
     private final UserProfileFactory userProfileFactory;
     private final SessionContextFactory sessionContextFactory;
     private final ServiceResultFactory serviceResultFactory;
@@ -61,17 +62,17 @@ public class AuthService {
 
         catch (ConstraintViolationException e) {
             log.warn("ConstraintViolationException: {}", e.getMessage());
-            return serviceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
+            return handleException(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
         }
 
         catch (UserNotFoundException e) {
             log.info("UserNotFoundException exception: {}", e.getMessage());
-            return serviceResultFactory.createErrorResult(Map.of("login", "User does not exist"));
+            return handleException(Map.of("login", "User does not exist"));
         }
 
         catch (AuthenticationException e) {
             log.warn("Authentication exception: {}", e.getMessage());
-            return serviceResultFactory.createErrorResult(Map.of("password", e.getMessage()));
+            return handleException(Map.of("password", e.getMessage()));
 
         }
     }
@@ -84,20 +85,13 @@ public class AuthService {
 
         catch (ConstraintViolationException e) {
             log.info(e.getMessage());
-            return serviceResultFactory.createErrorResult(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
+            return handleException(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
         }
 
         catch (UserExistsException e) {
             log.info(e.getMessage());
-            return serviceResultFactory.createErrorResult(Map.of("login", e.getMessage()));
+            return handleException(Map.of("login", e.getMessage()));
         }
-    }
-
-    private ServiceResult processLoginRequest(LoginRequest loginData, HttpServletResponse response) {
-        validate(loginData);
-        AuthenticationResult authResult = authenticateUser(loginData);
-        setAuthenticationContext(sessionContextFactory.of(authResult, response));
-        return serviceResultFactory.createSuccessResult(Map.of());
     }
 
     public ServiceResult logout(@NonNull HttpServletResponse httpServletResponse) {
@@ -106,15 +100,26 @@ public class AuthService {
         return serviceResultFactory.createSuccessResult(Map.of());
     }
 
-    private ServiceResult processSignupRequest(SignupRequest signupRequest) {
-        validate(signupRequest);
-        getUserProfile(signupRequest);
-        userProfileService.addUserProfile(signupRequest);
+    private ServiceResult processLoginRequest(LoginRequest loginData, HttpServletResponse response) throws ConstraintViolationException {
+        AuthRequest validLoginData = validate(loginData);
+        AuthenticationResult authResult = authenticateUser(validLoginData);
+        setAuthenticationContext(sessionContextFactory.of(authResult, response));
+        return serviceResultFactory.createSuccessResult(Map.of());
+    }
+
+    private ServiceResult handleException(Map<String, String> stringStringMap) {
+        return serviceResultFactory.createErrorResult(stringStringMap);
+    }
+
+    private ServiceResult processSignupRequest(SignupRequest signupData) {
+        AuthRequest validSignupData = validate(signupData);
+        checkIfUserExists((SignupRequest) validSignupData);
+        userProfileService.addUserProfile((SignupRequest) validSignupData);
         return serviceResultFactory.createSuccessResult(Map.of());
     }
 
 
-    private AuthenticationResult authenticateUser(LoginRequest loginData) {
+    private AuthenticationResult authenticateUser(AuthRequest loginData) {
         UserProfile user = getUserProfile(loginData);
         Authentication authentication = authenticate(user);
         return authenticationResultFactory.of(authentication, user);
@@ -126,15 +131,8 @@ public class AuthService {
         sendJwtCookie(sessionContext.authenticationResult().userProfile().username(), sessionContext.response());
     }
 
-    private void validate(AuthRequest authRequest) throws ConstraintViolationException {
-        var constraints = getConstraintViolations(authRequest);
-        ifViolatedThrow(constraints);
-    }
-
-    private void ifViolatedThrow(Set<ConstraintViolation<AuthRequest>> constraints) {
-        if(!constraints.isEmpty()) {
-            throw new ConstraintViolationException(constraints);
-        }
+    private AuthRequest validate(AuthRequest authRequest) throws ConstraintViolationException {
+        return validationService.validate(authRequest);
     }
 
     private void clearAuthentication() {
@@ -146,11 +144,6 @@ public class AuthService {
         Cookie cookie = cookieService.deleteJwtCookie("jwt");
         response.addCookie(cookie);
     }
-
-    private Set<ConstraintViolation<@NonNull AuthRequest>> getConstraintViolations(AuthRequest authRequest) {
-        return validator.validate(authRequest);
-    }
-
 
     private void sendJwtCookie(String username, HttpServletResponse response) {
         Cookie jwtCookie = createJwtCookie(username);
@@ -177,12 +170,12 @@ public class AuthService {
         return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.username(), userProfile.password()));
     }
 
-    private void getUserProfile(SignupRequest signupRequest) throws UserNotFoundException {
+    private void checkIfUserExists(SignupRequest signupRequest) throws UserNotFoundException {
         if (userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email()).isPresent())
             throw new UserExistsException("User with given username already exists");
     }
 
-    private UserProfile getUserProfile(LoginRequest loginRequest) {
-        return userProfileFactory.withNewPassword(userProfileService.findByUsername(loginRequest.login()), loginRequest.password());
+    private UserProfile getUserProfile(AuthRequest loginRequest) {
+        return userProfileFactory.withNewPassword(userProfileService.getUserProfile(loginRequest.login()), loginRequest.password());
     }
 }

@@ -7,12 +7,12 @@ import lule.dictionary.enumeration.Familiarity;
 import java.util.Collections;
 import java.util.Map;
 
-public record TranslationModel(int importId,
-                               int currentFamiliarity,
-                               Translation translation,
-                               @NonNull Map<Integer, Familiarity> familiarityLevels,
-                               int selectedWordId,
-                               int page) {
+public record TranslationAttribute(int importId,
+                                   int currentFamiliarity,
+                                   Translation translation,
+                                   @NonNull Map<Integer, Familiarity> familiarityLevels,
+                                   int selectedWordId,
+                                   int page) {
     @Override
     public Map<Integer, Familiarity> familiarityLevels() {
         return Collections.unmodifiableMap(familiarityLevels);
