@@ -23,7 +23,7 @@ public class ImportRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt addImport(Import importt) {
+    public OptionalInt createImport(Import importt) {
         final String sql = """
                 INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner)
                 VALUES (?, ?, ?, ?, ?, ?)

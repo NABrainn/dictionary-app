@@ -14,8 +14,8 @@
         id="area"
         placeholder="Type in content here..."></textarea>
         @if(result != null)
-            @if(result.error() && result.errors().get("content") != null)
-                <span class="text-error font-semibold text-sm">${result.errors().get("content")}</span>
+            @if(result.error() && result.messages().get("content") != null)
+                <span class="text-error font-semibold text-sm">${result.messages().get("content")}</span>
             @else
                 <span class="invisible text-sm">fallback</span>
             @endif

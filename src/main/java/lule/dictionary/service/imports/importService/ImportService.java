@@ -1,87 +1,132 @@
 package lule.dictionary.service.imports.importService;
 
-import jakarta.validation.Validator;
+import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.entity.application.implementation.imports.base.ImportImp;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
+import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.RetryViewException;
-import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
-import lule.dictionary.service.imports.importService.dto.AddImportRequest;
+import lule.dictionary.service.imports.importService.dto.insertIntoDatabaseRequest.InsertIntoDatabaseRequest;
+import lule.dictionary.service.imports.importService.dto.insertIntoDatabaseRequest.InsertIntoDatabaseRequestFactory;
+import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
+import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.repository.ImportRepository;
-import lule.dictionary.util.errors.ErrorMapFactory;
+import lule.dictionary.service.pagination.PaginationService;
+import lule.dictionary.service.userProfile.UserProfileService;
+import lule.dictionary.service.validation.ValidationService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.web.util.InvalidUrlException;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ImportService {
 
+    private final UserProfileService userProfileService;
     private final ImportRepository importRepository;
-    private final Validator validator;
+    private final ValidationService validationService;
+    private final PaginationService paginationService;
+    private final InsertIntoDatabaseRequestFactory insertIntoDatabaseRequestFactory;
 
     @Transactional
-    public int addImport(Model model,
-                         AddImportRequest addImportRequest) throws IOException {
-        var constraints = validator.validate(addImportRequest);
-        if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
-            throw new RetryViewException("Constraints violated at " + addImportRequest);
-        }
-        String url = normalizeURL(addImportRequest.url());
-        if(addImportRequest.content().isEmpty()) {
-            Document document = Jsoup.connect(url).get();
-            String content = document.text();
-            model.addAttribute("result", new ServiceResult(false, Map.of()));
-            return importRepository.addImport(ImportImp.builder()
-                        .title(addImportRequest.title())
-                        .content(content)
-                        .url(addImportRequest.url())
-                        .sourceLanguage(addImportRequest.sourceLanguage())
-                        .targetLanguage(addImportRequest.targetLanguage())
-                        .owner(addImportRequest.owner())
-                        .build()).orElseThrow(() -> new RetryViewException("Failed to add a new import"));
-        }
-        else {
-            model.addAttribute("result", new ServiceResult(false, Map.of()));
-            return importRepository.addImport(ImportImp.builder()
-                    .title(addImportRequest.title())
-                    .content(addImportRequest.content())
-                    .url(addImportRequest.url())
-                    .sourceLanguage(addImportRequest.sourceLanguage())
-                    .targetLanguage(addImportRequest.targetLanguage())
-                    .owner(addImportRequest.owner())
-                    .build()).orElseThrow(() -> new RetryViewException("Failed to add a new import"));
-        }
+    public int createImport(CreateImportRequest createRequest) throws ConstraintViolationException {
+        UserProfile userProfile = getUserProfile(createRequest);
+        CreateImportRequest validRequest = validate(createRequest);
+        return saveImport(createRequest, validRequest, userProfile);
     }
 
-    public ImportWithPagination findById(int id, int page) {
-        return importRepository.findById(id, page).orElseThrow(() -> new ImportNotFoundException("Import not found"));
+    public ImportWithPagination getImport(LoadImportPageRequest loadRequest) throws ImportNotFoundException {
+        return getImportById(loadRequest);
     }
-    public void findByOwner(@NonNull Model model, @NonNull String owner) {
-        List<ImportWithId> imports = importRepository.findByOwner(owner);
-        model.addAttribute("imports", imports);
 
+
+    public List<ImportWithId> findByOwner(@NonNull Model model, @NonNull String owner) {
+        return getImportByUsername(owner);
     }
+
 
     public List<Import> findAll() {
-        return importRepository.findAll();
+        return getAllImports();
     }
 
-    private String normalizeURL(String url) {
+    public ImportWithPagination loadPage(LoadImportPageRequest loadRequest) {
+        ImportWithPagination importWithPagination = getImport(loadRequest);
+        checkPageNumberValidity(loadRequest.page(), getNumberOfPages(importWithPagination));
+        return importWithPagination;
+    }
+
+    private List<Import> getAllImports() {
+        return importRepository.findAll();
+    }
+    private List<ImportWithId> getImportByUsername(String owner) {
+        return importRepository.findByOwner(owner);
+    }
+    private ImportWithPagination getImportById(LoadImportPageRequest loadRequest) {
+        return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
+    }
+    private UserProfile getUserProfile(CreateImportRequest addImportRequest) {
+        return userProfileService.getUserProfile(addImportRequest.owner());
+    }
+
+    private int saveImport(CreateImportRequest createRequest, CreateImportRequest validRequest, UserProfile userProfile) {
+        if(!createRequest.content().isEmpty())
+            return insertIntoDatabase(insertIntoDatabaseRequestFactory.of(validRequest, validRequest.content(), userProfile));
+        return insertIntoDatabase(insertIntoDatabaseRequestFactory.of(validRequest, validRequest.url(), userProfile));
+    }
+
+    private CreateImportRequest validate(CreateImportRequest createRequest) {
+        return validationService.validate(createRequest);
+    }
+
+    private int insertIntoDatabase(InsertIntoDatabaseRequest insertIntoDatabaseRequest) {
+        return importRepository.createImport(ImportImp.builder()
+                .title(insertIntoDatabaseRequest.validRequest().title())
+                .content(insertIntoDatabaseRequest.content())
+                .url(insertIntoDatabaseRequest.validRequest().url())
+                .sourceLanguage(insertIntoDatabaseRequest.userProfile().sourceLanguage())
+                .targetLanguage(insertIntoDatabaseRequest.userProfile().targetLanguage())
+                .owner(insertIntoDatabaseRequest.validRequest().owner())
+                .build()).orElseThrow(() -> new RetryViewException("Failed to add a new import"));
+    }
+
+    private String getDocumentContent(String url) {
+            Document document = getDocument(url);
+            return document.text();
+    }
+
+    private Document getDocument(String url) {
+        try {
+            return Jsoup.connect(prependHttpFormat(url)).get();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String prependHttpFormat(String url) {
         if(!url.startsWith("https://") && !url.startsWith("http://")) {
             return "https://".concat(url);
         }
         return url;
     }
+
+    private int getNumberOfPages(ImportWithPagination importWithPagination) {
+        return paginationService.getNumberOfPages(importWithPagination.content().length());
+    }
+
+    private void checkPageNumberValidity(int page, int numberOfPages) throws InvalidUrlException {
+        if(page <= 0 || page > numberOfPages) {
+            throw new InvalidUrlException("Invalid url parameter provided");
+        }
+    }
+
 }

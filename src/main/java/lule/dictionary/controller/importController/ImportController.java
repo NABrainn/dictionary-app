@@ -1,16 +1,30 @@
 package lule.dictionary.controller.importController;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
+import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
+import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.RetryViewException;
-import lule.dictionary.service.imports.importPageService.dto.LoadImportRequest;
+import lule.dictionary.service.imports.exception.ImportNotFoundException;
+import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequestFactory;
+import lule.dictionary.service.imports.importService.dto.importData.ImportData;
+import lule.dictionary.service.imports.importService.dto.importPageRequest.AssembleImportPageRequest;
+import lule.dictionary.service.imports.importService.dto.importPageRequest.ImportPageRequestFactory;
+import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
+import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequestFactory;
+import lule.dictionary.service.imports.importService.dto.importData.ImportDataFactory;
+import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportsAttribute;
+import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportsAttributeFactory;
 import lule.dictionary.service.imports.importService.ImportService;
-import lule.dictionary.service.imports.importPageService.ImportPageService;
-import lule.dictionary.service.imports.importService.dto.AddImportRequest;
-import lule.dictionary.service.translation.dto.TranslationModel;
-import lule.dictionary.service.userProfile.UserProfileService;
+import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
+import lule.dictionary.service.pagination.PaginationService;
+import lule.dictionary.service.pagination.dto.PaginationData;
+import lule.dictionary.service.pagination.dto.PaginationDataFactory;
+import lule.dictionary.service.translation.TranslationService;
+import lule.dictionary.service.translation.dto.TranslationAttribute;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -18,7 +32,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.InvalidUrlException;
 
-import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -27,47 +42,56 @@ import java.io.IOException;
 public class ImportController {
 
     private final ImportService importService;
-    private final ImportPageService importPageService;
-    private final UserProfileService userProfileService;
+    private final TranslationService translationService;
+    private final PaginationService paginationService;
+    private final PaginationDataFactory paginationDataFactory;
+    private final ImportDataFactory importDataFactory;
+    private final ImportsAttributeFactory importsAttributeFactory;
+    private final ImportPageRequestFactory importPageRequestFactory;
+    private final LoadImportPageRequestFactory loadImportPageRequestFactory;
+    private final CreateImportRequestFactory createImportRequestFactory;
 
     @GetMapping("")
     public String getImportList(Authentication authentication,
                                 Model model) {
-        importService.findByOwner(model, authentication.getName());
+        List<ImportWithId> imports = getImports(authentication, model);
+        model.addAttribute("imports", imports);
         return "imports";
     }
 
     @PostMapping({"/page/reload", "/page/reload/"})
-    public String reloadImportPageOnPost(Model model,
-                                         Authentication authentication,
-                                         @RequestAttribute("translationModel")TranslationModel translationModel,
+    public String reloadImportPageOnPost(@RequestAttribute("translationModel") TranslationAttribute translationAttribute,
                                          @RequestParam("selectedWordId") int wordId,
                                          @RequestParam("importId") int importId,
-                                         @RequestParam("page") int page) {
+                                         @RequestParam("page") int page,
+                                         Model model) {
         try {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel), principal.getUsername());
+            ImportsAttribute importPageAttribute = loadImportPage(loadImportPageRequestFactory.of(wordId, importId, page));
+            model.addAttribute("importPageAttribute", importPageAttribute);
+            model.addAttribute("translationAttribute", translationAttribute);
             return "import-page/content";
-        } catch (InvalidUrlException e) {
-            log.warn("Sending to error page due to invalid url: {}", e.getMessage());
+        }
+        catch (InvalidUrlException | ImportNotFoundException e) {
+            log.warn("reloadImportPageOnPost(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
             return "error";
         }
 
     }
 
     @PutMapping({"/page/reload", "/page/reload/"})
-    public String reloadImportPageOnPut(Model model,
-                                        Authentication authentication,
-                                        @RequestAttribute("translationModel")TranslationModel translationModel,
+    public String reloadImportPageOnPut(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
                                         @RequestParam("selectedWordId") int wordId,
                                         @RequestParam("importId") int importId,
-                                        @RequestParam("page") int page) {
+                                        @RequestParam("page") int page,
+                                        Model model) {
         try {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            importPageService.loadImportWithTranslations(model, new LoadImportRequest(wordId, importId, page, translationModel), principal.getUsername());
+            ImportsAttribute importPageAttribute = loadImportPage(loadImportPageRequestFactory.of(wordId, importId, page));
+            model.addAttribute("importPageAttribute", importPageAttribute);
+            model.addAttribute("translationAttribute", translationAttribute);
             return "import-page/content";
-        } catch (InvalidUrlException e) {
-            log.warn("Sending to error page due to invalid url: {}", e.getMessage());
+        }
+        catch (InvalidUrlException | ImportNotFoundException e) {
+            log.warn("reloadImportPageOnPut(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
             return "error";
         }
     }
@@ -78,45 +102,35 @@ public class ImportController {
     }
 
     @GetMapping({"/{importId}", "/{importId}/"})
-    public String importPageContent(Model model,
-                                    Authentication authentication,
-                                    @PathVariable("importId") String importId,
-                                    @RequestParam(name = "page", defaultValue = "1") int page) {
+    public String getImportPageContent(@PathVariable("importId") int importId,
+                                       @RequestParam(name = "page", defaultValue = "1") int page,
+                                       Model model) {
         try {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            importPageService.loadImportWithTranslations(model, new LoadImportRequest(0, Integer.parseInt(importId), page, null), principal.getUsername());
+            ImportsAttribute importPageAttribute = loadImportPage(loadImportPageRequestFactory.of(0, importId, page));
+            model.addAttribute("importPageAttribute", importPageAttribute);
+            model.addAttribute("translationAttribute", null);
             return "import-page/import-page";
-        } catch (InvalidUrlException e) {
-            log.warn("Sending to error page due to invalid url: {}", e.getMessage());
+
+        }
+        catch (InvalidUrlException | ImportNotFoundException e) {
+            log.warn("getImportPageContent(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
             return "error";
         }
     }
 
     @PostMapping({"/new", "/new/"})
-    public String addImport(Model model,
-                            Authentication authentication,
-                            @RequestParam("title") String title,
-                            @RequestParam("content") String content,
-                            @RequestParam("url") String url) {
+    public String createImport(@RequestParam("title") String title,
+                               @RequestParam("content") String content,
+                               @RequestParam("url") String url,
+                                Model model,
+                                Authentication authentication) {
         try {
-            UserProfile userProfile = userProfileService.findByUsername(authentication.getName());
-            int importId = importService.addImport(model, AddImportRequest.builder()
-                    .title(title)
-                    .content(content)
-                    .url(url)
-                    .sourceLanguage(userProfile.sourceLanguage())
-                    .targetLanguage(userProfile.targetLanguage())
-                    .owner(authentication.getName())
-                    .build());
+            int importId = importService.createImport(createImportRequestFactory.of(title, content, url, extractUsername(authentication)));
+            model.addAttribute("result");
             return "redirect:/imports/" + importId + "?page=1";
-
         } catch (UserNotFoundException e) {
             log.info("Redirecting to login page due to user not found: {}", e.getMessage());
             return "redirect:/auth/login";
-
-        } catch (IOException e) {
-            log.warn("Sending to error page due to IO exception: {}", e.getMessage());
-            return "error";
 
         } catch (RetryViewException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
@@ -132,5 +146,75 @@ public class ImportController {
     @GetMapping({"/insert-manually-form", "/insert-manually-form/"})
     public String insertManuallyForm() {
         return "import-form/insert-manually-form";
+    }
+
+
+    private @NonNull String extractUsername(Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        return principal.getUsername();
+    }
+
+    private ImportsAttribute loadImportPage(LoadImportPageRequest loadRequest) {
+        ImportWithPagination importWithPagination = getImportPage(loadRequest);
+        return assembleImportPageAttribute(importPageRequestFactory.of(loadRequest.wordId(), loadRequest.importId(), loadRequest.page(), importWithPagination, getTotalLength(importWithPagination)));
+    }
+
+    private List<ImportWithId> getImports(Authentication authentication, Model model) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        return importService.findByOwner(model, principal.getUsername());
+    }
+
+    private int getTotalLength(ImportWithPagination importWithPagination) {
+        return importWithPagination.content().length();
+    }
+
+    private ImportsAttribute assembleImportPageAttribute(AssembleImportPageRequest assembleRequest) {
+        ImportData importData = createImportData(assembleRequest.wordId(), assembleRequest.importId(), assembleRequest.importWithPagination());
+        PaginationData paginationData = createPaginationData(assembleRequest.page(), getNumberOfPages(assembleRequest.totalLength()));
+        return createImportPageAttribute(importData, paginationData);
+    }
+
+    private ImportsAttribute createImportPageAttribute(ImportData importData, PaginationData paginationData) {
+        return importsAttributeFactory.of(importData, paginationData);
+    }
+
+    private int getNumberOfPages(int length) {
+        return paginationService.getNumberOfPages(length);
+    }
+
+    private ImportWithPagination getImportPage(LoadImportPageRequest loadRequest) {
+            return importService.loadPage(loadRequest);
+    }
+
+    private PaginationData createPaginationData(int page, int pagesTotal) {
+        return paginationDataFactory.of(page, pagesTotal, getRows(pagesTotal), getNumberOfCurrentRow(page), getNumberOfRowFirstPage(page));
+    }
+
+    private ImportData createImportData(int wordId, int importId, ImportWithPagination importWithPagination) {
+        return importDataFactory.of(getImportTitle(importWithPagination), getImportContent(importWithPagination), getImportTranslations(importWithPagination), importId, wordId);
+    }
+
+    private Map<String, Translation> getImportTranslations(ImportWithPagination importWithPagination) {
+        return translationService.findTranslationsByImport(importWithPagination, importWithPagination.owner());
+    }
+
+    private List<String> getImportContent(ImportWithPagination importWithPagination) {
+        return List.of(importWithPagination.pageContent().split("[ \\n]+"));
+    }
+
+    private String getImportTitle(ImportWithPagination importWithPagination) {
+        return importWithPagination.title();
+    }
+
+    private int getNumberOfRowFirstPage(int page) {
+        return paginationService.getFirstPageOfRow(page, paginationService.getMAX_ROW_SIZE());
+    }
+
+    private int getNumberOfCurrentRow(int page) {
+        return paginationService.getCurrentRow(page, paginationService.getMAX_ROW_SIZE());
+    }
+
+    private List<List<Integer>> getRows(int pagesTotal) {
+        return paginationService.getRows(pagesTotal);
     }
 }

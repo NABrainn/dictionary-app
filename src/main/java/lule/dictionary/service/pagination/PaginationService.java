@@ -11,14 +11,15 @@ import java.util.stream.IntStream;
 @Getter
 public class PaginationService {
 
-    private final int maxRowSize = 7;
+    private final int MAX_ROW_SIZE = 7;
+    private final int DIVISOR = 2000;
 
     public List<List<Integer>> getRows(int numberOfPages) {
         if(numberOfPages <= 0) throw new IllegalArgumentException("Number of pages cannot be below 0");
         return produceRows(
                 getQuantity(numberOfPages),
-                getMinRowSize(numberOfPages, maxRowSize),
-                getMaxRowSize()
+                getMinRowSize(numberOfPages, MAX_ROW_SIZE),
+                getMAX_ROW_SIZE()
         );
     }
 
@@ -28,10 +29,13 @@ public class PaginationService {
 
     public int getFirstPageOfRow(int numberOfPages, int currentPage) {
         return getRows(numberOfPages)
-                .get(getCurrentRow(currentPage, getMaxRowSize()))
+                .get(getCurrentRow(currentPage, MAX_ROW_SIZE))
                 .getFirst();
     }
 
+    public int getNumberOfPages(int length) {
+        return (int) Math.ceil((double) length / DIVISOR);
+    }
 
     private int getMinRowSize(int numberOfPages, int maxRowSize) {
         if(numberOfPages % maxRowSize == 0) return maxRowSize;
@@ -39,7 +43,7 @@ public class PaginationService {
     }
 
     private int getQuantity(int numberOfPages) {
-        return (int) Math.ceil((double) numberOfPages / maxRowSize);
+        return (int) Math.ceil((double) numberOfPages / MAX_ROW_SIZE);
     }
 
     private List<List<Integer>> produceRows(int quantity, int minRowSize, int maxRowSize) {

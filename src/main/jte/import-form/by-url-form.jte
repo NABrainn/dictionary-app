@@ -14,8 +14,8 @@
         id="url"
         placeholder="Type in URL here...">
         @if(result != null)
-            @if(result.error() && result.errors().get("url") != null)
-                <span class="text-error font-semibold text-sm">${result.errors().get("url")}</span>
+            @if(result.error() && result.messages().get("url") != null)
+                <span class="text-error font-semibold text-sm">${result.messages().get("url")}</span>
             @else
                 <span class="invisible text-sm">fallback</span>
             @endif

@@ -38,8 +38,8 @@
             name="title"
             id="title">
             @if(result != null)
-                @if(result.error() && result.errors().get("title") != null)
-                    <span class="text-error font-semibold text-sm">${result.errors().get("title")}</span>
+                @if(result.error() && result.messages().get("title") != null)
+                    <span class="text-error font-semibold text-sm">${result.messages().get("title")}</span>
                 @else
                     <span class="invisible text-sm">fallback</span>
                 @endif

@@ -23,6 +23,7 @@ import lule.dictionary.service.dto.ServiceResult;
 import lule.dictionary.service.dto.ServiceResultFactory;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
+import lule.dictionary.service.validation.ValidationService;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
@@ -46,7 +47,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final CookieService cookieService;
-    private final Validator validator;
+    private final ValidationService validationService;
     private final UserProfileFactory userProfileFactory;
     private final SessionContextFactory sessionContextFactory;
     private final ServiceResultFactory serviceResultFactory;
@@ -131,15 +132,7 @@ public class AuthService {
     }
 
     private AuthRequest validate(AuthRequest authRequest) throws ConstraintViolationException {
-        var constraints = getConstraintViolations(authRequest);
-        ifViolatedThrow(constraints);
-        return authRequest;
-    }
-
-    private void ifViolatedThrow(Set<ConstraintViolation<AuthRequest>> constraints) {
-        if(!constraints.isEmpty()) {
-            throw new ConstraintViolationException(constraints);
-        }
+        return validationService.validate(authRequest);
     }
 
     private void clearAuthentication() {
@@ -151,11 +144,6 @@ public class AuthService {
         Cookie cookie = cookieService.deleteJwtCookie("jwt");
         response.addCookie(cookie);
     }
-
-    private Set<ConstraintViolation<@NonNull AuthRequest>> getConstraintViolations(AuthRequest authRequest) {
-        return validator.validate(authRequest);
-    }
-
 
     private void sendJwtCookie(String username, HttpServletResponse response) {
         Cookie jwtCookie = createJwtCookie(username);
@@ -188,6 +176,6 @@ public class AuthService {
     }
 
     private UserProfile getUserProfile(AuthRequest loginRequest) {
-        return userProfileFactory.withNewPassword(userProfileService.findByUsername(loginRequest.login()), loginRequest.password());
+        return userProfileFactory.withNewPassword(userProfileService.getUserProfile(loginRequest.login()), loginRequest.password());
     }
 }
