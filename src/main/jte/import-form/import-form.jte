@@ -1,7 +1,6 @@
 @import lule.dictionary.service.dto.ServiceResult
 @import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
-@import java.util.List
 @import java.util.Map
 
 @param boolean authenticated

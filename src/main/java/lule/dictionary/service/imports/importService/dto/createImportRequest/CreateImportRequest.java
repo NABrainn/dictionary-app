@@ -6,15 +6,6 @@ import jakarta.validation.constraints.Size;
 import lombok.NonNull;
 import org.hibernate.validator.constraints.URL;
 
-//@Builder
-//public record CreateImportRequest(Import anImport, UserProfile userProfile) {
-//}
-
-
-//
-//@NonNull Language sourceLanguage,
-//@NonNull Language targetLanguage,
-//@NonNull String owner
 
 public record CreateImportRequest(@NotBlank(message = "Title cannot be empty")
                                   @Size(min = 50, max = 150, message = "Title must be 50 to 100 characters long")

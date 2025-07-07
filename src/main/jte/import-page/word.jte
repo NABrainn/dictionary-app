@@ -7,7 +7,7 @@
 @param String processedWord
 @param String bgColor
 @param String textColor
-@param TranslationAttribute translationModel = null
+@param TranslationAttribute translationAttribute
 @param boolean found = false
 
 <span
@@ -20,7 +20,7 @@ hx-vals='{"selectedWordId": "${wordIndex}"}'
 hx-on::before-request="document.querySelector('import-page').onWordClick(${wordIndex})">
 ${word}<div class="cursor-default z-2 inline absolute top-8" id="translation-form-${wordIndex}" onclick="event.stopPropagation();">
 
-        @if(translationModel != null)
-                @template.import-page.translation.update-translation-form(translationModel = translationModel)
+        @if(translationAttribute != null)
+                @template.import-page.translation.update-translation-form(translationAttribute = translationAttribute)
         @endif
     </div></span>

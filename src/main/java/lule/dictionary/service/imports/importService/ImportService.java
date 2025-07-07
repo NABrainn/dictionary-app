@@ -41,8 +41,8 @@ public class ImportService {
     @Transactional
     public int createImport(CreateImportRequest createRequest) throws ConstraintViolationException {
         UserProfile userProfile = getUserProfile(createRequest);
-        CreateImportRequest validRequest = validate(createRequest);
-        return saveImport(createRequest, validRequest, userProfile);
+        validate(createRequest);
+        return saveImport(createRequest, createRequest, userProfile);
     }
 
     public ImportWithPagination getImport(LoadImportPageRequest loadRequest) throws ImportNotFoundException {
@@ -81,11 +81,11 @@ public class ImportService {
     private int saveImport(CreateImportRequest createRequest, CreateImportRequest validRequest, UserProfile userProfile) {
         if(!createRequest.content().isEmpty())
             return insertIntoDatabase(insertIntoDatabaseRequestFactory.of(validRequest, validRequest.content(), userProfile));
-        return insertIntoDatabase(insertIntoDatabaseRequestFactory.of(validRequest, validRequest.url(), userProfile));
+        return insertIntoDatabase(insertIntoDatabaseRequestFactory.of(validRequest, getDocumentContent(validRequest.url()), userProfile));
     }
 
-    private CreateImportRequest validate(CreateImportRequest createRequest) {
-        return validationService.validate(createRequest);
+    private void validate(CreateImportRequest createRequest) {
+        validationService.validate(createRequest);
     }
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest insertIntoDatabaseRequest) {

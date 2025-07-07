@@ -29,11 +29,7 @@ public class SecurityConfiguration {
     private final UserProfileService userProfileService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TimezoneFilter timezoneFilter;
-
-    @Bean
-    public BCryptPasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final BCryptPasswordEncoder encoder;
 
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
@@ -46,7 +42,7 @@ public class SecurityConfiguration {
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userProfileService);
-        daoAuthenticationProvider.setPasswordEncoder(encoder());
+        daoAuthenticationProvider.setPasswordEncoder(encoder);
         return daoAuthenticationProvider;
     }
 

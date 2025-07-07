@@ -55,14 +55,6 @@
                 this.setAttribute('selected-word-id', id);
             }
 
-            // openTranslationDialog(targetWord, importId, wordId) {
-            //         htmx.ajax(
-            //             'GET',
-            //             `/translations?targetWord=${targetWord}&importId=${importId}&selectedWordId=${wordId}`,
-            //             {target:"#translation-form-wordId", swap: 'innerHTML'}
-            //         )
-            // }
-
             attributeChangedCallback(name, oldValue, newValue) {
                 console.log('changed from ' + oldValue + " to " + newValue)
                 if (name === 'selected-word-id' && oldValue !== newValue) {

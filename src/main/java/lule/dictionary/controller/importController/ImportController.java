@@ -1,5 +1,6 @@
 package lule.dictionary.controller.importController;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,19 +8,17 @@ import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequestFactory;
 import lule.dictionary.service.imports.importService.dto.importData.ImportData;
 import lule.dictionary.service.imports.importService.dto.importPageRequest.AssembleImportPageRequest;
 import lule.dictionary.service.imports.importService.dto.importPageRequest.ImportPageRequestFactory;
+import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute;
 import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
 import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequestFactory;
 import lule.dictionary.service.imports.importService.dto.importData.ImportDataFactory;
-import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportsAttribute;
 import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportsAttributeFactory;
 import lule.dictionary.service.imports.importService.ImportService;
-import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
 import lule.dictionary.service.pagination.dto.PaginationDataFactory;
@@ -60,14 +59,14 @@ public class ImportController {
     }
 
     @PostMapping({"/page/reload", "/page/reload/"})
-    public String reloadImportPageOnPost(@RequestAttribute("translationModel") TranslationAttribute translationAttribute,
+    public String reloadImportPageOnPost(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
                                          @RequestParam("selectedWordId") int wordId,
                                          @RequestParam("importId") int importId,
                                          @RequestParam("page") int page,
                                          Model model) {
         try {
-            ImportsAttribute importPageAttribute = loadImportPage(loadImportPageRequestFactory.of(wordId, importId, page));
-            model.addAttribute("importPageAttribute", importPageAttribute);
+            ImportContentAttribute importContentAttribute = loadImportPage(loadImportPageRequestFactory.of(wordId, importId, page));
+            model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
             return "import-page/content";
         }
@@ -85,8 +84,8 @@ public class ImportController {
                                         @RequestParam("page") int page,
                                         Model model) {
         try {
-            ImportsAttribute importPageAttribute = loadImportPage(loadImportPageRequestFactory.of(wordId, importId, page));
-            model.addAttribute("importPageAttribute", importPageAttribute);
+            ImportContentAttribute importContentAttribute = loadImportPage(loadImportPageRequestFactory.of(wordId, importId, page));
+            model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
             return "import-page/content";
         }
@@ -106,8 +105,8 @@ public class ImportController {
                                        @RequestParam(name = "page", defaultValue = "1") int page,
                                        Model model) {
         try {
-            ImportsAttribute importPageAttribute = loadImportPage(loadImportPageRequestFactory.of(0, importId, page));
-            model.addAttribute("importPageAttribute", importPageAttribute);
+            ImportContentAttribute importContentAttribute = loadImportPage(loadImportPageRequestFactory.of(0, importId, page));
+            model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", null);
             return "import-page/import-page";
 
@@ -132,7 +131,7 @@ public class ImportController {
             log.info("Redirecting to login page due to user not found: {}", e.getMessage());
             return "redirect:/auth/login";
 
-        } catch (RetryViewException e) {
+        } catch (ConstraintViolationException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
             return "import-form/import-form";
         }
@@ -154,7 +153,7 @@ public class ImportController {
         return principal.getUsername();
     }
 
-    private ImportsAttribute loadImportPage(LoadImportPageRequest loadRequest) {
+    private ImportContentAttribute loadImportPage(LoadImportPageRequest loadRequest) {
         ImportWithPagination importWithPagination = getImportPage(loadRequest);
         return assembleImportPageAttribute(importPageRequestFactory.of(loadRequest.wordId(), loadRequest.importId(), loadRequest.page(), importWithPagination, getTotalLength(importWithPagination)));
     }
@@ -168,13 +167,13 @@ public class ImportController {
         return importWithPagination.content().length();
     }
 
-    private ImportsAttribute assembleImportPageAttribute(AssembleImportPageRequest assembleRequest) {
+    private ImportContentAttribute assembleImportPageAttribute(AssembleImportPageRequest assembleRequest) {
         ImportData importData = createImportData(assembleRequest.wordId(), assembleRequest.importId(), assembleRequest.importWithPagination());
         PaginationData paginationData = createPaginationData(assembleRequest.page(), getNumberOfPages(assembleRequest.totalLength()));
         return createImportPageAttribute(importData, paginationData);
     }
 
-    private ImportsAttribute createImportPageAttribute(ImportData importData, PaginationData paginationData) {
+    private ImportContentAttribute createImportPageAttribute(ImportData importData, PaginationData paginationData) {
         return importsAttributeFactory.of(importData, paginationData);
     }
 
