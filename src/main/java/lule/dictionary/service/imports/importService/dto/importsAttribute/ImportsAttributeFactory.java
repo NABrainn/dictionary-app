@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ImportsAttributeFactory {
 
-    public ImportsAttribute of(@NonNull ImportData importData,
-                               @NonNull PaginationData paginationData) {
-        return new ImportsAttribute(importData, paginationData);
+    public ImportContentAttribute of(@NonNull ImportData importData,
+                                     @NonNull PaginationData paginationData) {
+        return new ImportContentAttribute(importData, paginationData);
     }
 }

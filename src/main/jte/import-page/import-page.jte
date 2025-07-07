@@ -1,13 +1,12 @@
-@import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportsAttribute
+@import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute
 @import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
-@import java.util.List
 @import java.util.Map
 
 @param String username
 @param String targetLanguage
 
-@param ImportsAttribute importsAttribute
+@param ImportContentAttribute importContentAttribute
 @param CsrfToken _csrf
 @param boolean authenticated
 @param int wordsLearned
@@ -16,7 +15,7 @@
 
 @template.layout.base(content = @`
     @template.import-page.content(
-        importsAttribute =  = importsAttribute,
+        importContentAttribute = importContentAttribute,
         _csrf = _csrf,
         authenticated = authenticated,
         username = username,
@@ -25,7 +24,7 @@
         dailyStreak = dailyStreak,
         languages = languages
     )
-    @template.import-page.script(selectedWordId = importsAttribute.selectedWordId())
+    @template.import-page.script(selectedWordId = importContentAttribute.importData().selectedWordId())
 `,
 authenticated = authenticated,
 _csrf = _csrf,

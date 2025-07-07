@@ -1,6 +1,6 @@
 @import lule.dictionary.service.translation.dto.TranslationAttribute
 
-@param TranslationAttribute translationModel
+@param TranslationAttribute translationAttribute
 
 <script>
     function exitForm() {
@@ -33,21 +33,21 @@
     <div class="flex justify-end">
         <span class="text-red-400 font-bold text-lg cursor-pointer" onclick="exitForm()">❌</span>
     </div>
-    <span class="font-bold text-lg text-accent">${translationModel.translation().targetWord()}</span>
+    <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
     @template.import-page.translation.add-source-words-form(
-        targetWord = translationModel.translation().targetWord(),
-        sourceLanguage = translationModel.translation().sourceLanguage().name(),
-        targetLanguage = translationModel.translation().targetLanguage().name(),
-        importId = translationModel.importId(),
-        selectedWordId = translationModel.selectedWordId(),
-        sourceWords = translationModel.translation().sourceWords(),
-        page = translationModel.page()
+        targetWord = translationAttribute.translation().targetWord(),
+        sourceLanguage = translationAttribute.translation().sourceLanguage().name(),
+        targetLanguage = translationAttribute.translation().targetLanguage().name(),
+        importId = translationAttribute.importId(),
+        selectedWordId = translationAttribute.selectedWordId(),
+        sourceWords = translationAttribute.translation().sourceWords(),
+        page = translationAttribute.page()
     )
     </div>
-    @template.import-page.translation.get-ai-translation-btn(targetWord = translationModel.translation().targetWord())
+    @template.import-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
     <div class="flex flex-col gap-0.5">
-        @for(var level : translationModel.familiarityLevels().entrySet())
+        @for(var level : translationAttribute.familiarityLevels().entrySet())
             <form class="flex gap-1 cursor-pointer font-bold text-neutral hover:text-primary">
                     <span class="cursor-pointer">${level.getKey()}: </span>
                     <input
@@ -57,20 +57,20 @@
                     hx-post="/translations/new"
                     hx-vals='
                         {
-                        "targetWord": "${translationModel.translation().targetWord()}",
+                        "targetWord": "${translationAttribute.translation().targetWord()}",
                         "familiarity": "${level.getValue().name()}",
-                        "sourceLanguage": "${translationModel.translation().sourceLanguage().name()}",
-                        "targetLanguage": "${translationModel.translation().targetLanguage().name()}",
-                        "importId": "${translationModel.importId()}",
-                        "selectedWordId": "${translationModel.selectedWordId()}",
-                        "page": "${translationModel.page()}"
+                        "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
+                        "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
+                        "importId": "${translationAttribute.importId()}",
+                        "selectedWordId": "${translationAttribute.selectedWordId()}",
+                        "page": "${translationAttribute.page()}"
                         }'
                     hx-target="#page-content"
                     hx-headers='js:{
                         timeZoneOffset: new Date().getTimezoneOffset()
                     }'
                     hx-swap="outerHTML">
-                    @for(var word : translationModel.translation().sourceWords())
+                    @for(var word : translationAttribute.translation().sourceWords())
                         <input type="hidden" name="sourceWords" value="${word}">
                     @endfor
             </form>

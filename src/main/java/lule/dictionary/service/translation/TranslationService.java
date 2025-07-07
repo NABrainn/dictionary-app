@@ -82,7 +82,7 @@ public class TranslationService {
             );
         }
 
-        model.addAttribute("translationModel", new TranslationAttribute(
+        model.addAttribute("translationAttribute", new TranslationAttribute(
                 request.importId(),
                 translationUtilService.getFamiliarityAsInt(request.familiarity()),
                 translationToAdd,
@@ -113,7 +113,7 @@ public class TranslationService {
         if(cleanTargetWord.isEmpty()) throw new RetryViewException("Target word contains illegal characters");
         if(translationRepository.findByTargetWord(cleanTargetWord, owner).isPresent()) {
             Translation translation = translationRepository.findByTargetWord(cleanTargetWord, owner).get();
-            model.addAttribute("translationModel", new TranslationAttribute(
+            model.addAttribute("translationAttribute", new TranslationAttribute(
                     request.importId(),
                     translationUtilService.getFamiliarityAsInt(translation.familiarity()),
                     translation,
@@ -142,7 +142,7 @@ public class TranslationService {
                 .targetLanguage(targetLanguage)
                 .owner(owner)
                 .build();
-        model.addAttribute("translationModel", new TranslationAttribute(
+        model.addAttribute("translationAttribute", new TranslationAttribute(
                 request.importId(),
                 1,
                 translation,
@@ -161,7 +161,7 @@ public class TranslationService {
                 request.familiarity(),
                 request.owner()
                 ).orElseThrow(() -> new TranslationNotFoundException("Failed to update familiarity for " + transformedTargetWord));
-        model.addAttribute("translationModel", new TranslationAttribute(
+        model.addAttribute("translationAttribute", new TranslationAttribute(
                 request.importId(),
                 translationUtilService.getFamiliarityAsInt(translation.familiarity()),
                 translation,

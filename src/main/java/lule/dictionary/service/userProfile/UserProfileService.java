@@ -29,7 +29,7 @@ import java.util.Optional;
 public class UserProfileService implements UserDetailsService {
 
     private final UserProfileRepository userProfileRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder encoder;
 
     public UserProfile getUserProfile(@NonNull String username) {
         return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with given username does not exist"));
@@ -89,6 +89,6 @@ public class UserProfileService implements UserDetailsService {
     }
 
     private String encode(String password) {
-        return bCryptPasswordEncoder.encode(password);
+        return encoder.encode(password);
     }
 }
