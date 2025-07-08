@@ -1,9 +1,10 @@
-package lule.dictionary.service.imports.importService.dto.createImportRequest;
+package lule.dictionary.service.imports.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.NonNull;
+import lule.dictionary.service.dto.request.ServiceRequest;
 import org.hibernate.validator.constraints.URL;
 
 
@@ -21,5 +22,5 @@ public record CreateImportRequest(@NotBlank(message = "Title cannot be empty")
                                   String url,
 
                                   @NotBlank
-                                  String owner) {
+                                  String owner) implements ServiceRequest {
 }

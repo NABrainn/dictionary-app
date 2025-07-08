@@ -8,20 +8,17 @@ import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.service.dto.request.factory.AbstractServiceRequestFactory;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
-import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequestFactory;
-import lule.dictionary.service.imports.importService.dto.importData.ImportData;
-import lule.dictionary.service.imports.importService.dto.importPageRequest.AssembleImportPageRequest;
-import lule.dictionary.service.imports.importService.dto.importPageRequest.ImportPageRequestFactory;
-import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute;
-import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
-import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequestFactory;
-import lule.dictionary.service.imports.importService.dto.importData.ImportDataFactory;
-import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportsAttributeFactory;
-import lule.dictionary.service.imports.importService.ImportService;
+import lule.dictionary.service.imports.dto.importData.ImportData;
+import lule.dictionary.service.imports.dto.request.AssembleImportPageRequest;
+import lule.dictionary.service.imports.dto.importsAttribute.ImportContentAttribute;
+import lule.dictionary.service.imports.dto.request.LoadImportPageRequest;
+import lule.dictionary.service.imports.dto.importData.ImportDataFactory;
+import lule.dictionary.service.imports.dto.importsAttribute.ImportsAttributeFactory;
+import lule.dictionary.service.imports.ImportService;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
-import lule.dictionary.service.pagination.dto.PaginationDataFactory;
 import lule.dictionary.service.translation.TranslationService;
 import lule.dictionary.service.translation.dto.TranslationAttribute;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
@@ -43,12 +40,9 @@ public class ImportController {
     private final ImportService importService;
     private final TranslationService translationService;
     private final PaginationService paginationService;
-    private final PaginationDataFactory paginationDataFactory;
     private final ImportDataFactory importDataFactory;
     private final ImportsAttributeFactory importsAttributeFactory;
-    private final ImportPageRequestFactory importPageRequestFactory;
-    private final LoadImportPageRequestFactory loadImportPageRequestFactory;
-    private final CreateImportRequestFactory createImportRequestFactory;
+    private final AbstractServiceRequestFactory requestFactory;
 
     @GetMapping("")
     public String getImportList(Authentication authentication,
@@ -65,7 +59,7 @@ public class ImportController {
                                          @RequestParam("page") int page,
                                          Model model) {
         try {
-            ImportContentAttribute importContentAttribute = loadImportPage(loadImportPageRequestFactory.of(wordId, importId, page));
+            ImportContentAttribute importContentAttribute = loadImportPage(requestFactory.newLoadImportPageRequest(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
             return "import-page/content";
@@ -84,7 +78,7 @@ public class ImportController {
                                         @RequestParam("page") int page,
                                         Model model) {
         try {
-            ImportContentAttribute importContentAttribute = loadImportPage(loadImportPageRequestFactory.of(wordId, importId, page));
+            ImportContentAttribute importContentAttribute = loadImportPage(requestFactory.newLoadImportPageRequest(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
             return "import-page/content";
@@ -105,7 +99,7 @@ public class ImportController {
                                        @RequestParam(name = "page", defaultValue = "1") int page,
                                        Model model) {
         try {
-            ImportContentAttribute importContentAttribute = loadImportPage(loadImportPageRequestFactory.of(0, importId, page));
+            ImportContentAttribute importContentAttribute = loadImportPage(requestFactory.newLoadImportPageRequest(0, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", null);
             return "import-page/import-page";
@@ -124,7 +118,7 @@ public class ImportController {
                                 Model model,
                                 Authentication authentication) {
         try {
-            int importId = importService.createImport(createImportRequestFactory.of(title, content, url, extractUsername(authentication)));
+            int importId = importService.createImport(requestFactory.newCreateImportRequest(title, content, url, extractUsername(authentication)));
             model.addAttribute("result");
             return "redirect:/imports/" + importId + "?page=1";
         } catch (UserNotFoundException e) {
@@ -155,7 +149,7 @@ public class ImportController {
 
     private ImportContentAttribute loadImportPage(LoadImportPageRequest loadRequest) {
         ImportWithPagination importWithPagination = getImportPage(loadRequest);
-        return assembleImportPageAttribute(importPageRequestFactory.of(loadRequest.wordId(), loadRequest.importId(), loadRequest.page(), importWithPagination, getTotalLength(importWithPagination)));
+        return assembleImportPageAttribute(requestFactory.newAssembleImportPageRequest(loadRequest.wordId(), loadRequest.importId(), loadRequest.page(), importWithPagination, getTotalLength(importWithPagination)));
     }
 
     private List<ImportWithId> getImports(Authentication authentication, Model model) {
@@ -186,7 +180,7 @@ public class ImportController {
     }
 
     private PaginationData createPaginationData(int page, int pagesTotal) {
-        return paginationDataFactory.of(page, pagesTotal, getRows(pagesTotal), getNumberOfCurrentRow(page), getNumberOfRowFirstPage(page));
+        return paginationService.ofPaginationData(page, pagesTotal, getRows(pagesTotal), getNumberOfCurrentRow(page), getNumberOfRowFirstPage(page));
     }
 
     private ImportData createImportData(int wordId, int importId, ImportWithPagination importWithPagination) {

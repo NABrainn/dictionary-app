@@ -1,9 +1,9 @@
-@import lule.dictionary.service.dto.ServiceResult
+@import lule.dictionary.service.dto.result.ServiceResultImp
 @import java.util.List
 
 @param List<String> sourceWords
 @param String targetWord
-@param ServiceResult result
+@param ServiceResultImp result
 
 <form
     class="flex flex-col gap-2"

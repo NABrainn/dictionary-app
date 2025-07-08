@@ -1,4 +1,4 @@
-package lule.dictionary.service.imports.importService.dto.importData;
+package lule.dictionary.service.imports.dto.importData;
 
 import lombok.NonNull;
 import lule.dictionary.entity.application.interfaces.translation.Translation;

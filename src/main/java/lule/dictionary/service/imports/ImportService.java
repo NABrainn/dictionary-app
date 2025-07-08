@@ -1,4 +1,4 @@
-package lule.dictionary.service.imports.importService;
+package lule.dictionary.service.imports;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
@@ -7,11 +7,11 @@ import lule.dictionary.entity.application.implementation.imports.base.ImportImp;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.RetryViewException;
+import lule.dictionary.service.dto.request.factory.AbstractServiceRequestFactory;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
-import lule.dictionary.service.imports.importService.dto.insertIntoDatabaseRequest.InsertIntoDatabaseRequest;
-import lule.dictionary.service.imports.importService.dto.insertIntoDatabaseRequest.InsertIntoDatabaseRequestFactory;
-import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
-import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
+import lule.dictionary.service.imports.dto.request.InsertIntoDatabaseRequest;
+import lule.dictionary.service.imports.dto.request.LoadImportPageRequest;
+import lule.dictionary.service.imports.dto.request.CreateImportRequest;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.repository.ImportRepository;
@@ -36,7 +36,7 @@ public class ImportService {
     private final ImportRepository importRepository;
     private final ValidationService validationService;
     private final PaginationService paginationService;
-    private final InsertIntoDatabaseRequestFactory insertIntoDatabaseRequestFactory;
+    private final AbstractServiceRequestFactory requestFactory;
 
     @Transactional
     public int createImport(CreateImportRequest createRequest) throws ConstraintViolationException {
@@ -80,8 +80,8 @@ public class ImportService {
 
     private int saveImport(CreateImportRequest createRequest, CreateImportRequest validRequest, UserProfile userProfile) {
         if(!createRequest.content().isEmpty())
-            return insertIntoDatabase(insertIntoDatabaseRequestFactory.of(validRequest, validRequest.content(), userProfile));
-        return insertIntoDatabase(insertIntoDatabaseRequestFactory.of(validRequest, getDocumentContent(validRequest.url()), userProfile));
+            return insertIntoDatabase(requestFactory.newInsertIntoDatabaseRequest(validRequest, validRequest.content(), userProfile));
+        return insertIntoDatabase(requestFactory.newInsertIntoDatabaseRequest(validRequest, getDocumentContent(validRequest.url()), userProfile));
     }
 
     private void validate(CreateImportRequest createRequest) {

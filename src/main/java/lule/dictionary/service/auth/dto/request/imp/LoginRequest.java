@@ -2,6 +2,7 @@ package lule.dictionary.service.auth.dto.request.imp;
 
 import jakarta.validation.constraints.*;
 import lule.dictionary.service.auth.dto.request.AuthRequest;
+import lule.dictionary.service.dto.request.ServiceRequest;
 
 public record LoginRequest(
         @NotBlank(message = "Login cannot be empty")

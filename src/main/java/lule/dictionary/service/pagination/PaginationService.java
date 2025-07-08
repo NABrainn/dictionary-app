@@ -1,6 +1,8 @@
 package lule.dictionary.service.pagination;
 
 import lombok.Getter;
+import lule.dictionary.service.pagination.dto.PaginationData;
+import lule.dictionary.service.pagination.enumeration.IterationType;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,6 +37,11 @@ public class PaginationService {
 
     public int getNumberOfPages(int length) {
         return (int) Math.ceil((double) length / DIVISOR);
+    }
+
+
+    public PaginationData ofPaginationData(int pageNumber, int numberOfPages, List<List<Integer>> rows, int currentRowNumber, int firstPageOfRowNumber) {
+        return new PaginationData(pageNumber, numberOfPages, rows, currentRowNumber, firstPageOfRowNumber);
     }
 
     private int getMinRowSize(int numberOfPages, int maxRowSize) {

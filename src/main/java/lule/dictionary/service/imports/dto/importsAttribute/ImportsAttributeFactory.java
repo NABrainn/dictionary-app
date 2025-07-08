@@ -1,7 +1,7 @@
-package lule.dictionary.service.imports.importService.dto.importsAttribute;
+package lule.dictionary.service.imports.dto.importsAttribute;
 
 import lombok.NonNull;
-import lule.dictionary.service.imports.importService.dto.importData.ImportData;
+import lule.dictionary.service.imports.dto.importData.ImportData;
 import lule.dictionary.service.pagination.dto.PaginationData;
 import org.springframework.stereotype.Service;
 

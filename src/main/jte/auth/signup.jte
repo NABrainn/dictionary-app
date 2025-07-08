@@ -1,9 +1,9 @@
-@import lule.dictionary.service.dto.ServiceResult
+@import lule.dictionary.service.dto.result.ServiceResultImp
 @import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
 @import java.util.Map
 
-@param ServiceResult result = null
+@param ServiceResultImp result = null
 @param CsrfToken _csrf
 @param boolean authenticated
 @param String username

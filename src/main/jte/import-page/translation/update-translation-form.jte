@@ -1,4 +1,4 @@
-@import lule.dictionary.service.dto.ServiceResult
+@import lule.dictionary.service.dto.result.ServiceResultImp
 @import lule.dictionary.service.translation.dto.TranslationAttribute
 @import java.util.Map
 
@@ -18,7 +18,7 @@
         @template.import-page.translation.update-source-words-form(
         sourceWords = translationAttribute.translation().sourceWords(),
         targetWord = translationAttribute.translation().targetWord(),
-        result = new ServiceResult(false, Map.of()))
+        result = new ServiceResultImp(false, Map.of()))
     </div>
     @template.import-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
     <div class="flex flex-col gap-0.5">

@@ -8,7 +8,7 @@ import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetCont
 import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.exception.RetryViewException;
-import lule.dictionary.service.dto.ServiceResult;
+import lule.dictionary.service.dto.result.ServiceResultImp;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.service.translation.dto.*;
@@ -60,7 +60,7 @@ public class TranslationService {
                     request.selectedWordId(),
                     request.page()
             ));
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
+            model.addAttribute("result", new ServiceResultImp(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new IllegalArgumentException("Constraints violated at " + request);
         }
         String transformedTargetWord = stringRegexService.removeNonLetters(request.targetWord());
@@ -90,7 +90,7 @@ public class TranslationService {
                 request.selectedWordId(),
                 request.page()
         ));
-        model.addAttribute("result", new ServiceResult(false, Map.of()));
+        model.addAttribute("result", new ServiceResultImp(false, Map.of()));
         return translationId;
     }
 
@@ -106,7 +106,7 @@ public class TranslationService {
                                  Language targetLanguage) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
+            model.addAttribute("result", new ServiceResultImp(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + request);
         }
         String cleanTargetWord = stringRegexService.removeNonLetters(request.targetWord());
@@ -208,7 +208,7 @@ public class TranslationService {
                     .filter(word -> validWordPattern.matcher(word).matches())
                     .toList()
             );
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
+            model.addAttribute("result", new ServiceResultImp(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + request);
         }
         Optional<Translation> translation = translationRepository.updateSourceWords(
@@ -225,18 +225,18 @@ public class TranslationService {
         translation.ifPresent(value -> {
             model.addAttribute("targetWord", value.targetWord());
             model.addAttribute("sourceWords", value.sourceWords());
-            model.addAttribute("result", new ServiceResult(false, Map.of()));
+            model.addAttribute("result", new ServiceResultImp(false, Map.of()));
         });
         model.addAttribute("targetWord", request.targetWord());
         model.addAttribute("sourceWords", request.sourceWords());
-        model.addAttribute("result", new ServiceResult(false, Map.of()));
+        model.addAttribute("result", new ServiceResultImp(false, Map.of()));
     }
 
     @Transactional
     public void deleteSourceWord(Model model, DeleteSourceWordRequest request) {
         var constraints = validator.validate(request);
         if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResult(true, ErrorMapFactory.fromSetTyped(constraints)));
+            model.addAttribute("result", new ServiceResultImp(true, ErrorMapFactory.fromSetTyped(constraints)));
             throw new RetryViewException("Constraints violated at " + request);
         }
         Optional<Translation> translation = translationRepository.deleteSourceWord(
@@ -247,7 +247,7 @@ public class TranslationService {
         if(translation.isPresent()) {
             model.addAttribute("targetWord", request.targetWord());
             model.addAttribute("sourceWords", translation.get().sourceWords());
-            model.addAttribute("result", new ServiceResult(false, Map.of()));
+            model.addAttribute("result", new ServiceResultImp(false, Map.of()));
             return;
         }
         model.addAttribute("sourceWords", List.of());

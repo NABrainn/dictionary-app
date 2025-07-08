@@ -1,4 +1,4 @@
-@import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute
+@import lule.dictionary.service.imports.dto.importsAttribute.ImportContentAttribute
 @import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
 @import java.util.Map
