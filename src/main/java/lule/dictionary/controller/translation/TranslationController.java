@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.RetryViewException;
+import lule.dictionary.service.dto.result.ServiceResult;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.service.language.Language;
-import lule.dictionary.service.translation.TranslationService;
+import lule.dictionary.service.translation.TranslationServiceImp;
+import lule.dictionary.service.translation.dto.request.AddTranslationRequest;
 import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import org.springframework.security.core.Authentication;
@@ -24,7 +26,7 @@ import java.util.List;
 @Slf4j
 public class TranslationController {
 
-    private final TranslationService translationService;
+    private final TranslationServiceImp translationService;
 
     @GetMapping("")
     public String findByTargetWord(Model model,
@@ -60,24 +62,20 @@ public class TranslationController {
                                  @RequestParam("importId") int importId,
                                  @RequestParam("selectedWordId") int selectedWordId,
                                  @RequestParam("page") int page) {
-        try {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            translationService.add(model, principal.getUsername(), new MutateTranslationRequest(
-                    sourceWords,
-                    targetWord,
-                    familiarity,
-                    sourceLanguage,
-                    targetLanguage,
-                    authentication.getName(),
-                    importId,
-                    selectedWordId,
-                    page
-            ));
-            return "forward:/imports/page/reload";
-        } catch (IllegalCallerException e) {
-            log.warn("Illegal resource mutation attempt: {}", e.getMessage());
-            return "error";
-        }
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        ServiceResult<TranslationAttribute> result = translationService.createTranslation(AddTranslationRequest.builder()
+                .importId(importId)
+                .selectedWordId(selectedWordId)
+                .sourceWords(sourceWords)
+                .targetWord(targetWord)
+                .sourceLanguage(sourceLanguage)
+                .targetLanguage(targetLanguage)
+                .familiarity(familiarity)
+                .page(page)
+                .owner(principal.getUsername())
+                .build());
+        model.addAttribute("translationAttribute", result.value());
+        return "forward:/imports/page/reload";
     }
 
     @PutMapping({"/familiarity/update", "/familiarity/update/"})
@@ -103,8 +101,8 @@ public class TranslationController {
             ));
             return "forward:/imports/page/reload";
         } catch (TranslationNotFoundException e) {
-            log.info("Sending to error page due to translation not found: {}", e.getMessage());
-            return "error";
+            log.info("Sending to isError page due to translation not found: {}", e.getMessage());
+            return "isError";
         }
     }
 
