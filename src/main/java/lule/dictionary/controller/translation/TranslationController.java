@@ -87,8 +87,7 @@ public class TranslationController {
     }
 
     @PutMapping({"/familiarity/update", "/familiarity/update/"})
-    public String updateFamiliarity(Model model,
-                                    Authentication authentication,
+    public String updateFamiliarity(Authentication authentication,
                                     @RequestParam("targetWord") String targetWord,
                                     @RequestParam("familiarity") Familiarity familiarity,
                                     @RequestParam("sourceLanguage") Language sourceLanguage,
@@ -96,22 +95,17 @@ public class TranslationController {
                                     @RequestParam("importId") int importId,
                                     @RequestParam("selectedWordId") int selectedWordId,
                                     @RequestParam("page") int page) {
-        try {
-            translationService.updateFamiliarity(model, new UpdateTranslationFamiliarityRequest(
-                    targetWord,
-                    familiarity,
-                    sourceLanguage,
-                    targetLanguage,
-                    authentication.getName(),
-                    importId,
-                    selectedWordId,
-                    page
-            ));
-            return "forward:/imports/page/reload";
-        } catch (TranslationNotFoundException e) {
-            log.info("Sending to isError page due to translation not found: {}", e.getMessage());
-            return "isError";
-        }
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        translationService.updateFamiliarity(UpdateTranslationFamiliarityRequest.builder()
+                .importId(importId)
+                .selectedWordId(selectedWordId)
+                .targetWord(targetWord)
+                .sourceLanguage(sourceLanguage)
+                .targetLanguage(targetLanguage)
+                .page(page)
+                .owner(principal.getUsername())
+                .build());
+        return "forward:/imports/page/reload";
     }
 
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
