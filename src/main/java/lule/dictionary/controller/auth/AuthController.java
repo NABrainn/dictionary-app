@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lule.dictionary.service.auth.dto.request.AuthRequestFactory;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.AuthService;
-import lule.dictionary.service.dto.result.ServiceResultImp;
+import lule.dictionary.service.dto.result.ServiceResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,8 +34,8 @@ public class AuthController {
                         Model model,
                         RedirectAttributes redirectAttributes,
                         HttpServletResponse response) {
-        ServiceResultImp result = requestLogin(authRequestFactory.ofLoginRequest(login, password), response);
-        if (result.isError()) {
+        ServiceResult<?> result = requestLogin(authRequestFactory.ofLoginRequest(login, password), response);
+        if (result.hasError()) {
             model.addAttribute("result", result);
             return "auth/login";
         }
@@ -53,9 +53,9 @@ public class AuthController {
                          @RequestParam("email") String email,
                          @RequestParam("password") String password,
                          Model model) {
-        ServiceResultImp result = requestSignup(login, email, password);
+        ServiceResult<?> result = requestSignup(login, email, password);
         model.addAttribute("result", result);
-        if(result.isError()) {
+        if(result.hasError()) {
             return "auth/signup";
         }
         return "auth/login";
@@ -64,23 +64,23 @@ public class AuthController {
     @PostMapping({"/logout", "/logout/"})
     public String logout(RedirectAttributes redirectAttributes,
                          HttpServletResponse response) {
-        ServiceResultImp result = requestLogout(response);
-        if(result.isError()) {
-            return "/isError";
+        ServiceResult<?> result = requestLogout(response);
+        if(result.hasError()) {
+            return "/error";
         }
         redirectAttributes.addFlashAttribute("result", result);
         return "redirect:/auth/login";
     }
 
-    private ServiceResultImp requestLogin(LoginRequest loginRequest, HttpServletResponse response) {
+    private ServiceResult<?> requestLogin(LoginRequest loginRequest, HttpServletResponse response) {
         return authService.login(authRequestFactory.ofLoginRequest(loginRequest.login(), loginRequest.password()), response);
     }
 
-    private ServiceResultImp requestSignup(String login, String email, String password) {
+    private ServiceResult<?> requestSignup(String login, String email, String password) {
         return authService.signup(authRequestFactory.ofSignupRequest(login, email, password));
     }
 
-    private ServiceResultImp requestLogout(HttpServletResponse response) {
+    private ServiceResult<?> requestLogout(HttpServletResponse response) {
         return authService.logout(response);
     }
 }

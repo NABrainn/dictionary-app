@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Map;
 
 public record ServiceResultImp<T>(T value,
-                                  boolean isError,
+                                  boolean hasError,
                                   @NonNull Map<String, String> messages) implements ServiceResult<T> {
 
     @Override
