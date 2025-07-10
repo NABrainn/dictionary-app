@@ -9,9 +9,9 @@ import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetCont
 import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
 import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.exception.RetryViewException;
+import lule.dictionary.service.dto.request.ServiceRequest;
 import lule.dictionary.service.dto.result.ServiceResultImp;
 import lule.dictionary.service.dto.result.ServiceResult;
-import lule.dictionary.service.language.Language;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.entity.application.interfaces.imports.base.Import;
@@ -54,7 +54,7 @@ public class TranslationServiceImp implements TranslationService {
             validate(request);
             Translation translation = TranslationImp.builder()
                     .sourceWords(request.sourceWords())
-                    .targetWord(request.targetWord())
+                    .targetWord(removeNonLetters(request.targetWord()))
                     .familiarity(request.familiarity())
                     .sourceLanguage(request.sourceLanguage())
                     .targetLanguage(request.targetLanguage())
@@ -66,76 +66,63 @@ public class TranslationServiceImp implements TranslationService {
                     .selectedWordId(request.selectedWordId())
                     .translationId(translationId)
                     .translation(translation)
-                    .currentFamiliarity(getFamiliarityAsInt(request.familiarity()))
-                    .familiarityLevels(getSortedFamiliarityMap())
+                    .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
+                    .familiarityLevels(getFamiliarityTable())
                     .page(request.page())
                     .build());
         } catch (ConstraintViolationException e) {
             return ServiceResultImp.error(TranslationAttribute.builder()
                     .importId(request.importId())
                     .selectedWordId(request.selectedWordId())
-                    .translationId(-1)
                     .translation(null)
-                    .currentFamiliarity(getFamiliarityAsInt(request.familiarity()))
-                    .familiarityLevels(getSortedFamiliarityMap())
+                    .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
+                    .familiarityLevels(getFamiliarityTable())
                     .page(request.page())
                     .build(), ErrorMapFactory.fromViolations(e.getConstraintViolations()));
         }
     }
 
     @Transactional
-    public void findByTargetWord(@NonNull Model model, @NonNull
-                                 FindTranslationRequest request,
-                                 String owner,
-                                 Language sourceLanguage,
-                                 Language targetLanguage) {
-        var constraints = validator.validate(request);
-        if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResultImp(true, ErrorMapFactory.fromViolations(constraints)));
-            throw new RetryViewException("Constraints violated at " + request);
+    public ServiceResult<TranslationAttribute> findByTargetWord(@NonNull FindByTargetWordRequest request) {
+        try {
+            validate(request);
+            String targetWordWithOnlyLetters = removeNonLetters(request.targetWord());
+            if(translationRepository.findByTargetWord(targetWordWithOnlyLetters, request.owner()).isPresent()) {
+                Translation translation = translationRepository.findByTargetWord(targetWordWithOnlyLetters, request.owner()).get();
+                return ServiceResultImp.success(TranslationAttribute.builder()
+                        .importId(request.importId())
+                        .selectedWordId(request.selectedWordId())
+                        .translation(translation)
+                        .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
+                        .familiarityLevels(getFamiliarityTable())
+                        .page(request.page())
+                        .build());
+            }
+            List<String> sourceWordsFromLibreTranslate = libreTranslateService.translate(
+                    targetWordWithOnlyLetters,
+                    request.sourceLanguage(),
+                    request.targetLanguage()
+            );
+            List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(targetWordWithOnlyLetters, 3);
+            Translation translation = TranslationImp.builder()
+                    .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, sourceWordsFromLibreTranslate))
+                    .targetWord(stringRegexService.removeNonLetters(targetWordWithOnlyLetters))
+                    .familiarity(Familiarity.UNKNOWN)
+                    .sourceLanguage(request.sourceLanguage())
+                    .targetLanguage(request.targetLanguage())
+                    .owner(request.owner())
+                    .build();
+            return ServiceResultImp.error(TranslationAttribute.builder()
+                    .importId(request.importId())
+                    .selectedWordId(1)
+                    .translation(translation)
+                    .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
+                    .familiarityLevels(getFamiliarityTable())
+                    .page(request.page())
+                    .build(), Map.of("404", "Translation not found"));
+        } catch (ConstraintViolationException e) {
+            return ServiceResultImp.errorEmpty(ErrorMapFactory.fromViolations(e.getConstraintViolations()));
         }
-        String cleanTargetWord = stringRegexService.removeNonLetters(request.targetWord());
-        if(cleanTargetWord.isEmpty()) throw new RetryViewException("Target word contains illegal characters");
-        if(translationRepository.findByTargetWord(cleanTargetWord, owner).isPresent()) {
-            Translation translation = translationRepository.findByTargetWord(cleanTargetWord, owner).get();
-            model.addAttribute("translationAttribute", new TranslationAttribute(
-                    request.importId(),
-                    translationUtilService.getFamiliarityAsInt(translation.familiarity()),
-                    translation,
-                    translationUtilService.getSortedFamiliarityMap(),
-                    request.selectedWordId(),
-                    request.page()
-            ));
-            return;
-        }
-        List<String> libreTranslateSourceWords = libreTranslateService.translate(
-                stringRegexService.removeNonLetters(cleanTargetWord),
-                sourceLanguage,
-                targetLanguage
-        );
-        List<String> dbSourceWords = translationRepository.findMostFrequentSourceWords(cleanTargetWord, 3);
-        Translation translation = TranslationImp.builder()
-                .sourceWords(Stream.concat(
-                        dbSourceWords.stream(),
-                        libreTranslateSourceWords.stream()
-                )
-                .distinct()
-                .toList())
-                .targetWord(stringRegexService.removeNonLetters(cleanTargetWord))
-                .familiarity(Familiarity.UNKNOWN)
-                .sourceLanguage(sourceLanguage)
-                .targetLanguage(targetLanguage)
-                .owner(owner)
-                .build();
-        model.addAttribute("translationAttribute", new TranslationAttribute(
-                request.importId(),
-                1,
-                translation,
-                translationUtilService.getSortedFamiliarityMap(),
-                request.selectedWordId(),
-                request.page()
-        ));
-        throw new TranslationNotFoundException("Translation not found");
     }
 
     @Transactional
@@ -243,15 +230,24 @@ public class TranslationServiceImp implements TranslationService {
         return translationRepository.getWordsLearnedCount(owner);
     }
 
+    private List<String> mergeSourceWordLists(List<String> sourceWordsFromDatabase, List<String> sourceWordsFromLibreTranslate) {
+        return Stream.concat(
+                        sourceWordsFromDatabase.stream(),
+                        sourceWordsFromLibreTranslate.stream()
+                )
+                .distinct()
+                .toList();
+    }
+
     private int insertIntoDatabase(Translation translation,  int importId) {
         return translationRepository.addTranslation(translation, importId).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
     }
 
-    private void validate(AddTranslationRequest request) throws ConstraintViolationException {
+    private void validate(ServiceRequest request) throws ConstraintViolationException {
         validationService.validate(request);
     }
 
-    private int getFamiliarityAsInt(Familiarity familiarity) {
+    private int getFamiliarityAsDigit(Familiarity familiarity) {
         return switch (familiarity) {
             case UNKNOWN -> 1;
             case RECOGNIZED -> 2;
@@ -261,7 +257,7 @@ public class TranslationServiceImp implements TranslationService {
         };
     }
 
-    private Map<Integer, Familiarity> getSortedFamiliarityMap() {
+    private Map<Integer, Familiarity> getFamiliarityTable() {
         return new TreeMap<>(Map.of(
                 1, Familiarity.UNKNOWN,
                 2, Familiarity.RECOGNIZED,
@@ -269,5 +265,9 @@ public class TranslationServiceImp implements TranslationService {
                 4, Familiarity.KNOWN,
                 5, Familiarity.IGNORED)
         );
+    }
+
+    private String removeNonLetters(String input) {
+        return input.replaceAll("[^\\p{L}\\p{N}]", "").trim().toLowerCase();
     }
 }

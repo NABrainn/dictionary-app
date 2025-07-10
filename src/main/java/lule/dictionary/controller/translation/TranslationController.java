@@ -28,29 +28,6 @@ public class TranslationController {
 
     private final TranslationServiceImp translationService;
 
-    @GetMapping("")
-    public String findByTargetWord(Model model,
-                                   Authentication authentication,
-                                   @RequestParam int importId,
-                                   @RequestParam String targetWord,
-                                   @RequestParam("selectedWordId") int selectedWordId,
-                                   @RequestParam("page") int page) {
-        try {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            translationService.findByTargetWord(model, new FindTranslationRequest(importId, targetWord, selectedWordId, page),
-                    principal.getUsername(),
-                    principal.sourceLanguage(),
-                    principal.targetLanguage());
-            return "import-page/translation/update-translation-form";
-        } catch (RetryViewException e) {
-            log.warn("Retrying view due to input issue: {}", e.getMessage());
-            return "import-page/translation/update-translation-form";
-        } catch (TranslationNotFoundException e) {
-            log.info("Translation not found for '{}', showing creation form. Details: {}", targetWord, e.getMessage());
-            return "import-page/translation/add-translation-form";
-        }
-    }
-
     @PostMapping({"/new", "/new/"})
     public String newTranslation(Model model,
                                  Authentication authentication,
@@ -76,6 +53,37 @@ public class TranslationController {
                 .build());
         model.addAttribute("translationAttribute", result.value());
         return "forward:/imports/page/reload";
+    }
+
+    @GetMapping("")
+    public String findByTargetWord(Model model,
+                                   Authentication authentication,
+                                   @RequestParam int importId,
+                                   @RequestParam String targetWord,
+                                   @RequestParam("selectedWordId") int selectedWordId,
+                                   @RequestParam("page") int page) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(FindByTargetWordRequest.builder()
+                .importId(importId)
+                .selectedWordId(selectedWordId)
+                .targetWord(targetWord)
+                .sourceLanguage(principal.sourceLanguage())
+                .targetLanguage(principal.targetLanguage())
+                .page(page)
+                .owner(principal.getUsername())
+                .build());
+        if(result.hasError() && !result.messages().isEmpty()) {
+            model.addAttribute("translationAttribute", result.value());
+            return "import-page/translation/update-translation-form";
+        }
+        if(result.hasError() && result.messages().containsKey("404")) {
+            model.addAttribute("translationAttribute", result.value());
+            return "import-page/translation/add-translation-form";
+        }
+        if(result.hasError()) {
+            return "error";
+        }
+        return "import-page/translation/update-translation-form";
     }
 
     @PutMapping({"/familiarity/update", "/familiarity/update/"})
