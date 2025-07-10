@@ -51,7 +51,7 @@ public class TranslationServiceImp implements TranslationService {
     @Transactional
     public ServiceResult<TranslationAttribute> createTranslation(@NonNull AddTranslationRequest request) {
         try {
-            validationService.validate(request);
+            validate(request);
             Translation translation = TranslationImp.builder()
                     .sourceWords(request.sourceWords())
                     .targetWord(request.targetWord())
@@ -60,7 +60,7 @@ public class TranslationServiceImp implements TranslationService {
                     .targetLanguage(request.targetLanguage())
                     .owner(request.owner())
                     .build();
-            int translationId = translationRepository.addTranslation(translation, request.importId()).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
+            int translationId = insertIntoDatabase(translation, request.importId());
             return ServiceResultImp.success(TranslationAttribute.builder()
                     .importId(request.importId())
                     .selectedWordId(request.selectedWordId())
@@ -81,10 +81,6 @@ public class TranslationServiceImp implements TranslationService {
                     .page(request.page())
                     .build(), ErrorMapFactory.fromViolations(e.getConstraintViolations()));
         }
-    }
-
-    public List<Translation> findAllByOwner(@NonNull String owner){
-        return translationRepository.findByOwner(owner);
     }
 
     @Transactional
@@ -245,6 +241,14 @@ public class TranslationServiceImp implements TranslationService {
 
     public int getWordsLearnedCount(String owner) {
         return translationRepository.getWordsLearnedCount(owner);
+    }
+
+    private int insertIntoDatabase(Translation translation,  int importId) {
+        return translationRepository.addTranslation(translation, importId).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
+    }
+
+    private void validate(AddTranslationRequest request) throws ConstraintViolationException {
+        validationService.validate(request);
     }
 
     private int getFamiliarityAsInt(Familiarity familiarity) {
