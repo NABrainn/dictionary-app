@@ -119,7 +119,7 @@ public class TranslationController {
                                     @RequestParam("targetWord") String targetWord) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         try {
-            translationService.updateSourceWords(model, new UpdateSourceWordsRequest(
+            translationService.updateSourceWords(new UpdateSourceWordsRequest(
                     sourceWords,
                     targetWord,
                     userDetails.getUsername()

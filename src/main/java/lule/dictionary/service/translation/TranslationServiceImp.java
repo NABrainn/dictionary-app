@@ -5,7 +5,6 @@ import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.dto.request.ServiceRequest;
@@ -16,11 +15,15 @@ import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
+import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
+import lule.dictionary.service.translation.dto.attribute.TranslationPair;
 import lule.dictionary.service.translation.dto.request.AddTranslationRequest;
+import lule.dictionary.service.translation.dto.request.FindByTargetWordRequest;
+import lule.dictionary.service.translation.dto.request.UpdateSourceWordsRequest;
+import lule.dictionary.service.translation.dto.request.UpdateTranslationFamiliarityRequest;
 import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import lule.dictionary.service.userProfile.UserProfileService;
-import lule.dictionary.service.util.StringRegexService;
 import lule.dictionary.service.validation.ValidationService;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import org.springframework.stereotype.Service;
@@ -37,7 +40,6 @@ import java.util.stream.Stream;
 public class TranslationServiceImp implements TranslationService {
 
     private final TranslationRepository translationRepository;
-    private final StringRegexService stringRegexService;
     private final LibreTranslateService libreTranslateService;
     private final UserProfileService userProfileService;
     private final Validator validator;
@@ -135,52 +137,39 @@ public class TranslationServiceImp implements TranslationService {
                 .build());
     }
 
-    public List<Translation> findByTargetWords(List<String> targetWords,
-                                               String owner) {
-        List<String> validTargetWords = targetWords.stream()
-                .map(word -> stringRegexService.removeNonLetters(word).trim().toLowerCase())
-                .filter(word -> !word.isEmpty())
-                .distinct()
-                .toList();
-        return translationRepository.findByTargetWords(validTargetWords, owner);
-    }
+//    public List<Translation> findByTargetWords(List<String> targetWords,
+//                                               String owner) {
+//        List<String> validTargetWords = targetWords.stream()
+//                .map(word -> stringRegexService.removeNonLetters(word).trim().toLowerCase())
+//                .filter(word -> !word.isEmpty())
+//                .distinct()
+//                .toList();
+//        return translationRepository.findByTargetWords(validTargetWords, owner);
+//    }
 
     @Transactional
-    public void updateSourceWords(Model model,
-                                  UpdateSourceWordsRequest request) {
-        var constraints = validator.validate(request);
-        Pattern validWordPattern = Pattern.compile("^[\\p{L}0-9 ]+$");
-
-        if (!constraints.isEmpty()) {
-            model.addAttribute("targetWord", request.targetWord());
-            model.addAttribute("sourceWords", request.sourceWords()
+    public ServiceResult<TranslationPair> updateSourceWords(UpdateSourceWordsRequest request) {
+        try {
+            validate(request);
+            Optional<Translation> translation = translationRepository.updateSourceWords(
+                    request.sourceWords(),
+                    request.targetWord(),
+                    request.owner()
+            );
+            if(translation.isPresent())
+                return ServiceResultImp.success(TranslationPair.of(translation.get().sourceWords(), translation.get().targetWord()));
+            return ServiceResultImp.errorEmpty(Map.of());
+        } catch (ConstraintViolationException e) {
+            return ServiceResultImp.error(TranslationPair.of(request.sourceWords()
                     .stream()
                     .filter(word -> !word.isBlank())
-                    .filter(word -> validWordPattern.matcher(word).matches())
-                    .toList()
-            );
-            model.addAttribute("result", new ServiceResultImp(true, ErrorMapFactory.fromSetConcrete(constraints)));
-            throw new RetryViewException("Constraints violated at " + request);
+                    .filter(word -> compileNonSpecialChars().matcher(word).matches())
+                    .toList(), request.targetWord()), ErrorMapFactory.fromViolations(e.getConstraintViolations()));
         }
-        Optional<Translation> translation = translationRepository.updateSourceWords(
-                request.sourceWords(),
-                request.targetWord(),
-                request.owner()
-        );
-        if(TimeZoneOffsetContext.get() != null) {
-            userProfileService.updateTimezoneOffset(
-                    request.owner(),
-                    TimeZoneOffsetContext.get()
-            );
-        }
-        translation.ifPresent(value -> {
-            model.addAttribute("targetWord", value.targetWord());
-            model.addAttribute("sourceWords", value.sourceWords());
-            model.addAttribute("result", new ServiceResultImp(false, Map.of()));
-        });
-        model.addAttribute("targetWord", request.targetWord());
-        model.addAttribute("sourceWords", request.sourceWords());
-        model.addAttribute("result", new ServiceResultImp(false, Map.of()));
+    }
+
+    private static Pattern compileNonSpecialChars() {
+        return Pattern.compile("^[\\p{L}0-9 ]+$");
     }
 
     @Transactional
