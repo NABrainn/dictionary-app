@@ -7,14 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
-import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.exception.RetryViewException;
 import lule.dictionary.service.dto.request.ServiceRequest;
 import lule.dictionary.service.dto.result.ServiceResultImp;
 import lule.dictionary.service.dto.result.ServiceResult;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.service.translation.dto.*;
-import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
@@ -23,7 +21,6 @@ import lule.dictionary.service.translation.exception.SourceWordNotFoundException
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import lule.dictionary.service.userProfile.UserProfileService;
 import lule.dictionary.service.util.StringRegexService;
-import lule.dictionary.service.translation.util.TranslationFamiliarityService;
 import lule.dictionary.service.validation.ValidationService;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import org.springframework.stereotype.Service;
@@ -32,7 +29,6 @@ import org.springframework.ui.Model;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -41,7 +37,6 @@ import java.util.stream.Stream;
 public class TranslationServiceImp implements TranslationService {
 
     private final TranslationRepository translationRepository;
-    private final TranslationFamiliarityService translationUtilService;
     private final StringRegexService stringRegexService;
     private final LibreTranslateService libreTranslateService;
     private final UserProfileService userProfileService;
@@ -106,7 +101,7 @@ public class TranslationServiceImp implements TranslationService {
             List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(targetWordWithOnlyLetters, 3);
             Translation translation = TranslationImp.builder()
                     .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, sourceWordsFromLibreTranslate))
-                    .targetWord(stringRegexService.removeNonLetters(targetWordWithOnlyLetters))
+                    .targetWord(removeNonLetters(targetWordWithOnlyLetters))
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(request.sourceLanguage())
                     .targetLanguage(request.targetLanguage())
@@ -126,21 +121,18 @@ public class TranslationServiceImp implements TranslationService {
     }
 
     @Transactional
-    public void updateFamiliarity(Model model, UpdateTranslationFamiliarityRequest request){
-        String transformedTargetWord = stringRegexService.removeNonLetters(request.targetWord());
-        Translation translation = translationRepository.updateFamiliarity(
-                transformedTargetWord,
-                request.familiarity(),
-                request.owner()
-                ).orElseThrow(() -> new TranslationNotFoundException("Failed to update familiarity for " + transformedTargetWord));
-        model.addAttribute("translationAttribute", new TranslationAttribute(
-                request.importId(),
-                translationUtilService.getFamiliarityAsInt(translation.familiarity()),
-                translation,
-                translationUtilService.getSortedFamiliarityMap(),
-                request.selectedWordId(),
-                request.page()
-        ));
+    public ServiceResult<TranslationAttribute> updateFamiliarity(UpdateTranslationFamiliarityRequest request) {
+        String targetWordWithOnlyLetters = removeNonLetters(request.targetWord());
+        Translation translation = translationRepository.updateFamiliarity(targetWordWithOnlyLetters, request.familiarity(), request.owner())
+                .orElseThrow(() -> new TranslationNotFoundException("Failed to update familiarity for " + targetWordWithOnlyLetters));
+        return ServiceResultImp.success(TranslationAttribute.builder()
+                .importId(request.importId())
+                .selectedWordId(request.selectedWordId())
+                .translation(translation)
+                .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
+                .familiarityLevels(getFamiliarityTable())
+                .page(request.page())
+                .build());
     }
 
     public List<Translation> findByTargetWords(List<String> targetWords,
@@ -151,19 +143,6 @@ public class TranslationServiceImp implements TranslationService {
                 .distinct()
                 .toList();
         return translationRepository.findByTargetWords(validTargetWords, owner);
-    }
-
-    public Map<String, Translation> findTranslationsByImport(@NonNull Import imported,
-                                                             String owner) {
-        List<String> targetWords = Arrays.stream(imported.content().split(" "))
-                .map(stringRegexService::removeNonLetters)
-                .toList();
-        return findByTargetWords(targetWords, owner).stream()
-                .collect(Collectors.toUnmodifiableMap(
-                    TranslationDetails::targetWord,
-                    (value) -> value,
-                    (first, second) -> first
-                ));
     }
 
     @Transactional
