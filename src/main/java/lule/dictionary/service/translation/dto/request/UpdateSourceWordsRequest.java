@@ -1,10 +1,11 @@
-package lule.dictionary.service.translation.dto;
+package lule.dictionary.service.translation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.NonNull;
+import lule.dictionary.service.dto.request.ServiceRequest;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public record UpdateSourceWordsRequest(@NonNull
                                        String targetWord,
 
                                        @NonNull
-                                       String owner) {
+                                       String owner) implements ServiceRequest {
 
     @Override
     public List<String> sourceWords() {
