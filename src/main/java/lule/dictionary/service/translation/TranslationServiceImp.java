@@ -168,34 +168,29 @@ public class TranslationServiceImp implements TranslationService {
         }
     }
 
-    private static Pattern compileNonSpecialChars() {
-        return Pattern.compile("^[\\p{L}0-9 ]+$");
-    }
-
     @Transactional
-    public void deleteSourceWord(Model model, DeleteSourceWordRequest request) {
-        var constraints = validator.validate(request);
-        if(!constraints.isEmpty()) {
-            model.addAttribute("result", new ServiceResultImp(true, ErrorMapFactory.fromSetConcrete(constraints)));
-            throw new RetryViewException("Constraints violated at " + request);
+    public ServiceResult<TranslationPair> deleteSourceWord(DeleteSourceWordRequest request) {
+        try {
+            validate(request);
+            Optional<Translation> translation = translationRepository.deleteSourceWord(
+                    request.sourceWord(),
+                    request.targetWord(),
+                    request.owner()
+            );
+            if(translation.isPresent())
+                return ServiceResultImp.success(TranslationPair.of(translation.get().sourceWords(), translation.get().targetWord()));
+            return ServiceResultImp.errorEmpty(Map.of());
+        } catch (ConstraintViolationException e) {
+            return ServiceResultImp.errorEmpty(ErrorMapFactory.fromViolations(e.getConstraintViolations()));
         }
-        Optional<Translation> translation = translationRepository.deleteSourceWord(
-                request.sourceWord(),
-                request.targetWord(),
-                request.owner()
-        );
-        if(translation.isPresent()) {
-            model.addAttribute("targetWord", request.targetWord());
-            model.addAttribute("sourceWords", translation.get().sourceWords());
-            model.addAttribute("result", new ServiceResultImp(false, Map.of()));
-            return;
-        }
-        model.addAttribute("sourceWords", List.of());
-        throw new SourceWordNotFoundException("Source word not found");
     }
 
     public int getWordsLearnedCount(String owner) {
         return translationRepository.getWordsLearnedCount(owner);
+    }
+
+    private Pattern compileNonSpecialChars() {
+        return Pattern.compile("^[\\p{L}0-9 ]+$");
     }
 
     private List<String> mergeSourceWordLists(List<String> sourceWordsFromDatabase, List<String> sourceWordsFromLibreTranslate) {

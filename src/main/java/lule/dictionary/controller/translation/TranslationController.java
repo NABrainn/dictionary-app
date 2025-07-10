@@ -138,7 +138,7 @@ public class TranslationController {
                                    @RequestParam("targetWord") String targetWord) {
         try {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            translationService.deleteSourceWord(model, new DeleteSourceWordRequest(
+            translationService.deleteSourceWord(new DeleteSourceWordRequest(
                     sourceWord,
                     targetWord,
                     userDetails.getUsername()
