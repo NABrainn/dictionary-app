@@ -10,9 +10,12 @@ import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.translation.TranslationServiceImp;
+import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.request.AddTranslationRequest;
+import lule.dictionary.service.translation.dto.request.FindByTargetWordRequest;
+import lule.dictionary.service.translation.dto.request.UpdateSourceWordsRequest;
+import lule.dictionary.service.translation.dto.request.UpdateTranslationFamiliarityRequest;
 import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
-import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -102,6 +105,7 @@ public class TranslationController {
                 .targetWord(targetWord)
                 .sourceLanguage(sourceLanguage)
                 .targetLanguage(targetLanguage)
+                .familiarity(familiarity)
                 .page(page)
                 .owner(principal.getUsername())
                 .build());
