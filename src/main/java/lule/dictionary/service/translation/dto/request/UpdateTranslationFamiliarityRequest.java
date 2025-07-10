@@ -1,4 +1,4 @@
-package lule.dictionary.service.translation.dto;
+package lule.dictionary.service.translation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
