@@ -1,9 +1,9 @@
-@import lule.dictionary.service.dto.ServiceResult
+@import lule.dictionary.service.dto.result.ServiceResultImp
 @import lule.dictionary.service.language.Language
 @import org.springframework.security.web.csrf.CsrfToken
 @import java.util.Map
 
-@param ServiceResult result = null
+@param ServiceResultImp result = null
 @param CsrfToken _csrf
 @param boolean authenticated
 @param String username
@@ -39,7 +39,7 @@
             focus:border-accent"
             type="text" name="login" id="login">
             @if(result != null)
-                @if(result.error() && result.messages().get("login") != null)
+                @if(result.hasError() && result.messages().get("login") != null)
                     <span class="text-error font-semibold text-sm">${result.messages().get("login")}</span>
                 @else
                     <span class="invisible text-sm">fallback</span>
@@ -56,7 +56,7 @@
             focus:border-accent"
             type="password" name="password" id="password">
             @if(result != null)
-                @if(result.error() && result.messages().get("password") != null)
+                @if(result.hasError() && result.messages().get("password") != null)
                     <span class="text-error font-semibold text-sm">${result.messages().get("password")}</span>
                 @else
                     <span class="invisible text-sm">fallback</span>

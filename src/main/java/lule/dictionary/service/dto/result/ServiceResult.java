@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface ServiceResult<T> {
     T value();
-    boolean isError();
+    boolean hasError();
     Map<String, String> messages();
 }
