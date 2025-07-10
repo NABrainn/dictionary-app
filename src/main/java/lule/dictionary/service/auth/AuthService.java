@@ -2,9 +2,7 @@ package lule.dictionary.service.auth;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +17,8 @@ import lule.dictionary.service.auth.dto.authenticationContext.SessionContextFact
 import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationResult;
 import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationResultFactory;
 import lule.dictionary.service.cookie.CookieService;
-import lule.dictionary.service.dto.ServiceResult;
-import lule.dictionary.service.dto.ServiceResultFactory;
+import lule.dictionary.service.dto.result.ServiceResultImp;
+import lule.dictionary.service.dto.result.ServiceResult;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.service.validation.ValidationService;
@@ -36,7 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -50,11 +47,10 @@ public class AuthService {
     private final ValidationService validationService;
     private final UserProfileFactory userProfileFactory;
     private final SessionContextFactory sessionContextFactory;
-    private final ServiceResultFactory serviceResultFactory;
     private final AuthenticationResultFactory authenticationResultFactory;
 
 
-    public ServiceResult login(@NonNull LoginRequest loginData,
+    public ServiceResult<?> login(@NonNull LoginRequest loginData,
                                @NonNull HttpServletResponse response) {
         try {
             return processLoginRequest(loginData, response);
@@ -62,7 +58,7 @@ public class AuthService {
 
         catch (ConstraintViolationException e) {
             log.warn("ConstraintViolationException: {}", e.getMessage());
-            return handleException(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
+            return handleException(ErrorMapFactory.fromViolations(e.getConstraintViolations()));
         }
 
         catch (UserNotFoundException e) {
@@ -78,14 +74,14 @@ public class AuthService {
     }
 
     @Transactional
-    public ServiceResult signup(@NonNull SignupRequest signupRequest) {
+    public ServiceResult<?> signup(@NonNull SignupRequest signupRequest) {
         try {
             return processSignupRequest(signupRequest);
         }
 
         catch (ConstraintViolationException e) {
             log.info(e.getMessage());
-            return handleException(ErrorMapFactory.fromSetWildcard(e.getConstraintViolations()));
+            return handleException(ErrorMapFactory.fromViolations(e.getConstraintViolations()));
         }
 
         catch (UserExistsException e) {
@@ -94,28 +90,28 @@ public class AuthService {
         }
     }
 
-    public ServiceResult logout(@NonNull HttpServletResponse httpServletResponse) {
+    public ServiceResult<?> logout(@NonNull HttpServletResponse httpServletResponse) {
         clearAuthentication();
         deleteJwtCookie(httpServletResponse);
-        return serviceResultFactory.createSuccessResult(Map.of());
+        return ServiceResultImp.successEmpty();
     }
 
-    private ServiceResult processLoginRequest(LoginRequest loginData, HttpServletResponse response) throws ConstraintViolationException {
+    private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response) throws ConstraintViolationException {
         AuthRequest validLoginData = validate(loginData);
         AuthenticationResult authResult = authenticateUser(validLoginData);
         setAuthenticationContext(sessionContextFactory.of(authResult, response));
-        return serviceResultFactory.createSuccessResult(Map.of());
+        return ServiceResultImp.successEmpty();
     }
 
-    private ServiceResult handleException(Map<String, String> stringStringMap) {
-        return serviceResultFactory.createErrorResult(stringStringMap);
+    private ServiceResult<?> handleException(Map<String, String> errorMessages) {
+        return ServiceResultImp.errorEmpty(errorMessages);
     }
 
-    private ServiceResult processSignupRequest(SignupRequest signupData) {
+    private ServiceResult<?> processSignupRequest(SignupRequest signupData) {
         AuthRequest validSignupData = validate(signupData);
         checkIfUserExists((SignupRequest) validSignupData);
         userProfileService.addUserProfile((SignupRequest) validSignupData);
-        return serviceResultFactory.createSuccessResult(Map.of());
+        return ServiceResultImp.successEmpty();
     }
 
 
