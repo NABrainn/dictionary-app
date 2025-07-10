@@ -4,18 +4,19 @@ import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.exception.RetryViewException;
+import lule.dictionary.service.dto.exception.InvalidInputException;
 import lule.dictionary.service.dto.result.ServiceResult;
 import lule.dictionary.service.translation.dto.*;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.translation.TranslationServiceImp;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
+import lule.dictionary.service.translation.dto.attribute.TranslationPair;
 import lule.dictionary.service.translation.dto.request.AddTranslationRequest;
 import lule.dictionary.service.translation.dto.request.FindByTargetWordRequest;
 import lule.dictionary.service.translation.dto.request.UpdateSourceWordsRequest;
 import lule.dictionary.service.translation.dto.request.UpdateTranslationFamiliarityRequest;
-import lule.dictionary.service.translation.exception.SourceWordNotFoundException;
+import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,19 +44,25 @@ public class TranslationController {
                                  @RequestParam("selectedWordId") int selectedWordId,
                                  @RequestParam("page") int page) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        ServiceResult<TranslationAttribute> result = translationService.createTranslation(AddTranslationRequest.builder()
-                .importId(importId)
-                .selectedWordId(selectedWordId)
-                .sourceWords(sourceWords)
-                .targetWord(targetWord)
-                .sourceLanguage(sourceLanguage)
-                .targetLanguage(targetLanguage)
-                .familiarity(familiarity)
-                .page(page)
-                .owner(principal.getUsername())
-                .build());
-        model.addAttribute("translationAttribute", result.value());
-        return "forward:/imports/page/reload";
+        try {
+            ServiceResult<TranslationAttribute> result = translationService.createTranslation(AddTranslationRequest.builder()
+                    .importId(importId)
+                    .selectedWordId(selectedWordId)
+                    .sourceWords(sourceWords)
+                    .targetWord(targetWord)
+                    .sourceLanguage(sourceLanguage)
+                    .targetLanguage(targetLanguage)
+                    .familiarity(familiarity)
+                    .page(page)
+                    .owner(principal.getUsername())
+                    .build());
+            model.addAttribute("translationAttribute", result.value());
+            return "forward:/imports/page/reload";
+        } catch (InvalidInputException e) {
+            String exceptionMessage = "Failed to add translation due to invalid input.";
+            log.info(exceptionMessage);
+            throw new RuntimeException(exceptionMessage);
+        }
     }
 
     @GetMapping("")
@@ -65,28 +72,28 @@ public class TranslationController {
                                    @RequestParam String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId,
                                    @RequestParam("page") int page) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(FindByTargetWordRequest.builder()
-                .importId(importId)
-                .selectedWordId(selectedWordId)
-                .targetWord(targetWord)
-                .sourceLanguage(principal.sourceLanguage())
-                .targetLanguage(principal.targetLanguage())
-                .page(page)
-                .owner(principal.getUsername())
-                .build());
-        if(result.hasError() && !result.messages().isEmpty()) {
+        try {
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(FindByTargetWordRequest.builder()
+                    .importId(importId)
+                    .selectedWordId(selectedWordId)
+                    .targetWord(targetWord)
+                    .sourceLanguage(principal.sourceLanguage())
+                    .targetLanguage(principal.targetLanguage())
+                    .page(page)
+                    .owner(principal.getUsername())
+                    .build());
             model.addAttribute("translationAttribute", result.value());
             return "import-page/translation/update-translation-form";
-        }
-        if(result.hasError() && result.messages().containsKey("404")) {
-            model.addAttribute("translationAttribute", result.value());
+
+        } catch (TranslationNotFoundException e) {
+            model.addAttribute("translationAttribute", e.getResult().value());
             return "import-page/translation/add-translation-form";
+
+        } catch (InvalidInputException e) {
+            model.addAttribute("translationAttribute", e.getResult().value());
+            return "import-page/translation/update-translation-form";
         }
-        if(result.hasError()) {
-            return "error";
-        }
-        return "import-page/translation/update-translation-form";
     }
 
     @PutMapping({"/familiarity/update", "/familiarity/update/"})
@@ -119,14 +126,15 @@ public class TranslationController {
                                     @RequestParam("targetWord") String targetWord) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         try {
-            translationService.updateSourceWords(new UpdateSourceWordsRequest(
+            ServiceResult<TranslationPair> result = translationService.updateSourceWords(new UpdateSourceWordsRequest(
                     sourceWords,
                     targetWord,
                     userDetails.getUsername()
             ));
+            model.addAttribute("translationAttribute", result.value());
             return "import-page/translation/update-source-words-form";
-        } catch (RetryViewException e) {
-            log.warn("Retrying view due to input issue: {}", e.getMessage());
+        } catch (InvalidInputException e) {
+            model.addAttribute("translationAttribute", e.getResult().value());
             return "import-page/translation/update-source-words-form";
         }
     }
@@ -144,8 +152,8 @@ public class TranslationController {
                     userDetails.getUsername()
             ));
             return "import-page/translation/source-words-list";
-        } catch (RetryViewException | SourceWordNotFoundException e) {
-            log.warn("Retrying view due to input issue: {}", e.getMessage());
+        } catch (InvalidInputException e) {
+            model.addAttribute("translationAttribute", e.getResult().value());
             return "import-page/translation/source-words-list";
         }
     }
