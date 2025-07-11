@@ -1,9 +1,9 @@
-@import lule.dictionary.service.dto.ServiceResult
+@import lule.dictionary.service.dto.result.ServiceResultImp
 @import java.util.List
 
 @param List<String> sourceWords
 @param String targetWord
-@param ServiceResult result
+@param ServiceResultImp result
 
 <form
     class="flex flex-col gap-2"
@@ -18,7 +18,7 @@
     </div>
     <div class="flex gap-2">
         @if(result != null)
-            @if(result.error())
+            @if(result.hasError())
                 <input
                 id="input-source-word"
                 class="
