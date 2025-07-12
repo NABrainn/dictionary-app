@@ -1,5 +1,5 @@
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
-@import lule.dictionary.service.translation.dto.attribute.TranslationPair;
+@import lule.dictionary.service.translation.dto.attribute.TranslationPair
 
 @param TranslationAttribute translationAttribute
 

@@ -17,10 +17,12 @@ import lule.dictionary.service.translation.dto.request.FindByTargetWordRequest;
 import lule.dictionary.service.translation.dto.request.UpdateSourceWordsRequest;
 import lule.dictionary.service.translation.dto.request.UpdateTranslationFamiliarityRequest;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -61,7 +63,7 @@ public class TranslationController {
         } catch (InvalidInputException e) {
             String exceptionMessage = "Failed to add translation due to invalid input.";
             log.info(exceptionMessage);
-            throw new RuntimeException(exceptionMessage);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exceptionMessage);
         }
     }
 
@@ -92,9 +94,8 @@ public class TranslationController {
             return "import-page/translation/add-translation-form";
 
         } catch (InvalidInputException e) {
-            log.info("Invalid input, resending update-translation-form template");
-            model.addAttribute("translationAttribute", e.getResult().value());
-            return "import-page/translation/update-translation-form";
+            log.info("Invalid input, sending info back");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid target word");
         }
     }
 
@@ -130,11 +131,7 @@ public class TranslationController {
                                     @RequestParam("targetWord") String targetWord) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         try {
-            ServiceResult<TranslationPair> result = translationService.updateSourceWords(new UpdateSourceWordsRequest(
-                    sourceWords,
-                    targetWord,
-                    userDetails.getUsername()
-            ));
+            ServiceResult<TranslationPair> result = translationService.updateSourceWords(UpdateSourceWordsRequest.of(sourceWords, targetWord, userDetails.getUsername()));
             model.addAttribute("translationPair", result.value());
             model.addAttribute("hasError", result.hasError());
             return "import-page/translation/update-source-words-form";

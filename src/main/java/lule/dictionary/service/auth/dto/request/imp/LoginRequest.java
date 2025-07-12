@@ -1,6 +1,7 @@
 package lule.dictionary.service.auth.dto.request.imp;
 
 import jakarta.validation.constraints.*;
+import lombok.NonNull;
 import lule.dictionary.service.auth.dto.request.AuthRequest;
 
 public record LoginRequest(
@@ -14,4 +15,7 @@ public record LoginRequest(
         @NotBlank(message = "Password cannot be empty")
         @Size(min = 8, max = 200, message = "Password must be between 8 and 200 characters")
         String password) implements AuthRequest {
+    public static LoginRequest of(@NonNull String login, @NonNull String password) {
+        return new LoginRequest(login, password);
+    }
 }

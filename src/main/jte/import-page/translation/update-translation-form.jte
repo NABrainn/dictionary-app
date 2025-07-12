@@ -1,7 +1,5 @@
-@import lule.dictionary.service.dto.result.ServiceResultImp
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
 @import lule.dictionary.service.translation.dto.attribute.TranslationPair
-@import java.util.Map
 
 @param TranslationAttribute translationAttribute
 

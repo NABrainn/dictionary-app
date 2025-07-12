@@ -6,6 +6,12 @@ An application that makes language learning fun and engaging through reading.
 - **Backend**: Java, Spring Boot
 - **Database**: PostgreSQL
 
+### How we work with the code:
+### 1. Prefer immutable data:
+- **Use records over classes for data transfer**
+- **Classes are still fine for services and extending exceptions**
+### 2. Prefer constructing via static factory method over "new" keyword
+### 3. Do describe public APIs with interfaces
 ![Screenshot](readme_resources/img.png)
 
 ### 13/06/2025
