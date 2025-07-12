@@ -27,6 +27,7 @@ hx-on::before-request="document.querySelector('source-word-field').isEmpty()">
         @template.import-page.translation.source-words-list(translationPair = translationPair, isUpdateForm = false)
     </div>
     <div class="flex gap-2">
+        <label for="input-source-word"></label>
         <input
         id="input-source-word"
         class="
