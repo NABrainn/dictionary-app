@@ -16,7 +16,6 @@
     </div>
     <div class="flex gap-2">
         @if(hasError)
-            <label for="input-source-word"></label>
             <input
             id="input-source-word"
             class="
