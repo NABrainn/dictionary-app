@@ -7,15 +7,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.entity.application.interfaces.userProfile.UserProfileFactory;
+import lule.dictionary.entity.application.implementation.userProfile.base.UserProfileImp;
 import lule.dictionary.service.auth.dto.request.AuthRequest;
 import lule.dictionary.service.auth.dto.authenticationContext.SessionContext;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
-import lule.dictionary.service.auth.dto.authenticationContext.SessionContextFactory;
 import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationResult;
-import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationResultFactory;
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.dto.result.ServiceResultImp;
 import lule.dictionary.service.dto.result.ServiceResult;
@@ -45,13 +43,10 @@ public class AuthService {
     private final JwtService jwtService;
     private final CookieService cookieService;
     private final ValidationService validationService;
-    private final UserProfileFactory userProfileFactory;
-    private final SessionContextFactory sessionContextFactory;
-    private final AuthenticationResultFactory authenticationResultFactory;
 
 
     public ServiceResult<?> login(@NonNull LoginRequest loginData,
-                               @NonNull HttpServletResponse response) {
+                                  @NonNull HttpServletResponse response) {
         try {
             return processLoginRequest(loginData, response);
         }
@@ -99,7 +94,7 @@ public class AuthService {
     private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response) throws ConstraintViolationException {
         AuthRequest validLoginData = validate(loginData);
         AuthenticationResult authResult = authenticateUser(validLoginData);
-        setAuthenticationContext(sessionContextFactory.of(authResult, response));
+        setAuthenticationContext(SessionContext.of(authResult, response));
         return ServiceResultImp.successEmpty(Map.of());
     }
 
@@ -118,7 +113,7 @@ public class AuthService {
     private AuthenticationResult authenticateUser(AuthRequest loginData) {
         UserProfile user = getUserProfile(loginData);
         Authentication authentication = authenticate(user);
-        return authenticationResultFactory.of(authentication, user);
+        return AuthenticationResult.of(authentication, user);
     }
 
     private void setAuthenticationContext(SessionContext sessionContext) throws AuthenticationException {
@@ -172,6 +167,6 @@ public class AuthService {
     }
 
     private UserProfile getUserProfile(AuthRequest loginRequest) {
-        return userProfileFactory.withNewPassword(userProfileService.getUserProfile(loginRequest.login()), loginRequest.password());
+        return UserProfileImp.withNewPassword(userProfileService.getUserProfile(loginRequest.login()), loginRequest.password());
     }
 }

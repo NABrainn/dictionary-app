@@ -5,4 +5,7 @@ import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationResul
 
 public record SessionContext(AuthenticationResult authenticationResult,
                              HttpServletResponse response) {
+    public static SessionContext of(AuthenticationResult authResult, HttpServletResponse response) {
+        return new SessionContext(authResult, response);
+    }
 }
