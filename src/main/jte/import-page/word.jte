@@ -1,4 +1,4 @@
-@import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
+@import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
 
 @param int wordIndex
 @param int importId
