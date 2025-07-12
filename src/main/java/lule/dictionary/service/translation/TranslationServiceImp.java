@@ -48,7 +48,7 @@ public class TranslationServiceImp implements TranslationService {
             validate(request);
             Translation translation = TranslationImp.builder()
                     .sourceWords(request.sourceWords())
-                    .targetWord(removeNonLetters(request.targetWord()))
+                    .targetWord(request.targetWord())
                     .familiarity(request.familiarity())
                     .sourceLanguage(request.sourceLanguage())
                     .targetLanguage(request.targetLanguage())
@@ -81,9 +81,8 @@ public class TranslationServiceImp implements TranslationService {
     public ServiceResult<TranslationAttribute> findByTargetWord(@NonNull FindByTargetWordRequest request) throws TranslationNotFoundException, InvalidInputException {
         try {
             validate(request);
-            String targetWordWithOnlyLetters = removeNonLetters(request.targetWord());
-            if(translationRepository.findByTargetWord(targetWordWithOnlyLetters, request.owner()).isPresent()) {
-                Translation translation = translationRepository.findByTargetWord(targetWordWithOnlyLetters, request.owner()).get();
+            if(translationRepository.findByTargetWord(request.targetWord(), request.owner()).isPresent()) {
+                Translation translation = translationRepository.findByTargetWord(request.targetWord(), request.owner()).get();
                 return ServiceResultImp.success(TranslationAttribute.builder()
                         .importId(request.importId())
                         .selectedWordId(request.selectedWordId())
@@ -95,14 +94,14 @@ public class TranslationServiceImp implements TranslationService {
                         .build());
             }
             List<String> sourceWordsFromLibreTranslate = libreTranslateService.translate(
-                    targetWordWithOnlyLetters,
+                    request.targetWord(),
                     request.sourceLanguage(),
                     request.targetLanguage()
             );
-            List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(targetWordWithOnlyLetters, 3);
+            List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
             Translation translation = TranslationImp.builder()
                     .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, sourceWordsFromLibreTranslate))
-                    .targetWord(removeNonLetters(targetWordWithOnlyLetters))
+                    .targetWord(request.targetWord())
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(request.sourceLanguage())
                     .targetLanguage(request.targetLanguage())
@@ -124,7 +123,7 @@ public class TranslationServiceImp implements TranslationService {
 
     @Transactional
     public ServiceResult<TranslationAttribute> updateFamiliarity(UpdateTranslationFamiliarityRequest request) {
-        String targetWordWithOnlyLetters = removeNonLetters(request.targetWord());
+        String targetWordWithOnlyLetters = request.targetWord();
         Translation translation = translationRepository.updateFamiliarity(targetWordWithOnlyLetters, request.familiarity(), request.owner())
                 .orElseThrow(() -> new RuntimeException("Failed to update familiarity for " + targetWordWithOnlyLetters));
         return ServiceResultImp.success(TranslationAttribute.builder()
@@ -184,9 +183,7 @@ public class TranslationServiceImp implements TranslationService {
 
     @Override
     public ServiceResult<Map<String, Translation>> findTranslationsByImport(@NonNull Import imported, String owner) {
-        List<String> targetWords = Arrays.stream(imported.content().split(" "))
-                .map(this::removeNonLetters)
-                .toList();
+        List<String> targetWords = Arrays.stream(imported.content().split(" ")).toList();
         return ServiceResultImp.success(findByTargetWords(targetWords, owner).stream()
                 .collect(Collectors.toUnmodifiableMap(
                                 TranslationDetails::targetWord,
@@ -200,7 +197,7 @@ public class TranslationServiceImp implements TranslationService {
     private List<Translation> findByTargetWords(List<String> targetWords,
                                                 String owner) {
         List<String> validTargetWords = targetWords.stream()
-                .map(word -> removeNonLetters(word).trim().toLowerCase())
+                .map(word -> word.trim().toLowerCase())
                 .filter(word -> !word.isEmpty())
                 .distinct()
                 .toList();
@@ -246,9 +243,5 @@ public class TranslationServiceImp implements TranslationService {
                 4, Familiarity.KNOWN,
                 5, Familiarity.IGNORED)
         );
-    }
-
-    private String removeNonLetters(String input) {
-        return input.replaceAll("[^\\p{L}\\p{N}]", "").trim().toLowerCase();
     }
 }
