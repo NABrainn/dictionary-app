@@ -47,7 +47,7 @@ public class ImportServiceImp implements ImportService {
             validate(createRequest);
             return ServiceResultImp.success(saveImport(createRequest, createRequest, userProfile));
         } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(ServiceResultImp.errorEmpty(Map.of()));
+            throw new InvalidInputException(e.getMessage(), ServiceResultImp.errorEmpty(Map.of()));
         }
     }
 
