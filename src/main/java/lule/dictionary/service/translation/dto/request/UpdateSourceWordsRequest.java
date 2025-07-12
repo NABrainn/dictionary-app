@@ -10,20 +10,21 @@ import lule.dictionary.service.dto.request.ServiceRequest;
 import java.util.List;
 
 public record UpdateSourceWordsRequest(@NonNull
-                                       @NotEmpty
                                        List<
                                        @NotBlank(message = "Source word cannot be blank")
                                        @Size(max = 200, message = "Source word cannot be longer than 200 characters")
-                                       @Pattern(regexp = "^[\\p{L}0-9 ]+$", message = "Source word contains invalid characters")
                                        String> sourceWords,
 
                                        @NotBlank(message = "Target word cannot be blank")
                                        @Size(max = 200, message = "Target word cannot be longer than 200 characters")
-                                       @Pattern(regexp = "^[\\p{L}0-9 ]+$", message = "Source word contains invalid characters")
                                        String targetWord,
 
                                        @NonNull
                                        String owner) implements ServiceRequest {
+
+    public static UpdateSourceWordsRequest of(List<String> sourceWords, String targetWord, String username) {
+        return new UpdateSourceWordsRequest(sourceWords, targetWord, username);
+    }
 
     @Override
     public List<String> sourceWords() {
