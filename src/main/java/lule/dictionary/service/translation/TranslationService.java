@@ -20,6 +20,6 @@ public interface TranslationService {
     ServiceResult<TranslationAttribute> updateFamiliarity(UpdateTranslationFamiliarityRequest request);
     ServiceResult<TranslationPair> updateSourceWords(UpdateSourceWordsRequest request);
     ServiceResult<TranslationPair> deleteSourceWord(DeleteSourceWordRequest request);
-    int getWordsLearnedCount(String owner);
-    Map<String, Translation> findTranslationsByImport(@NonNull Import imported, String owner);
+    ServiceResult<Integer> getWordsLearnedCount(String owner);
+    ServiceResult<Map<String, Translation>> findTranslationsByImport(@NonNull Import imported, String owner);
 }

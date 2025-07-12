@@ -1,6 +1,5 @@
 package lule.dictionary.controller.importController;
 
-import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,13 +7,15 @@ import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
 import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.service.dto.exception.InvalidInputException;
+import lule.dictionary.service.dto.result.ServiceResult;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
 import lule.dictionary.service.imports.importService.dto.importData.ImportData;
 import lule.dictionary.service.imports.importService.dto.importPageRequest.AssembleImportPageRequest;
 import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute;
 import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
-import lule.dictionary.service.imports.importService.ImportService;
+import lule.dictionary.service.imports.importService.ImportServiceImp;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
 import lule.dictionary.service.translation.TranslationService;
@@ -35,7 +36,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ImportControllerImp implements ImportController {
 
-    private final ImportService importService;
+    private final ImportServiceImp importService;
     private final TranslationService translationService;
     private final PaginationService paginationService;
 
@@ -68,10 +69,10 @@ public class ImportControllerImp implements ImportController {
 
     @PutMapping({"/page/reload", "/page/reload/"})
     public String importPageOnPut(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
-                                        @RequestParam("selectedWordId") int wordId,
-                                        @RequestParam("importId") int importId,
-                                        @RequestParam("page") int page,
-                                        Model model) {
+                                    @RequestParam("selectedWordId") int wordId,
+                                    @RequestParam("importId") int importId,
+                                    @RequestParam("page") int page,
+                                    Model model) {
         try {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
@@ -113,15 +114,16 @@ public class ImportControllerImp implements ImportController {
                                 Model model,
                                 Authentication authentication) {
         try {
-            int importId = importService.createImport(CreateImportRequest.of(title, content, url, extractUsername(authentication)));
-            model.addAttribute("result");
-            return "redirect:/imports/" + importId + "?page=1";
+            ServiceResult<Integer> result = importService.createImport(CreateImportRequest.of(title, content, url, extractUsername(authentication)));
+            model.addAttribute("result", result);
+            return "redirect:/imports/" + result.value() + "?page=1";
         } catch (UserNotFoundException e) {
             log.info("Redirecting to login page due to user not found: {}", e.getMessage());
             return "redirect:/auth/login";
 
-        } catch (ConstraintViolationException e) {
+        } catch (InvalidInputException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
+            model.addAttribute("result", e.getResult());
             return "import-form/import-form";
         }
     }
@@ -156,7 +158,7 @@ public class ImportControllerImp implements ImportController {
 
     private List<ImportWithId> getImports(Authentication authentication, Model model) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        return importService.findByOwner(model, principal.getUsername());
+        return importService.findByOwner(principal.getUsername()).value();
     }
 
     private int getTotalLength(ImportWithPagination importWithPagination) {
@@ -178,7 +180,7 @@ public class ImportControllerImp implements ImportController {
     }
 
     private ImportWithPagination getImportPage(LoadImportPageRequest loadRequest) {
-            return importService.loadPage(loadRequest);
+        return importService.loadPage(loadRequest).value();
     }
 
     private PaginationData createPaginationData(int page, int pagesTotal) {
@@ -202,7 +204,7 @@ public class ImportControllerImp implements ImportController {
     }
 
     private Map<String, Translation> getImportTranslations(ImportWithPagination importWithPagination) {
-        return translationService.findTranslationsByImport(importWithPagination, importWithPagination.owner());
+        return translationService.findTranslationsByImport(importWithPagination, importWithPagination.owner()).value();
     }
 
     private List<String> getImportContent(ImportWithPagination importWithPagination) {

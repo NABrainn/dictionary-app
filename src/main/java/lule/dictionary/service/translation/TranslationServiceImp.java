@@ -176,22 +176,24 @@ public class TranslationServiceImp implements TranslationService {
         }
     }
 
-    public int getWordsLearnedCount(String owner) {
-        return translationRepository.getWordsLearnedCount(owner);
+    @Override
+    public ServiceResult<Integer> getWordsLearnedCount(String owner) {
+        return ServiceResultImp.success(translationRepository.getWordsLearnedCount(owner));
     }
 
+
     @Override
-    public Map<String, Translation> findTranslationsByImport(@NonNull Import imported, String owner) {
+    public ServiceResult<Map<String, Translation>> findTranslationsByImport(@NonNull Import imported, String owner) {
         List<String> targetWords = Arrays.stream(imported.content().split(" "))
                 .map(this::removeNonLetters)
                 .toList();
-        return findByTargetWords(targetWords, owner).stream()
+        return ServiceResultImp.success(findByTargetWords(targetWords, owner).stream()
                 .collect(Collectors.toUnmodifiableMap(
-                        TranslationDetails::targetWord,
-                        (value) -> value,
-                        (first, second) -> first
-                    )
-                );
+                                TranslationDetails::targetWord,
+                                (value) -> value,
+                                (first, second) -> first
+                        )
+                ));
     }
 
 
