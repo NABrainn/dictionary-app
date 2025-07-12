@@ -1,6 +1,6 @@
 @import lule.dictionary.service.dto.result.ServiceResultImp
 
-@param ServiceResultImp result
+@param ServiceResultImp<?> result
 
 <div class="flex flex-col" id="content">
     <input type="hidden" name="content">

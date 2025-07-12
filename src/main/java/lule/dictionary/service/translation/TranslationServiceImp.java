@@ -5,6 +5,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
+import lule.dictionary.entity.application.interfaces.imports.base.Import;
+import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
 import lule.dictionary.service.dto.exception.InvalidInputException;
 import lule.dictionary.service.dto.request.ServiceRequest;
 import lule.dictionary.service.dto.result.ServiceResultImp;
@@ -28,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -69,6 +72,7 @@ public class TranslationServiceImp implements TranslationService {
                     .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
                     .page(request.page())
+                    .translationId(-1)
                     .build(), ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
     }
@@ -87,6 +91,7 @@ public class TranslationServiceImp implements TranslationService {
                         .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                         .familiarityLevels(getFamiliarityTable())
                         .page(request.page())
+                        .translationId(-1)
                         .build());
             }
             List<String> sourceWordsFromLibreTranslate = libreTranslateService.translate(
@@ -105,12 +110,13 @@ public class TranslationServiceImp implements TranslationService {
                     .build();
             throw new TranslationNotFoundException(ServiceResultImp.error(TranslationAttribute.builder()
                     .importId(request.importId())
-                    .selectedWordId(1)
+                    .selectedWordId(request.selectedWordId())
                     .translation(translation)
                     .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
                     .page(request.page())
-                    .build(), Map.of("404", "Translation not found")));
+                    .translationId(-1)
+                    .build(), Map.of()));
         } catch (ConstraintViolationException e) {
             throw new InvalidInputException(ServiceResultImp.errorEmpty(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
@@ -128,17 +134,8 @@ public class TranslationServiceImp implements TranslationService {
                 .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                 .familiarityLevels(getFamiliarityTable())
                 .page(request.page())
+                .translationId(-1)
                 .build());
-    }
-
-    public List<Translation> findByTargetWords(List<String> targetWords,
-                                               String owner) {
-        List<String> validTargetWords = targetWords.stream()
-                .map(word -> removeNonLetters(word).trim().toLowerCase())
-                .filter(word -> !word.isEmpty())
-                .distinct()
-                .toList();
-        return translationRepository.findByTargetWords(validTargetWords, owner);
     }
 
     @Transactional
@@ -181,6 +178,31 @@ public class TranslationServiceImp implements TranslationService {
 
     public int getWordsLearnedCount(String owner) {
         return translationRepository.getWordsLearnedCount(owner);
+    }
+
+    @Override
+    public Map<String, Translation> findTranslationsByImport(@NonNull Import imported, String owner) {
+        List<String> targetWords = Arrays.stream(imported.content().split(" "))
+                .map(this::removeNonLetters)
+                .toList();
+        return findByTargetWords(targetWords, owner).stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        TranslationDetails::targetWord,
+                        (value) -> value,
+                        (first, second) -> first
+                    )
+                );
+    }
+
+
+    private List<Translation> findByTargetWords(List<String> targetWords,
+                                                String owner) {
+        List<String> validTargetWords = targetWords.stream()
+                .map(word -> removeNonLetters(word).trim().toLowerCase())
+                .filter(word -> !word.isEmpty())
+                .distinct()
+                .toList();
+        return translationRepository.findByTargetWords(validTargetWords, owner);
     }
 
     private Pattern compileNonSpecialChars() {

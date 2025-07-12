@@ -87,17 +87,20 @@ public class TranslationController {
             return "import-page/translation/update-translation-form";
 
         } catch (TranslationNotFoundException e) {
+            log.info("Translation not found, sending add-translation-form template: {}", e.getResult().value());
             model.addAttribute("translationAttribute", e.getResult().value());
             return "import-page/translation/add-translation-form";
 
         } catch (InvalidInputException e) {
+            log.info("Invalid input, resending update-translation-form template");
             model.addAttribute("translationAttribute", e.getResult().value());
             return "import-page/translation/update-translation-form";
         }
     }
 
     @PutMapping({"/familiarity/update", "/familiarity/update/"})
-    public String updateFamiliarity(Authentication authentication,
+    public String updateFamiliarity(Model model,
+                                    Authentication authentication,
                                     @RequestParam("targetWord") String targetWord,
                                     @RequestParam("familiarity") Familiarity familiarity,
                                     @RequestParam("sourceLanguage") Language sourceLanguage,
@@ -106,7 +109,7 @@ public class TranslationController {
                                     @RequestParam("selectedWordId") int selectedWordId,
                                     @RequestParam("page") int page) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        translationService.updateFamiliarity(UpdateTranslationFamiliarityRequest.builder()
+        ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(UpdateTranslationFamiliarityRequest.builder()
                 .importId(importId)
                 .selectedWordId(selectedWordId)
                 .targetWord(targetWord)
@@ -116,6 +119,7 @@ public class TranslationController {
                 .page(page)
                 .owner(principal.getUsername())
                 .build());
+        model.addAttribute("translationAttribute", result.value());
         return "forward:/imports/page/reload";
     }
 
@@ -131,10 +135,11 @@ public class TranslationController {
                     targetWord,
                     userDetails.getUsername()
             ));
-            model.addAttribute("translationAttribute", result.value());
+            model.addAttribute("translationPair", result.value());
+            model.addAttribute("hasError", result.hasError());
             return "import-page/translation/update-source-words-form";
         } catch (InvalidInputException e) {
-            model.addAttribute("translationAttribute", e.getResult().value());
+            model.addAttribute("translationPair", e.getResult().value());
             return "import-page/translation/update-source-words-form";
         }
     }
@@ -146,13 +151,15 @@ public class TranslationController {
                                    @RequestParam("targetWord") String targetWord) {
         try {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            translationService.deleteSourceWord(new DeleteSourceWordRequest(
+            ServiceResult<TranslationPair> result = translationService.deleteSourceWord(new DeleteSourceWordRequest(
                     sourceWord,
                     targetWord,
                     userDetails.getUsername()
             ));
+            model.addAttribute("translationPair", TranslationPair.of(result.value().sourceWords(), result.value().targetWord()));
             return "import-page/translation/source-words-list";
         } catch (InvalidInputException e) {
+            log.info("Invalid input, sending source-words-list template");
             model.addAttribute("translationAttribute", e.getResult().value());
             return "import-page/translation/source-words-list";
         }

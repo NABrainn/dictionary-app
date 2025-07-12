@@ -127,6 +127,20 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>resources</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-maven-plugin</artifactId>
 				<version>10.17.0</version>
@@ -179,37 +193,37 @@
 				<groupId>com.maciejwalkowiak.paseq</groupId>
 				<artifactId>paseq-maven-plugin</artifactId>
 				<version>0.1.1</version>
-					<configuration>
-						<tasks>
-							<task>
-								<exec>
-									<command>docker compose up -d --wait</command>
-								</exec>
-							</task>
-							<task>
-								<exec>
-									<directory>src/main/frontend</directory>
-									<command>npm install</command>
-								</exec>
-							</task>
-							<task>
-								<exec>
-									<directory>src/main/frontend</directory>
-									<command>npm run build</command>
-								</exec>
-							</task>
-							<task>
-								<async>true</async>
-								<exec>
-									<directory>src/main/frontend</directory>
-									<command>npm run watch</command>
-								</exec>
-							</task>
-							<task>
-								<goals>spring-boot:run</goals>
-							</task>
-						</tasks>
-					</configuration>
+				<configuration>
+					<tasks>
+						<task>
+							<exec>
+								<command>docker compose up -d --wait</command>
+							</exec>
+						</task>
+						<task>
+							<exec>
+								<directory>src/main/frontend</directory>
+								<command>npm install</command>
+							</exec>
+						</task>
+						<task>
+							<exec>
+								<directory>src/main/frontend</directory>
+								<command>npm run build</command>
+							</exec>
+						</task>
+						<task>
+							<async>true</async>
+							<exec>
+								<directory>src/main/frontend</directory>
+								<command>npm run watch</command>
+							</exec>
+						</task>
+						<task>
+							<goals>spring-boot:run</goals>
+						</task>
+					</tasks>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

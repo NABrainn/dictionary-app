@@ -23,7 +23,7 @@ import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
 import lule.dictionary.service.pagination.dto.PaginationDataFactory;
 import lule.dictionary.service.translation.TranslationService;
-import lule.dictionary.service.translation.dto.TranslationAttribute;
+import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;

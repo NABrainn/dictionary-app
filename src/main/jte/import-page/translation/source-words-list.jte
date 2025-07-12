@@ -1,11 +1,10 @@
-@import java.util.List
+@import lule.dictionary.service.translation.dto.attribute.TranslationPair
 
-@param List<String> sourceWords
-@param String targetWord
-@param boolean update = true
+@param TranslationPair translationPair
+@param boolean isUpdateForm = true
 
 <div class="flex flex-col gap-2">
-    @for(String word : sourceWords)
+    @for(String word : translationPair.sourceWords())
         <div
         class="flex gap-2">
             <input
@@ -13,9 +12,9 @@
             type="hidden"
             value="${word}">
             <span class="text-accent">${word}</span>
-            @if(update)
+            @if(isUpdateForm)
                 <form
-                hx-delete="/translations/sourceWords/delete?sourceWord=${word}&targetWord=${targetWord}"
+                hx-delete="/translations/sourceWords/delete?sourceWord=${word}&targetWord=${translationPair.targetWord()}"
                 hx-target="#source-words-list"
                 hx-swap="innerHTML"
                 hx-params="none">

@@ -1,5 +1,7 @@
 package lule.dictionary.service.translation;
 
+import lombok.NonNull;
+import lule.dictionary.entity.application.interfaces.imports.base.Import;
 import lule.dictionary.entity.application.interfaces.translation.Translation;
 import lule.dictionary.service.dto.result.ServiceResult;
 import lule.dictionary.service.translation.dto.DeleteSourceWordRequest;
@@ -10,7 +12,7 @@ import lule.dictionary.service.translation.dto.request.FindByTargetWordRequest;
 import lule.dictionary.service.translation.dto.request.UpdateSourceWordsRequest;
 import lule.dictionary.service.translation.dto.request.UpdateTranslationFamiliarityRequest;
 
-import java.util.List;
+import java.util.Map;
 
 public interface TranslationService {
     ServiceResult<TranslationAttribute> createTranslation(AddTranslationRequest request);
@@ -18,6 +20,6 @@ public interface TranslationService {
     ServiceResult<TranslationAttribute> updateFamiliarity(UpdateTranslationFamiliarityRequest request);
     ServiceResult<TranslationPair> updateSourceWords(UpdateSourceWordsRequest request);
     ServiceResult<TranslationPair> deleteSourceWord(DeleteSourceWordRequest request);
-    List<Translation> findByTargetWords(List<String> targetWords, String owner);
     int getWordsLearnedCount(String owner);
+    Map<String, Translation> findTranslationsByImport(@NonNull Import imported, String owner);
 }

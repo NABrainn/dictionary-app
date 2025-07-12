@@ -93,14 +93,14 @@ public class AuthService {
     public ServiceResult<?> logout(@NonNull HttpServletResponse httpServletResponse) {
         clearAuthentication();
         deleteJwtCookie(httpServletResponse);
-        return ServiceResultImp.successEmpty();
+        return ServiceResultImp.successEmpty(Map.of());
     }
 
     private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response) throws ConstraintViolationException {
         AuthRequest validLoginData = validate(loginData);
         AuthenticationResult authResult = authenticateUser(validLoginData);
         setAuthenticationContext(sessionContextFactory.of(authResult, response));
-        return ServiceResultImp.successEmpty();
+        return ServiceResultImp.successEmpty(Map.of());
     }
 
     private ServiceResult<?> handleException(Map<String, String> errorMessages) {
@@ -111,7 +111,7 @@ public class AuthService {
         AuthRequest validSignupData = validate(signupData);
         checkIfUserExists((SignupRequest) validSignupData);
         userProfileService.addUserProfile((SignupRequest) validSignupData);
-        return ServiceResultImp.successEmpty();
+        return ServiceResultImp.successEmpty(Map.of());
     }
 
 

@@ -3,6 +3,7 @@ package lule.dictionary.controller.auth;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.service.auth.dto.request.AuthRequestFactory;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.AuthService;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
@@ -36,6 +38,7 @@ public class AuthController {
                         HttpServletResponse response) {
         ServiceResult<?> result = requestLogin(authRequestFactory.ofLoginRequest(login, password), response);
         if (result.hasError()) {
+            log.warn("login authentication failure");
             model.addAttribute("result", result);
             return "auth/login";
         }
@@ -56,6 +59,7 @@ public class AuthController {
         ServiceResult<?> result = requestSignup(login, email, password);
         model.addAttribute("result", result);
         if(result.hasError()) {
+            log.warn("signup authentication failure");
             return "auth/signup";
         }
         return "auth/login";
@@ -66,6 +70,7 @@ public class AuthController {
                          HttpServletResponse response) {
         ServiceResult<?> result = requestLogout(response);
         if(result.hasError()) {
+            log.warn("logout attempt failure");
             return "/error";
         }
         redirectAttributes.addFlashAttribute("result", result);

@@ -1,4 +1,5 @@
-@import lule.dictionary.service.translation.dto.TranslationAttribute
+@import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
+@import lule.dictionary.service.translation.dto.attribute.TranslationPair;
 
 @param TranslationAttribute translationAttribute
 
@@ -36,13 +37,12 @@
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
     @template.import-page.translation.add-source-words-form(
-        targetWord = translationAttribute.translation().targetWord(),
         sourceLanguage = translationAttribute.translation().sourceLanguage().name(),
         targetLanguage = translationAttribute.translation().targetLanguage().name(),
         importId = translationAttribute.importId(),
         selectedWordId = translationAttribute.selectedWordId(),
-        sourceWords = translationAttribute.translation().sourceWords(),
-        page = translationAttribute.page()
+        page = translationAttribute.page(),
+        translationPair = TranslationPair.of(translationAttribute.translation().sourceWords(), translationAttribute.translation().targetWord())
     )
     </div>
     @template.import-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())

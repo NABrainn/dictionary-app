@@ -28,8 +28,8 @@ public record ServiceResultImp<T>(T value,
         return new ServiceResultImp<>(value, true, messages);
     }
 
-    public static <T> ServiceResultImp<T> successEmpty() {
-        return new ServiceResultImp<>(null, false, Map.of());
+    public static <T> ServiceResultImp<T> successEmpty(Map<String, String> messages) {
+        return new ServiceResultImp<>(null, false, messages);
     }
 
     public static <T> ServiceResultImp<T> errorEmpty(Map<String, String> messages) {

@@ -1,5 +1,6 @@
 @import lule.dictionary.service.dto.result.ServiceResultImp
-@import lule.dictionary.service.translation.dto.TranslationAttribute
+@import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
+@import lule.dictionary.service.translation.dto.attribute.TranslationPair
 @import java.util.Map
 
 @param TranslationAttribute translationAttribute
@@ -16,9 +17,8 @@
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
         @template.import-page.translation.update-source-words-form(
-        sourceWords = translationAttribute.translation().sourceWords(),
-        targetWord = translationAttribute.translation().targetWord(),
-        result = new ServiceResultImp(false, Map.of()))
+            translationPair = TranslationPair.of(translationAttribute.translation().sourceWords(), translationAttribute.translation().targetWord()),
+        )
     </div>
     @template.import-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
     <div class="flex flex-col gap-0.5">

@@ -3,7 +3,7 @@
 @import org.springframework.security.web.csrf.CsrfToken
 @import java.util.Map
 
-@param ServiceResultImp result = null
+@param ServiceResultImp<?> result
 @param CsrfToken _csrf
 @param boolean authenticated
 @param String username

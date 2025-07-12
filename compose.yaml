@@ -20,13 +20,13 @@ services:
   ollama:
     container_name: ollama_dev
     image: ollama/ollama:rocm
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: ["gpu"]
-              count: all
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              capabilities: ["gpu"]
+#              count: all
     ports:
       - "11434:11434"
     volumes:

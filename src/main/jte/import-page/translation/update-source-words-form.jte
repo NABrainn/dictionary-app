@@ -1,48 +1,44 @@
-@import lule.dictionary.service.dto.result.ServiceResultImp
-@import java.util.List
+@import lule.dictionary.service.translation.dto.attribute.TranslationPair
 
-@param List<String> sourceWords
-@param String targetWord
-@param ServiceResultImp result
+@param TranslationPair translationPair
+@param boolean hasError = false
 
 <form
     class="flex flex-col gap-2"
     hx-vals='{
-        "targetWord": "${targetWord}"
+        "targetWord": "${translationPair.targetWord()}"
     }'
     hx-put="/translations/sourceWords/update"
     hx-target="#source-word-form"
     hx-swap="innerHTML">
     <div id="source-words-list">
-        @template.import-page.translation.source-words-list(sourceWords = sourceWords, targetWord = targetWord)
+        @template.import-page.translation.source-words-list(translationPair = translationPair)
     </div>
     <div class="flex gap-2">
-        @if(result != null)
-            @if(result.hasError())
-                <input
-                id="input-source-word"
-                class="
-                outline-none border border-2 border-error rounded text-neutral text-sm
-                focus:border-accent"
-                type="text" placeholder="Custom translation"
-                name="sourceWords">
-                <button
-                id="submit-source-word"
-                class="text-2xl cursor-pointer"
-                type="submit">+</button>
-            @else
-                <input
-                id="input-source-word"
-                class="
-                outline-none border border-2 border-primary rounded text-neutral text-sm
-                focus:border-accent"
-                type="text" placeholder="Custom translation"
-                name="sourceWords">
-                <button
-                id="submit-source-word"
-                class="text-2xl cursor-pointer"
-                type="submit">+</button>
-            @endif
+        @if(hasError)
+            <input
+            id="input-source-word"
+            class="
+            outline-none border border-2 border-error rounded text-neutral text-sm
+            focus:border-accent"
+            type="text" placeholder="Custom translation"
+            name="sourceWords">
+            <button
+            id="submit-source-word"
+            class="text-2xl cursor-pointer"
+            type="submit">+</button>
+        @else
+            <input
+            id="input-source-word"
+            class="
+            outline-none border border-2 border-primary rounded text-neutral text-sm
+            focus:border-accent"
+            type="text" placeholder="Custom translation"
+            name="sourceWords">
+            <button
+            id="submit-source-word"
+            class="text-2xl cursor-pointer"
+            type="submit">+</button>
         @endif
     </div>
 </form>

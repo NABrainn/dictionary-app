@@ -21,9 +21,10 @@ public class OllamaConfiguration {
     public OllamaAPI ollamaAPI() throws OllamaBaseException, IOException, URISyntaxException, InterruptedException {
         OllamaAPI ollamaAPI = new OllamaAPI(baseUrl);
         ollamaAPI.setVerbose(true);
+//      ollamaAPI.pullModel(OllamaModelType.LLAMA3_1);
         ollamaAPI.createModel(CustomModelRequest.builder()
                 .model("translator")
-                .from(OllamaModelType.MISTRAL)
+                .from(OllamaModelType.LLAMA3_1)
                 .system("""
                         You are translator. Your task is to read user input and produce translation briefly.
                         If there are more translations separate them with a comma

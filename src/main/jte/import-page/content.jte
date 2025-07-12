@@ -2,7 +2,7 @@
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
 @import lule.dictionary.service.language.Language
-@import lule.dictionary.service.translation.dto.TranslationAttribute
+@import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
 @import org.springframework.security.web.csrf.CsrfToken
 @import java.util.Map
 

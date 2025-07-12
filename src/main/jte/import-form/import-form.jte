@@ -4,7 +4,7 @@
 @import java.util.Map
 
 @param boolean authenticated
-@param ServiceResultImp result = null
+@param ServiceResultImp<?> result = null
 @param CsrfToken _csrf
 @param String username
 @param String targetLanguage
