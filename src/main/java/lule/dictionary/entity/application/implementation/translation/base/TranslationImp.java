@@ -35,14 +35,6 @@ public record TranslationImp(
                         }
                 };
 
-                final Pattern INVALID_CHARS = Pattern.compile("[%&/^!<>@#$'\"*;`:=\\-_+.,(){}\\[\\]?\\\\]");
-
-                PatternValidator patternValidator = (Pattern pattern, String field) -> {
-                        if(pattern.matcher(field).find()) {
-                                throw new IllegalArgumentException(field + " contains invalid characters");
-                        }
-                };
-
                 LengthValidator maxLengthValidator = (int length, String field) -> {
                         if(field.length() > length) throw new IllegalArgumentException("Field cannot be longer than " + length + " characters");
                 };
@@ -53,7 +45,6 @@ public record TranslationImp(
 
                 for(var word : sourceWords) {
                         emptyValidator.validate(word);
-                        patternValidator.validate(INVALID_CHARS, word);
                         maxLengthValidator.validate(200, word);
                 }
 
@@ -61,8 +52,6 @@ public record TranslationImp(
 
                 targetWord = targetWord.trim();
                 owner = owner.trim();
-
-                patternValidator.validate(INVALID_CHARS, targetWord);
 
                 maxLengthValidator.validate(50, owner);
                 maxLengthValidator.validate(200, targetWord);
