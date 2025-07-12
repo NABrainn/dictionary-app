@@ -22,4 +22,7 @@ public record CreateImportRequest(@NotBlank(message = "Title cannot be empty")
 
                                   @NotBlank
                                   String owner) {
+    public static CreateImportRequest of(String title, String content, String url, @NonNull String username) {
+        return new CreateImportRequest(title, content, url, username);
+    }
 }

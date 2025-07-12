@@ -1,10 +1,14 @@
 package lule.dictionary.service.pagination.dto;
 
+import lombok.Builder;
+import lombok.NonNull;
+
 import java.util.List;
 
+@Builder
 public record PaginationData(int currentPageNumber,
                              int numberOfPages,
-                             List<List<Integer>> rows,
+                             @NonNull List<List<Integer>> rows,
                              int currentRowNumber,
                              int firstPageOfRowNumber) {
     @Override
