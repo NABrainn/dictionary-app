@@ -53,7 +53,7 @@
                 bg-primary border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
                 type="button"
                 id="url"
-                hx-get="/imports/by-url-form"
+                hx-get="/imports/url-form"
                 hx-target="#content"
                 hx-swap="outerHTML"
                 hx-push-url="false"
@@ -62,12 +62,12 @@
                 border border-2 border-l-1 border-primary text-accent px-4 py-1 grow-1"
                 type="button"
                 id="insert"
-                hx-get="/imports/insert-manually-form"
+                hx-get="/imports/textarea-form"
                 hx-target="#content"
                 hx-swap="outerHTML"
                 hx-push-url="false">Insert manually</button>
             </div>
-            @template.import-form.by-url-form(result = result)
+            @template.import-form.url-form(result = result)
         </div>
         <div>
             <button
