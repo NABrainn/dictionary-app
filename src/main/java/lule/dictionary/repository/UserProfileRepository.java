@@ -117,8 +117,8 @@ public class UserProfileRepository {
                 """;
         try {
             template.update(sql,
-                    owner,
-                    offset);
+                    offset,
+                    owner);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
         }
