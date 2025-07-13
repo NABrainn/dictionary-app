@@ -3,8 +3,9 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.application.interfaces.translation.Translation;
+import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.service.language.Language;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -87,14 +88,13 @@ public class TranslationRepository {
                 RETURNING *
                 """;
         try {
-            Optional<Translation> translation = template.query(con -> {
+            return template.query(con -> {
                 var ps = con.prepareStatement(sql);
                 ps.setArray(1, con.createArrayOf("text", sourceWords.toArray()));
                 ps.setString(2, targetWord);
                 ps.setString(3, owner);
                 return ps;
             }, TRANSLATION).stream().findFirst();
-            return translation;
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             return Optional.empty();
@@ -221,16 +221,21 @@ public class TranslationRepository {
         }
     }
 
-    public int getWordsLearnedCount(String owner) {
+    public int getWordsLearnedCount(String owner, Language targetLanguage) {
         String sql = """
             SELECT COUNT(*)
             FROM dictionary.translations
             WHERE translation_owner = ?
+            AND target_lang = CAST(? AS dictionary.lang)
             AND familiarity != CAST(? AS dictionary.familiarity)
         """;
 
         try {
-            Integer count = template.queryForObject(sql, Integer.class, owner, Familiarity.IGNORED.name());
+            Integer count = template.queryForObject(sql, Integer.class,
+                    owner,
+                    targetLanguage.name(),
+                    Familiarity.IGNORED.name()
+            );
             return count != null ? count : 0;
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));

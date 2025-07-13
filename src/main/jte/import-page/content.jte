@@ -1,33 +1,17 @@
+@import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
-@import lule.dictionary.service.language.Language
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
-@import org.springframework.security.web.csrf.CsrfToken
-@import java.util.Map
 
 @param ImportContentAttribute importContentAttribute
 @param TranslationAttribute translationAttribute = null
-@param CsrfToken _csrf
-@param boolean authenticated
-@param String username
-@param String targetLanguage
-@param int wordsLearned
-@param int dailyStreak
-@param Map<Language, String> languages
+@param BaseAttribute baseAttribute
 
 <div>
     <div
     id="page-content"
     class="flex flex-col gap-8 min-h-full justify-between">
-        @template.navbar(
-            username = username,
-            authenticated = authenticated,
-            targetLanguage = targetLanguage,
-            wordsLearned = wordsLearned,
-            dailyStreak = dailyStreak,
-            languages = languages
-        )
         <div class=" w-3/5 mx-auto">
             <span class="text-neutral font-bold text-4xl">${importContentAttribute.importData().title()}</span>
             <div class="leading-10 min-h-150">

@@ -1,9 +1,10 @@
+@import lule.dictionary.dto.application.LanguageData
 @import lule.dictionary.service.language.Language
 @import java.util.List
 @import java.util.Map
 
 @param String targetLanguage
-@param Map<Language, String> languages
+@param List<LanguageData> languages
 
 <div>
     <label for="lang-select"></label>
@@ -12,16 +13,16 @@
     name="langs"
     id="lang-select">
         <option value="${targetLanguage}">${targetLanguage}</option>
-        @for(var language : languages.entrySet())
-            @if(!language.getValue().equals(targetLanguage))
+        @for(var language : languages)
+            @if(!language.fullName().equals(targetLanguage))
                 <option
                 hx-get="/settings/changeLanguage"
                 hx-vals='{
-                    "lang": "${language.getKey()}"
+                    "lang": "${language.language()}"
                 }'
                 hx-target="#main"
                 hx-swap="outerHTML"
-                value="${language.getValue()}">${language.getValue()}</option>
+                value="${language.fullName()}">${language.fullName()}</option>
             @endif
         @endfor
     </select>

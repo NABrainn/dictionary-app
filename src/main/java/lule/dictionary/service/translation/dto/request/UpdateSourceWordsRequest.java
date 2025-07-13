@@ -1,11 +1,9 @@
 package lule.dictionary.service.translation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.NonNull;
-import lule.dictionary.service.dto.request.ServiceRequest;
+import lule.dictionary.dto.application.request.ServiceRequest;
 
 import java.util.List;
 

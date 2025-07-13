@@ -1,103 +1,53 @@
 package lule.dictionary.controllerAdvice;
 
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.service.language.Language;
+import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.dto.application.BaseAttribute;
+import lule.dictionary.dto.application.LanguageData;
+import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.language.LanguageHelper;
-import lule.dictionary.service.userProfile.AuthenticatedUserDataService;
+import lule.dictionary.service.translation.TranslationService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.util.Map;
-
 @ControllerAdvice
 @RequiredArgsConstructor
+@Slf4j
 public class JteControllerAdvice {
 
-    private final AuthenticatedUserDataService dataService;
+    private final TranslationService translationService;
+    private final LanguageHelper languageHelper;
 
     @ModelAttribute
-    public void csrf(Model model, CsrfToken csrf) {
-        model.addAttribute("_csrf", csrf);
-    }
+    public void addBaseAttribute(Model model, Authentication authentication, CsrfToken csrfToken) {
+        if(authentication != null) {
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            log.info("KURWA {}", translationService.getWordsLearnedCount(userDetails.getUsername(), userDetails.targetLanguage()).value());
 
-    @ModelAttribute
-    public void authenticated(Model model, Authentication authentication) {
-        if(authentication != null && authentication.isAuthenticated()) model.addAttribute("authenticated", true);
-        else model.addAttribute("authenticated", false);
-    }
-    @ModelAttribute
-    public void username(Model model, Authentication authentication) {
-        if(authentication == null) {
-            model.addAttribute("username", "");
-            return;
+            model.addAttribute("baseAttribute", BaseAttribute.builder()
+                    ._csrf(csrfToken)
+                    .isAuthenticated(authentication.isAuthenticated())
+                    .username(userDetails.getUsername())
+                    .sourceLanguageData(LanguageData.of(
+                                    userDetails.sourceLanguage(),
+                                    languageHelper.getFullName(userDetails.sourceLanguage()),
+                                    languageHelper.getAbbreviation(userDetails.sourceLanguage())
+                            )
+                    )
+                    .targetLanguageData(LanguageData.of(
+                                    userDetails.targetLanguage(),
+                                    languageHelper.getFullName(userDetails.targetLanguage()),
+                                    languageHelper.getAbbreviation(userDetails.targetLanguage())
+                            )
+                    )
+                    .allLanguageData(languageHelper.getAllLanguageData())
+                    .wordsLearned(translationService.getWordsLearnedCount(userDetails.getUsername(), userDetails.targetLanguage()).value())
+                    .dailyStreak(userDetails.dailyStreak())
+                    .build()
+            );
         }
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        model.addAttribute("username", principal.getUsername());
-    }
-
-    @ModelAttribute
-    public void sourceLanguage(Model model, Authentication authentication) {
-        if(authentication == null) {
-            model.addAttribute("sourceLanguage", Language.EN);
-            return;
-        }
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        model.addAttribute("sourceLanguage", principal.sourceLanguage());
-    }
-
-    @ModelAttribute
-    public void targetLanguage(Model model, Authentication authentication) {
-        if(authentication == null) {
-            model.addAttribute("targetLanguage", "English");
-            return;
-        }
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        model.addAttribute(
-                "targetLanguage",
-                dataService.getFullName(principal.targetLanguage())
-        );
-    }
-
-    @ModelAttribute
-    public void wordsLearnedCount(Model model, Authentication authentication) {
-        if(authentication == null) {
-            model.addAttribute("wordsLearned", 0);
-            return;
-        }
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        model.addAttribute(
-                "wordsLearned",
-                dataService.getWordsLearned(principal.getUsername())
-        );
-    }
-
-    @ModelAttribute
-    public void dailyStreak(Model model, Authentication authentication) {
-        if(authentication == null) {
-            model.addAttribute("dailyStreak", 0);
-            return;
-        }
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        model.addAttribute(
-                "dailyStreak",
-                dataService.getDailyStreak(principal.getUsername())
-        );
-    }
-
-    @ModelAttribute
-    public void languages(Model model, Authentication authentication) {
-        if(authentication == null) {
-            model.addAttribute("languages", Map.of());
-            return;
-        }
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        model.addAttribute(
-                "languages",
-                LanguageHelper.languageMapNames
-        );
     }
 }

@@ -1,15 +1,15 @@
 package lule.dictionary.repository.factory;
 
-import lule.dictionary.entity.application.implementation.imports.ImportWithIdImp;
-import lule.dictionary.entity.application.implementation.imports.base.ImportImp;
-import lule.dictionary.entity.application.implementation.imports.base.ImportWithPaginationImp;
-import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
-import lule.dictionary.entity.application.implementation.userProfile.base.UserProfileImp;
-import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
-import lule.dictionary.entity.application.interfaces.imports.base.Import;
-import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
-import lule.dictionary.entity.application.interfaces.translation.Translation;
-import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.dto.database.implementation.imports.ImportWithIdImp;
+import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
+import lule.dictionary.dto.database.implementation.imports.base.ImportWithPaginationImp;
+import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
+import lule.dictionary.dto.database.implementation.userProfile.base.UserProfileImp;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.base.Import;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
+import lule.dictionary.dto.database.interfaces.translation.Translation;
+import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.service.language.Language;
 import org.springframework.jdbc.core.RowMapper;
@@ -26,6 +26,7 @@ public class RowMapperFactory {
                     .targetLanguage(Language.valueOf(rs.getString("target_lang")))
                     .wordsAddedToday(rs.getInt("words_added_today"))
                     .offset(rs.getString("tz_offset"))
+                    .dailyStreak(rs.getInt("day_count"))
                     .build()
     );
     public static final RowMapper<Translation> TRANSLATION = ((rs, rowNum) ->

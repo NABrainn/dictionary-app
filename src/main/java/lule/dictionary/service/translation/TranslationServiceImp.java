@@ -4,24 +4,21 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.application.implementation.translation.base.TranslationImp;
-import lule.dictionary.entity.application.interfaces.imports.base.Import;
-import lule.dictionary.entity.application.interfaces.translation.TranslationDetails;
-import lule.dictionary.service.dto.exception.InvalidInputException;
-import lule.dictionary.service.dto.request.ServiceRequest;
-import lule.dictionary.service.dto.result.ServiceResultImp;
-import lule.dictionary.service.dto.result.ServiceResult;
+import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
+import lule.dictionary.dto.database.interfaces.imports.base.Import;
+import lule.dictionary.dto.database.interfaces.translation.TranslationDetails;
+import lule.dictionary.exception.application.InvalidInputException;
+import lule.dictionary.dto.application.request.ServiceRequest;
+import lule.dictionary.dto.application.result.ServiceResultImp;
+import lule.dictionary.dto.application.result.ServiceResult;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
-import lule.dictionary.service.translation.dto.*;
-import lule.dictionary.entity.application.interfaces.translation.Translation;
+import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.attribute.TranslationPair;
-import lule.dictionary.service.translation.dto.request.AddTranslationRequest;
-import lule.dictionary.service.translation.dto.request.FindByTargetWordRequest;
-import lule.dictionary.service.translation.dto.request.UpdateSourceWordsRequest;
-import lule.dictionary.service.translation.dto.request.UpdateTranslationFamiliarityRequest;
+import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import lule.dictionary.service.validation.ValidationService;
 import lule.dictionary.util.errors.ErrorMapFactory;
@@ -176,8 +173,8 @@ public class TranslationServiceImp implements TranslationService {
     }
 
     @Override
-    public ServiceResult<Integer> getWordsLearnedCount(String owner) {
-        return ServiceResultImp.success(translationRepository.getWordsLearnedCount(owner));
+    public ServiceResult<Integer> getWordsLearnedCount(String owner, Language targetLanguage) {
+        return ServiceResultImp.success(translationRepository.getWordsLearnedCount(owner, targetLanguage));
     }
 
 

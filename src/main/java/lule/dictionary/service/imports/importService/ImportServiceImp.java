@@ -3,20 +3,20 @@ package lule.dictionary.service.imports.importService;
 import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.entity.application.implementation.imports.base.ImportImp;
-import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
-import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
-import lule.dictionary.exception.RetryViewException;
-import lule.dictionary.service.dto.exception.InvalidInputException;
-import lule.dictionary.service.dto.result.ServiceResult;
-import lule.dictionary.service.dto.result.ServiceResultImp;
+import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.exception.application.InvalidInputException;
+import lule.dictionary.dto.application.result.ServiceResult;
+import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.insertIntoDatabaseRequest.InsertIntoDatabaseRequest;
 import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
 import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
-import lule.dictionary.entity.application.interfaces.imports.base.Import;
-import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
+import lule.dictionary.dto.database.interfaces.imports.base.Import;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.repository.ImportRepository;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
@@ -51,8 +51,8 @@ public class ImportServiceImp implements ImportService {
         }
     }
 
-    public ServiceResult<List<ImportWithId>> findByOwner(@NonNull String owner) {
-        return ServiceResultImp.success(getImportByUsername(owner));
+    public ServiceResult<List<ImportWithId>> findByOwnerAndTargetLanguage(@NonNull String owner, @NonNull Language targetLanguage) {
+        return ServiceResultImp.success(getImportByUsernameAndTargetLanguage(owner, targetLanguage));
     }
 
     public ServiceResult<List<Import>> findAll() {
@@ -73,8 +73,8 @@ public class ImportServiceImp implements ImportService {
     private List<Import> getAllImports() {
         return importRepository.findAll();
     }
-    private List<ImportWithId> getImportByUsername(String owner) {
-        return importRepository.findByOwner(owner);
+    private List<ImportWithId> getImportByUsernameAndTargetLanguage(String owner, Language targetLanguage) {
+        return importRepository.findByOwnerAndTargetLanguage(owner, targetLanguage);
     }
     private ImportWithPagination getImportById(LoadImportPageRequest loadRequest) {
         return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
@@ -101,7 +101,7 @@ public class ImportServiceImp implements ImportService {
                 .sourceLanguage(insertIntoDatabaseRequest.userProfile().sourceLanguage())
                 .targetLanguage(insertIntoDatabaseRequest.userProfile().targetLanguage())
                 .owner(insertIntoDatabaseRequest.validRequest().owner())
-                .build()).orElseThrow(() -> new RetryViewException("Failed to add a new import"));
+                .build()).orElseThrow(() -> new RuntimeException("Failed to add a new import"));
     }
 
     private String getDocumentContent(String url) {

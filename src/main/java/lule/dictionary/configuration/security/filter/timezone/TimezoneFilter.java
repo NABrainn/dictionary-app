@@ -18,6 +18,5 @@ public class TimezoneFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         TimeZoneOffsetContext.set(request.getHeader("timeZoneOffset"));
         filterChain.doFilter(request, response);
-        TimeZoneOffsetContext.reset();
     }
 }

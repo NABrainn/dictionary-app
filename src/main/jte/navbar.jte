@@ -1,14 +1,13 @@
-@import lule.dictionary.service.language.Language
+@import lule.dictionary.dto.application.LanguageData
 @import java.util.List
-@import java.util.Map
 
 @param String username
-@param Language sourceLanguage = null
-@param String targetLanguage
+@param LanguageData sourceLanguage
+@param LanguageData targetLanguage
 @param boolean authenticated
 @param int wordsLearned
 @param int dailyStreak
-@param Map<Language, String> languages
+@param List<LanguageData> languageData
 
 
 <nav class="flex justify-between bg-secondary p-4 items-center">
@@ -24,8 +23,8 @@
         <div class="flex gap-3 items-center">
             <div class="flex gap-6 items-center bg-tertiary p-2 rounded select-none">
                 @template.language-picker(
-                    targetLanguage = targetLanguage,
-                    languages = languages
+                    targetLanguage = targetLanguage.fullName(),
+                    languages = languageData
                 )
                 <span class="font-bold text-neutral text-lg text-accent">🧠 words: ${wordsLearned}</span>
                 @if(dailyStreak == 1)

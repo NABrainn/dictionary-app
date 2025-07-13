@@ -1,4 +1,4 @@
-@import lule.dictionary.service.dto.result.ServiceResultImp
+@import lule.dictionary.dto.application.result.ServiceResultImp
 
 @param ServiceResultImp<?> result
 

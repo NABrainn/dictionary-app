@@ -3,12 +3,12 @@ package lule.dictionary.controller.importController;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
-import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
-import lule.dictionary.entity.application.interfaces.translation.Translation;
-import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.service.dto.exception.InvalidInputException;
-import lule.dictionary.service.dto.result.ServiceResult;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.translation.Translation;
+import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.exception.application.InvalidInputException;
+import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
 import lule.dictionary.service.imports.importService.dto.importData.ImportData;
@@ -43,7 +43,7 @@ public class ImportControllerImp implements ImportController {
     @GetMapping("")
     public String importListPage(Authentication authentication,
                                  Model model) {
-        List<ImportWithId> imports = getImports(authentication, model);
+        List<ImportWithId> imports = getImports(authentication);
         model.addAttribute("imports", imports);
         return "imports";
     }
@@ -156,9 +156,9 @@ public class ImportControllerImp implements ImportController {
 
     }
 
-    private List<ImportWithId> getImports(Authentication authentication, Model model) {
+    private List<ImportWithId> getImports(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        return importService.findByOwner(principal.getUsername()).value();
+        return importService.findByOwnerAndTargetLanguage(principal.getUsername(), principal.targetLanguage()).value();
     }
 
     private int getTotalLength(ImportWithPagination importWithPagination) {
