@@ -42,7 +42,10 @@
         importId = translationAttribute.importId(),
         selectedWordId = translationAttribute.selectedWordId(),
         page = translationAttribute.page(),
-        translationPair = TranslationPair.of(translationAttribute.translation().sourceWords(), translationAttribute.translation().targetWord())
+        translationPair = TranslationPair.of(
+            translationAttribute.translation().sourceWords(),
+            translationAttribute.translation().targetWord()
+        )
     )
     </div>
     @template.import-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
@@ -52,7 +55,7 @@
                     <span class="cursor-pointer">${level.getKey()}: </span>
                     <input
                     class=" cursor-pointer"
-                    value="${level.getValue()}"
+                    value="${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}"
                     type="submit"
                     hx-post="/translations/new"
                     hx-vals='

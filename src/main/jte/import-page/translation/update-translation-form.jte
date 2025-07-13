@@ -24,7 +24,7 @@
             @if(level.getKey() == translationAttribute.currentFamiliarity())
                 <div class="font-bold text-primary flex gap-1">
                     <span>${level.getKey()}: </span>
-                    ${level.getValue()}
+                    ${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}
                 </div>
             @else
                 <div class="hover:text-primary font-bold text-neutral flex gap-1 cursor-pointer"
@@ -45,7 +45,7 @@
                      hx-target="#page-content"
                      hx-swap="outerHTML">
                     <span>${level.getKey()}: </span>
-                    ${level.getValue()}
+                    ${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}
                 </div>
             @endif
         @endfor
