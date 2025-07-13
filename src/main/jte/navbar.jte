@@ -10,47 +10,103 @@
 @param List<LanguageData> languageData
 
 
-<nav class="flex justify-between bg-secondary p-4 items-center">
-    <div class="text-lg text-neutral">
+<nav
+class="
+md:justify-between md:p-4
+justify-around p-1 flex bg-secondary items-center">
+    <div
+    class="flex items-center align-center text-lg text-neutral">
         <a
         hx-get="/"
         hx-swap="innerHTML"
         hx-target="#main"
         hx-push-url="true"
-        class="text-lg  cursor-pointer underline font-bold">Home</a>
+        class="
+        md:text-lg md:inline
+        hidden text-md cursor-pointer underline font-bold">Home</a>
+        <a
+        hx-get="/"
+        hx-swap="innerHTML"
+        hx-target="#main"
+        hx-push-url="true"
+        class="
+        md:text-lg md:hidden
+        inline text-lg cursor-pointer font-bold">
+            <svg class="fill-accent" fill="currentColor" width="24px" height="24px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 6V15H6V11C6 9.89543 6.89543 9 8 9C9.10457 9 10 9.89543 10 11V15H15V6L8 0L1 6Z"/>
+            </svg>
+        </a>
     </div>
     @if(authenticated)
         <div class="flex gap-3 items-center">
-            <div class="flex gap-6 items-center bg-tertiary p-2 rounded select-none">
+            <div
+            class="
+            md:gap-6 md:p-2
+            gap-4 p-1.25 flex items-center bg-tertiary rounded select-none">
                 @template.language-picker(
                     targetLanguage = targetLanguage.fullName(),
                     languages = languageData
                 )
-                <span class="font-bold text-neutral text-lg text-accent">🧠 words: ${wordsLearned}</span>
+                <span
+                class="
+                md:text-lg
+                text-md font-bold text-neutral text-accent">🧠 words: ${wordsLearned}</span>
                 @if(dailyStreak == 1)
-                    <span class="font-bold text-neutral text-lg text-accent">💪 streak: ${dailyStreak} day</span>
+                    <span
+                    class="
+                    md:text-lg
+                    text-md font-bold text-neutral text-accent">💪 ${dailyStreak} day</span>
                 @else
-                    <span class="font-bold text-neutral text-lg text-accent">💪 streak: ${dailyStreak} days</span>
+                    <span
+                    class="
+                    md:text-lg
+                    text-md font-bold text-neutral text-accent">💪${dailyStreak} days</span>
                 @endif
             </div>
 
         </div>
         <a
-        class="text-lg text-neutral underline cursor-pointer font-bold"
+        class="
+        md:text-lg md:inline
+        text-md hidden text-neutral underline cursor-pointer font-bold"
         hx-post="/auth/logout"
         hx-target="#main"
         hx-swap="innerHTML"
         hx-push-url="/auth/login">
             Log out
         </a>
+        <a
+        class="
+        md:text-lg md:hidden
+        text-md inline text-neutral cursor-pointer font-bold"
+        hx-post="/auth/logout"
+        hx-target="#main"
+        hx-swap="innerHTML"
+        hx-push-url="/auth/login">
+            <svg class="fill-accent" width="24px" height="24px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.50001 0H9.50001L10.0939 2.37548C10.7276 2.6115 11.3107 2.95155 11.8223 3.37488L14.1782 2.70096L15.6782 5.29904L13.9173 7.00166C13.9717 7.32634 14 7.65987 14 8C14 8.34013 13.9717 8.67366 13.9173 8.99834L15.6782 10.701L14.1782 13.299L11.8223 12.6251C11.3107 13.0484 10.7276 13.3885 10.0939 13.6245L9.50001 16H6.50001L5.90614 13.6245C5.27242 13.3885 4.68934 13.0484 4.17768 12.6251L1.82181 13.299L0.321808 10.701L2.08269 8.99834C2.02831 8.67366 2.00001 8.34013 2.00001 8C2.00001 7.65987 2.02831 7.32634 2.08269 7.00166L0.321808 5.29904L1.82181 2.70096L4.17768 3.37488C4.68934 2.95155 5.27241 2.6115 5.90614 2.37548L6.50001 0ZM8.00001 10C9.10458 10 10 9.10457 10 8C10 6.89543 9.10458 6 8.00001 6C6.89544 6 6.00001 6.89543 6.00001 8C6.00001 9.10457 6.89544 10 8.00001 10Z"/>
+            </svg>
+        </a>
     @else
         <a
-        class="text-lg text-neutral underline cursor-pointer font-bold"
+        class="md:text-lg md:inline
+        text-lg hidden text-neutral underline cursor-pointer font-bold"
         hx-get="/auth/login"
         hx-target="#main"
         hx-swap="innerHTML"
         hx-push-url="true">
             Log in
+        </a>
+        <a
+        class="md:text-lg md:invisible
+        text-lg inline text-neutral cursor-pointer font-bold"
+        hx-get="/auth/login"
+        hx-target="#main"
+        hx-swap="innerHTML"
+        hx-push-url="true">
+            <svg class="fill-accent" width="24px" height="24px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.50001 0H9.50001L10.0939 2.37548C10.7276 2.6115 11.3107 2.95155 11.8223 3.37488L14.1782 2.70096L15.6782 5.29904L13.9173 7.00166C13.9717 7.32634 14 7.65987 14 8C14 8.34013 13.9717 8.67366 13.9173 8.99834L15.6782 10.701L14.1782 13.299L11.8223 12.6251C11.3107 13.0484 10.7276 13.3885 10.0939 13.6245L9.50001 16H6.50001L5.90614 13.6245C5.27242 13.3885 4.68934 13.0484 4.17768 12.6251L1.82181 13.299L0.321808 10.701L2.08269 8.99834C2.02831 8.67366 2.00001 8.34013 2.00001 8C2.00001 7.65987 2.02831 7.32634 2.08269 7.00166L0.321808 5.29904L1.82181 2.70096L4.17768 3.37488C4.68934 2.95155 5.27241 2.6115 5.90614 2.37548L6.50001 0ZM8.00001 10C9.10458 10 10 9.10457 10 8C10 6.89543 9.10458 6 8.00001 6C6.89544 6 6.00001 6.89543 6.00001 8C6.00001 9.10457 6.89544 10 8.00001 10Z"/>
+            </svg>
         </a>
     @endif
 </nav>

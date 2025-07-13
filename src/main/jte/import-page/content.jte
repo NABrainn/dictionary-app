@@ -3,8 +3,6 @@
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
-@import java.util.regex.Matcher
-@import java.util.regex.Pattern
 
 @param ImportContentAttribute importContentAttribute
 @param TranslationAttribute translationAttribute = null
@@ -14,7 +12,10 @@
     <div
     id="page-content"
     class="flex flex-col gap-8 min-h-full justify-between">
-        <div class=" w-3/5 mx-auto">
+        <div
+        class="
+        w-full px-2
+        md:w-3/5 mx-auto">
             <span class="text-neutral font-bold text-4xl">${importContentAttribute.importData().title()}</span>
             <div class="leading-10 min-h-150">
                 @for(var word : ForSupport.of(importContentAttribute.importData().content()))
