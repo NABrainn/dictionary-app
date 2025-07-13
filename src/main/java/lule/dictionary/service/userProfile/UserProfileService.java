@@ -66,10 +66,7 @@ public class UserProfileService implements UserDetailsService {
 
     public void updateTimezoneOffset(String owner, String offset) {
         if(offset != null) {
-            userProfileRepository.updateTimezoneOffset(
-                    owner,
-                    DateUtil.stringToZoneOffset(offset).getId()
-            );
+            userProfileRepository.updateTimezoneOffset(owner, DateUtil.stringToZoneOffset(offset).getId());
         }
     }
     public void resetStreaksIfMidnight() {
