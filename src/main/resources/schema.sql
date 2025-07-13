@@ -11,7 +11,7 @@ CREATE CAST (varchar AS dictionary.familiarity) WITH INOUT AS IMPLICIT;
 CREATE TABLE IF NOT EXISTS dictionary.user_profile_settings (
 	settings_id						SERIAL PRIMARY KEY,
     source_lang  					dictionary.lang,
-    target_lang  					dictionary.lang
+    target_lang  					dictionary.lang,
 );
 
 CREATE TABLE IF NOT EXISTS dictionary.user_profiles (
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS dictionary.translations (
     source_lang  					dictionary.lang NOT NULL,
     target_lang  					dictionary.lang NOT NULL,
   	translation_owner				VARCHAR(50) NOT NULL references dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
-  	familiarity						dictionary.familiarity NOT NULL
+  	familiarity						dictionary.familiarity NOT NULL,
 );
 CREATE TABLE IF NOT EXISTS dictionary.imports (
   	imports_id						SERIAL PRIMARY KEY,
@@ -57,5 +57,3 @@ CREATE TABLE IF NOT EXISTS dictionary.imports_translations (
     CONSTRAINT imports_translations_pkey PRIMARY KEY (imports_id, translations_id)
 );
 
--- INSERT INTO dictionary.user_profile_settings (settings_id, source_lang, target_lang) VALUES (1, 'EN', 'NO');
--- INSERT INTO dictionary.user_profiles (username, email, password, settings_id) VALUES ('nabrainn', 'na@brain.com', 'password', 1);
