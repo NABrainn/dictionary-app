@@ -3,9 +3,10 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.application.interfaces.imports.ImportWithPagination;
-import lule.dictionary.entity.application.interfaces.imports.base.Import;
-import lule.dictionary.entity.application.interfaces.imports.ImportWithId;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.base.Import;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
+import lule.dictionary.service.language.Language;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -78,14 +79,18 @@ public class ImportRepository {
         }
     }
 
-    public List<ImportWithId> findByOwner(@NonNull String owner) {
+    public List<ImportWithId> findByOwnerAndTargetLanguage(@NonNull String owner, @NonNull Language targetLanguage) {
         String sql = """
                 SELECT *
                 FROM dictionary.imports
                 WHERE import_owner=?
+                AND target_lang=CAST(? AS dictionary.lang)
                 """;
         try {
-            return template.query(sql, IMPORT_WITH_ID, owner);
+            return template.query(sql, IMPORT_WITH_ID,
+                    owner,
+                    targetLanguage.name()
+            );
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             return List.of();
