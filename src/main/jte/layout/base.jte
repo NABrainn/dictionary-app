@@ -6,9 +6,11 @@
 @param BaseAttribute baseAttribute
 
 <script>
-    document.addEventListener("htmx:configRequest", function(event) {
-        event.detail.headers["X-XSRF-TOKEN"] = "${baseAttribute._csrf().getToken()}";
-    });
+    @if(baseAttribute._csrf() != null)
+       document.addEventListener("htmx:configRequest", function(event) {
+            event.detail.headers["X-XSRF-TOKEN"] = "${baseAttribute._csrf().getToken()}";
+        });
+    @endif
 </script>
 
 <html lang="en">
