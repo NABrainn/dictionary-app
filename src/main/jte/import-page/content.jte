@@ -16,7 +16,10 @@
         class="
         w-full px-2
         md:w-3/5 mx-auto">
-            <span class="text-neutral font-bold text-4xl">${importContentAttribute.importData().title()}</span>
+            <span
+            class="
+            md:text-4xl
+            text-xl text-neutral font-bold ">${importContentAttribute.importData().title()}</span>
             <div class="leading-10 min-h-150">
                 @for(var word : ForSupport.of(importContentAttribute.importData().content()))
                     !{var cleanWord = word.get().replaceAll("[^\\p{L}\\p{N}]", "").trim().toLowerCase();}
