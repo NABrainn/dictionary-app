@@ -83,6 +83,7 @@ public class UserProfileRepository {
                     userProfile.sourceLanguage().name(),
                     userProfile.targetLanguage().name(),
                     userProfile.username(),
+                    0,
                     userProfile.username(),
                     userProfile.email(),
                     userProfile.password()
