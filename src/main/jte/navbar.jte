@@ -42,7 +42,7 @@ justify-around p-1 flex bg-secondary items-center">
             <div
             class="
             md:gap-6 md:p-2
-            gap-4 p-1.25 flex items-center bg-tertiary rounded select-none">
+            gap-3 p-1.25 flex items-center bg-tertiary rounded select-none">
                 @template.language-picker(
                     targetLanguage = targetLanguage.fullName(),
                     languages = languageData
