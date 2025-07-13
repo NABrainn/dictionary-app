@@ -3,9 +3,10 @@ package lule.dictionary.service.userProfile;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.application.implementation.userProfile.base.UserProfileImp;
-import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
+import lule.dictionary.dto.database.implementation.userProfile.base.UserProfileImp;
+import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.UserProfileRepository;
@@ -44,7 +45,8 @@ public class UserProfileService implements UserDetailsService {
                 .sourceLanguage(Language.EN)
                 .targetLanguage(Language.NO)
                 .wordsAddedToday(0)
-                .offset("")
+                .dailyStreak(0)
+                .offset(TimeZoneOffsetContext.get())
                 .build();
         userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new RuntimeException("Failed to add new user"));
     }
@@ -55,7 +57,7 @@ public class UserProfileService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return (UserDetails) userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public Optional<UserProfile> findByUsernameOrEmail(String username, String email) throws UserNotFoundException {

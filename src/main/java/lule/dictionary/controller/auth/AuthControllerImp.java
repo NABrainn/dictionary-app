@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.AuthService;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
-import lule.dictionary.service.dto.result.ServiceResult;
+import lule.dictionary.dto.application.result.ServiceResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

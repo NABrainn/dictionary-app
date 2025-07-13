@@ -2,7 +2,7 @@ package lule.dictionary.service.console;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.stereotype.Service;
 

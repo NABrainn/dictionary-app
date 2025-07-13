@@ -1,7 +1,7 @@
 package lule.dictionary.controller.userSettings;
 
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.entity.application.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.core.Authentication;

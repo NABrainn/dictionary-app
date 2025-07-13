@@ -7,16 +7,16 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.entity.application.implementation.userProfile.base.UserProfileImp;
+import lule.dictionary.dto.database.implementation.userProfile.base.UserProfileImp;
 import lule.dictionary.service.auth.dto.request.AuthRequest;
 import lule.dictionary.service.auth.dto.authenticationContext.SessionContext;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
-import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationResult;
 import lule.dictionary.service.cookie.CookieService;
-import lule.dictionary.service.dto.result.ServiceResultImp;
-import lule.dictionary.service.dto.result.ServiceResult;
+import lule.dictionary.dto.application.result.ServiceResultImp;
+import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.service.validation.ValidationService;
@@ -118,8 +118,12 @@ public class AuthService {
 
     private void setAuthenticationContext(SessionContext sessionContext) throws AuthenticationException {
         setAuthentication(sessionContext.authenticationResult().authentication());
-        setTimezoneOffset(sessionContext.authenticationResult().userProfile().offset());
         sendJwtCookie(sessionContext.authenticationResult().userProfile().username(), sessionContext.response());
+        updateTimezoneOffset(sessionContext.authenticationResult().userProfile().username(), TimeZoneOffsetContext.get());
+    }
+
+    private void updateTimezoneOffset(String owner, String offset) {
+        userProfileService.updateTimezoneOffset(owner, offset);
     }
 
     private AuthRequest validate(AuthRequest authRequest) throws ConstraintViolationException {
@@ -151,10 +155,6 @@ public class AuthService {
 
     private void setAuthentication(Authentication authentication) {
         SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    private void setTimezoneOffset(String offset) {
-        TimeZoneOffsetContext.set(offset);
     }
 
     private Authentication authenticate(UserProfile userProfile) {

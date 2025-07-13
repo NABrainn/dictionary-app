@@ -1,8 +1,8 @@
 package lule.dictionary.util;
 
 import lule.dictionary.functionalInterface.ConsoleDialogAction;
-import lule.dictionary.entity.console.ConsoleDialog;
-import lule.dictionary.entity.console.ConsoleDialogOption;
+import lule.dictionary.dto.console.ConsoleDialog;
+import lule.dictionary.dto.console.ConsoleDialogOption;
 
 import java.io.IOException;
 import java.util.ArrayDeque;

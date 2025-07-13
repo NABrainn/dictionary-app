@@ -3,7 +3,7 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.entity.application.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -83,7 +83,6 @@ public class UserProfileRepository {
                     userProfile.sourceLanguage().name(),
                     userProfile.targetLanguage().name(),
                     userProfile.username(),
-                    userProfile.offset(),
                     userProfile.username(),
                     userProfile.email(),
                     userProfile.password()
