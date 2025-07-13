@@ -22,6 +22,7 @@
                 }'
                 hx-target="#main"
                 hx-swap="outerHTML"
+                hx-push-url="true"
                 value="${language.fullName()}">${language.fullName()}</option>
             @endif
         @endfor

@@ -20,12 +20,8 @@ public class SettingsController {
     @GetMapping({"/changeLanguage", "/changeLanguage/"})
     public String changeLanguage(@RequestParam("lang") String lang,
                                  Authentication authentication) {
-        try {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            userProfileService.updateTargetLanguage(userDetails.getUsername(), Language.valueOf(lang));
-            return "/";
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
-        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        userProfileService.updateTargetLanguage(userDetails.getUsername(), Language.valueOf(lang));
+        return "redirect:/";
     }
 }
