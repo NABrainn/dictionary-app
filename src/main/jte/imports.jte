@@ -1,32 +1,21 @@
-@import lule.dictionary.entity.application.interfaces.imports.ImportWithId
-@import lule.dictionary.service.language.Language
-@import org.springframework.security.web.csrf.CsrfToken
+@import lule.dictionary.dto.application.BaseAttribute
+@import lule.dictionary.dto.database.interfaces.imports.ImportWithId
 @import java.util.List
-@import java.util.Map
 
 @param List<ImportWithId> imports
-
-<%--base data--%>
-@param boolean authenticated
-@param Language sourceLanguage
-@param String targetLanguage
-@param CsrfToken _csrf 
-@param String username
-@param int wordsLearned
-@param int dailyStreak
-@param Map<Language, String> languages
-
+@param BaseAttribute baseAttribute
 
 @template.layout.base(content = @`
     @template.navbar(
-        username = username,
-        authenticated = authenticated,
-        targetLanguage = targetLanguage,
-        wordsLearned = wordsLearned,
-        dailyStreak = dailyStreak,
-        languages = languages
+        username = baseAttribute.username(),
+        authenticated = baseAttribute.isAuthenticated(),
+        sourceLanguage = baseAttribute.sourceLanguageData(),
+        targetLanguage = baseAttribute.targetLanguageData(),
+        wordsLearned = baseAttribute.wordsLearned(),
+        dailyStreak = baseAttribute.dailyStreak(),
+        languageData = baseAttribute.allLanguageData()
     )
-    @if(authenticated)
+    @if(baseAttribute.isAuthenticated())
         <div class="grow-1 w-3/5 mx-auto flex flex-col justify-between gap-16 text-neutral">
                 @if(imports.isEmpty())
                     <div class="flex justify-center">
@@ -69,11 +58,4 @@
             </div>
     @endif
 `,
-authenticated = authenticated,
-sourceLanguage = sourceLanguage,
-targetLanguage = targetLanguage,
-_csrf = _csrf,
-username = username,
-wordsLearned = wordsLearned,
-languages = languages
-)
+baseAttribute = baseAttribute)

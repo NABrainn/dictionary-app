@@ -1,21 +1,13 @@
 @import gg.jte.Content
-@import lule.dictionary.service.language.Language
-@import org.springframework.security.web.csrf.CsrfToken
-@import java.util.Map
+@import lule.dictionary.dto.application.BaseAttribute
 
 @param Content authView = null
 @param Content content = null
-@param Language sourceLanguage = null
-@param String targetLanguage
-@param String username
-@param boolean authenticated
-@param CsrfToken _csrf
-@param int wordsLearned
-@param Map<Language, String> languages
+@param BaseAttribute baseAttribute
 
 <script>
     document.addEventListener("htmx:configRequest", function(event) {
-        event.detail.headers["X-XSRF-TOKEN"] = "${_csrf.getToken()}";
+        event.detail.headers["X-XSRF-TOKEN"] = "${baseAttribute._csrf().getToken()}";
     });
 </script>
 

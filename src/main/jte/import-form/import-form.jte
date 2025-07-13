@@ -1,25 +1,19 @@
-@import lule.dictionary.service.dto.result.ServiceResultImp
-@import lule.dictionary.service.language.Language
-@import org.springframework.security.web.csrf.CsrfToken
-@import java.util.Map
+@import lule.dictionary.dto.application.BaseAttribute
+@import lule.dictionary.dto.application.result.ServiceResultImp
 
-@param boolean authenticated
 @param ServiceResultImp<?> result = null
-@param CsrfToken _csrf
-@param String username
-@param String targetLanguage
-@param int wordsLearned
-@param int dailyStreak
-@param Map<Language, String> languages
+@param BaseAttribute baseAttribute 
+
 
 @template.layout.base(content = @`
     @template.navbar(
-        username = username,
-        authenticated = authenticated,
-        targetLanguage = targetLanguage,
-        wordsLearned = wordsLearned,
-        dailyStreak = dailyStreak,
-        languages = languages
+        username = baseAttribute.username(),
+        authenticated = baseAttribute.isAuthenticated(),
+        sourceLanguage = baseAttribute.sourceLanguageData(),
+        targetLanguage = baseAttribute.targetLanguageData(),
+        wordsLearned = baseAttribute.wordsLearned(),
+        dailyStreak = baseAttribute.dailyStreak(),
+        languageData = baseAttribute.allLanguageData()
     )
     <form
     class="flex flex-col gap-8 bg-secondary w-3/5 mx-auto p-8"
@@ -27,7 +21,7 @@
     hx-target="#main"
     hx-swap="innerHTML"
     hx-push-url="true">
-        <input type="hidden" name="${_csrf.getParameterName()}" value="${_csrf.getToken()}">
+        <input type="hidden" name="${baseAttribute._csrf().getParameterName()}" value="${baseAttribute._csrf().getToken()}">
         <div class="flex flex-col gap-2">
             <label class="text-accent font-bold text-2xl min-h-8" for="title">Title</label>
             <input
@@ -100,10 +94,4 @@
     </script>
     <button-toggler></button-toggler>
 `,
-authenticated = authenticated,
-_csrf = _csrf,
-username = username,
-targetLanguage = targetLanguage,
-wordsLearned = wordsLearned,
-languages = languages
-)
+baseAttribute = baseAttribute)
