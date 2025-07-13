@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.service.dto.request.ServiceRequest;
+import lule.dictionary.dto.application.request.ServiceRequest;
 import lule.dictionary.service.language.Language;
 
 @Builder
