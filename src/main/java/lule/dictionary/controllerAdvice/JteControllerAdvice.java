@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.BaseAttribute;
 import lule.dictionary.dto.application.LanguageData;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.service.language.LanguageHelper;
 import lule.dictionary.service.translation.TranslationService;
 import org.springframework.security.core.Authentication;
@@ -25,8 +26,6 @@ public class JteControllerAdvice {
     public void addBaseAttribute(Model model, Authentication authentication, CsrfToken csrfToken) {
         if(authentication != null) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            log.info("KURWA {}", translationService.getWordsLearnedCount(userDetails.getUsername(), userDetails.targetLanguage()).value());
-
             model.addAttribute("baseAttribute", BaseAttribute.builder()
                     ._csrf(csrfToken)
                     .isAuthenticated(authentication.isAuthenticated())
@@ -46,8 +45,32 @@ public class JteControllerAdvice {
                     .allLanguageData(languageHelper.getAllLanguageData())
                     .wordsLearned(translationService.getWordsLearnedCount(userDetails.getUsername(), userDetails.targetLanguage()).value())
                     .dailyStreak(userDetails.dailyStreak())
-                    .build()
-            );
+                    .build());
+            return;
         }
+        model.addAttribute("baseAttribute", BaseAttribute.builder()
+                ._csrf(csrfToken)
+                .isAuthenticated(false)
+                .username("defaultUser")
+                .sourceLanguageData(LanguageData.of(
+                                Language.EN,
+                                languageHelper.getFullName(Language.EN),
+                                languageHelper.getAbbreviation(Language.EN)
+                        )
+                )
+                .targetLanguageData(LanguageData.of(
+                                Language.NO,
+                                languageHelper.getFullName(Language.NO),
+                                languageHelper.getAbbreviation(Language.NO)
+                        )
+                )
+                .allLanguageData(languageHelper.getAllLanguageData())
+                .wordsLearned(0)
+                .dailyStreak(0)
+                .build());
+    }
+
+    private boolean isAuthenticated(Authentication authentication) {
+        return authentication != null;
     }
 }
