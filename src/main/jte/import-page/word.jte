@@ -14,7 +14,7 @@
 
 @if(selectable)
     <span
-    class="${bgColor} relative ${textColor} px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap"
+    class="${bgColor} relative ${textColor} px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap text-lg"
     id="target-word-${wordIndex}"
     hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
     hx-target="#translation-form-${wordIndex}"
