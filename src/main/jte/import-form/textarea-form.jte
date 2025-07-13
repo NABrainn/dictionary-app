@@ -8,7 +8,8 @@
         <label for="area"></label>
         <textarea
         class="
-        outline-none border border-2 border-primary rounded text-neutral min-h-30 resize-none min-h-200
+        md:min-h-200
+        min-h-85 outline-none border border-2 border-primary rounded text-neutral resize-none
         focus:border-accent w-full"
         name="content"
         id="area"

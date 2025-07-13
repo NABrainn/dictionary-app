@@ -16,7 +16,9 @@
         languageData = baseAttribute.allLanguageData()
     )
     @if(baseAttribute.isAuthenticated())
-        <div class="grow-1 w-3/5 mx-auto flex flex-col justify-between gap-16 text-neutral">
+        <div
+        class="md:w-3/5
+        w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral">
                 @if(imports.isEmpty())
                     <div class="flex justify-center">
                             <span class="text-neutral font-bold">There are no books in the library.
@@ -29,7 +31,9 @@
                             </span>
                     </div>
                 @else
-                    <div class="grid grid-cols-3 gap-8">
+                    <div
+                    class="md:grid-cols-3
+                    grid-cols-2 grid gap-2">
                         @for(var item : imports)
                             <div
                             class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer"
@@ -37,8 +41,9 @@
                             hx-target="#main"
                             hx-swap="innerHTML"
                             hx-push-url="/imports/${item.id()}">
-                                <p class="font-bold text-xl">${item.title()}</p>
-                                <span>Url: ${item.url()}</span>
+                                <p
+                                class="md:text-xl
+                                text-lg font-bold">${item.title()}</p>
                                 <span>Created by:
                                     <span class="text-secondary font-bold">${item.owner()}</span>
                                 </span>
