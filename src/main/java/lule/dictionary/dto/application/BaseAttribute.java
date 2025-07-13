@@ -7,7 +7,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import java.util.List;
 
 @Builder
-public record BaseAttribute(@NonNull CsrfToken _csrf,
+public record BaseAttribute(CsrfToken _csrf,
                             boolean isAuthenticated,
                             @NonNull String username,
                             @NonNull LanguageData sourceLanguageData,
