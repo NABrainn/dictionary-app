@@ -35,7 +35,8 @@
                                         textColor = "text-neutral",
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
-                                        found = true
+                                        found = true,
+                                        selected = true
                                     )
                                 @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                     @template.import-page.word(
@@ -47,7 +48,8 @@
                                         textColor = "text-neutral",
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
-                                        found = true
+                                        found = true,
+                                        selected = true
                                     )
 
                                 @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
@@ -60,7 +62,8 @@
                                         textColor = "text-neutral",
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
-                                        found = true
+                                        found = true,
+                                        selected = true
                                     )
                                 @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                     @template.import-page.word(
@@ -72,7 +75,8 @@
                                         textColor = "text-neutral",
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
-                                        found = true
+                                        found = true,
+                                        selected = true
                                     )
                                 @else
                                     @template.import-page.word(
@@ -84,7 +88,8 @@
                                         textColor = "text-neutral",
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
-                                        found = true
+                                        found = true,
+                                        selected = true
                                     )
                                 @endif
                             @else
@@ -188,9 +193,6 @@
                             selectable = false
                         )
                     @endif
-                @endfor
-                @for(var translation : importContentAttribute.importData().translations().entrySet())
-                    translation: ${translation.getValue().targetWord()}
                 @endfor
             </div>
         </div>
