@@ -25,7 +25,7 @@
         ${word}</span>
         <div
         class="
-        inline cursor-default z-2 top-8 absolute inline" id="translation-form-${wordIndex}" onclick="event.stopPropagation();">
+        inline cursor-default z-2 top-8  absolute inline" id="translation-form-${wordIndex}" onclick="event.stopPropagation();">
             @if(translationAttribute != null)
                 @template.import-page.translation.update-translation-form(translationAttribute = translationAttribute)
             @endif

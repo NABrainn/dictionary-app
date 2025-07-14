@@ -133,7 +133,7 @@
                         top: 0,
                         bottom: 8,
                         left: 0,
-                        right: -4
+                        right: 0
                     });
                 }
             }
