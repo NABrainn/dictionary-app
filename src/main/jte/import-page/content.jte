@@ -177,17 +177,20 @@
                         @endif
                     @else
                         @template.import-page.word(
-                        wordIndex = word.getIndex(),
-                        importId = importContentAttribute.importData().importId(),
-                        word = word.get(),
-                        processedWord = cleanWord,
-                        bgColor = "bg-primary",
-                        textColor = "text-neutral",
-                        translationAttribute = null,
-                        page = importContentAttribute.paginationData().currentPageNumber(),
-                        selectable = false
+                            wordIndex = word.getIndex(),
+                            importId = importContentAttribute.importData().importId(),
+                            word = word.get(),
+                            processedWord = cleanWord,
+                            bgColor = "bg-primary",
+                            textColor = "text-neutral",
+                            translationAttribute = null,
+                            page = importContentAttribute.paginationData().currentPageNumber(),
+                            selectable = false
                         )
                     @endif
+                @endfor
+                @for(var translation : importContentAttribute.importData().translations().entrySet())
+                    translation: ${translation.getValue().targetWord()}
                 @endfor
             </div>
         </div>
