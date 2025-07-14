@@ -59,6 +59,7 @@
                 this.#handleNorthWestOverflow(form)
                 this.#handleSouthEastOverflow(form)
                 this.#handleSouthWestOverflow(form)
+                this.#handleBottomOverflow(form)
             }
 
             attributeChangedCallback(name, oldValue, newValue) {
@@ -120,6 +121,19 @@
                         bottom: 0,
                         left: 0,
                         right: 0
+                    });
+                }
+            }
+
+            #handleBottomOverflow(form) {
+                if(this.#isOverflowBottom(form)) {
+                    console.log('bottom overflow');
+                    this.#adjustPosition({
+                        form: form,
+                        top: 0,
+                        bottom: 8,
+                        left: 0,
+                        right: -4
                     });
                 }
             }
