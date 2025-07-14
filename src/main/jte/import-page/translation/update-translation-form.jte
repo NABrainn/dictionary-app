@@ -8,7 +8,7 @@
         document.querySelector('.form').outerHTML = '';
     }
 </script>
-<div class="bg-secondary flex flex-col gap-2 py-2 px-6 rounded form">
+<div class="bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45">
     <div class="flex justify-end">
         <span class="text-red-400 font-bold text-lg cursor-pointer" onclick="exitForm()">❌</span>
     </div>
@@ -19,7 +19,7 @@
         )
     </div>
     @template.import-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
-    <div class="flex flex-col gap-0.5">
+    <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             @if(level.getKey() == translationAttribute.currentFamiliarity())
                 <div class="font-bold text-primary flex gap-1">

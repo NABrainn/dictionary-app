@@ -30,7 +30,7 @@
         customElements.define('source-word-field', SourceWordField);
     }
 </script>
-<div class="bg-secondary flex flex-col gap-2 py-2 px-6 rounded form">
+<div class="bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45">
     <div class="flex justify-end">
         <span class="text-red-400 font-bold text-lg cursor-pointer" onclick="exitForm()">❌</span>
     </div>
@@ -49,33 +49,33 @@
     )
     </div>
     @template.import-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
-    <div class="flex flex-col gap-0.5">
+    <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             <form class="flex gap-1 cursor-pointer font-bold text-neutral hover:text-primary">
-                    <span class="cursor-pointer">${level.getKey()}: </span>
-                    <input
-                    class=" cursor-pointer"
-                    value="${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}"
-                    type="submit"
-                    hx-post="/translations/new"
-                    hx-vals='
-                        {
-                        "targetWord": "${translationAttribute.translation().targetWord()}",
-                        "familiarity": "${level.getValue().name()}",
-                        "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
-                        "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
-                        "importId": "${translationAttribute.importId()}",
-                        "selectedWordId": "${translationAttribute.selectedWordId()}",
-                        "page": "${translationAttribute.page()}"
-                        }'
-                    hx-target="#page-content"
-                    hx-headers='js:{
-                        timeZoneOffset: new Date().getTimezoneOffset()
+                <span class="cursor-pointer">${level.getKey()}: </span>
+                <input
+                class=" cursor-pointer"
+                value="${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}"
+                type="submit"
+                hx-post="/translations/new"
+                hx-vals='
+                    {
+                    "targetWord": "${translationAttribute.translation().targetWord()}",
+                    "familiarity": "${level.getValue().name()}",
+                    "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
+                    "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
+                    "importId": "${translationAttribute.importId()}",
+                    "selectedWordId": "${translationAttribute.selectedWordId()}",
+                    "page": "${translationAttribute.page()}"
                     }'
-                    hx-swap="outerHTML">
-                    @for(var word : translationAttribute.translation().sourceWords())
-                        <input type="hidden" name="sourceWords" value="${word}">
-                    @endfor
+                hx-target="#page-content"
+                hx-headers='js:{
+                    timeZoneOffset: new Date().getTimezoneOffset()
+                }'
+                hx-swap="outerHTML">
+                @for(var word : translationAttribute.translation().sourceWords())
+                    <input type="hidden" name="sourceWords" value="${word}">
+                @endfor
             </form>
         @endfor
     </div>
