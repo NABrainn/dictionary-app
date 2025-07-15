@@ -9,10 +9,11 @@
 <div>
     <label for="lang-select"></label>
     <select
-    class="bg-secondary p-2 rounded"
+    class="bg-secondary p-2 rounded text-accent"
     name="langs"
     id="lang-select">
-        <option value="${targetLanguage}">${targetLanguage}</option>
+        <option
+        value="${targetLanguage}">${targetLanguage}</option>
         @for(var language : languages)
             @if(!language.fullName().equals(targetLanguage))
                 <option
@@ -22,6 +23,7 @@
                 }'
                 hx-target="#main"
                 hx-swap="outerHTML"
+                hx-push-url="true"
                 value="${language.fullName()}">${language.fullName()}</option>
             @endif
         @endfor

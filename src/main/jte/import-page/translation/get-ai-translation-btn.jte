@@ -2,9 +2,9 @@
 
 <div
 id="btn-container"
-class="flex items-center gap-1 rounded cursor-pointer">
+class="flex items-center gap-1 rounded cursor-pointer max-w-40">
     <button
-    class="font-bold cursor-pointer bg-tertiary w-full rounded"
+    class="font-bold cursor-pointer bg-tertiary w-full rounded text-md"
     type="button"
     hx-get="/ollama/translate?targetWord=${targetWord}"
     hx-target="#btn-container"

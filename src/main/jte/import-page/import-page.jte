@@ -2,7 +2,7 @@
 @import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute
 
 @param ImportContentAttribute importContentAttribute
-@param BaseAttribute baseAttribute 
+@param BaseAttribute baseAttribute
 
 @template.layout.base(content = @`
     @template.navbar(

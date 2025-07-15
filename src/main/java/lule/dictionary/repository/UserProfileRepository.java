@@ -83,6 +83,7 @@ public class UserProfileRepository {
                     userProfile.sourceLanguage().name(),
                     userProfile.targetLanguage().name(),
                     userProfile.username(),
+                    0,
                     userProfile.username(),
                     userProfile.email(),
                     userProfile.password()
@@ -148,7 +149,7 @@ public class UserProfileRepository {
                                 date_trunc('day', now() + (tz_offset)::interval)
                                 AND words_added_today >= 50
         """;
-        int updated = template.update(resetSql);
+        template.update(resetSql);
         template.update(incrementSql);
     }
 

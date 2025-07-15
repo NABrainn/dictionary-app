@@ -11,7 +11,7 @@ CREATE CAST (varchar AS dictionary.familiarity) WITH INOUT AS IMPLICIT;
 CREATE TABLE IF NOT EXISTS dictionary.user_profile_settings (
 	settings_id						SERIAL PRIMARY KEY,
     source_lang  					dictionary.lang,
-    target_lang  					dictionary.lang,
+    target_lang  					dictionary.lang
 );
 
 CREATE TABLE IF NOT EXISTS dictionary.user_profiles (
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS dictionary.streaks (
 	words_added_today				int	NOT NULL DEFAULT 0,
 	streak_owner					VARCHAR(50) REFERENCES dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
 	tz_offset                       VARCHAR(100) NOT NULL DEFAULT '+00:00',
-	last_day_counted                DATE;
+	last_day_counted                DATE,
 	updated_at						TIMESTAMPTZ
 );
 
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS dictionary.translations (
     source_lang  					dictionary.lang NOT NULL,
     target_lang  					dictionary.lang NOT NULL,
   	translation_owner				VARCHAR(50) NOT NULL references dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
-  	familiarity						dictionary.familiarity NOT NULL,
+  	familiarity						dictionary.familiarity NOT NULL
 );
 CREATE TABLE IF NOT EXISTS dictionary.imports (
   	imports_id						SERIAL PRIMARY KEY,

@@ -1,3 +1,4 @@
+@import lule.dictionary.service.imports.importService.dto.FormPositionData
 @import lule.dictionary.service.translation.dto.attribute.TranslationPair
 
 @param String sourceLanguage
@@ -6,6 +7,7 @@
 @param int selectedWordId
 @param int page
 @param TranslationPair translationPair
+@param FormPositionData formPositionData 
 
 <form
 class="flex flex-col gap-2"
@@ -30,7 +32,7 @@ hx-on::before-request="document.querySelector('source-word-field').isEmpty()">
         <input
         id="input-source-word"
         class="
-        outline-none border border-2 border-primary rounded text-neutral text-sm
+        outline-none border border-2 border-primary rounded text-neutral text-sm max-w-35
         focus:border-accent"
         type="text"
         placeholder="Custom translation"
@@ -40,4 +42,15 @@ hx-on::before-request="document.querySelector('source-word-field').isEmpty()">
         class="text-2xl cursor-pointer"
         type="submit">+</button>
     </div>
+    @if(formPositionData != null)
+        <input type="hidden" name="left" class="left-${selectedWordId}" value="${selectedWordId}">
+        <input type="hidden" name="right" class="right-${selectedWordId}" value="${selectedWordId}">
+        <input type="hidden" name="top" class="top-${selectedWordId}" value="${selectedWordId}">
+        <input type="hidden" name="bottom" class="bottom-${selectedWordId}" value="${selectedWordId}">
+    @else
+        <input type="hidden" name="left" class="left-${selectedWordId}">
+        <input type="hidden" name="right" class="right-${selectedWordId}">
+        <input type="hidden" name="top" class="top-${selectedWordId}">
+        <input type="hidden" name="bottom" class="bottom-${selectedWordId}">
+    @endif
 </form>

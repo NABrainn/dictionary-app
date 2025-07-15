@@ -7,6 +7,7 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.service.imports.importService.dto.FormPositionData;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.translation.TranslationServiceImp;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
@@ -40,7 +41,11 @@ public class TranslationController {
                                  @RequestParam("targetLanguage") Language targetLanguage,
                                  @RequestParam("importId") int importId,
                                  @RequestParam("selectedWordId") int selectedWordId,
-                                 @RequestParam("page") int page) {
+                                 @RequestParam("page") int page,
+                                 @RequestParam("left") String left,
+                                 @RequestParam("right") String right,
+                                 @RequestParam("top") String top,
+                                 @RequestParam("bottom") String bottom) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         try {
             ServiceResult<TranslationAttribute> result = translationService.createTranslation(AddTranslationRequest.builder()
@@ -53,6 +58,7 @@ public class TranslationController {
                     .familiarity(familiarity)
                     .page(page)
                     .owner(principal.getUsername())
+                    .formPositionData(FormPositionData.of(left, right, top, bottom))
                     .build());
             model.addAttribute("translationAttribute", result.value());
             return "forward:/imports/page/reload";
@@ -104,7 +110,11 @@ public class TranslationController {
                                     @RequestParam("targetLanguage") Language targetLanguage,
                                     @RequestParam("importId") int importId,
                                     @RequestParam("selectedWordId") int selectedWordId,
-                                    @RequestParam("page") int page) {
+                                    @RequestParam("page") int page,
+                                    @RequestParam("left") String left,
+                                    @RequestParam("right") String right,
+                                    @RequestParam("top") String top,
+                                    @RequestParam("bottom") String bottom) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(UpdateTranslationFamiliarityRequest.builder()
                 .importId(importId)
@@ -115,6 +125,7 @@ public class TranslationController {
                 .familiarity(familiarity)
                 .page(page)
                 .owner(principal.getUsername())
+                .formPositionData(FormPositionData.of(left, right, top, bottom))
                 .build());
         model.addAttribute("translationAttribute", result.value());
         return "forward:/imports/page/reload";

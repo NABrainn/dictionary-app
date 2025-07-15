@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.dto.application.request.ServiceRequest;
+import lule.dictionary.service.imports.importService.dto.FormPositionData;
 import lule.dictionary.service.language.Language;
 
 import java.util.List;
@@ -24,5 +25,6 @@ public record AddTranslationRequest(int importId,
                                     Language targetLanguage,
                                     Familiarity familiarity,
                                     int page,
-                                    String owner) implements ServiceRequest {
+                                    String owner,
+                                    @NonNull FormPositionData formPositionData) implements ServiceRequest {
 }

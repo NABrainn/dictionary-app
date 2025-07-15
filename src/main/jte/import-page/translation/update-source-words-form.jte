@@ -31,7 +31,7 @@
             <input
             id="input-source-word"
             class="
-            outline-none border border-2 border-primary rounded text-neutral text-sm
+            outline-none border border-2 border-primary rounded text-neutral text-sm max-w-35
             focus:border-accent"
             type="text" placeholder="Custom translation"
             name="sourceWords">

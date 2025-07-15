@@ -22,7 +22,8 @@
         hx-headers='js:{
             timeZoneOffset: new Date().getTimezoneOffset()
         }'
-        class="flex flex-col bg-secondary w-2/5 p-8 mx-auto gap-8">
+        class="md:w-2/5
+        w-4/5 flex flex-col bg-secondary p-8 mx-auto gap-8">
         <span class="text-accent text-2xl font-bold">Sign up</span>
         <div class="flex flex-col">
             <label class="text-accent" for="login">Username</label>

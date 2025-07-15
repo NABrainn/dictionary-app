@@ -11,6 +11,7 @@ import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.request.ServiceRequest;
 import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.dto.application.result.ServiceResult;
+import lule.dictionary.service.imports.importService.dto.FormPositionData;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
@@ -60,6 +61,13 @@ public class TranslationServiceImp implements TranslationService {
                     .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
                     .page(request.page())
+                    .formPositionData(FormPositionData.of(
+                            request.formPositionData().left(),
+                            request.formPositionData().right(),
+                            request.formPositionData().top(),
+                            request.formPositionData().bottom()
+                        )
+                    )
                     .build());
         } catch (ConstraintViolationException e) {
             throw new InvalidInputException(ServiceResultImp.error(TranslationAttribute.builder()
@@ -130,6 +138,13 @@ public class TranslationServiceImp implements TranslationService {
                 .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                 .familiarityLevels(getFamiliarityTable())
                 .page(request.page())
+                .formPositionData(FormPositionData.of(
+                        request.formPositionData().left(),
+                        request.formPositionData().right(),
+                        request.formPositionData().top(),
+                        request.formPositionData().bottom()
+                    )
+                )
                 .translationId(-1)
                 .build());
     }
@@ -195,6 +210,7 @@ public class TranslationServiceImp implements TranslationService {
                                                 String owner) {
         List<String> validTargetWords = targetWords.stream()
                 .map(word -> word.trim().toLowerCase())
+                .map(word -> word.replaceAll("\\p{Punct}", ""))
                 .filter(word -> !word.isEmpty())
                 .distinct()
                 .toList();
