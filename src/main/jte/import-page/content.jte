@@ -10,7 +10,7 @@
 
     <div
     id="page-content"
-    class="flex flex-col gap-8 min-h-full justify-between">
+    class="flex flex-col gap-8 min-h-full justify-between select-none">
         <div
         class="
         w-full px-2
