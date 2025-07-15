@@ -1,7 +1,5 @@
 @import lule.dictionary.dto.application.LanguageData
-@import lule.dictionary.service.language.Language
 @import java.util.List
-@import java.util.Map
 
 @param String targetLanguage
 @param List<LanguageData> languages
@@ -9,7 +7,9 @@
 <div>
     <label for="lang-select"></label>
     <select
-    class="bg-secondary p-2 rounded text-accent"
+    class="
+    md:px-2 md:py-2 md:text-lg
+    px-0.5 py-1 text-md rounded text-primary bg-tertiary  font-bold"
     name="langs"
     id="lang-select">
         <option

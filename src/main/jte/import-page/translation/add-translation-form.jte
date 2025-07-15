@@ -6,7 +6,9 @@
 onclick="event.stopPropagation()"
 class="open bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45 animate-fade">
     <div class="flex justify-end">
-        <span class="text-red-400 font-bold text-lg cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
+        <span
+        class="md:text-lg
+        text-md text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">

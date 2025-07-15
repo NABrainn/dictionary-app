@@ -12,8 +12,8 @@
 
 <nav
 class="
-md:justify-between md:p-4
-justify-around p-1 flex bg-secondary items-center">
+md:justify-between md:p-4 md:py-2
+gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center">
     <div
     class="flex items-center align-center text-lg text-neutral">
         <a
@@ -42,7 +42,7 @@ justify-around p-1 flex bg-secondary items-center">
             <div
             class="
             md:gap-6 md:p-2
-            gap-3 p-1.25 flex items-center bg-tertiary rounded select-none">
+            gap-2 p-1.25 flex items-center bg-secondary rounded select-none">
                 @template.language-picker(
                     targetLanguage = targetLanguage.fullName(),
                     languages = languageData
