@@ -210,7 +210,7 @@ public class TranslationServiceImp implements TranslationService {
                                                 String owner) {
         List<String> validTargetWords = targetWords.stream()
                 .map(word -> word.trim().toLowerCase())
-                .map(word -> word.replaceAll("\\p{Punct}", ""))
+                .map(word -> word.replaceAll("[\\p{Punct}<>@#$%^&*()\\[\\]{}\\\\|`~«»]", ""))
                 .filter(word -> !word.isEmpty())
                 .distinct()
                 .toList();
