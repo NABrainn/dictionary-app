@@ -2,38 +2,13 @@
 @import lule.dictionary.service.translation.dto.attribute.TranslationPair
 
 @param TranslationAttribute translationAttribute
-<script>
-    function exitForm() {
-        document.querySelector('.form').outerHTML = '';
-    }
-
-    if(!customElements.get('source-word-field')) {
-        class SourceWordField extends HTMLElement {
-
-            field = document.getElementById('input-source-word');
-
-            constructor() {
-                super();
-            }
-
-            isEmpty() {
-                if(!this.field.value.length) {
-                    this.field.classList.remove('border-primary')
-                    this.field.classList.add('border-error')
-                    return
-                }
-                this.field.classList.remove('border-error')
-                this.field.classList.add('border-primary')
-            }
-        }
-        customElements.define('source-word-field', SourceWordField);
-    }
-</script>
 <div
 onclick="event.stopPropagation()"
-class="bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45 animate-fade">
+class="open bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45 animate-fade">
     <div class="flex justify-end">
-        <span class="text-red-400 font-bold text-lg cursor-pointer" onclick="exitForm()">❌</span>
+        <span
+        class="md:text-lg
+        text-md text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
@@ -96,4 +71,3 @@ class="bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45 animate-fade
         @endfor
     </div>
 </div>
-<source-word-field></source-word-field>

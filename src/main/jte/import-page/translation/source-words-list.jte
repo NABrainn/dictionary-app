@@ -3,7 +3,7 @@
 @param TranslationPair translationPair
 @param boolean isUpdateForm = true
 
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2 text-wrap">
     @for(String word : translationPair.sourceWords())
         <div
         class="flex gap-2">

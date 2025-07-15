@@ -246,6 +246,9 @@
   .min-h-150 {
     min-height: calc(var(--spacing) * 150);
   }
+  .min-h-160 {
+    min-height: calc(var(--spacing) * 160);
+  }
   .min-h-full {
     min-height: 100%;
   }
@@ -407,6 +410,9 @@
   .fill-accent {
     fill: var(--color-accent);
   }
+  .p-0\.5 {
+    padding: calc(var(--spacing) * 0.5);
+  }
   .p-1 {
     padding: calc(var(--spacing) * 1);
   }
@@ -428,14 +434,26 @@
   .p-8 {
     padding: calc(var(--spacing) * 8);
   }
+  .px-0\.5 {
+    padding-inline: calc(var(--spacing) * 0.5);
+  }
+  .px-1 {
+    padding-inline: calc(var(--spacing) * 1);
+  }
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
   }
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
   }
+  .py-0\.5 {
+    padding-block: calc(var(--spacing) * 0.5);
+  }
   .py-1 {
     padding-block: calc(var(--spacing) * 1);
+  }
+  .py-2 {
+    padding-block: calc(var(--spacing) * 2);
   }
   .pb-8 {
     padding-bottom: calc(var(--spacing) * 8);
@@ -537,6 +555,11 @@
       display: inline;
     }
   }
+  .md\:min-h-10 {
+    @media (width >= 48rem) {
+      min-height: calc(var(--spacing) * 10);
+    }
+  }
   .md\:min-h-200 {
     @media (width >= 48rem) {
       min-height: calc(var(--spacing) * 200);
@@ -575,6 +598,16 @@
   .md\:p-4 {
     @media (width >= 48rem) {
       padding: calc(var(--spacing) * 4);
+    }
+  }
+  .md\:px-2 {
+    @media (width >= 48rem) {
+      padding-inline: calc(var(--spacing) * 2);
+    }
+  }
+  .md\:py-2 {
+    @media (width >= 48rem) {
+      padding-block: calc(var(--spacing) * 2);
     }
   }
   .md\:text-4xl {

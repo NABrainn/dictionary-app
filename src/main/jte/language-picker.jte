@@ -1,7 +1,5 @@
 @import lule.dictionary.dto.application.LanguageData
-@import lule.dictionary.service.language.Language
 @import java.util.List
-@import java.util.Map
 
 @param String targetLanguage
 @param List<LanguageData> languages
@@ -9,13 +7,15 @@
 <div>
     <label for="lang-select"></label>
     <select
-    class="bg-secondary p-2 rounded text-accent"
+    class="
+    md:px-2 md:py-2 md:text-lg
+    px-0.5 py-1 text-lg rounded text-primary bg-tertiary  font-bold"
     name="langs"
     id="lang-select">
         <option
-        value="${targetLanguage}">${targetLanguage}</option>
+        value="${targetLanguage}">${targetLanguage.toUpperCase()}</option>
         @for(var language : languages)
-            @if(!language.fullName().equals(targetLanguage))
+            @if(!language.libreTranslateAbbreviation().equals(targetLanguage))
                 <option
                 hx-get="/settings/changeLanguage"
                 hx-vals='{
@@ -24,7 +24,7 @@
                 hx-target="#main"
                 hx-swap="outerHTML"
                 hx-push-url="true"
-                value="${language.fullName()}">${language.fullName()}</option>
+                value="${language.fullName()}">${language.libreTranslateAbbreviation().toUpperCase()}</option>
             @endif
         @endfor
     </select>

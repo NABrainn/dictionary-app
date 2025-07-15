@@ -4,6 +4,13 @@ public record FormPositionData(String left,
                                String right,
                                String top,
                                String bottom) {
+    public FormPositionData {
+        if(left == null) left = "";
+        if(right == null) right = "";
+        if(top == null) top = "";
+        if(bottom == null) bottom = "";
+    }
+
     public static FormPositionData of(String left, String right, String top, String bottom) {
         return new FormPositionData(left, right, top, bottom);
     }
