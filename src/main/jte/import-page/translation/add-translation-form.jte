@@ -6,28 +6,6 @@
     function exitForm() {
         document.querySelector('.form').outerHTML = '';
     }
-
-    if(!customElements.get('source-word-field')) {
-        class SourceWordField extends HTMLElement {
-
-            field = document.getElementById('input-source-word');
-
-            constructor() {
-                super();
-            }
-
-            isEmpty() {
-                if(!this.field.value.length) {
-                    this.field.classList.remove('border-primary')
-                    this.field.classList.add('border-error')
-                    return
-                }
-                this.field.classList.remove('border-error')
-                this.field.classList.add('border-primary')
-            }
-        }
-        customElements.define('source-word-field', SourceWordField);
-    }
 </script>
 <div
 onclick="event.stopPropagation()"
