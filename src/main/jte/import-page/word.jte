@@ -11,31 +11,74 @@
 @param boolean found = false
 @param boolean selected = false
 @param boolean selectable = true
+
 @if(selectable)
-    <div class="relative inline">
+    @if(translationAttribute != null)
+        @if(translationAttribute.formPositionData() != null)
+            <span
+            class="${bgColor} ${textColor} inline-block relative px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap text-lg"
+            id="target-word-${wordIndex}"
+            hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
+            hx-target="#translation-form-${wordIndex}"
+            hx-swap="innerHTML"
+            hx-vals='{"selectedWordId": "${wordIndex}"}'
+            hx-trigger="click"
+            hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})">
+                <div
+                onclick="event.preventDefault()"
+                class="
+                cursor-default z-2
+                ${translationAttribute.formPositionData().left()}
+                ${translationAttribute.formPositionData().right()}
+                ${translationAttribute.formPositionData().top()}
+                ${translationAttribute.formPositionData().bottom()} absolute inline-block"
+                id="translation-form-container-${wordIndex}"
+                hx-on::after-swap="document.querySelector('import-page').updatePositions(${wordIndex})">
+                    @template.import-page.translation.update-translation-form(translationAttribute = translationAttribute)
+                </div>${word}</span>
+        @else
+            <span
+            onclick="event.stopPropagation()"
+            class="${bgColor} ${textColor} inline-block relative px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap text-lg"
+            id="target-word-${wordIndex}"
+            hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
+            hx-target="#translation-form-${wordIndex}"
+            hx-swap="innerHTML"
+            hx-vals='{"selectedWordId": "${wordIndex}"}'
+            hx-trigger="click"
+            hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})">
+                <div
+                onclick="event.stopPropagation()"
+                class="
+                cursor-default z-2 absolute inline-block"
+                id="translation-form-container-${wordIndex}"
+                hx-on::after-swap="document.querySelector('import-page').updatePositions(${wordIndex})">
+                    @template.import-page.translation.update-translation-form(translationAttribute = translationAttribute)
+                </div>${word}</span>
+        @endif
+    @else
         <span
-        class="${bgColor} ${textColor} px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap text-lg"
+        class="${bgColor} ${textColor} inline-block relative px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap text-lg"
         id="target-word-${wordIndex}"
         hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
-        hx-target="#translation-form-${wordIndex}"
+        hx-target="#translation-form-container-${wordIndex}"
         hx-swap="innerHTML"
         hx-vals='{"selectedWordId": "${wordIndex}"}'
-        hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})"
-        hx-on::after-request="document.querySelector('import-page').onWordClickAfter(${wordIndex})">
-        ${word}</span>
-        <div
-        class="
-        inline cursor-default z-2 top-8  absolute inline" id="translation-form-${wordIndex}" onclick="event.stopPropagation();">
-            @if(translationAttribute != null)
-                @template.import-page.translation.update-translation-form(translationAttribute = translationAttribute)
-            @endif
-        </div>
-    </div>
+        hx-trigger="click"
+        hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})">
+            <div
+            onclick="event.stopPropagation()"
+            class="
+            cursor-default z-2 absolute inline-block left-2 top-10"
+            id="translation-form-container-${wordIndex}"
+            hx-on::after-swap="document.querySelector('import-page').updatePositions(${wordIndex})">
+            </div>${word}</span>
+    @endif
 @else
     <span
     class="${bgColor} relative ${textColor} px-0.1 py-0.1 rounded whitespace-nowrap"
     id="target-word-${wordIndex}">
-    ${word}<div class="cursor-default z-2 inline absolute" id="translation-form-${wordIndex}" onclick="event.stopPropagation();">
+    ${word}<div class="cursor-default z-2 inline absolute" id="translation-form-${wordIndex}">
     </div></span>
 @endif
-<translation-form-aligner></translation-form-aligner>
+

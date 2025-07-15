@@ -8,4 +8,14 @@
     --color-accent: #B2D8CE;
     --color-neutral: #B8CFCE;
     --color-error: #E55050;
+
+      --animate-fade: fadeIn .25s ease-in-out;
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
 }

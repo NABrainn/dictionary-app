@@ -8,7 +8,6 @@
 @param TranslationAttribute translationAttribute = null
 @param BaseAttribute baseAttribute
 
-<div>
     <div
     id="page-content"
     class="flex flex-col gap-8 min-h-full justify-between">
@@ -36,7 +35,7 @@
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
                                         found = true,
-                                        selected = true
+                                        selected = true,
                                     )
                                 @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                     @template.import-page.word(
@@ -49,7 +48,7 @@
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
                                         found = true,
-                                        selected = true
+                                        selected = true,
                                     )
 
                                 @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
@@ -63,7 +62,7 @@
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
                                         found = true,
-                                        selected = true
+                                        selected = true,
                                     )
                                 @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                     @template.import-page.word(
@@ -76,7 +75,7 @@
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
                                         found = true,
-                                        selected = true
+                                        selected = true,
                                     )
                                 @else
                                     @template.import-page.word(
@@ -89,7 +88,7 @@
                                         translationAttribute = translationAttribute,
                                         page = importContentAttribute.paginationData().currentPageNumber(),
                                         found = true,
-                                        selected = true
+                                        selected = true,
                                     )
                                 @endif
                             @else
@@ -208,4 +207,3 @@
             )
         </div>
     </div>
-</div>

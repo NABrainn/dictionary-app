@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.dto.application.request.ServiceRequest;
+import lule.dictionary.service.imports.importService.dto.FormPositionData;
 import lule.dictionary.service.language.Language;
 
 @Builder
@@ -20,5 +21,6 @@ public record UpdateTranslationFamiliarityRequest(@NotBlank
                                                   @NonNull String owner,
                                                   int importId,
                                                   int selectedWordId,
-                                                  int page) implements ServiceRequest {
+                                                  int page,
+                                                  @NonNull FormPositionData formPositionData) implements ServiceRequest {
 }

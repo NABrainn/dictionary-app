@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.service.imports.importService.dto.FormPositionData;
 
 import java.util.Collections;
 import java.util.Map;
@@ -15,7 +16,8 @@ public record TranslationAttribute(int importId,
                                    Translation translation,
                                    int currentFamiliarity,
                                    @NonNull Map<Integer, Familiarity> familiarityLevels,
-                                   int page) {
+                                   int page,
+                                   FormPositionData formPositionData) {
     public static final int UNINITIALIZED_ID = -1;
 
     public TranslationAttribute {

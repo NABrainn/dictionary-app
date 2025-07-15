@@ -1,9 +1,16 @@
 @param int selectedWordId
-<script>
+<script
+class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
     if (!customElements.get('import-page')) {
         class ImportPage extends HTMLElement {
 
             static observedAttributes = ['selected-word-id'];
+            positions = {
+                left: 'left-2',
+                right: '',
+                top: 'top-10',
+                bottom: ''
+            }
             constructor() {
                 super();
             }
@@ -52,14 +59,27 @@
                 this.#updateId(id)
             }
 
-            onWordClickAfter(id) {
+            updatePositions(id) {
                 this.#updateId(id)
                 const form = this.#getTranslationForm();
-                this.#handleNorthEastOverflow(form)
-                this.#handleNorthWestOverflow(form)
-                this.#handleSouthEastOverflow(form)
-                this.#handleSouthWestOverflow(form)
-                this.#handleBottomOverflow(form)
+                this.#handleOverflow(form);
+                this.#setInputPositions();
+            }
+
+            #setInputPositions() {
+                const wordId = this.getAttribute('selected-word-id')
+                document.querySelectorAll('.left-' + wordId).forEach((input) => {
+                    input.value=this.positions.left
+                })
+                document.querySelectorAll('.right-' + wordId).forEach((input) => {
+                    input.value=this.positions.right
+                })
+                document.querySelectorAll('.top-' + wordId).forEach((input) => {
+                    input.value=this.positions.top
+                })
+                document.querySelectorAll('.bottom-' + wordId).forEach((input) => {
+                    input.value=this.positions.bottom
+                })
             }
 
             attributeChangedCallback(name, oldValue, newValue) {
@@ -73,7 +93,15 @@
             }
 
             #getTranslationForm() {
-                return document.getElementById('translation-form-' + this.getAttribute('selected-word-id'));
+                return document.getElementById('translation-form-container-' + this.getAttribute('selected-word-id'));
+            }
+
+            #handleOverflow(form) {
+                this.#handleNorthEastOverflow(form)
+                this.#handleNorthWestOverflow(form)
+                this.#handleSouthEastOverflow(form)
+                this.#handleSouthWestOverflow(form)
+                this.#handleSouthOverflow(form)
             }
 
             #handleNorthEastOverflow(form) {
@@ -82,8 +110,6 @@
                     this.#adjustPosition({
                         form: form,
                         top: 8,
-                        bottom: 0,
-                        left: 0,
                         right: 4
                     });
                 }
@@ -105,9 +131,7 @@
                     console.log('SE overflow: ');
                     this.#adjustPosition({
                         form: form,
-                        top: -40,
-                        bottom: 8,
-                        left: 0,
+                        bottom: 10,
                         right: 4
                     });
                 }
@@ -125,15 +149,12 @@
                 }
             }
 
-            #handleBottomOverflow(form) {
-                if(this.#isOverflowBottom(form)) {
-                    console.log('bottom overflow');
+            #handleSouthOverflow(form) {
+                if(!this.#isOverflowLeft(form) && !this.#isOverflowRight(form) && this.#isOverflowBottom(form)) {
+                    console.log('S overflow');
                     this.#adjustPosition({
                         form: form,
-                        top: 0,
-                        bottom: 8,
-                        left: 0,
-                        right: 0
+                        bottom: 10
                     });
                 }
             }
@@ -156,36 +177,55 @@
                 const leftPos = this.#assignLeftPosition(config.left);
                 const bottomPos = this.#assignBottomPosition(config.bottom);
                 const topPos = this.#assignTopPosition(config.top);
-                config.form.classList.add(rightPos, leftPos, bottomPos, topPos)
-                console.log(config.form.classList)
+
+                const positions = {
+                    left: leftPos ?? '',
+                    right: rightPos ?? '',
+                    top: topPos ?? '',
+                    bottom: bottomPos ?? ''
+                }
+                for(const [key, value] of Object.entries(positions)) {
+                    if(value !== '') {
+                        config.form.classList.add(value)
+                    }
+                    this.positions[key] = value
+                }
             }
 
             #assignRightPosition(value) {
-                if(value > 0) {
-                    return "right-" + value;
+                if(value !== undefined) {
+                    if(value >= 0) {
+                        return "right-" + value;
+                    }
+                    return "-right-" + Math.abs(value)
                 }
-                return "-right-" + Math.abs(value)
             }
 
             #assignLeftPosition(value) {
-                if(value > 0) {
-                    return "left-" + value;
+                if(value !== undefined) {
+                    if(value >= 0) {
+                        return "left-" + value;
+                    }
+                    return "-left-" + Math.abs(value)
                 }
-                return "-left-" + Math.abs(value)
             }
 
             #assignBottomPosition(value) {
-                if(value > 0) {
-                    return "bottom-" + value;
+                if(value !== undefined) {
+                    if(value >= 0) {
+                        return "bottom-" + value;
+                    }
+                    return "-bottom-" + Math.abs(value)
                 }
-                return "-bottom-" + Math.abs(value)
             }
 
             #assignTopPosition(value) {
-                if(value > 0) {
-                    return "top-" + value;
+                if(value !== undefined) {
+                    if(value >= 0) {
+                        return "top-" + value;
+                    }
+                    return "-top-" + Math.abs(value)
                 }
-                return "-top-" + Math.abs(value)
             }
 
             #cleanupPositions(config) {

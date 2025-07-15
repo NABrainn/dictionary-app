@@ -18,10 +18,10 @@ public interface ImportController {
 
     @PutMapping({"/page/reload", "/page/reload/"})
     String importPageOnPut(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
-                                  @RequestParam("selectedWordId") int wordId,
-                                  @RequestParam("importId") int importId,
-                                  @RequestParam("page") int page,
-                                  Model model);
+                           @RequestParam("selectedWordId") int wordId,
+                           @RequestParam("importId") int importId,
+                           @RequestParam("page") int page,
+                           Model model);
     @GetMapping({"/new", "/new/"})
     String createImportForm();
 
