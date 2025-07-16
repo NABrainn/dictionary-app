@@ -16,7 +16,7 @@
     @if(translationAttribute != null)
         @if(translationAttribute.formPositionData() != null)
             <span
-            class="${bgColor} ${textColor} inline-block relative px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap text-lg"
+            class="${bgColor} ${textColor} inline-block relative px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap text-lg "
             id="target-word-${wordIndex}"
             hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
             hx-target="#translation-form-container-${wordIndex}"
