@@ -11,6 +11,15 @@
     <div
     id="page-content"
     class="flex flex-col gap-8 min-h-full justify-between select-none">
+        @template.navbar(
+            username = baseAttribute.username(),
+            authenticated = baseAttribute.isAuthenticated(),
+            sourceLanguage = baseAttribute.sourceLanguageData(),
+            targetLanguage = baseAttribute.targetLanguageData(),
+            wordsLearned = baseAttribute.wordsLearned(),
+            dailyStreak = baseAttribute.dailyStreak(),
+            languageData = baseAttribute.allLanguageData()
+        )
         <div
         class="
         w-full px-2
