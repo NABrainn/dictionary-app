@@ -204,7 +204,10 @@
                 @endfor
             </div>
         </div>
-        <div class="flex gap-4 justify-center max-w-2/5 mx-auto items-center">
+        <div
+        class="
+        md:max-w-2/5 md:gap-4
+        max-w-full flex justify-center gap-2  mx-auto items-center">
             @template.import-page.pagination.paginator(
                 id = importContentAttribute.importData().importId(),
                 currentPage = importContentAttribute.paginationData().currentPageNumber(),
