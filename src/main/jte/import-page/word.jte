@@ -19,12 +19,11 @@
             class="${bgColor} ${textColor} inline-block relative px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap text-lg"
             id="target-word-${wordIndex}"
             hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
-            hx-target="#translation-form-${wordIndex}"
+            hx-target="#translation-form-container-${wordIndex}"
             hx-swap="innerHTML"
             hx-vals='{"selectedWordId": "${wordIndex}"}'
             hx-trigger="click"
-            hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})"
-            hx-on::before-request="htmx.find('#translation-form-${wordIndex}').innerHTML = ''">
+            hx-on::before-request="htmx.find('import-page').updateWordId(${wordIndex})">
                 <div
                 onclick="event.preventDefault()"
                 class="
@@ -34,7 +33,7 @@
                 ${translationAttribute.formPositionData().top()}
                 ${translationAttribute.formPositionData().bottom()} absolute inline-block"
                 id="translation-form-container-${wordIndex}"
-                hx-on::after-swap="document.querySelector('import-page').updatePositions(${wordIndex})">
+                hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
                     @template.import-page.translation.update-translation-form(translationAttribute = translationAttribute)
                 </div>${word}</span>
         @endif
@@ -47,13 +46,13 @@
         hx-swap="innerHTML"
         hx-vals='{"selectedWordId": "${wordIndex}"}'
         hx-trigger="click"
-        hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})">
+        hx-on::before-request="htmx.find('import-page').updateWordId(${wordIndex})">
             <div
             onclick="event.stopPropagation()"
             class="
             cursor-default z-2 absolute inline-block left-2 top-10"
             id="translation-form-container-${wordIndex}"
-            hx-on::after-swap="document.querySelector('import-page').updatePositions(${wordIndex})">
+            hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
             </div>${word}</span>
     @endif
 @else

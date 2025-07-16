@@ -1,10 +1,15 @@
 package lule.dictionary.configuration.security;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
 import lule.dictionary.configuration.security.filter.timezone.TimezoneFilter;
+import lule.dictionary.dto.application.result.ServiceResult;
+import lule.dictionary.dto.application.result.ServiceResultImp;
+import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,10 +19,14 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.*;
+
+import java.util.Map;
 
 
 @EnableWebSecurity
@@ -27,6 +36,7 @@ import org.springframework.security.web.csrf.*;
 public class SecurityConfiguration {
 
     private final UserProfileService userProfileService;
+    private final CookieService cookieService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TimezoneFilter timezoneFilter;
     private final BCryptPasswordEncoder encoder;
@@ -86,9 +96,43 @@ public class SecurityConfiguration {
                             }
                         })
                 )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/auth/login?logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .addLogoutHandler((request, response, authentication) -> {
+                            log.info("Logging out user: {}", authentication != null ? authentication.getName() : "anonymous");
+                            logout(response);
+                        })
+                        .permitAll()
+                )
                 .addFilterBefore(timezoneFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(daoAuthenticationProvider())
                 .build();
+    }
+
+    public void logout(@NonNull HttpServletResponse httpServletResponse) {
+        clearAuthentication();
+        deleteJwtCookie(httpServletResponse);
+    }
+
+    private void clearAuthentication() {
+        setAuthentication(null);
+        clearContext();
+    }
+
+    private void clearContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void setAuthentication(Authentication authentication) {
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private void deleteJwtCookie(HttpServletResponse response) {
+        Cookie cookie = cookieService.deleteJwtCookie("jwt");
+        response.addCookie(cookie);
     }
 }

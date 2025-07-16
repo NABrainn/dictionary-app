@@ -191,6 +191,9 @@
   .static {
     position: static;
   }
+  .top-0 {
+    top: calc(var(--spacing) * 0);
+  }
   .top-6 {
     top: calc(var(--spacing) * 6);
   }
@@ -203,11 +206,17 @@
   .right-4 {
     right: calc(var(--spacing) * 4);
   }
+  .bottom-0 {
+    bottom: calc(var(--spacing) * 0);
+  }
   .bottom-10 {
     bottom: calc(var(--spacing) * 10);
   }
   .bottom-12 {
     bottom: calc(var(--spacing) * 12);
+  }
+  .left-0 {
+    left: calc(var(--spacing) * 0);
   }
   .left-2 {
     left: calc(var(--spacing) * 2);
@@ -242,9 +251,6 @@
   }
   .min-h-85 {
     min-height: calc(var(--spacing) * 85);
-  }
-  .min-h-150 {
-    min-height: calc(var(--spacing) * 150);
   }
   .min-h-160 {
     min-height: calc(var(--spacing) * 160);
@@ -410,12 +416,6 @@
   .fill-accent {
     fill: var(--color-accent);
   }
-  .p-0\.5 {
-    padding: calc(var(--spacing) * 0.5);
-  }
-  .p-1 {
-    padding: calc(var(--spacing) * 1);
-  }
   .p-1\.5 {
     padding: calc(var(--spacing) * 1.5);
   }
@@ -451,9 +451,6 @@
   }
   .py-1 {
     padding-block: calc(var(--spacing) * 1);
-  }
-  .py-2 {
-    padding-block: calc(var(--spacing) * 2);
   }
   .pb-8 {
     padding-bottom: calc(var(--spacing) * 8);
@@ -553,11 +550,6 @@
   .md\:inline {
     @media (width >= 48rem) {
       display: inline;
-    }
-  }
-  .md\:min-h-10 {
-    @media (width >= 48rem) {
-      min-height: calc(var(--spacing) * 10);
     }
   }
   .md\:min-h-200 {
