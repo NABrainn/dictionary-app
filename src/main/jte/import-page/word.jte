@@ -23,7 +23,7 @@
             hx-swap="innerHTML"
             hx-vals='{"selectedWordId": "${wordIndex}"}'
             hx-trigger="click"
-            hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})">
+            hx-on::before-request="htmx.find('import-page').onWordClickBefore(${wordIndex})">
                 <div
                 onclick="event.preventDefault()"
                 class="
@@ -33,7 +33,7 @@
                 ${translationAttribute.formPositionData().top()}
                 ${translationAttribute.formPositionData().bottom()} absolute inline-block"
                 id="translation-form-container-${wordIndex}"
-                hx-on::after-swap="document.querySelector('import-page').updatePositions(${wordIndex})">
+                hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
                     @template.import-page.translation.update-translation-form(translationAttribute = translationAttribute)
                 </div>${word}</span>
         @endif
@@ -46,13 +46,13 @@
         hx-swap="innerHTML"
         hx-vals='{"selectedWordId": "${wordIndex}"}'
         hx-trigger="click"
-        hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})">
+        hx-on::before-request="htmx.find('import-page').onWordClickBefore(${wordIndex})">
             <div
             onclick="event.stopPropagation()"
             class="
             cursor-default z-2 absolute inline-block left-2 top-10"
             id="translation-form-container-${wordIndex}"
-            hx-on::after-swap="document.querySelector('import-page').updatePositions(${wordIndex})">
+            hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex}); console.log('swapped')">
             </div>${word}</span>
     @endif
 @else

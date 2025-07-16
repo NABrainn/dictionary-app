@@ -68,16 +68,16 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
             #setInputPositions() {
                 const wordId = this.getAttribute('selected-word-id')
-                document.querySelectorAll('.left-' + wordId).forEach((input) => {
+                htmx.findAll('.left-' + wordId).forEach((input) => {
                     input.value=this.positions.left
                 })
-                document.querySelectorAll('.right-' + wordId).forEach((input) => {
+                htmx.findAll('.right-' + wordId).forEach((input) => {
                     input.value=this.positions.right
                 })
-                document.querySelectorAll('.top-' + wordId).forEach((input) => {
+                htmx.findAll('.top-' + wordId).forEach((input) => {
                     input.value=this.positions.top
                 })
-                document.querySelectorAll('.bottom-' + wordId).forEach((input) => {
+                htmx.findAll('.bottom-' + wordId).forEach((input) => {
                     input.value=this.positions.bottom
                 })
             }
@@ -93,20 +93,33 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #getTranslationForm() {
-                return document.getElementById('translation-form-container-' + this.getAttribute('selected-word-id'));
+                return htmx.find('#translation-form-container-' + this.getAttribute('selected-word-id'));
             }
 
             #handleOverflow(form) {
+                this.#setDefaultPositions({
+                    form: form,
+                    left: 2,
+                    top: 10
+                })
                 this.#handleNorthEastOverflow(form)
                 this.#handleNorthWestOverflow(form)
                 this.#handleSouthEastOverflow(form)
                 this.#handleSouthWestOverflow(form)
                 this.#handleSouthOverflow(form)
+                console.log(this.positions)
+                
             }
 
             #handleNorthEastOverflow(form) {
-                if(this.#isOverflowRight(form) && !this.#isOverflowBottom(form)) {
-                    console.log('NE overflow: ');
+                if (this.#isOverflowRight(form) && !this.#isOverflowBottom(form)) {
+                    const currentRight = Array.from(form.classList).find(cls => cls.startsWith('right-') || cls.startsWith('-right-'));
+                    const currentTop = Array.from(form.classList).find(cls => cls.startsWith('top-') || cls.startsWith('-top-'));
+                    if (currentRight === 'right-4' && currentTop === 'top-8') {
+                        console.log('NE overflow: already positioned at right-4 top-8, skipping adjustment');
+                        return;
+                    }
+                    console.log('NE overflow: adjusting position');
                     this.#adjustPosition({
                         form: form,
                         top: 8,
@@ -115,8 +128,14 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 }
             }
             #handleNorthWestOverflow(form) {
-                if(this.#isOverflowLeft(form) && !this.#isOverflowBottom(form)) {
-                    console.log('NW overflow: ');
+                if (this.#isOverflowLeft(form) && !this.#isOverflowBottom(form)) {
+                    const currentLeft = Array.from(form.classList).find(cls => cls.startsWith('left-') || cls.startsWith('-left-'));
+                    const currentTop = Array.from(form.classList).find(cls => cls.startsWith('top-') || cls.startsWith('-top-'));
+                    if (currentLeft === 'left-0' && currentTop === 'top-0') {
+                        console.log('NW overflow: already positioned at left-0 top-0, skipping adjustment');
+                        return;
+                    }
+                    console.log('NW overflow: adjusting position');
                     this.#adjustPosition({
                         form: form,
                         top: 0,
@@ -127,8 +146,14 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 }
             }
             #handleSouthEastOverflow(form) {
-                if(this.#isOverflowRight(form) && this.#isOverflowBottom(form)) {
-                    console.log('SE overflow: ');
+                if (this.#isOverflowRight(form) && this.#isOverflowBottom(form)) {
+                    const currentRight = Array.from(form.classList).find(cls => cls.startsWith('right-') || cls.startsWith('-right-'));
+                    const currentBottom = Array.from(form.classList).find(cls => cls.startsWith('bottom-') || cls.startsWith('-bottom-'));
+                    if (currentRight === 'right-4' && currentBottom === 'bottom-10') {
+                        console.log('SE overflow: already positioned at right-4 bottom-10, skipping adjustment');
+                        return;
+                    }
+                    console.log('SE overflow: adjusting position');
                     this.#adjustPosition({
                         form: form,
                         bottom: 10,
@@ -137,8 +162,14 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 }
             }
             #handleSouthWestOverflow(form) {
-                if(this.#isOverflowLeft(form) && this.#isOverflowBottom(form)) {
-                    console.log('SW overflow');
+                if (this.#isOverflowLeft(form) && this.#isOverflowBottom(form)) {
+                    const currentLeft = Array.from(form.classList).find(cls => cls.startsWith('left-') || cls.startsWith('-left-'));
+                    const currentBottom = Array.from(form.classList).find(cls => cls.startsWith('bottom-') || cls.startsWith('-bottom-'));
+                    if (currentLeft === 'left-0' && currentBottom === 'bottom-0') {
+                        console.log('SW overflow: already positioned at left-0 bottom-0, skipping adjustment');
+                        return;
+                    }
+                    console.log('SW overflow: adjusting position');
                     this.#adjustPosition({
                         form: form,
                         top: 0,
@@ -150,9 +181,14 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #handleSouthOverflow(form) {
-                if(!this.#isOverflowLeft(form) && !this.#isOverflowRight(form) && this.#isOverflowBottom(form)) {
-                    console.log('S overflow');
-                    this.#adjustPosition({
+                if (!this.#isOverflowLeft(form) && !this.#isOverflowRight(form) && this.#isOverflowBottom(form)) {
+                    const currentBottom = Array.from(form.classList).find(cls => cls.startsWith('bottom-') || cls.startsWith('-bottom-'));
+                    if (currentBottom === 'bottom-10') {
+                        console.log('S overflow: already positioned at bottom-10, skipping adjustment');
+                        return;
+                    }
+                    console.log('S overflow: adjusting position');
+                    this.#adjustPosition({  
                         form: form,
                         bottom: 10
                     });
@@ -172,7 +208,8 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #adjustPosition(config) {
-                this.#cleanupPositions(config);
+                this.#cleanupPositions(config)
+                
                 const rightPos = this.#assignRightPosition(config.right);
                 const leftPos = this.#assignLeftPosition(config.left);
                 const bottomPos = this.#assignBottomPosition(config.bottom);
@@ -233,6 +270,10 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                     cls.match(/^(right-|left-|top-|bottom-|-right-|-left-|-top-|-bottom-)\d+$/)
                 );
                 positionClasses.forEach(cls => config.form.classList.remove(cls));
+                
+            }
+            #setDefaultPositions(config) {
+                this.#adjustPosition(config)
             }
         }
 
