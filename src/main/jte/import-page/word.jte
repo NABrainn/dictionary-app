@@ -19,12 +19,11 @@
             class="${bgColor} ${textColor} inline-block relative px-0.1 py-0.1 cursor-pointer rounded whitespace-nowrap text-lg"
             id="target-word-${wordIndex}"
             hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
-            hx-target="#translation-form-${wordIndex}"
+            hx-target="#translation-form-container-${wordIndex}"
             hx-swap="innerHTML"
             hx-vals='{"selectedWordId": "${wordIndex}"}'
             hx-trigger="click"
-            hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})"
-            hx-on::before-request="htmx.find('#translation-form-${wordIndex}').innerHTML = ''">
+            hx-on::before-request="document.querySelector('import-page').onWordClickBefore(${wordIndex})">
                 <div
                 onclick="event.preventDefault()"
                 class="

@@ -5,7 +5,7 @@
 
 <div
 onclick="event.stopPropagation()"
-class="open bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45 animate-fade">
+class="translation-form-${translationAttribute.selectedWordId()} bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45 animate-fade">
     <div class="flex justify-end">
         <span
         class="md:text-lg

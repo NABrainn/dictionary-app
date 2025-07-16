@@ -23,8 +23,7 @@ hx-vals='
 }'
 hx-post="/translations/new"
 hx-target="#page-content"
-hx-swap="outerHTML"
-hx-on::before-request="document.querySelector('source-word-field').isEmpty()">
+hx-swap="outerHTML">
     <div id="source-words-list">
         @template.import-page.translation.source-words-list(translationPair = translationPair, isUpdateForm = false)
     </div>
