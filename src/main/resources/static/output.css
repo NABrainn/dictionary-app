@@ -315,6 +315,15 @@
   .min-h-160 {
     min-height: calc(var(--spacing) * 160);
   }
+  .min-h-170 {
+    min-height: calc(var(--spacing) * 170);
+  }
+  .min-h-175 {
+    min-height: calc(var(--spacing) * 175);
+  }
+  .min-h-200 {
+    min-height: calc(var(--spacing) * 200);
+  }
   .min-h-full {
     min-height: 100%;
   }

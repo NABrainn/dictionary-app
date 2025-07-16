@@ -22,13 +22,15 @@
         )
         <div
         class="
-        w-full px-2
+        w-full px-2 animate-fade min-h-175
         md:w-3/5 mx-auto">
-            <span
-            class="
-            md:text-4xl
-            text-xl text-neutral font-bold ">${importContentAttribute.importData().title()}</span>
-            <div class="leading-10 min-h-160">
+            @if(importContentAttribute.paginationData().currentPageNumber() == 1)
+                <span
+                class="
+                md:text-4xl
+                text-xl text-neutral font-bold ">${importContentAttribute.importData().title()}</span>
+            @endif
+            <div class="leading-10">
                 @for(var word : ForSupport.of(importContentAttribute.importData().content()))
                     !{var cleanWord = word.get().replaceAll("[^\\p{L}\\p{N}]", "").trim().toLowerCase();}
                     @if(!cleanWord.isEmpty())
