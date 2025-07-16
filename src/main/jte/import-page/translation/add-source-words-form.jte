@@ -31,14 +31,14 @@ hx-swap="outerHTML">
         <input
         id="input-source-word"
         class="
-        outline-none border border-2 border-primary rounded text-neutral text-sm max-w-35
+        outline-none border border-2 border-primary rounded text-neutral text-md max-w-35
         focus:border-accent"
         type="text"
-        placeholder="Custom translation"
+        placeholder="Add translation"
         name="sourceWords">
         <button
         id="submit-source-word"
-        class="text-2xl cursor-pointer"
+        class="text-3xl cursor-pointer"
         type="submit">+</button>
     </div>
     @if(formPositionData != null)

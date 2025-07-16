@@ -27,6 +27,8 @@
     --text-xl--line-height: calc(1.75 / 1.25);
     --text-2xl: 1.5rem;
     --text-2xl--line-height: calc(2 / 1.5);
+    --text-3xl: 1.875rem;
+    --text-3xl--line-height: calc(2.25 / 1.875);
     --text-4xl: 2.25rem;
     --text-4xl--line-height: calc(2.5 / 2.25);
     --font-weight-semibold: 600;
@@ -292,8 +294,17 @@
     width: calc(var(--spacing) * 5);
     height: calc(var(--spacing) * 5);
   }
+  .h-1 {
+    height: calc(var(--spacing) * 1);
+  }
   .h-5 {
     height: calc(var(--spacing) * 5);
+  }
+  .h-\[1\.125rem\] {
+    height: 1.125rem;
+  }
+  .min-h-2 {
+    min-height: calc(var(--spacing) * 2);
   }
   .min-h-8 {
     min-height: calc(var(--spacing) * 8);
@@ -525,6 +536,9 @@
   .fill-accent {
     fill: var(--color-accent);
   }
+  .p-0\.5 {
+    padding: calc(var(--spacing) * 0.5);
+  }
   .p-1\.5 {
     padding: calc(var(--spacing) * 1.5);
   }
@@ -546,6 +560,9 @@
   .px-0\.5 {
     padding-inline: calc(var(--spacing) * 0.5);
   }
+  .px-0\.25 {
+    padding-inline: calc(var(--spacing) * 0.25);
+  }
   .px-1 {
     padding-inline: calc(var(--spacing) * 1);
   }
@@ -560,6 +577,9 @@
   }
   .px-6 {
     padding-inline: calc(var(--spacing) * 6);
+  }
+  .py-0 {
+    padding-block: calc(var(--spacing) * 0);
   }
   .py-0\.5 {
     padding-block: calc(var(--spacing) * 0.5);
@@ -612,6 +632,10 @@
   .text-2xl {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
+  }
+  .text-3xl {
+    font-size: var(--text-3xl);
+    line-height: var(--tw-leading, var(--text-3xl--line-height));
   }
   .text-lg {
     font-size: var(--text-lg);
