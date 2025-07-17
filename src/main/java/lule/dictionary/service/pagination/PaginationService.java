@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 
 @Service
 @Getter
-public class PaginationService {
+public final class PaginationService {
 
     private final int MAX_ROW_SIZE = 7;
     private final int DIVISOR = 2000;

@@ -33,13 +33,15 @@ public class JteControllerAdvice {
                     .sourceLanguageData(LanguageData.of(
                                     userDetails.sourceLanguage(),
                                     languageHelper.getFullName(userDetails.sourceLanguage()),
-                                    languageHelper.getAbbreviation(userDetails.sourceLanguage())
+                                    languageHelper.getAbbreviation(userDetails.sourceLanguage()),
+                                    languageHelper.getImagePath(userDetails.sourceLanguage())
                             )
                     )
                     .targetLanguageData(LanguageData.of(
                                     userDetails.targetLanguage(),
                                     languageHelper.getFullName(userDetails.targetLanguage()),
-                                    languageHelper.getAbbreviation(userDetails.targetLanguage())
+                                    languageHelper.getAbbreviation(userDetails.targetLanguage()),
+                                    languageHelper.getImagePath(userDetails.targetLanguage())
                             )
                     )
                     .allLanguageData(languageHelper.getAllLanguageData())
@@ -55,13 +57,15 @@ public class JteControllerAdvice {
                 .sourceLanguageData(LanguageData.of(
                                 Language.EN,
                                 languageHelper.getFullName(Language.EN),
-                                languageHelper.getAbbreviation(Language.EN)
+                                languageHelper.getAbbreviation(Language.EN),
+                                languageHelper.getImagePath(Language.EN)
                         )
                 )
                 .targetLanguageData(LanguageData.of(
                                 Language.NO,
                                 languageHelper.getFullName(Language.NO),
-                                languageHelper.getAbbreviation(Language.NO)
+                                languageHelper.getAbbreviation(Language.NO),
+                                languageHelper.getImagePath(Language.NO)
                         )
                 )
                 .allLanguageData(languageHelper.getAllLanguageData())

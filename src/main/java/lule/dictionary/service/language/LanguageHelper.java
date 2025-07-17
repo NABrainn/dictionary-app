@@ -10,19 +10,23 @@ import java.util.Map;
 @Service
 public class LanguageHelper {
 
+    private final String imageBasePath = "/images/flags";
+
     private final List<LanguageData> allLanguageData = List.of(
-            LanguageData.of(Language.NO, "Norwegian", "nb"),
-            LanguageData.of(Language.PL, "Polish", "pl"),
-            LanguageData.of(Language.EN, "English", "en"),
-            LanguageData.of(Language.IT, "Italian", "it")
+            LanguageData.of(Language.NO, "Norwegian", "nb", imageBasePath + "/norway.png"),
+            LanguageData.of(Language.PL, "Polish", "pl", imageBasePath + "/poland.png"),
+            LanguageData.of(Language.EN, "English", "en", imageBasePath + "/uk.png"),
+            LanguageData.of(Language.IT, "Italian", "it", imageBasePath + "/italy.png")
     );
 
     public String getFullName(Language language) {
         return languageFullNames().get(language);
     }
-
     public String getAbbreviation(Language language) {
         return languageAbbreviations().get(language);
+    }
+    public String getImagePath(Language language) {
+        return imagePaths().get(language);
     }
 
     public List<LanguageData> getAllLanguageData() {
@@ -41,6 +45,14 @@ public class LanguageHelper {
         Map<Language, String> map = new HashMap<>();
         for (LanguageData languageData : allLanguageData) {
             map.put(languageData.language(), languageData.libreTranslateAbbreviation());
+        }
+        return map;
+    }
+
+    private Map<Language, String> imagePaths() {
+        Map<Language, String> map = new HashMap<>();
+        for (LanguageData languageData : allLanguageData) {
+            map.put(languageData.language(), languageData.imgPath());
         }
         return map;
     }

@@ -16,18 +16,16 @@ import lule.dictionary.service.imports.importService.dto.createImportRequest.Cre
 import lule.dictionary.dto.database.interfaces.imports.base.Import;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.repository.ImportRepository;
+import lule.dictionary.service.jsoup.JsoupService;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.service.validation.ValidationService;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.InvalidUrlException;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +37,8 @@ public class ImportServiceImp implements ImportService {
     private final ImportRepository importRepository;
     private final ValidationService validationService;
     private final PaginationService paginationService;
+    private final JsoupService jsoupService;
+
 
     @Transactional
     public ServiceResult<Integer> createImport(CreateImportRequest createRequest) throws ConstraintViolationException {
@@ -105,23 +105,7 @@ public class ImportServiceImp implements ImportService {
     }
 
     private String getDocumentContent(String url) {
-            Document document = getDocument(url);
-            return document.text();
-    }
-
-    private Document getDocument(String url) {
-        try {
-            return Jsoup.connect(prependHttpFormat(url)).get();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String prependHttpFormat(String url) {
-        if(!url.startsWith("https://") && !url.startsWith("http://")) {
-            return "https://".concat(url);
-        }
-        return url;
+        return jsoupService.importDocumentContent(url);
     }
 
     private int getNumberOfPages(ImportWithPagination importWithPagination) {

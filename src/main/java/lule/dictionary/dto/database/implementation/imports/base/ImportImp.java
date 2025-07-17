@@ -52,7 +52,7 @@ public record ImportImp(
 
                 patternValidator.validate(INVALID_FIRST_CHAR, title);
 
-                maxLengthValidator.validate(100, title);
+                maxLengthValidator.validate(200, title);
                 maxLengthValidator.validate(20000, content);
                 maxLengthValidator.validate(200, url);
         }

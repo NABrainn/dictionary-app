@@ -54,6 +54,7 @@ public class TranslationRepository {
                 UPDATE dictionary.streaks
                 SET day_count = day_count + 1
                 WHERE words_added_today = 10
+                AND streak_owner=?
                 """;
         try {
             Integer translationId = template.query(con -> {
@@ -68,7 +69,7 @@ public class TranslationRepository {
                 ps.setInt(8, 1);
                 return ps;
             }, TRANSLATION_ID).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
-            template.update(updateSql);
+            template.update(updateSql, translation.owner());
             if(translationId != null) {
                 return OptionalInt.of(translationId);
             }
