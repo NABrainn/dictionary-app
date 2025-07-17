@@ -210,8 +210,9 @@ public class TranslationServiceImp implements TranslationService {
     private List<Translation> findByTargetWords(List<String> targetWords,
                                                 String owner) {
         List<String> validTargetWords = targetWords.stream()
-                .map(word -> word.trim().toLowerCase())
-                .map(word -> word.replaceAll("[\\p{Punct}<>@#$%^&*()\\[\\]{}\\\\|`~«»]", ""))
+                .map(word -> word.replaceAll("[^\\p{L}\\p{N}]", "")) // Remove all non-letter/number characters
+                .map(String::trim)
+                .map(String::toLowerCase)
                 .filter(word -> !word.isEmpty())
                 .distinct()
                 .toList();
