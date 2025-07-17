@@ -195,7 +195,8 @@ public class TranslationServiceImp implements TranslationService {
 
     @Override
     public ServiceResult<Map<String, Translation>> findTranslationsByImport(@NonNull Import imported, String owner) {
-        List<String> targetWords = Arrays.stream(imported.content().split(" ")).toList();
+        List<String> targetWords = Arrays.stream(imported.content().replaceAll("\n+", " ").split(" "))
+                .toList();
         return ServiceResultImp.success(findByTargetWords(targetWords, owner).stream()
                 .collect(Collectors.toUnmodifiableMap(
                                 TranslationDetails::targetWord,
@@ -214,6 +215,7 @@ public class TranslationServiceImp implements TranslationService {
                 .filter(word -> !word.isEmpty())
                 .distinct()
                 .toList();
+        System.out.println("found: " + validTargetWords);
         return translationRepository.findByTargetWords(validTargetWords, owner);
     }
 

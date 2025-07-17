@@ -3,6 +3,7 @@ package lule.dictionary.controller.importController;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.dto.application.ImportContentData;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
@@ -10,7 +11,6 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
-import lule.dictionary.service.imports.importService.dto.FormPositionData;
 import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
 import lule.dictionary.service.imports.importService.dto.importData.ImportData;
 import lule.dictionary.service.imports.importService.dto.importPageRequest.AssembleImportContentRequest;
@@ -28,8 +28,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.InvalidUrlException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 @Controller
@@ -208,8 +211,16 @@ public class ImportControllerImp implements ImportController {
         return translationService.findTranslationsByImport(importWithPagination, importWithPagination.owner()).value();
     }
 
-    private List<String> getImportContent(ImportWithPagination importWithPagination) {
-        return List.of(importWithPagination.pageContent().split("[ \\n]+"));
+    private ImportContentData getImportContent(ImportWithPagination importWithPagination) {
+        List<List<String>> paragraphs = Stream.of(importWithPagination.pageContent().split("\n+"))
+                .map(paragraph -> Arrays.stream(paragraph.split("\\s+")).toList())
+                .filter(list -> !list.isEmpty())
+                .toList();
+        List<Integer> startIndices = IntStream.range(0, paragraphs.size())
+                .map(i -> 1 + paragraphs.subList(0, i).stream().mapToInt(List::size).sum())
+                .boxed()
+                .toList();
+        return new ImportContentData(paragraphs, startIndices);
     }
 
     private String getImportTitle(ImportWithPagination importWithPagination) {
