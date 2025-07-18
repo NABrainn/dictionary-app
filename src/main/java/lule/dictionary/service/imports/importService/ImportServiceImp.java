@@ -41,11 +41,12 @@ public class ImportServiceImp implements ImportService {
 
 
     @Transactional
-    public ServiceResult<Integer> createImport(CreateImportRequest createRequest) throws ConstraintViolationException {
+    public ServiceResult<Integer> createImport(CreateImportRequest request) throws ConstraintViolationException, UserNotFoundException{
         try {
-            UserProfile userProfile = getUserProfile(createRequest);
-            validate(createRequest);
-            return ServiceResultImp.success(saveImport(createRequest, createRequest, userProfile));
+            UserProfile userProfile = getUserProfile(request);
+            validate(request);
+            int importId = saveImport(request, userProfile);
+            return ServiceResultImp.success(importId);
         } catch (ConstraintViolationException e) {
             throw new InvalidInputException(e.getMessage(), ServiceResultImp.errorEmpty(Map.of()));
         }
@@ -65,7 +66,6 @@ public class ImportServiceImp implements ImportService {
         return ServiceResultImp.success(importWithPagination);
     }
 
-
     private ImportWithPagination getImport(LoadImportPageRequest loadRequest) throws ImportNotFoundException {
         return getImportById(loadRequest);
     }
@@ -83,10 +83,10 @@ public class ImportServiceImp implements ImportService {
         return userProfileService.getUserProfile(addImportRequest.owner());
     }
 
-    private int saveImport(CreateImportRequest createRequest, CreateImportRequest validRequest, UserProfile userProfile) {
-        if(!createRequest.content().isEmpty())
-            return insertIntoDatabase(InsertIntoDatabaseRequest.of(validRequest, validRequest.content(), userProfile));
-        return insertIntoDatabase(InsertIntoDatabaseRequest.of(validRequest, getDocumentContent(validRequest.url()), userProfile));
+    private int saveImport(CreateImportRequest request, UserProfile userProfile) {
+        if(!request.content().isEmpty())
+            return insertIntoDatabase(InsertIntoDatabaseRequest.of(request, request.content(), userProfile));
+        return insertIntoDatabase(InsertIntoDatabaseRequest.of(request, getDocumentContent(request.url()), userProfile));
     }
 
     private void validate(CreateImportRequest createRequest) throws ConstraintViolationException {
@@ -95,12 +95,12 @@ public class ImportServiceImp implements ImportService {
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest insertIntoDatabaseRequest) {
         return importRepository.createImport(ImportImp.builder()
-                .title(insertIntoDatabaseRequest.validRequest().title())
+                .title(insertIntoDatabaseRequest.request().title())
                 .content(insertIntoDatabaseRequest.content())
-                .url(insertIntoDatabaseRequest.validRequest().url())
+                .url(insertIntoDatabaseRequest.request().url())
                 .sourceLanguage(insertIntoDatabaseRequest.userProfile().sourceLanguage())
                 .targetLanguage(insertIntoDatabaseRequest.userProfile().targetLanguage())
-                .owner(insertIntoDatabaseRequest.validRequest().owner())
+                .owner(insertIntoDatabaseRequest.request().owner())
                 .build()).orElseThrow(() -> new RuntimeException("Failed to add a new import"));
     }
 

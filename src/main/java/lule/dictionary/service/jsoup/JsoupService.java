@@ -35,15 +35,19 @@ public class JsoupService {
     private String formatDocumentContent(Document document) {
         return Arrays.stream(document.wholeText().split(" "))
                 .map(word ->
-                        switch ((int) word.chars()
-                                .filter(ch -> ch == '\n')
-                                .count()) {
+                        switch (getEndlineCount(word)) {
                             case 0 -> word;
                             case 1 -> word.replaceAll("\n", " ");
                             default -> word.replaceAll("\n+", "\n");
                         })
                 .filter(word -> !word.isBlank())
                 .reduce("", (s1, s2) -> s1 + " " + s2);
+    }
+
+    private int getEndlineCount(String word) {
+        return (int) word.chars()
+                .filter(ch -> ch == '\n')
+                .count();
     }
 
 }

@@ -35,7 +35,7 @@ public class AuthControllerImp implements AuthController {
                         Model model,
                         RedirectAttributes redirectAttributes,
                         HttpServletResponse response) {
-        ServiceResult<?> result = requestLogin(LoginRequest.of(login, password), response);
+        ServiceResult<?> result = authService.login(LoginRequest.of(login, password), response);
         if (result.hasError()) {
             log.warn("login authentication failure, resending page");
             model.addAttribute("result", result);
@@ -55,7 +55,7 @@ public class AuthControllerImp implements AuthController {
                          @RequestParam("email") @NonNull String email,
                          @RequestParam("password") @NonNull String password,
                          Model model) {
-        ServiceResult<?> result = requestSignup(SignupRequest.of(login, email, password));
+        ServiceResult<?> result = authService.signup(SignupRequest.of(login, email, password));
         model.addAttribute("result", result);
         if(result.hasError()) {
             log.warn("signup authentication failure");
@@ -67,24 +67,12 @@ public class AuthControllerImp implements AuthController {
     @PostMapping({"/logout", "/logout/"})
     public String logout(RedirectAttributes redirectAttributes,
                          HttpServletResponse response) {
-        ServiceResult<?> result = requestLogout(response);
+        ServiceResult<?> result = authService.logout(response);
         if(result.hasError()) {
             log.warn("logout attempt failure");
             return "/error";
         }
         redirectAttributes.addFlashAttribute("result", result);
         return "redirect:/auth/login";
-    }
-
-    private ServiceResult<?> requestLogin(LoginRequest loginRequest, HttpServletResponse response) {
-        return authService.login(loginRequest, response);
-    }
-
-    private ServiceResult<?> requestSignup(SignupRequest signupRequest) {
-        return authService.signup(signupRequest);
-    }
-
-    private ServiceResult<?> requestLogout(HttpServletResponse response) {
-        return authService.logout(response);
     }
 }

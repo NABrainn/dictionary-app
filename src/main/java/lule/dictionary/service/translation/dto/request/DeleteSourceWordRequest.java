@@ -17,4 +17,7 @@ public record DeleteSourceWordRequest(@NotBlank(message = "Source word cannot be
 
                                       @NonNull
                                       String owner) implements ServiceRequest {
+    public static DeleteSourceWordRequest of(String sourceWord, String targetWord, String username) {
+        return new DeleteSourceWordRequest(sourceWord, targetWord, username);
+    }
 }

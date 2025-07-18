@@ -6,6 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.service.language.Language;
+import lule.dictionary.service.translation.dto.request.DeleteSourceWordRequest;
+import lule.dictionary.service.translation.dto.request.FindByTargetWordRequest;
+import lule.dictionary.service.translation.dto.request.UpdateSourceWordsRequest;
+import lule.dictionary.service.translation.dto.request.UpdateTranslationFamiliarityRequest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -80,7 +84,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateSourceWords(@NonNull List<String> sourceWords, @NonNull String targetWord, @NonNull String owner) {
+    public Optional<Translation> updateSourceWords(UpdateSourceWordsRequest request) {
         String sql = """
                 UPDATE dictionary.translations
                 SET source_words =  ?
@@ -91,9 +95,9 @@ public class TranslationRepository {
         try {
             return template.query(con -> {
                 var ps = con.prepareStatement(sql);
-                ps.setArray(1, con.createArrayOf("text", sourceWords.toArray()));
-                ps.setString(2, targetWord);
-                ps.setString(3, owner);
+                ps.setArray(1, con.createArrayOf("text", request.sourceWords().toArray()));
+                ps.setString(2, request.targetWord());
+                ps.setString(3, request.owner());
                 return ps;
             }, TRANSLATION).stream().findFirst();
         } catch (DataAccessException e) {
@@ -102,7 +106,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateFamiliarity(@NonNull String targetWord, @NonNull Familiarity familiarity, @NonNull String owner) {
+    public Optional<Translation> updateFamiliarity(UpdateTranslationFamiliarityRequest request) {
         String sql = """
                 UPDATE dictionary.translations
                 SET familiarity = ?
@@ -113,9 +117,9 @@ public class TranslationRepository {
         try {
             return template.query(con -> {
                 var ps = con.prepareStatement(sql);
-                ps.setString(1, familiarity.name());
-                ps.setString(2, targetWord);
-                ps.setString(3, owner);
+                ps.setString(1, request.familiarity().name());
+                ps.setString(2, request.targetWord());
+                ps.setString(3, request.owner());
                 return ps;
             }, TRANSLATION).stream().findFirst();
         } catch (DataAccessException e) {
@@ -152,8 +156,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> findByTargetWord(@NonNull String targetWord,
-                                                  String owner) {
+    public Optional<Translation> findByTargetWord(FindByTargetWordRequest request) {
         String sql = """
                 SELECT *
                 FROM dictionary.translations
@@ -163,8 +166,8 @@ public class TranslationRepository {
                 """;
         try {
             List<Translation> translation = template.query(sql, TRANSLATION,
-                    targetWord.toLowerCase(),
-                    owner);
+                    request.targetWord().toLowerCase(),
+                    request.owner());
             return translation.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -202,7 +205,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> deleteSourceWord(@NonNull String sourceWord, @NonNull String targetWord, @NonNull String owner) {
+    public Optional<Translation> deleteSourceWord(DeleteSourceWordRequest request) {
         String sql = """
                 UPDATE dictionary.translations
                 SET source_words = array_remove(source_words, ?)
@@ -212,9 +215,9 @@ public class TranslationRepository {
                 """;
         try {
             return template.query(sql, TRANSLATION,
-                    sourceWord,
-                    targetWord,
-                    owner
+                    request.sourceWord(),
+                    request.targetWord(),
+                    request.owner()
             ).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));

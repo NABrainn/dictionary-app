@@ -18,10 +18,19 @@ public class SettingsController {
     private final UserProfileService userProfileService;
 
     @GetMapping({"/changeLanguage", "/changeLanguage/"})
-    public String changeLanguage(@RequestParam("lang") String lang,
+    public String changeLanguage(@RequestParam("lang") String language,
                                  Authentication authentication) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        userProfileService.updateTargetLanguage(userDetails.getUsername(), Language.valueOf(lang));
+        String username = extractUsername(authentication);
+        updateTargetLanguage(username, language);
         return "redirect:/";
+    }
+
+    private void updateTargetLanguage(String username, String language) {
+        userProfileService.updateTargetLanguage(username, Language.valueOf(language));
+    }
+
+    private String extractUsername(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails.getUsername();
     }
 }
