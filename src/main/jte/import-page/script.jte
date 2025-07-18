@@ -20,38 +20,34 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 this.highlightWord(0);
             }
 
-            closeAllTranslationForms() {
-                document.querySelectorAll('[id^="translation-form-"]').forEach(form => {
-                    form.innerHTML = '';
-                });
-            }
-
-            resetHighlights() {
+            #resetHighlights(config) {
                 document.querySelectorAll('[id^="target-word-"]').forEach(word => {
-                    if (word.classList.contains('bg-tertiary')) {
-                        word.classList.remove('bg-tertiary');
+                    if (word.classList.contains(config.bgColorToRemove)) {
+                        word.classList.remove(config.bgColorToRemove);
                     }
-                    if (
-                        word.classList.contains('bg-accent') ||
-                        word.classList.contains('bg-accent/80') ||
-                        word.classList.contains('bg-accent/60') ||
-                        word.classList.contains('bg-accent/40')) {
+                    if (config.bgColors.some(color => word.classList.contains(color))) {
 
-                        word.classList.remove('text-neutral');
-                        word.classList.add('text-primary');
+                        word.classList.remove(config.textColorToRemove);
+                        word.classList.add(config.textColorToAdd);
                     }
                 });
             }
 
             highlightWord(id) {
-                this.closeAllTranslationForms();
-                this.resetHighlights()
+                this.#closeAllTranslationForms();
+                this.#resetHighlights({
+                    bgColorToRemove: 'bg-tertiary',
+                    textColorToRemove: 'text-neutral',
+                    textColorToAdd: 'text-primary',
+                    bgColors = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40']
+                })
                 const wordElement = htmx.find('#target-word-' + id);
                 if (wordElement) {
-                    if(wordElement.classList.contains('text-primary')) {
-                        wordElement.classList.remove('text-primary');
-                    }
-                    wordElement.classList.add('bg-tertiary', 'text-neutral');
+                    this.#adjustColors({
+                        textColorToRemove: 'text-primary',
+                        bgColorToAdd: 'bg-tertiary',
+                        textColorToAdd: 'text-neutral'
+                    });
                 }
             }
 
@@ -64,6 +60,19 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 const form = this.#getTranslationForm();
                 this.#handleOverflow(form);
                 this.#updateFormData();
+            }
+
+            #closeAllTranslationForms() {
+                document.querySelectorAll('[id^="translation-form-"]').forEach(form => {
+                    form.innerHTML = '';
+                });
+            }
+
+            #adjustColors(config) {
+                if(wordElement.classList.contains(config.textColorToRemove)) {
+                    wordElement.classList.remove(config.textColorToRemove);
+                }
+                wordElement.classList.add(config.bgColorToAdd, config.textColorToAdd);
             }
 
             #updateFormData() {
@@ -111,12 +120,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
             #handleNorthEastOverflow(form) {
                 if (this.#isOverflowRight(form) && !this.#isOverflowBottom(form)) {
-                    const currentRight = Array.from(form.classList).find(cls => cls.startsWith('right-') || cls.startsWith('-right-'));
-                    const currentTop = Array.from(form.classList).find(cls => cls.startsWith('top-') || cls.startsWith('-top-'));
-                    if (currentRight === 'right-4' && currentTop === 'top-8') {
-                        console.log('NE overflow: already positioned at right-4 top-8, skipping adjustment');
-                        return;
-                    }
                     console.log('NE overflow: adjusting position');
                     this.#adjustPosition({
                         form: form,
@@ -197,12 +200,15 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                     bottom: bottomPos ?? ''
                 }
                 
-                for(const [key, value] of Object.entries(positions)) {
-                    if(value !== '') {
-                        config.form.classList.add(value)
+                for(const [key, position] of Object.entries(positions)) {
+                    if(position !== '') {
+                        this.#updateClassList(config.form, position)
                     }
-                    this.positions[key] = value
                 }
+            }
+
+            #updateClassList(form, value) {
+                form.classList.add(value)
             }
 
             #assignRightPosition(value) {
