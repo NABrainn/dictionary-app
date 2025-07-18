@@ -39,11 +39,12 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                     bgColorToRemove: 'bg-tertiary',
                     textColorToRemove: 'text-neutral',
                     textColorToAdd: 'text-primary',
-                    bgColors = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40']
+                    bgColors: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40']
                 })
                 const wordElement = htmx.find('#target-word-' + id);
                 if (wordElement) {
                     this.#adjustColors({
+                        element: wordElement,
                         textColorToRemove: 'text-primary',
                         bgColorToAdd: 'bg-tertiary',
                         textColorToAdd: 'text-neutral'
@@ -69,10 +70,10 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #adjustColors(config) {
-                if(wordElement.classList.contains(config.textColorToRemove)) {
-                    wordElement.classList.remove(config.textColorToRemove);
+                if(config.element.classList.contains(config.textColorToRemove)) {
+                    config.element.classList.remove(config.textColorToRemove);
                 }
-                wordElement.classList.add(config.bgColorToAdd, config.textColorToAdd);
+                config.element.classList.add(config.bgColorToAdd, config.textColorToAdd);
             }
 
             #updateFormData() {
