@@ -206,6 +206,8 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                         this.#updateClassList(config.form, position)
                     }
                 }
+
+                this.positions = positions
             }
 
             #updateClassList(form, value) {
