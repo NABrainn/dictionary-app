@@ -68,7 +68,7 @@ public class ImportServiceImp implements ImportService {
     }
 
     private ImportWithPagination getImport(LoadImportPageRequest loadRequest) throws ImportNotFoundException {
-        return getImportById(loadRequest);
+        return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
     }
 
     private List<Import> getAllImports() {
@@ -76,9 +76,6 @@ public class ImportServiceImp implements ImportService {
     }
     private List<ImportWithId> getImportByUsernameAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
         return importRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
-    }
-    private ImportWithPagination getImportById(LoadImportPageRequest loadRequest) {
-        return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
     }
     private UserProfile getUserProfile(CreateImportRequest addImportRequest) throws UserNotFoundException {
         return userProfileService.getUserProfile(addImportRequest.owner());

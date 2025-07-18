@@ -188,7 +188,7 @@ public class ImportControllerImp implements ImportController {
 
     private PaginationData createPaginationData(AssembleImportContentRequest request) {
         int currentPage = request.page();
-        int pagesTotal = getNumberOfPages(request.page());
+        int pagesTotal = getNumberOfPages(request.totalLength());
         return PaginationData.builder()
                 .currentPageNumber(currentPage)
                 .numberOfPages(pagesTotal)
