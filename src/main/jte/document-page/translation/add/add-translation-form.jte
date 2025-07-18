@@ -12,7 +12,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-secondary fl
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
-    @template.import-page.translation.add-source-words-form(
+    @template.document-page.translation.add.add-source-words-form(
         sourceLanguage = translationAttribute.translation().sourceLanguage().name(),
         targetLanguage = translationAttribute.translation().targetLanguage().name(),
         importId = translationAttribute.importId(),
@@ -25,7 +25,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-secondary fl
         formPositionData = translationAttribute.formPositionData()
     )
     </div>
-    @template.import-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
+    @template.document-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
     <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             <form

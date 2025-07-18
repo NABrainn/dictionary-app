@@ -6,7 +6,7 @@
 
 
 @template.layout.base(content = @`
-    @template.navbar(
+    @template.navbar.navbar(
         username = baseAttribute.username(),
         authenticated = baseAttribute.isAuthenticated(),
         sourceLanguage = baseAttribute.sourceLanguageData(),
@@ -62,7 +62,7 @@
                 hx-swap="outerHTML"
                 hx-push-url="false">Insert manually</button>
             </div>
-            @template.import-form.url-form(result = result)
+            @template.create-import-form.url-form(result = result)
         </div>
         <div>
             <button

@@ -40,6 +40,6 @@ public interface ImportController {
     @GetMapping({"/url-form", "/url-form/"})
     String urlForm();
 
-    @GetMapping({"/textarea-form", "/textarea-form/"})
-    String textareaForm();
+    @GetMapping({"/content-form", "/content-form/"})
+    String contentForm();
 }

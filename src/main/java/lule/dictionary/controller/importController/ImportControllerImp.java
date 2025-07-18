@@ -50,7 +50,7 @@ public class ImportControllerImp implements ImportController {
                                  Model model) {
         List<ImportWithId> imports = getImports(authentication);
         model.addAttribute("imports", imports);
-        return "imports";
+        return "document-list-page/documents";
     }
 
     @PostMapping({"/page/reload", "/page/reload/"})
@@ -63,7 +63,7 @@ public class ImportControllerImp implements ImportController {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
-            return "import-page/content";
+            return "document-page/content/content";
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
             log.warn("reloadImportPageOnPost(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
@@ -82,7 +82,7 @@ public class ImportControllerImp implements ImportController {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
-            return "import-page/content";
+            return "document-page/content/content";
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
             log.warn("reloadImportPageOnPut(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
@@ -92,7 +92,7 @@ public class ImportControllerImp implements ImportController {
 
     @GetMapping({"/new", "/new/"})
     public String createImportForm() {
-        return "import-form/import-form";
+        return "create-import-form/base-form";
     }
 
     @GetMapping({"/{importId}", "/{importId}/"})
@@ -103,7 +103,7 @@ public class ImportControllerImp implements ImportController {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(0, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", null);
-            return "import-page/import-page";
+            return "document-page/base-page";
 
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
@@ -129,18 +129,18 @@ public class ImportControllerImp implements ImportController {
         } catch (InvalidInputException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
             model.addAttribute("result", e.getResult());
-            return "import-form/import-form";
+            return "create-import-form/base-form";
         }
     }
 
     @GetMapping({"/url-form", "/url-form/"})
     public String urlForm() {
-        return "import-form/url-form";
+        return "create-import-form/url-form";
     }
 
     @GetMapping({"/textarea-form", "/textarea-form/"})
-    public String textareaForm() {
-        return "import-form/textarea-form";
+    public String contentForm() {
+        return "create-import-form/textarea-form";
     }
 
 

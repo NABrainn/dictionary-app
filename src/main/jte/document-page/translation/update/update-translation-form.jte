@@ -13,11 +13,11 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-secondary fl
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
-        @template.import-page.translation.update-source-words-form(
+        @template.document-page.translation.update.update-source-words-form(
             translationPair = TranslationPair.of(translationAttribute.translation().sourceWords(), translationAttribute.translation().targetWord()),
         )
     </div>
-    @template.import-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
+    @template.document-page.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
     <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             @if(level.getKey() == translationAttribute.currentFamiliarity())
