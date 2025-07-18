@@ -1,4 +1,4 @@
-package lule.dictionary.service.imports.importService.dto.importPageRequest;
+package lule.dictionary.service.imports.importService.dto.request;
 
 import lombok.Builder;
 import lombok.NonNull;

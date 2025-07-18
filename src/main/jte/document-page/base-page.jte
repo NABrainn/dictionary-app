@@ -1,5 +1,5 @@
 @import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute
+@import lule.dictionary.service.imports.importService.dto.request.ImportContentAttribute
 
 @param ImportContentAttribute importContentAttribute
 @param BaseAttribute baseAttribute

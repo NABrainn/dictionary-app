@@ -11,11 +11,8 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
-import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
+import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.dto.importData.ImportAttribute;
-import lule.dictionary.service.imports.importService.dto.importPageRequest.AssembleImportContentRequest;
-import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute;
-import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
@@ -164,7 +161,7 @@ public class ImportControllerImp implements ImportController {
 
     private List<ImportWithId> getImports(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        return importService.findByOwnerAndTargetLanguage(principal.getUsername(), principal.targetLanguage()).value();
+        return importService.findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage())).value();
     }
 
     private int getTotalLength(ImportWithPagination importWithPagination) {
