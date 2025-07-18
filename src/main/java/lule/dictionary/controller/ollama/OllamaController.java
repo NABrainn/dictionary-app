@@ -28,13 +28,13 @@ public class OllamaController {
         String sourceWord = ollamaService.translate(principal.targetLanguage(), principal.sourceLanguage(), targetWord);
         model.addAttribute("translation", sourceWord);
         model.addAttribute("targetWord", targetWord);
-        return "document-page/translation/ai-translation";
+        return "document-page/content/translation/ai-translation";
     }
 
     @GetMapping({"/closeAiTranslation", "/closeAiTranslation/"})
     public String closeAiTranslation(@RequestParam(name = "targetWord") String targetWord,
                                      Model model) {
         model.addAttribute("targetWord", targetWord);
-        return "document-page/translation/get-ai-translation-btn";
+        return "document-page/content/translation/get-ai-translation-btn";
     }
 }

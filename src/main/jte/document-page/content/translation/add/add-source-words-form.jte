@@ -25,7 +25,7 @@ hx-post="/translations/new"
 hx-target="#page-content"
 hx-swap="outerHTML">
     <div id="source-words-list">
-        @template.document-page.translation.source-words-list(translationPair = translationPair, isUpdateForm = false)
+        @template.document-page.content.translation.source-words-list(translationPair = translationPair, isUpdateForm = false)
     </div>
     <div class="flex gap-2">
         <input
