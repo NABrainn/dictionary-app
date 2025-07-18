@@ -90,12 +90,12 @@ public class TranslationController {
                     .build();
             ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(request);
             model.addAttribute("translationAttribute", result.value());
-            return "import-page/translation/update-translation-form";
+            return "document-page/content/translation/update/update-translation-form";
 
         } catch (TranslationNotFoundException e) {
             log.info("Translation not found, sending add-translation-form template: {}", e.getResult().value());
             model.addAttribute("translationAttribute", e.getResult().value());
-            return "import-page/translation/add-translation-form";
+            return "document-page/content/translation/add/add-translation-form";
 
         } catch (InvalidInputException e) {
             log.info("Invalid input, sending info back");
@@ -146,10 +146,10 @@ public class TranslationController {
             ServiceResult<TranslationPair> result = translationService.updateSourceWords(request);
             model.addAttribute("translationPair", result.value());
             model.addAttribute("hasError", result.hasError());
-            return "import-page/translation/update-source-words-form";
+            return "document-page/content/translation/update/update-source-words-form";
         } catch (InvalidInputException e) {
             model.addAttribute("translationPair", e.getResult().value());
-            return "import-page/translation/update-source-words-form";
+            return "document-page/content/translation/update/update-source-words-form";
         }
     }
 
@@ -163,11 +163,11 @@ public class TranslationController {
             DeleteSourceWordRequest request = DeleteSourceWordRequest.of(sourceWord, targetWord, userDetails.getUsername());
             ServiceResult<TranslationPair> result = translationService.deleteSourceWord(request);
             model.addAttribute("translationPair", TranslationPair.of(result.value().sourceWords(), result.value().targetWord()));
-            return "import-page/translation/source-words-list";
+            return "document-page/content/translation/source-words-list";
         } catch (InvalidInputException e) {
             log.info("Invalid input, sending source-words-list template");
             model.addAttribute("translationAttribute", e.getResult().value());
-            return "import-page/translation/source-words-list";
+            return "document-page/content/translation/source-words-list";
         }
     }
 

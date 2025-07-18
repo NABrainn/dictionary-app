@@ -34,7 +34,7 @@
                 ${translationAttribute.formPositionData().bottom()} absolute inline"
                 id="translation-form-container-${wordIndex}"
                 hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
-                    @template.import-page.translation.update-translation-form(translationAttribute = translationAttribute)
+                    @template.document-page.content.translation.update.update-translation-form(translationAttribute = translationAttribute)
                 </div>${word}</span>
         @endif
     @else

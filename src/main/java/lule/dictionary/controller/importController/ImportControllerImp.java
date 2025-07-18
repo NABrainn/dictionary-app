@@ -11,11 +11,8 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
-import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
+import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.dto.importData.ImportAttribute;
-import lule.dictionary.service.imports.importService.dto.importPageRequest.AssembleImportContentRequest;
-import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute;
-import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
@@ -50,7 +47,7 @@ public class ImportControllerImp implements ImportController {
                                  Model model) {
         List<ImportWithId> imports = getImports(authentication);
         model.addAttribute("imports", imports);
-        return "imports";
+        return "document-list-page/documents";
     }
 
     @PostMapping({"/page/reload", "/page/reload/"})
@@ -63,7 +60,7 @@ public class ImportControllerImp implements ImportController {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
-            return "import-page/content";
+            return "document-page/content/content";
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
             log.warn("reloadImportPageOnPost(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
@@ -82,7 +79,7 @@ public class ImportControllerImp implements ImportController {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
-            return "import-page/content";
+            return "document-page/content/content";
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
             log.warn("reloadImportPageOnPut(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
@@ -92,7 +89,7 @@ public class ImportControllerImp implements ImportController {
 
     @GetMapping({"/new", "/new/"})
     public String createImportForm() {
-        return "import-form/import-form";
+        return "create-import-form/base-form";
     }
 
     @GetMapping({"/{importId}", "/{importId}/"})
@@ -103,7 +100,7 @@ public class ImportControllerImp implements ImportController {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(0, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", null);
-            return "import-page/import-page";
+            return "document-page/base-page";
 
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
@@ -129,18 +126,18 @@ public class ImportControllerImp implements ImportController {
         } catch (InvalidInputException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
             model.addAttribute("result", e.getResult());
-            return "import-form/import-form";
+            return "create-import-form/base-form";
         }
     }
 
     @GetMapping({"/url-form", "/url-form/"})
     public String urlForm() {
-        return "import-form/url-form";
+        return "create-import-form/url-form";
     }
 
     @GetMapping({"/textarea-form", "/textarea-form/"})
-    public String textareaForm() {
-        return "import-form/textarea-form";
+    public String contentForm() {
+        return "create-import-form/textarea-form";
     }
 
 
@@ -164,7 +161,7 @@ public class ImportControllerImp implements ImportController {
 
     private List<ImportWithId> getImports(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        return importService.findByOwnerAndTargetLanguage(principal.getUsername(), principal.targetLanguage()).value();
+        return importService.findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage())).value();
     }
 
     private int getTotalLength(ImportWithPagination importWithPagination) {
@@ -191,7 +188,7 @@ public class ImportControllerImp implements ImportController {
 
     private PaginationData createPaginationData(AssembleImportContentRequest request) {
         int currentPage = request.page();
-        int pagesTotal = getNumberOfPages(request.page());
+        int pagesTotal = getNumberOfPages(request.totalLength());
         return PaginationData.builder()
                 .currentPageNumber(currentPage)
                 .numberOfPages(pagesTotal)

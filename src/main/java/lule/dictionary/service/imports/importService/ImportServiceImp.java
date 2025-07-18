@@ -1,7 +1,6 @@
 package lule.dictionary.service.imports.importService;
 
 import jakarta.validation.ConstraintViolationException;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
@@ -10,9 +9,10 @@ import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
-import lule.dictionary.service.imports.importService.dto.insertIntoDatabaseRequest.InsertIntoDatabaseRequest;
-import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
-import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
+import lule.dictionary.service.imports.importService.dto.request.FindByOwnerAndTargetLanguageRequest;
+import lule.dictionary.service.imports.importService.dto.request.InsertIntoDatabaseRequest;
+import lule.dictionary.service.imports.importService.dto.request.LoadImportPageRequest;
+import lule.dictionary.service.imports.importService.dto.request.CreateImportRequest;
 import lule.dictionary.dto.database.interfaces.imports.base.Import;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.repository.ImportRepository;
@@ -52,8 +52,9 @@ public class ImportServiceImp implements ImportService {
         }
     }
 
-    public ServiceResult<List<ImportWithId>> findByOwnerAndTargetLanguage(@NonNull String owner, @NonNull Language targetLanguage) {
-        return ServiceResultImp.success(getImportByUsernameAndTargetLanguage(owner, targetLanguage));
+    public ServiceResult<List<ImportWithId>> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
+        List<ImportWithId> importList = getImportByUsernameAndTargetLanguage(request);
+        return ServiceResultImp.success(importList);
     }
 
     public ServiceResult<List<Import>> findAll() {
@@ -67,17 +68,14 @@ public class ImportServiceImp implements ImportService {
     }
 
     private ImportWithPagination getImport(LoadImportPageRequest loadRequest) throws ImportNotFoundException {
-        return getImportById(loadRequest);
+        return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
     }
 
     private List<Import> getAllImports() {
         return importRepository.findAll();
     }
-    private List<ImportWithId> getImportByUsernameAndTargetLanguage(String owner, Language targetLanguage) {
-        return importRepository.findByOwnerAndTargetLanguage(owner, targetLanguage);
-    }
-    private ImportWithPagination getImportById(LoadImportPageRequest loadRequest) {
-        return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
+    private List<ImportWithId> getImportByUsernameAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
+        return importRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
     }
     private UserProfile getUserProfile(CreateImportRequest addImportRequest) throws UserNotFoundException {
         return userProfileService.getUserProfile(addImportRequest.owner());

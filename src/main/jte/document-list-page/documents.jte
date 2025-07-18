@@ -6,7 +6,7 @@
 @param BaseAttribute baseAttribute
 
 @template.layout.base(content = @`
-    @template.navbar(
+    @template.navbar.navbar(
         username = baseAttribute.username(),
         authenticated = baseAttribute.isAuthenticated(),
         sourceLanguage = baseAttribute.sourceLanguageData(),

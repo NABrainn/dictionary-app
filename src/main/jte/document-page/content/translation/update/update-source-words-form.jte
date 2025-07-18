@@ -12,7 +12,7 @@
     hx-target="#source-word-form"
     hx-swap="innerHTML">
     <div id="source-words-list">
-        @template.import-page.translation.source-words-list(translationPair = translationPair)
+        @template.document-page.content.translation.source-words-list(translationPair = translationPair)
     </div>
     <div class="flex gap-2">
         @if(hasError)

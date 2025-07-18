@@ -1,4 +1,4 @@
-package lule.dictionary.service.imports.importService.dto.createImportRequest;
+package lule.dictionary.service.imports.importService.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

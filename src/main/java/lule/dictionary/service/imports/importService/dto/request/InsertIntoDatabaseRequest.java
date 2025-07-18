@@ -1,7 +1,6 @@
-package lule.dictionary.service.imports.importService.dto.insertIntoDatabaseRequest;
+package lule.dictionary.service.imports.importService.dto.request;
 
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
-import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
 
 public record InsertIntoDatabaseRequest(CreateImportRequest request, String content, UserProfile userProfile) {
     public static InsertIntoDatabaseRequest of(CreateImportRequest createImportRequest, String content, UserProfile userProfile) {

@@ -1,5 +1,5 @@
 @import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute
+@import lule.dictionary.service.imports.importService.dto.request.ImportContentAttribute
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
@@ -11,7 +11,7 @@
     <div
     id="page-content"
     class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
-        @template.navbar(
+        @template.navbar.navbar(
             username = baseAttribute.username(),
             authenticated = baseAttribute.isAuthenticated(),
             sourceLanguage = baseAttribute.sourceLanguageData(),
@@ -44,7 +44,7 @@
                             @if(importContentAttribute.importData().translations().get(cleanWord) != null)
                                 @if(importContentAttribute.importData().selectedWordId() == wordId)
                                     @if(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -57,7 +57,7 @@
                                             selected = true
                                         )
                                     @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -71,7 +71,7 @@
                                         )
 
                                     @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -84,7 +84,7 @@
                                             selected = true
                                         )
                                     @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -97,7 +97,7 @@
                                             selected = true
                                         )
                                     @else
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -112,7 +112,7 @@
                                     @endif
                                 @else
                                     @if(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -124,7 +124,7 @@
                                             found = true
                                         )
                                     @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -136,7 +136,7 @@
                                             found = true
                                         )
                                     @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -148,7 +148,7 @@
                                             found = true
                                         )
                                     @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -160,7 +160,7 @@
                                             found = true
                                         )
                                     @else
-                                        @template.import-page.word(
+                                        @template.document-page.content.word(
                                             wordIndex = wordId,
                                             importId = importContentAttribute.importData().importId(),
                                             word = wordEntry.get(),
@@ -176,7 +176,7 @@
                             @else
 
                                 @if(importContentAttribute.importData().selectedWordId() == wordId)
-                                    @template.import-page.word(
+                                    @template.document-page.content.word(
                                         wordIndex = wordId,
                                         importId = importContentAttribute.importData().importId(),
                                         word = wordEntry.get(),
@@ -187,7 +187,7 @@
                                         page = importContentAttribute.paginationData().currentPageNumber()
                                     )
                                 @else
-                                    @template.import-page.word(
+                                    @template.document-page.content.word(
                                         wordIndex = wordId,
                                         importId = importContentAttribute.importData().importId(),
                                         word = wordEntry.get(),
@@ -200,7 +200,7 @@
                                 @endif
                             @endif
                         @else
-                            @template.import-page.word(
+                            @template.document-page.content.word(
                                 wordIndex = wordId,
                                 importId = importContentAttribute.importData().importId(),
                                 word = wordEntry.get(),
@@ -221,7 +221,7 @@
         class="
         md:max-w-2/5 md:gap-4
         max-w-full flex justify-center gap-2  mx-auto items-center">
-            @template.import-page.pagination.paginator(
+            @template.document-page.content.paginator(
                 id = importContentAttribute.importData().importId(),
                 currentPage = importContentAttribute.paginationData().currentPageNumber(),
                 pages = importContentAttribute.paginationData().numberOfPages(),
