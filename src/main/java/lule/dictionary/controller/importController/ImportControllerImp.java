@@ -3,7 +3,7 @@ package lule.dictionary.controller.importController;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.ImportContentData;
+import lule.dictionary.dto.application.ContentData;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
@@ -12,7 +12,7 @@ import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
-import lule.dictionary.service.imports.importService.dto.importData.ImportData;
+import lule.dictionary.service.imports.importService.dto.importData.ImportAttribute;
 import lule.dictionary.service.imports.importService.dto.importPageRequest.AssembleImportContentRequest;
 import lule.dictionary.service.imports.importService.dto.importsAttribute.ImportContentAttribute;
 import lule.dictionary.service.imports.importService.dto.loadImportPageRequest.LoadImportPageRequest;
@@ -21,6 +21,7 @@ import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
 import lule.dictionary.service.translation.TranslationService;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
+import lule.dictionary.service.translation.dto.request.FindTranslationsByImportRequest;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -150,13 +151,14 @@ public class ImportControllerImp implements ImportController {
 
     private ImportContentAttribute loadImportPage(LoadImportPageRequest loadRequest) {
         ImportWithPagination importWithPagination = getImportPage(loadRequest);
-        return assembleImportContentAttribute(AssembleImportContentRequest.builder()
+        AssembleImportContentRequest request = AssembleImportContentRequest.builder()
                 .wordId(loadRequest.wordId())
                 .importId(loadRequest.importId())
                 .page(loadRequest.page())
                 .importWithPagination(importWithPagination)
                 .totalLength(getTotalLength(importWithPagination))
-                .build());
+                .build();
+        return assembleImportContentAttribute(request);
 
     }
 
@@ -169,13 +171,13 @@ public class ImportControllerImp implements ImportController {
         return importWithPagination.content().length();
     }
 
-    private ImportContentAttribute assembleImportContentAttribute(AssembleImportContentRequest assembleRequest) {
-        ImportData importData = createImportData(assembleRequest.wordId(), assembleRequest.importId(), assembleRequest.importWithPagination());
-        PaginationData paginationData = createPaginationData(assembleRequest.page(), getNumberOfPages(assembleRequest.totalLength()));
-        return createImportContentAttribute(importData, paginationData);
+    private ImportContentAttribute assembleImportContentAttribute(AssembleImportContentRequest request) {
+        ImportAttribute importAttribute = createImportData(request);
+        PaginationData paginationData = createPaginationData(request);
+        return createImportContentAttribute(importAttribute, paginationData);
     }
 
-    private ImportContentAttribute createImportContentAttribute(ImportData importData, PaginationData paginationData) {
+    private ImportContentAttribute createImportContentAttribute(ImportAttribute importData, PaginationData paginationData) {
         return ImportContentAttribute.of(importData, paginationData);
     }
 
@@ -187,44 +189,52 @@ public class ImportControllerImp implements ImportController {
         return importService.loadPage(loadRequest).value();
     }
 
-    private PaginationData createPaginationData(int page, int pagesTotal) {
+    private PaginationData createPaginationData(AssembleImportContentRequest request) {
+        int currentPage = request.page();
+        int pagesTotal = getNumberOfPages(request.page());
         return PaginationData.builder()
-                .currentPageNumber(page)
+                .currentPageNumber(currentPage)
                 .numberOfPages(pagesTotal)
-                .currentRowNumber(getNumberOfCurrentRow(page))
-                .firstPageOfRowNumber(getNumberOfRowFirstPage(page))
+                .currentRowNumber(getNumberOfCurrentRow(currentPage))
+                .firstPageOfRowNumber(getNumberOfRowFirstPage(currentPage))
                 .rows(getRows(pagesTotal))
                 .build();
     }
 
-    private ImportData createImportData(int wordId, int importId, ImportWithPagination importWithPagination) {
-        return ImportData.builder()
-                .selectedWordId(wordId)
-                .importId(importId)
-                .title(getImportTitle(importWithPagination))
-                .content(getImportContent(importWithPagination))
-                .translations(getImportTranslations(importWithPagination))
+    private ImportAttribute createImportData(AssembleImportContentRequest request) {
+        ContentData importContentData = assembleImportContentData(request.importWithPagination());
+        Map<String, Translation> importTranslations = getImportTranslationsFromDatabase(request.importWithPagination());
+        return ImportAttribute.builder()
+                .selectedWordId(request.wordId())
+                .importId(request.importId())
+                .title(request.importWithPagination().title())
+                .content(importContentData)
+                .translations(importTranslations)
                 .build();
     }
 
-    private Map<String, Translation> getImportTranslations(ImportWithPagination importWithPagination) {
-        return translationService.findTranslationsByImport(importWithPagination, importWithPagination.owner()).value();
+    private Map<String, Translation> getImportTranslationsFromDatabase(ImportWithPagination importWithPagination) {
+        return translationService.findTranslationsByImport(FindTranslationsByImportRequest.of(importWithPagination, importWithPagination.owner())).value();
     }
 
-    private ImportContentData getImportContent(ImportWithPagination importWithPagination) {
-        List<List<String>> paragraphs = Stream.of(importWithPagination.pageContent().split("\n+"))
-                .map(paragraph -> Arrays.stream(paragraph.split("\\s+")).toList())
-                .filter(list -> !list.isEmpty())
-                .toList();
-        List<Integer> startIndices = IntStream.range(0, paragraphs.size())
+    private ContentData assembleImportContentData(ImportWithPagination importWithPagination) {
+        List<List<String>> paragraphs = extractParagraphs(importWithPagination);
+        List<Integer> startIndices = extractIndices(paragraphs);
+        return ContentData.of(paragraphs, startIndices);
+    }
+
+    private List<Integer> extractIndices(List<List<String>> paragraphs) {
+        return IntStream.range(0, paragraphs.size())
                 .map(i -> 1 + paragraphs.subList(0, i).stream().mapToInt(List::size).sum())
                 .boxed()
                 .toList();
-        return new ImportContentData(paragraphs, startIndices);
     }
 
-    private String getImportTitle(ImportWithPagination importWithPagination) {
-        return importWithPagination.title();
+    private List<List<String>> extractParagraphs(ImportWithPagination importWithPagination) {
+        return Stream.of(importWithPagination.pageContent().split("\n+"))
+                .map(paragraph -> Arrays.stream(paragraph.split("\\s+")).toList())
+                .filter(list -> !list.isEmpty())
+                .toList();
     }
 
     private int getNumberOfRowFirstPage(int page) {

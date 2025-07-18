@@ -3,8 +3,8 @@ package lule.dictionary.service.imports.importService.dto.insertIntoDatabaseRequ
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.imports.importService.dto.createImportRequest.CreateImportRequest;
 
-public record InsertIntoDatabaseRequest(CreateImportRequest validRequest, String content, UserProfile userProfile) {
-    public static InsertIntoDatabaseRequest of(CreateImportRequest validRequest, String content, UserProfile userProfile) {
-        return new InsertIntoDatabaseRequest(validRequest, content, userProfile);
+public record InsertIntoDatabaseRequest(CreateImportRequest request, String content, UserProfile userProfile) {
+    public static InsertIntoDatabaseRequest of(CreateImportRequest createImportRequest, String content, UserProfile userProfile) {
+        return new InsertIntoDatabaseRequest(createImportRequest, content, userProfile);
     }
 }

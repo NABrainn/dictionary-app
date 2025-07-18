@@ -13,7 +13,7 @@ import lule.dictionary.service.auth.dto.authenticationContext.SessionContext;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
-import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationResult;
+import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationData;
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.dto.application.result.ServiceResult;
@@ -91,9 +91,9 @@ public class AuthService {
         return ServiceResultImp.successEmpty(Map.of());
     }
 
-    private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response) throws ConstraintViolationException {
-        AuthRequest validLoginData = validate(loginData);
-        AuthenticationResult authResult = authenticateUser(validLoginData);
+    private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response) throws ConstraintViolationException, UserNotFoundException {
+        validate(loginData);
+        AuthenticationData authResult = authenticateUser(loginData);
         setAuthenticationContext(SessionContext.of(authResult, response));
         return ServiceResultImp.successEmpty(Map.of());
     }
@@ -102,32 +102,36 @@ public class AuthService {
         return ServiceResultImp.errorEmpty(errorMessages);
     }
 
-    private ServiceResult<?> processSignupRequest(SignupRequest signupData) {
-        AuthRequest validSignupData = validate(signupData);
-        checkIfUserExists((SignupRequest) validSignupData);
-        userProfileService.addUserProfile((SignupRequest) validSignupData);
+    private ServiceResult<?> processSignupRequest(SignupRequest signupData) throws ConstraintViolationException, UserExistsException {
+        validate(signupData);
+        checkIfUserExists(signupData);
+        addUser(signupData);
         return ServiceResultImp.successEmpty(Map.of());
     }
 
+    private void addUser(SignupRequest signupData) {
+        userProfileService.addUserProfile(signupData);
+    }
 
-    private AuthenticationResult authenticateUser(AuthRequest loginData) {
+
+    private AuthenticationData authenticateUser(AuthRequest loginData) throws UserNotFoundException {
         UserProfile user = getUserProfile(loginData);
         Authentication authentication = authenticate(user);
-        return AuthenticationResult.of(authentication, user);
+        return AuthenticationData.of(authentication, user);
     }
 
     private void setAuthenticationContext(SessionContext sessionContext) throws AuthenticationException {
-        setAuthentication(sessionContext.authenticationResult().authentication());
-        sendJwtCookie(sessionContext.authenticationResult().userProfile().username(), sessionContext.response());
-        updateTimezoneOffset(sessionContext.authenticationResult().userProfile().username(), TimeZoneOffsetContext.get());
+        setAuthentication(sessionContext);
+        sendJwtCookie(sessionContext);
+        updateTimezoneOffset(getUsername(sessionContext), TimeZoneOffsetContext.get());
     }
 
     private void updateTimezoneOffset(String owner, String offset) {
         userProfileService.updateTimezoneOffset(owner, offset);
     }
 
-    private AuthRequest validate(AuthRequest authRequest) throws ConstraintViolationException {
-        return validationService.validate(authRequest);
+    private void validate(AuthRequest authRequest) throws ConstraintViolationException {
+        validationService.validate(authRequest);
     }
 
     private void clearAuthentication() {
@@ -140,12 +144,17 @@ public class AuthService {
         response.addCookie(cookie);
     }
 
-    private void sendJwtCookie(String username, HttpServletResponse response) {
+    private void sendJwtCookie(SessionContext sessionContext) {
+        String username = getUsername(sessionContext);
         Cookie jwtCookie = createJwtCookie(username);
-        attachToResponse(jwtCookie, response);
+        addToResponse(jwtCookie, sessionContext.response());
     }
 
-    private void attachToResponse(Cookie jwtCookie, HttpServletResponse response) {
+    private String getUsername(SessionContext sessionContext) {
+        return sessionContext.authenticationData().userProfile().username();
+    }
+
+    private void addToResponse(Cookie jwtCookie, HttpServletResponse response) {
         response.addCookie(jwtCookie);
     }
 
@@ -153,7 +162,8 @@ public class AuthService {
         return cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(username));
     }
 
-    private void setAuthentication(Authentication authentication) {
+    private void setAuthentication(SessionContext sessionContext) {
+        Authentication authentication = sessionContext.authenticationData().authentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
@@ -166,7 +176,7 @@ public class AuthService {
             throw new UserExistsException("User with given username already exists");
     }
 
-    private UserProfile getUserProfile(AuthRequest loginRequest) {
+    private UserProfile getUserProfile(AuthRequest loginRequest) throws UserNotFoundException {
         return UserProfileImp.withNewPassword(userProfileService.getUserProfile(loginRequest.login()), loginRequest.password());
     }
 }

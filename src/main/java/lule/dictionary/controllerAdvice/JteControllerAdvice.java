@@ -8,6 +8,7 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.language.LanguageHelper;
 import lule.dictionary.service.translation.TranslationService;
+import lule.dictionary.service.translation.dto.request.GetWordsLearnedCountRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.ui.Model;
@@ -45,7 +46,7 @@ public class JteControllerAdvice {
                             )
                     )
                     .allLanguageData(languageHelper.getAllLanguageData())
-                    .wordsLearned(translationService.getWordsLearnedCount(userDetails.getUsername(), userDetails.targetLanguage()).value())
+                    .wordsLearned(translationService.getWordsLearnedCount(GetWordsLearnedCountRequest.of(userDetails.getUsername(), userDetails.targetLanguage())).value())
                     .dailyStreak(userDetails.dailyStreak())
                     .build());
             return;

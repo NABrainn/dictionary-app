@@ -46,9 +46,9 @@ public class TranslationController {
                                  @RequestParam("right") String right,
                                  @RequestParam("top") String top,
                                  @RequestParam("bottom") String bottom) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         try {
-            ServiceResult<TranslationAttribute> result = translationService.createTranslation(AddTranslationRequest.builder()
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            AddTranslationRequest request = AddTranslationRequest.builder()
                     .importId(importId)
                     .selectedWordId(selectedWordId)
                     .sourceWords(sourceWords)
@@ -59,7 +59,8 @@ public class TranslationController {
                     .page(page)
                     .owner(principal.getUsername())
                     .formPositionData(FormPositionData.of(left, right, top, bottom))
-                    .build());
+                    .build();
+            ServiceResult<TranslationAttribute> result = createTranslation(request);
             model.addAttribute("translationAttribute", result.value());
             return "forward:/imports/page/reload";
         } catch (InvalidInputException e) {
@@ -78,7 +79,7 @@ public class TranslationController {
                                    @RequestParam("page") int page) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(FindByTargetWordRequest.builder()
+            FindByTargetWordRequest request = FindByTargetWordRequest.builder()
                     .importId(importId)
                     .selectedWordId(selectedWordId)
                     .targetWord(targetWord)
@@ -86,7 +87,8 @@ public class TranslationController {
                     .targetLanguage(principal.targetLanguage())
                     .page(page)
                     .owner(principal.getUsername())
-                    .build());
+                    .build();
+            ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(request);
             model.addAttribute("translationAttribute", result.value());
             return "import-page/translation/update-translation-form";
 
@@ -116,7 +118,7 @@ public class TranslationController {
                                     @RequestParam("top") String top,
                                     @RequestParam("bottom") String bottom) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(UpdateTranslationFamiliarityRequest.builder()
+        UpdateTranslationFamiliarityRequest request = UpdateTranslationFamiliarityRequest.builder()
                 .importId(importId)
                 .selectedWordId(selectedWordId)
                 .targetWord(targetWord)
@@ -126,7 +128,8 @@ public class TranslationController {
                 .page(page)
                 .owner(principal.getUsername())
                 .formPositionData(FormPositionData.of(left, right, top, bottom))
-                .build());
+                .build();
+        ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(request);
         model.addAttribute("translationAttribute", result.value());
         return "forward:/imports/page/reload";
     }
@@ -136,9 +139,11 @@ public class TranslationController {
                                     Authentication authentication,
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
         try {
-            ServiceResult<TranslationPair> result = translationService.updateSourceWords(UpdateSourceWordsRequest.of(sourceWords, targetWord, userDetails.getUsername()));
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            UpdateSourceWordsRequest request = UpdateSourceWordsRequest.of(sourceWords, targetWord, userDetails.getUsername());
+            ServiceResult<TranslationPair> result = translationService.updateSourceWords(request);
             model.addAttribute("translationPair", result.value());
             model.addAttribute("hasError", result.hasError());
             return "import-page/translation/update-source-words-form";
@@ -155,11 +160,8 @@ public class TranslationController {
                                    @RequestParam("targetWord") String targetWord) {
         try {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            ServiceResult<TranslationPair> result = translationService.deleteSourceWord(new DeleteSourceWordRequest(
-                    sourceWord,
-                    targetWord,
-                    userDetails.getUsername()
-            ));
+            DeleteSourceWordRequest request = DeleteSourceWordRequest.of(sourceWord, targetWord, userDetails.getUsername());
+            ServiceResult<TranslationPair> result = translationService.deleteSourceWord(request);
             model.addAttribute("translationPair", TranslationPair.of(result.value().sourceWords(), result.value().targetWord()));
             return "import-page/translation/source-words-list";
         } catch (InvalidInputException e) {
@@ -167,5 +169,9 @@ public class TranslationController {
             model.addAttribute("translationAttribute", e.getResult().value());
             return "import-page/translation/source-words-list";
         }
+    }
+
+    private ServiceResult<TranslationAttribute> createTranslation(AddTranslationRequest request) {
+        return translationService.createTranslation(request);
     }
 }
