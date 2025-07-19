@@ -4,14 +4,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.configuration.security.filter.osLanguage.SystemLanguageContext;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.AuthService;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +30,7 @@ public class AuthControllerImp implements AuthController {
 
     @GetMapping({"/login", "/login/"})
     public String loginPage(Model model) {
-        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(SystemLanguageContext.get()));
         return "auth/login";
     }
 

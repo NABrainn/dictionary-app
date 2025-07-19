@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
+import lule.dictionary.configuration.security.filter.osLanguage.SystemLanguageFilter;
 import lule.dictionary.configuration.security.filter.timezone.TimezoneFilter;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.application.result.ServiceResultImp;
@@ -40,6 +41,7 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TimezoneFilter timezoneFilter;
     private final BCryptPasswordEncoder encoder;
+    private final SystemLanguageFilter systemLanguageFilter;
 
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
@@ -107,6 +109,7 @@ public class SecurityConfiguration {
                         })
                         .permitAll()
                 )
+                .addFilterBefore(systemLanguageFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(timezoneFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(daoAuthenticationProvider())

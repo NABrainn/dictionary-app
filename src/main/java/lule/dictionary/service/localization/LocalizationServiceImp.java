@@ -20,7 +20,7 @@ public class LocalizationServiceImp implements LocalizationService {
             case NO -> constructMap(keys, List.of("Hjem", "Ord", "Dag", "Dager", "Logg på" , "Logg av"));
             case IT -> constructMap(keys, List.of("Casa", "Parole", "Giorno", "Giorni", "Login", "Disconnettersi"));
             case PL -> constructMap(keys, List.of("Dom", "Słowa", "Dzień", "Dni", "Zaloguj się", "Wyloguj się"));
-            default -> constructMap(keys, List.of("Home", "Words", "Day", "Days", "Log out", "Log in"));
+            default -> constructMap(keys, List.of("Home", "Words", "Day", "Days", "Log in", "Log out"));
         };
     }
 

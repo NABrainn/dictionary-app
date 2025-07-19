@@ -109,6 +109,7 @@ public class ImportControllerImp implements ImportController {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(0, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", null);
+            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
             return "document-page/base-page";
 
         }
