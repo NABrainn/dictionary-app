@@ -3,15 +3,19 @@
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
+@import java.util.Map
 
 @param ImportContentAttribute importContentAttribute
 @param TranslationAttribute translationAttribute = null
 @param BaseAttribute baseAttribute
+@param Map<String, String> navbarLocalization
+
 
     <div
     id="page-content"
     class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
         @template.navbar.navbar(
+            navbarLocalization = navbarLocalization,
             username = baseAttribute.username(),
             authenticated = baseAttribute.isAuthenticated(),
             sourceLanguage = baseAttribute.sourceLanguageData(),

@@ -163,8 +163,11 @@ public class AuthService {
     }
 
     private void setAuthentication(SessionContext sessionContext) {
-        Authentication authentication = sessionContext.authenticationData().authentication();
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        if(sessionContext != null) {
+            Authentication authentication = sessionContext.authenticationData().authentication();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     private Authentication authenticate(UserProfile userProfile) {

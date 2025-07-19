@@ -7,17 +7,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 public interface AuthController {
-    String loginPage();
+    String loginPage(Model model);
     String login(@RequestParam("login") @NonNull String login,
                  @RequestParam("password") @NonNull String password,
                  Model model,
                  RedirectAttributes redirectAttributes,
                  HttpServletResponse response);
-    String signupPage();
+    String signupPage(Model model);
     String signup(@RequestParam("login") @NonNull String login,
                   @RequestParam("email") @NonNull String email,
                   @RequestParam("password") @NonNull String password,
                   Model model);
     String logout(RedirectAttributes redirectAttributes,
-                  HttpServletResponse response);
+                  HttpServletResponse response,
+                  Model model);
 }

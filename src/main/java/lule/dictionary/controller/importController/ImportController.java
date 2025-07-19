@@ -23,7 +23,7 @@ public interface ImportController {
                            @RequestParam("page") int page,
                            Model model);
     @GetMapping({"/new", "/new/"})
-    String createImportForm();
+    String createImportForm(Model model);
 
     @GetMapping({"/{importId}", "/{importId}/"})
     String importPage(@PathVariable("importId") int importId,
