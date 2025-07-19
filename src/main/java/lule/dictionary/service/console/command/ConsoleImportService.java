@@ -32,13 +32,13 @@
 //        System.out.print("Title: ");
 //        String title = scanner.nextLine();
 //        System.out.print("Content: ");
-//        String content.jte = scanner.nextLine();
+//        String pageContent.jte = scanner.nextLine();
 //        System.out.print("Url: ");
 //        String url = scanner.nextLine();
 //        if(url.isEmpty()) url = "";
 //        return Map.of(
 //                "title", title,
-//                "content.jte", content.jte,
+//                "pageContent.jte", pageContent.jte,
 //                "url", url
 //        );
 //    }
@@ -47,7 +47,7 @@
 //        Import addedImport = ImportFactory.createImport(
 //                ImportFactory.createImportDetails(
 //                        imported.importDetails().title(),
-//                        imported.importDetails().content.jte(),
+//                        imported.importDetails().pageContent.jte(),
 //                        imported.importDetails().url()
 //                ),
 //                UserProfileFactory.createUserProfile(
@@ -59,8 +59,8 @@
 //        return importService.add(addedImport);
 //    }
 //
-//    public void processContent(String content.jte, Language sourceLanguage, Language targetLanguage, String login, int importId) {
-//        for (String targetWord : parser.wordsAsList(content.jte)) {
+//    public void processContent(String pageContent.jte, Language sourceLanguage, Language targetLanguage, String login, int importId) {
+//        for (String targetWord : parser.wordsAsList(pageContent.jte)) {
 //            System.out.println("Word: " + targetWord);
 //            System.out.print("Meaning: ");
 //            String sourceWord = scanner.nextLine();

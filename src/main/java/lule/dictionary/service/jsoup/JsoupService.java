@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class JsoupService {
@@ -33,21 +35,30 @@ public class JsoupService {
         return url;
     }
     private String formatDocumentContent(Document document) {
-        return Arrays.stream(document.wholeText().split(" "))
+        return Arrays.stream(document.wholeText().split("\s+"))
                 .map(word ->
                         switch (getEndlineCount(word)) {
                             case 0 -> word;
                             case 1 -> word.replaceAll("\n", " ");
-                            default -> word.replaceAll("\n+", "\n");
+                            default -> word.replaceAll("\n+", produceEndlines());
                         })
-                .filter(word -> !word.isBlank())
-                .reduce("", (s1, s2) -> s1 + " " + s2);
+                .filter(word -> !word.isBlank() && !word.matches("\n+"))
+                .reduce((s1, s2) ->s1 + " " + s2)
+                .map(String::trim)
+                .orElse("");
     }
 
     private int getEndlineCount(String word) {
         return (int) word.chars()
                 .filter(ch -> ch == '\n')
                 .count();
+    }
+
+    private String produceEndlines() {
+        return Stream.generate(() -> '\n')
+                .limit(30)
+                .map(String::valueOf)
+                .collect(Collectors.joining());
     }
 
 }

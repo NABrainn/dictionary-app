@@ -16,6 +16,5 @@ import java.util.List;
 public interface ImportService {
     ServiceResult<Integer> createImport(CreateImportRequest createRequest) throws ConstraintViolationException;
     ServiceResult<List<ImportWithId>> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request);
-    ServiceResult<List<Import>> findAll();
     ServiceResult<ImportWithPagination> loadPage(LoadImportPageRequest loadRequest);
 }

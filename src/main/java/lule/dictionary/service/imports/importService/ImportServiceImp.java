@@ -57,10 +57,6 @@ public class ImportServiceImp implements ImportService {
         return ServiceResultImp.success(importList);
     }
 
-    public ServiceResult<List<Import>> findAll() {
-        return ServiceResultImp.success(getAllImports());
-    }
-
     public ServiceResult<ImportWithPagination> loadPage(LoadImportPageRequest loadRequest) {
         ImportWithPagination importWithPagination = getImport(loadRequest);
         checkPageNumberValidity(loadRequest.page(), getNumberOfPages(importWithPagination));
@@ -71,9 +67,6 @@ public class ImportServiceImp implements ImportService {
         return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
     }
 
-    private List<Import> getAllImports() {
-        return importRepository.findAll();
-    }
     private List<ImportWithId> getImportByUsernameAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
         return importRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
     }
@@ -92,13 +85,15 @@ public class ImportServiceImp implements ImportService {
     }
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest insertIntoDatabaseRequest) {
+        System.out.println("leng: " + insertIntoDatabaseRequest.request().content().length());
         return importRepository.createImport(ImportImp.builder()
                 .title(insertIntoDatabaseRequest.request().title())
-                .content(insertIntoDatabaseRequest.content())
+                .pageContent(insertIntoDatabaseRequest.content())
                 .url(insertIntoDatabaseRequest.request().url())
                 .sourceLanguage(insertIntoDatabaseRequest.userProfile().sourceLanguage())
                 .targetLanguage(insertIntoDatabaseRequest.userProfile().targetLanguage())
                 .owner(insertIntoDatabaseRequest.request().owner())
+                .totalContentLength(insertIntoDatabaseRequest.content().length())
                 .build()).orElseThrow(() -> new RuntimeException("Failed to add a new import"));
     }
 
@@ -107,7 +102,7 @@ public class ImportServiceImp implements ImportService {
     }
 
     private int getNumberOfPages(ImportWithPagination importWithPagination) {
-        return paginationService.getNumberOfPages(importWithPagination.content().length());
+        return paginationService.getNumberOfPages(importWithPagination.totalContentLength());
     }
 
     private void checkPageNumberValidity(int page, int numberOfPages) throws InvalidUrlException {

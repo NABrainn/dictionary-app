@@ -48,34 +48,50 @@ public class RowMapperFactory {
     public static final RowMapper<ImportWithId> IMPORT_WITH_ID = ((rs, rowNum) ->
             ImportWithIdImp.builder()
                     .title(rs.getString("title"))
-                    .content(rs.getString("content"))
                     .url(rs.getString("url"))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
                     .targetLanguage(Language.valueOf(rs.getString("target_lang")))
                     .owner(rs.getString("import_owner"))
                     .id(rs.getInt("imports_id"))
+                    .pageContent(rs.getString("page_content"))
+                    .totalContentLength(rs.getInt("total_length"))
                     .build()
     );
-    public static final RowMapper<Import> IMPORT = ((rs, rowNum) ->
-            ImportImp.builder()
+
+    public static final RowMapper<ImportWithId> IMPORT_WITH_ID_NO_CONTENT = ((rs, rowNum) ->
+            ImportWithIdImp.builder()
                     .title(rs.getString("title"))
-                    .content(rs.getString("content"))
                     .url(rs.getString("url"))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
                     .targetLanguage(Language.valueOf(rs.getString("target_lang")))
                     .owner(rs.getString("import_owner"))
+                    .id(rs.getInt("imports_id"))
+                    .pageContent("placeholder")
+                    .totalContentLength(0)
+                    .build()
+    );
+
+    public static final RowMapper<Import> IMPORT = ((rs, rowNum) ->
+            ImportImp.builder()
+                    .title(rs.getString("title"))
+                    .url(rs.getString("url"))
+                    .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
+                    .targetLanguage(Language.valueOf(rs.getString("target_lang")))
+                    .owner(rs.getString("import_owner"))
+                    .pageContent(rs.getString("page_content"))
+                    .totalContentLength(rs.getInt("total_length"))
                     .build()
     );
 
     public static final RowMapper<ImportWithPagination> IMPORT_WITH_PAGINATION = ((rs, rowNum) ->
             ImportWithPaginationImp.builder()
                     .title(rs.getString("title"))
-                    .content(rs.getString("content"))
                     .url(rs.getString("url"))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
                     .targetLanguage(Language.valueOf(rs.getString("target_lang")))
                     .owner(rs.getString("import_owner"))
                     .pageContent(rs.getString("page_content"))
+                    .totalContentLength(rs.getInt("total_length"))
                     .build()
     );
 

@@ -15,8 +15,6 @@ import java.util.regex.Pattern;
 public record ImportWithPaginationImp(@NonNull
                                       String title,
                                       @NonNull
-                                      String content,
-                                      @NonNull
                                       String url,
                                       @NonNull
                                       Language sourceLanguage,
@@ -25,7 +23,8 @@ public record ImportWithPaginationImp(@NonNull
                                       @NonNull
                                       String owner,
                                       @NonNull
-                                      String pageContent) implements ImportWithPagination {
+                                      String pageContent,
+                                      int totalContentLength) implements ImportWithPagination {
     public ImportWithPaginationImp {
         EmptyValidator emptyValidator = (String... fields) -> Arrays.stream(fields).forEach(field -> {
             if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");
@@ -44,16 +43,16 @@ public record ImportWithPaginationImp(@NonNull
             if(field.length() > length) throw new IllegalArgumentException("Field cannot be longer than " + length + " characters");
         };
 
-        emptyValidator.validate(title, content);
+        emptyValidator.validate(title, pageContent);
 
         title = title.trim();
-        content = content.trim();
+        pageContent = pageContent.trim();
         url = url.trim();
 
         patternValidator.validate(INVALID_FIRST_CHAR, title);
 
-        maxLengthValidator.validate(100, title);
-        maxLengthValidator.validate(100000, content);
+        maxLengthValidator.validate(200, title);
+        maxLengthValidator.validate(100000, pageContent);
         maxLengthValidator.validate(200, url);
     }
 }

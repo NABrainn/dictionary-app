@@ -192,7 +192,7 @@ public class TranslationServiceImp implements TranslationService {
     }
 
     private List<String> getContentAsWordList(FindTranslationsByImportRequest request) {
-        return Arrays.stream(request.anImport().content().replaceAll("\n+", " ")
+        return Arrays.stream(request.anImport().pageContent().replaceAll("\n+", " ")
                 .split(" "))
                 .map(word -> word.replaceAll("[^\\p{L}\\p{N}]", "")) // Remove all non-letter/number characters
                 .map(String::trim)
