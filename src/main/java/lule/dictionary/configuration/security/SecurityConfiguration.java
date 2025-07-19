@@ -76,7 +76,8 @@ public class SecurityConfiguration {
                                 "/images/icon.png",
                                 "/favicon.ico",
                                 "/error/**",
-                                "/auth/**"
+                                "/auth/**",
+                                "/localization/**"
                         ).permitAll()
                         .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)

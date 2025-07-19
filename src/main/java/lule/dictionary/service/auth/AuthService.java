@@ -166,6 +166,7 @@ public class AuthService {
         if(sessionContext != null) {
             Authentication authentication = sessionContext.authenticationData().authentication();
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            return;
         }
         SecurityContextHolder.getContext().setAuthentication(null);
     }
