@@ -48,7 +48,7 @@ public class LocalizationServiceImp implements LocalizationService {
 
     private Map<String, String> constructMap(List<String> keys, List<String> values) {
         if (keys.size() != values.size()) {
-            throw new IllegalArgumentException("Lists must have equal length");
+            throw new IllegalArgumentException("Lists must have equal length: size of keys: " + keys.size() + "; size of values: " + values.size());
         }
         return IntStream.range(0, keys.size())
                 .boxed()
