@@ -56,8 +56,8 @@ public record ImportWithIdImp(
                 patternValidator.validate(INVALID_FIRST_CHAR, title);
 
                 maxLengthValidator.validate(50, owner);
-                maxLengthValidator.validate(100, title);
-                maxLengthValidator.validate(20000, pageContent);
+                maxLengthValidator.validate(200, title);
+                maxLengthValidator.validate(100000, pageContent);
                 maxLengthValidator.validate(200, url);
         }
 }

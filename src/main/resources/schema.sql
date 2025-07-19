@@ -41,12 +41,13 @@ CREATE TABLE IF NOT EXISTS dictionary.translations (
 );
 CREATE TABLE IF NOT EXISTS dictionary.imports (
   	imports_id						SERIAL PRIMARY KEY,
-  	title							VARCHAR (100) NOT NULL,
+  	title							VARCHAR (200) NOT NULL,
   	content							TEXT NOT NULL,
   	url								VARCHAR(200),
   	source_lang						dictionary.lang NOT NULL,
   	target_lang						dictionary.lang NOT NULL,
-  	import_owner					VARCHAR(50) NOT NULL references dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE
+  	import_owner					VARCHAR(50) NOT NULL references dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
+	total_length					int NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS dictionary.imports_translations (

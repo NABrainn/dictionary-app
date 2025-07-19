@@ -51,7 +51,7 @@ public record ImportWithPaginationImp(@NonNull
 
         patternValidator.validate(INVALID_FIRST_CHAR, title);
 
-        maxLengthValidator.validate(100, title);
+        maxLengthValidator.validate(200, title);
         maxLengthValidator.validate(100000, pageContent);
         maxLengthValidator.validate(200, url);
     }
