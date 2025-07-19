@@ -6,10 +6,22 @@
 @param BaseAttribute baseAttribute
 
 <script>
-    @if(baseAttribute._csrf() != null)
-       document.addEventListener("htmx:configRequest", function(event) {
-            event.detail.headers["X-XSRF-TOKEN"] = "${baseAttribute._csrf().getToken()}";
-        });
+    @if(baseAttribute != null)
+        @if(!baseAttribute.isAuthenticated())
+            if (window.location.pathname.startsWith('/auth/')) {
+                fetch('/localization/systemLanguage', {
+                    method: "GET",
+                    headers: {
+                        "systemLanguage": window.navigator.languages[1] || "en"
+                    }
+                }).catch(error => console.error("Error setting system language:", error.message));
+            }
+        @endif
+        @if(baseAttribute._csrf() != null)
+           document.addEventListener("htmx:configRequest", function(event) {
+                event.detail.headers["X-XSRF-TOKEN"] = "${baseAttribute._csrf().getToken()}";
+            });
+        @endif
     @endif
 </script>
 

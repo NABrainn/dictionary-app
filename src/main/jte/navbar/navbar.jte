@@ -16,7 +16,7 @@
 <nav
 class="
 md:justify-between md:p-4 md:py-2
-gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center">
+gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center min-h-18">
     <div
     class="flex items-center align-center text-lg text-neutral">
         <a

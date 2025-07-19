@@ -1,16 +1,20 @@
 package lule.dictionary.controller.auth;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.osLanguage.SystemLanguageContext;
+import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.AuthService;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,8 +33,17 @@ public class AuthControllerImp implements AuthController {
     private final LocalizationService localizationService;
 
     @GetMapping({"/login", "/login/"})
-    public String loginPage(Model model) {
-        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(SystemLanguageContext.get()));
+    public String loginPage(Model model,
+                            RedirectAttributes redirectAttributes,
+                            Authentication authentication,
+                            HttpSession httpSession) {
+        if(authentication != null) {
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            redirectAttributes.addFlashAttribute("navbarLocalization", localizationService.navbarLocalization(principal.sourceLanguage()));
+            return "redirect:/";
+        }
+        Language sourceLanguage = getSystemLanguageInfo(httpSession);
+        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(sourceLanguage));
         return "auth/login";
     }
 
@@ -39,22 +52,41 @@ public class AuthControllerImp implements AuthController {
                         @RequestParam("password") @NonNull String password,
                         Model model,
                         RedirectAttributes redirectAttributes,
-                        HttpServletResponse response) {
+                        Authentication authentication,
+                        HttpServletResponse response,
+                        HttpSession httpSession) {
+        if(authentication != null) {
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            redirectAttributes.addFlashAttribute("navbarLocalization", localizationService.navbarLocalization(principal.sourceLanguage()));
+            return "redirect:/";
+        }
         ServiceResult<?> result = authService.login(LoginRequest.of(login, password), response);
+        Language sourceLanguage = getSystemLanguageInfo(httpSession);
+
         if (result.hasError()) {
             log.warn("login authentication failure, resending page");
             model.addAttribute("result", result);
-            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(sourceLanguage));
             return "auth/login";
         }
+        CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         redirectAttributes.addFlashAttribute("result", result);
-        redirectAttributes.addFlashAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+        redirectAttributes.addFlashAttribute("navbarLocalization", localizationService.navbarLocalization(principal.sourceLanguage()));
         return "redirect:/";
     }
 
     @GetMapping({"/signup", "/signup/"})
-    public String signupPage(Model model) {
-        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+    public String signupPage(Model model,
+                             RedirectAttributes redirectAttributes,
+                             Authentication authentication,
+                             HttpSession httpSession) {
+        if(authentication != null) {
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            redirectAttributes.addFlashAttribute("navbarLocalization", localizationService.navbarLocalization(principal.sourceLanguage()));
+            return "redirect:/";
+        }
+        Language sourceLanguage = getSystemLanguageInfo(httpSession);
+        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(sourceLanguage));
         return "auth/signup";
     }
 
@@ -62,29 +94,47 @@ public class AuthControllerImp implements AuthController {
     public String signup(@RequestParam("login") @NonNull String login,
                          @RequestParam("email") @NonNull String email,
                          @RequestParam("password") @NonNull String password,
-                         Model model) {
+                         Model model,
+                         RedirectAttributes redirectAttributes,
+                         Authentication authentication,
+                         HttpSession httpSession) {
+        if(authentication != null) {
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            redirectAttributes.addFlashAttribute("navbarLocalization", localizationService.navbarLocalization(principal.sourceLanguage()));
+            return "redirect:/";
+        }
         ServiceResult<?> result = authService.signup(SignupRequest.of(login, email, password));
-        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+        Language sourceLanguage = getSystemLanguageInfo(httpSession);
+
         model.addAttribute("result", result);
         if(result.hasError()) {
             log.warn("signup authentication failure");
+            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(sourceLanguage));
             return "auth/signup";
         }
+        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(sourceLanguage));
         return "auth/login";
     }
 
     @PostMapping({"/logout", "/logout/"})
     public String logout(RedirectAttributes redirectAttributes,
                          HttpServletResponse response,
-                         Model model) {
+                         Model model,
+                         Authentication authentication,
+                         HttpSession httpSession) {
         ServiceResult<?> result = authService.logout(response);
         if(result.hasError()) {
             model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
             log.warn("logout attempt failure");
             return "/error";
         }
-        redirectAttributes.addFlashAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+        Language sourceLanguage = getSystemLanguageInfo(httpSession);
+        redirectAttributes.addFlashAttribute("navbarLocalization", localizationService.navbarLocalization(sourceLanguage));
         redirectAttributes.addFlashAttribute("result", result);
         return "redirect:/auth/login";
+    }
+
+    private Language getSystemLanguageInfo(HttpSession httpSession) {
+        return (Language) httpSession.getAttribute("sourceLanguage");
     }
 }

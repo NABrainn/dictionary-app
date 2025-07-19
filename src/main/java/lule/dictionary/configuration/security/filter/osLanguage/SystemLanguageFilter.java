@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NonNull;
+import jakarta.servlet.http.HttpSession;
 import lule.dictionary.service.language.Language;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -14,27 +14,22 @@ import java.io.IOException;
 @Component
 public class SystemLanguageFilter extends OncePerRequestFilter {
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String sourceLanguageHeader = request.getHeader("sourceLanguage");
-        if(sourceLanguageHeader != null) {
-            Language sourceLanguage = parseHeader(sourceLanguageHeader);
-            updateLanguageContext(sourceLanguage);
-            filterChain.doFilter(request, response);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        String systemLanguage = request.getHeader("systemLanguage");
+
+        if (session.getAttribute("sourceLanguage") == null) {
+            Language language = parseHeader(systemLanguage);
+            session.setAttribute("sourceLanguage", language);
         }
-        updateLanguageContext(Language.EN);
+
         filterChain.doFilter(request, response);
     }
 
-    private void updateLanguageContext(Language sourceLanguage) {
-        SystemLanguageContext.set(sourceLanguage);
-    }
-
-    private Language parseHeader(String sourceLanguageHeader) {
+    private Language parseHeader(String systemLanguageHeader) {
         try {
-            System.out.println("de source language: " + sourceLanguageHeader);
-            String formattedHeader = sourceLanguageHeader.toUpperCase();
+            String formattedHeader = systemLanguageHeader != null ? systemLanguageHeader.toUpperCase() : "EN";
             return Language.valueOf(formattedHeader);
         } catch (IllegalArgumentException e) {
             return Language.EN;
