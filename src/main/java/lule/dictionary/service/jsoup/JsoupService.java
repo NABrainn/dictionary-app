@@ -42,8 +42,10 @@ public class JsoupService {
                             case 1 -> word.replaceAll("\n", " ");
                             default -> word.replaceAll("\n+", produceEndlines());
                         })
-                .filter(word -> !word.isBlank())
-                .reduce("", (s1, s2) ->s1 + " " + s2);
+                .filter(word -> !word.isBlank() && !word.matches("\n+"))
+                .reduce((s1, s2) ->s1 + " " + s2)
+                .map(String::trim)
+                .orElse("");
     }
 
     private int getEndlineCount(String word) {
