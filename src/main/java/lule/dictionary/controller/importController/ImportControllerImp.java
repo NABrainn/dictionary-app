@@ -14,6 +14,8 @@ import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.dto.importData.ImportAttribute;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
+import lule.dictionary.service.language.Language;
+import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
 import lule.dictionary.service.translation.TranslationService;
@@ -41,6 +43,7 @@ public class ImportControllerImp implements ImportController {
     private final ImportServiceImp importService;
     private final TranslationService translationService;
     private final PaginationService paginationService;
+    private final LocalizationService localizationService;
 
     @GetMapping("")
     public String importListPage(Authentication authentication,
@@ -48,6 +51,7 @@ public class ImportControllerImp implements ImportController {
 
         List<ImportWithId> imports = getImports(authentication);
         System.out.println("list: " + imports);
+        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
         model.addAttribute("imports", imports);
         return "document-list-page/documents";
     }
@@ -62,6 +66,7 @@ public class ImportControllerImp implements ImportController {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
+            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
             return "document-page/content/content";
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
@@ -81,6 +86,7 @@ public class ImportControllerImp implements ImportController {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
+            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
             return "document-page/content/content";
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
@@ -90,7 +96,8 @@ public class ImportControllerImp implements ImportController {
     }
 
     @GetMapping({"/new", "/new/"})
-    public String createImportForm() {
+    public String createImportForm(Model model) {
+        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
         return "create-import-form/base-form";
     }
 
@@ -124,6 +131,7 @@ public class ImportControllerImp implements ImportController {
         try {
             ServiceResult<Integer> result = importService.createImport(CreateImportRequest.of(title, content, url, extractUsername(authentication)));
             model.addAttribute("result", result);
+            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
             return "redirect:/imports/" + result.value() + "?page=1";
         } catch (UserNotFoundException e) {
             log.info("Redirecting to login page due to user not found: {}", e.getMessage());
@@ -132,6 +140,7 @@ public class ImportControllerImp implements ImportController {
         } catch (InvalidInputException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
             model.addAttribute("result", e.getResult());
+            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
             return "create-import-form/base-form";
         }
     }

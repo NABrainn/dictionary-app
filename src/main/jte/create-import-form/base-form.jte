@@ -1,12 +1,15 @@
 @import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.dto.application.result.ServiceResultImp
+@import java.util.Map
 
 @param ServiceResultImp<?> result = null
 @param BaseAttribute baseAttribute 
+@param Map<String, String> navbarLocalization 
 
 
 @template.layout.base(content = @`
     @template.navbar.navbar(
+        navbarLocalization = navbarLocalization,
         username = baseAttribute.username(),
         authenticated = baseAttribute.isAuthenticated(),
         sourceLanguage = baseAttribute.sourceLanguageData(),

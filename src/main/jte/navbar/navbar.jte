@@ -1,5 +1,6 @@
 @import lule.dictionary.dto.application.LanguageData
 @import java.util.List
+@import java.util.Map
 
 @param String username
 @param LanguageData sourceLanguage
@@ -8,6 +9,8 @@
 @param int wordsLearned
 @param int dailyStreak
 @param List<LanguageData> languageData
+
+@param Map<String, String> navbarLocalization
 
 
 <nav
@@ -23,7 +26,7 @@ gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center">
         hx-push-url="true"
         class="
         md:text-lg md:inline
-        hidden text-md cursor-pointer underline font-bold">Home</a>
+        hidden text-md cursor-pointer underline font-bold">${navbarLocalization.get("home")}</a>
         <a
         hx-get="/"
         hx-swap="innerHTML"
@@ -50,17 +53,17 @@ gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center">
                 <span
                 class="
                 md:text-lg
-                text-lg font-bold text-neutral text-accent">🧠 words: ${wordsLearned}</span>
+                text-lg font-bold text-neutral text-accent">🧠 ${navbarLocalization.get("words")}: ${wordsLearned}</span>
                 @if(dailyStreak == 1)
                     <span
                     class="
                     md:text-lg
-                    text-lg font-bold text-neutral text-accent">💪 ${dailyStreak} day</span>
+                    text-lg font-bold text-neutral text-accent">💪 ${dailyStreak} ${navbarLocalization.get("days_singular")}</span>
                 @else
                     <span
                     class="
                     md:text-lg
-                    text-lg font-bold text-neutral text-accent">💪${dailyStreak} days</span>
+                    text-lg font-bold text-neutral text-accent">💪${dailyStreak} ${navbarLocalization.get("days_plural")}</span>
                 @endif
             </div>
 
@@ -73,7 +76,7 @@ gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center">
         hx-target="#main"
         hx-swap="innerHTML"
         hx-push-url="/auth/login">
-            Log out
+            ${navbarLocalization.get("log_out")}
         </a>
         <a
         class="
@@ -95,7 +98,7 @@ gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center">
         hx-target="#main"
         hx-swap="innerHTML"
         hx-push-url="true">
-            Log in
+            ${navbarLocalization.get("log_in")}
         </a>
         <a
         class="md:text-lg md:invisible
