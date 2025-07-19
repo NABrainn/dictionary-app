@@ -16,7 +16,7 @@ public record ImportWithIdImp(
         @NonNull
         String title,
         @NonNull
-        String content,
+        String pageContent,
         @NonNull
         String url,
         @NonNull
@@ -25,7 +25,8 @@ public record ImportWithIdImp(
         Language targetLanguage,
         @NonNull
         String owner,
-        int id) implements ImportWithId {
+        int id,
+        int totalContentLength) implements ImportWithId {
 
         public ImportWithIdImp {
                 EmptyValidator emptyValidator = (String... fields) -> Arrays.stream(fields).forEach(field -> {
@@ -45,10 +46,10 @@ public record ImportWithIdImp(
                         if(field.length() > length) throw new IllegalArgumentException("Field cannot be longer than " + length + " characters");
                 };
 
-                emptyValidator.validate(title, content, owner);
+                emptyValidator.validate(title, pageContent, owner);
 
                 title = title.trim();
-                content = content.trim();
+                pageContent = pageContent.trim();
                 url = url.trim();
                 owner = owner.trim();
 
@@ -56,7 +57,7 @@ public record ImportWithIdImp(
 
                 maxLengthValidator.validate(50, owner);
                 maxLengthValidator.validate(100, title);
-                maxLengthValidator.validate(20000, content);
+                maxLengthValidator.validate(20000, pageContent);
                 maxLengthValidator.validate(200, url);
         }
 }

@@ -32,7 +32,7 @@ public interface ImportController {
 
     @PostMapping({"/new", "/new/"})
     String createImport(@RequestParam("title") String title,
-                               @RequestParam("content") String content,
+                               @RequestParam("pageContent") String content,
                                @RequestParam("url") String url,
                                Model model,
                                Authentication authentication);
@@ -40,6 +40,6 @@ public interface ImportController {
     @GetMapping({"/url-form", "/url-form/"})
     String urlForm();
 
-    @GetMapping({"/content-form", "/content-form/"})
+    @GetMapping({"/pageContent-form", "/pageContent-form/"})
     String contentForm();
 }

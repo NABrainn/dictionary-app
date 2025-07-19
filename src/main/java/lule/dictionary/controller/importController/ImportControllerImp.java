@@ -45,7 +45,9 @@ public class ImportControllerImp implements ImportController {
     @GetMapping("")
     public String importListPage(Authentication authentication,
                                  Model model) {
+
         List<ImportWithId> imports = getImports(authentication);
+        System.out.println("list: " + imports);
         model.addAttribute("imports", imports);
         return "document-list-page/documents";
     }
@@ -103,8 +105,12 @@ public class ImportControllerImp implements ImportController {
             return "document-page/base-page";
 
         }
-        catch (InvalidUrlException | ImportNotFoundException e) {
-            log.warn("getImportPageContent(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
+        catch (InvalidUrlException e) {
+            log.warn("Invalid url: {}", e.getMessage());
+            return "error";
+        }
+        catch (ImportNotFoundException e) {
+            log.warn("Import not found: {}", e.getMessage());
             return "error";
         }
     }
@@ -165,7 +171,7 @@ public class ImportControllerImp implements ImportController {
     }
 
     private int getTotalLength(ImportWithPagination importWithPagination) {
-        return importWithPagination.content().length();
+        return importWithPagination.totalContentLength();
     }
 
     private ImportContentAttribute assembleImportContentAttribute(AssembleImportContentRequest request) {
