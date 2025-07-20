@@ -5,12 +5,14 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
         class ImportPage extends HTMLElement {
 
             static observedAttributes = ['selected-word-id'];
+
             positions = {
                 left: 'left-2',
                 right: '',
                 top: 'top-10',
                 bottom: ''
             }
+
             constructor() {
                 super();
             }
@@ -188,7 +190,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
             #adjustPosition(config) {
                 this.#cleanupPositions(config)
-                
+
                 const rightPos = this.#assignRightPosition(config.right);
                 const leftPos = this.#assignLeftPosition(config.left);
                 const bottomPos = this.#assignBottomPosition(config.bottom);
@@ -200,7 +202,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                     top: topPos ?? '',
                     bottom: bottomPos ?? ''
                 }
-                
+
                 for(const [key, position] of Object.entries(positions)) {
                     if(position !== '') {
                         this.#updateClassList(config.form, position)
@@ -264,7 +266,139 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
         customElements.define('import-page', ImportPage);
     }
+
+    if (!customElements.get('word-highlighter')) {
+        class WordHighlighter extends HTMLElement {
+
+            static observedAttributes = ['selected-word-id'];
+
+            constructor() {
+                super();
+            }
+
+            connectedCallback() {
+                this.setAttribute('selected-word-id', 0);
+                this.highlightWord(0);
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                if (name === 'selected-word-id' && oldValue !== newValue) {
+                    this.highlightWord(parseInt(newValue));
+                }
+            }
+
+            highlightWords(id, familiarity) {
+                const classesToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary',  'text-neutral', 'text-primary'];
+                const selectedWordValue = htmx.find('#target-word-raw-' + id).innerText;
+                console.log(selectedWordValue)
+                const allWordsByValue = htmx.findAll('.word-' + selectedWordValue).forEach(word => {
+                    switch(familiarity) {
+                        case 1:
+                            console.log('UNKNOWN')
+                            if(!word.classList.contains('bg-tertiary')) {
+                                word.classList.remove(...classesToRemove)
+                                word.classList.add('bg-accent')
+                                word.classList.add('text-primary')
+                            }
+                            break;
+
+                        case 2:
+                            if(!word.classList.contains('bg-tertiary')) {
+                                console.log('RECOGNIZED')
+                                word.classList.remove(...classesToRemove)
+                                word.classList.add('bg-accent/80')
+                                word.classList.add('text-primary')
+                            }
+                            break;
+
+                        case 3:
+                            if(!word.classList.contains('bg-tertiary')) {
+                                console.log('FAMILIAR')
+                                word.classList.remove(...classesToRemove)
+                                word.classList.add('bg-accent/60')
+                                word.classList.add('text-primary')
+                            }
+                            break;
+
+                        case 4:
+                            if(!word.classList.contains('bg-tertiary')) {
+                                console.log('KNOWN')
+                                word.classList.remove(...classesToRemove)
+                                word.classList.add('bg-primary')
+                                word.classList.add('text-neutral')
+                            }
+                            break;
+
+                        case 5:
+                            if(!word.classList.contains('bg-tertiary')) {
+                                console.log('IGNORED')
+                                word.classList.remove(...classesToRemove)
+                                word.classList.add('bg-primary')
+                                word.classList.add('text-neutral')
+                                break;
+                            }
+
+                        default:
+                            console.log('IGNORED')
+                            break;
+                    }
+                })
+            }
+
+            highlightWord(id) {
+                this.#closeAllTranslationForms();
+                this.#resetHighlights({
+                    bgColorToRemove: 'bg-tertiary',
+                    textColorToRemove: 'text-neutral',
+                    textColorToAdd: 'text-primary',
+                    bgColors: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40']
+                })
+                const wordElement = htmx.find('#target-word-' + id);
+                if (wordElement) {
+                    this.#adjustColors({
+                        element: wordElement,
+                        textColorToRemove: 'text-primary',
+                        bgColorToAdd: 'bg-tertiary',
+                        textColorToAdd: 'text-neutral'
+                    });
+                }
+            }
+
+            #resetHighlights(config) {
+                document.querySelectorAll('[id^="target-word-"]').forEach(word => {
+                    if (word.classList.contains(config.bgColorToRemove)) {
+                        word.classList.remove(config.bgColorToRemove);
+                    }
+                    if (config.bgColors.some(color => word.classList.contains(color))) {
+
+                        word.classList.remove(config.textColorToRemove);
+                        word.classList.add(config.textColorToAdd);
+                    }
+                });
+            }
+
+            #closeAllTranslationForms() {
+                document.querySelectorAll('[id^="translation-form-"]').forEach(form => {
+                    form.innerHTML = '';
+                });
+            }
+
+            #adjustColors(config) {
+                if(config.element.classList.contains(config.textColorToRemove)) {
+                    config.element.classList.remove(config.textColorToRemove);
+                }
+                config.element.classList.add(config.bgColorToAdd, config.textColorToAdd);
+            }
+
+            #updateId(id) {
+                this.setAttribute('selected-word-id', id);
+            }
+        }
+        customElements.define('word-highlighter', WordHighlighter);
+    }
 </script>
 <import-page selected-word-id="${selectedWordId}"></import-page>
+<word-highlighter selected-word-id="${selectedWordId}"></word-highlighter>
+
 
 

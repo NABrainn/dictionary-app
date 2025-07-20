@@ -33,45 +33,6 @@ public class TranslationControllerImp {
     private final TranslationServiceImp translationService;
     private final LocalizationService localizationService;
 
-    @PostMapping({"/new", "/new/"})
-    public String newTranslation(Model model,
-                                 Authentication authentication,
-                                 @RequestParam("sourceWords") List<String> sourceWords,
-                                 @RequestParam("targetWord") String targetWord,
-                                 @RequestParam("familiarity") Familiarity familiarity,
-                                 @RequestParam("sourceLanguage") Language sourceLanguage,
-                                 @RequestParam("targetLanguage") Language targetLanguage,
-                                 @RequestParam("importId") int importId,
-                                 @RequestParam("selectedWordId") int selectedWordId,
-                                 @RequestParam("page") int page,
-                                 @RequestParam("left") String left,
-                                 @RequestParam("right") String right,
-                                 @RequestParam("top") String top,
-                                 @RequestParam("bottom") String bottom) {
-        try {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            AddTranslationRequest request = AddTranslationRequest.builder()
-                    .importId(importId)
-                    .selectedWordId(selectedWordId)
-                    .sourceWords(sourceWords)
-                    .targetWord(targetWord)
-                    .sourceLanguage(sourceLanguage)
-                    .targetLanguage(targetLanguage)
-                    .familiarity(familiarity)
-                    .page(page)
-                    .owner(principal.getUsername())
-                    .formPositionData(FormPositionData.of(left, right, top, bottom))
-                    .build();
-            ServiceResult<TranslationAttribute> result = createTranslation(request);
-            model.addAttribute("translationAttribute", result.value());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
-            return "forward:/imports/page/reload";
-        } catch (InvalidInputException e) {
-            String exceptionMessage = "Failed to add translation due to invalid input.";
-            log.info(exceptionMessage);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exceptionMessage);
-        }
-    }
 
     @GetMapping("")
     public String findByTargetWord(Model model,
@@ -107,6 +68,46 @@ public class TranslationControllerImp {
         }
     }
 
+    @PostMapping({"/new", "/new/"})
+    public String newTranslation(Model model,
+                                 Authentication authentication,
+                                 @RequestParam("sourceWords") List<String> sourceWords,
+                                 @RequestParam("targetWord") String targetWord,
+                                 @RequestParam("familiarity") Familiarity familiarity,
+                                 @RequestParam("sourceLanguage") Language sourceLanguage,
+                                 @RequestParam("targetLanguage") Language targetLanguage,
+                                 @RequestParam("importId") int importId,
+                                 @RequestParam("selectedWordId") int selectedWordId,
+                                 @RequestParam("page") int page,
+                                 @RequestParam("left") String left,
+                                 @RequestParam("right") String right,
+                                 @RequestParam("top") String top,
+                                 @RequestParam("bottom") String bottom) {
+        try {
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            AddTranslationRequest request = AddTranslationRequest.builder()
+                    .importId(importId)
+                    .selectedWordId(selectedWordId)
+                    .sourceWords(sourceWords)
+                    .targetWord(targetWord)
+                    .sourceLanguage(sourceLanguage)
+                    .targetLanguage(targetLanguage)
+                    .familiarity(familiarity)
+                    .page(page)
+                    .owner(principal.getUsername())
+                    .formPositionData(FormPositionData.of(left, right, top, bottom))
+                    .build();
+            ServiceResult<TranslationAttribute> result = createTranslation(request);
+            model.addAttribute("translationAttribute", result.value());
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+            return "document-page/content/translation/update/update-translation-form";
+        } catch (InvalidInputException e) {
+            String exceptionMessage = "Failed to add translation due to invalid input.";
+            log.info(exceptionMessage);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exceptionMessage);
+        }
+    }
+
     @PutMapping({"/familiarity/update", "/familiarity/update/"})
     public String updateFamiliarity(Model model,
                                     Authentication authentication,
@@ -136,7 +137,7 @@ public class TranslationControllerImp {
         ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(request);
         model.addAttribute("translationAttribute", result.value());
         model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
-        return "forward:/imports/page/reload";
+        return "document-page/content/translation/update/update-translation-form";
     }
 
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})

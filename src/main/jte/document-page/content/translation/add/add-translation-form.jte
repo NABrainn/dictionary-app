@@ -45,11 +45,12 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-secondary fl
                     "selectedWordId": "${translationAttribute.selectedWordId()}",
                     "page": "${translationAttribute.page()}"
                 }'
-            hx-target="#page-content"
+            hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()
             }'
-            hx-swap="outerHTML">
+            hx-swap="innerHTML"
+            hx-on::before-request="htmx.find('word-highlighter').highlightWords(${translationAttribute.selectedWordId()}, ${level.getValue().ordinal() + 1})">
                 <span class="cursor-pointer">${level.getKey()}: </span>
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">

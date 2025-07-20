@@ -15,8 +15,9 @@
 @if(selectable)
     @if(translationAttribute != null)
         @if(translationAttribute.formPositionData() != null)
-            <span
-            class="${bgColor} ${textColor} inline relative cursor-pointer rounded whitespace-nowrap text-lg"
+            <div
+            class="
+            word-${processedWord} ${bgColor} ${textColor} inline relative cursor-pointer rounded whitespace-nowrap text-lg"
             id="target-word-${wordIndex}"
             hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
             hx-target="#translation-form-container-${wordIndex}"
@@ -35,11 +36,12 @@
                 id="translation-form-container-${wordIndex}"
                 hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
                     @template.document-page.content.translation.update.update-translation-form(translationAttribute = translationAttribute)
-                </div>${word}</span>
+                </div><span id="target-word-raw-${wordIndex}">${word}</span></div>
         @endif
     @else
-        <span
-        class="${bgColor} ${textColor} inline relative cursor-pointer rounded whitespace-nowrap text-lg"
+        <div
+        class="
+        word-${processedWord} ${bgColor} ${textColor} inline relative cursor-pointer rounded whitespace-nowrap text-lg"
         id="target-word-${wordIndex}"
         hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
         hx-target="#translation-form-container-${wordIndex}"
@@ -53,7 +55,7 @@
             cursor-default z-2 absolute inline left-2 top-10"
             id="translation-form-container-${wordIndex}"
             hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
-            </div>${word}</span>
+            </div><span id="target-word-raw-${wordIndex}">${word}</span></div>
     @endif
 @else
     <span
