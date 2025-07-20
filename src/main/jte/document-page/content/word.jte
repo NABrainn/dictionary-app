@@ -13,50 +13,23 @@
 @param boolean selectable = true
 
 @if(selectable)
-    @if(translationAttribute != null)
-        @if(translationAttribute.formPositionData() != null)
-            <div
-            class="
-            word-${processedWord} ${bgColor} ${textColor} inline relative cursor-pointer rounded whitespace-nowrap text-lg"
-            id="target-word-${wordIndex}"
-            hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
-            hx-target="#translation-form-container-${wordIndex}"
-            hx-swap="innerHTML"
-            hx-vals='{"selectedWordId": "${wordIndex}"}'
-            hx-trigger="click"
-            hx-on::before-request="htmx.find('import-page').updateWordId(${wordIndex})">
-                <div
-                onclick="event.preventDefault()"
-                class="
-                cursor-default z-2
-                ${translationAttribute.formPositionData().left()}
-                ${translationAttribute.formPositionData().right()}
-                ${translationAttribute.formPositionData().top()}
-                ${translationAttribute.formPositionData().bottom()} absolute inline"
-                id="translation-form-container-${wordIndex}"
-                hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
-                    @template.document-page.content.translation.update.update-translation-form(translationAttribute = translationAttribute)
-                </div><span id="target-word-raw-${wordIndex}">${word}</span></div>
-        @endif
-    @else
+    <div
+    class="
+    word-${processedWord} ${bgColor} ${textColor} inline relative cursor-pointer rounded whitespace-nowrap text-lg"
+    id="target-word-${wordIndex}"
+    hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
+    hx-target="#translation-form-container-${wordIndex}"
+    hx-swap="innerHTML"
+    hx-vals='{"selectedWordId": "${wordIndex}"}'
+    hx-trigger="click"
+    hx-on::before-request="htmx.find('import-page').updateWordId(${wordIndex})">
         <div
+        onclick="event.stopPropagation()"
         class="
-        word-${processedWord} ${bgColor} ${textColor} inline relative cursor-pointer rounded whitespace-nowrap text-lg"
-        id="target-word-${wordIndex}"
-        hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
-        hx-target="#translation-form-container-${wordIndex}"
-        hx-swap="innerHTML"
-        hx-vals='{"selectedWordId": "${wordIndex}"}'
-        hx-trigger="click"
-        hx-on::before-request="htmx.find('import-page').updateWordId(${wordIndex})">
-            <div
-            onclick="event.stopPropagation()"
-            class="
-            cursor-default z-2 absolute inline left-2 top-10"
-            id="translation-form-container-${wordIndex}"
-            hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
-            </div><span id="target-word-raw-${wordIndex}">${word}</span></div>
-    @endif
+        cursor-default z-2 absolute inline left-2 top-10"
+        id="translation-form-container-${wordIndex}"
+        hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
+        </div><span id="target-word-raw-${wordIndex}">${word}</span></div>
 @else
     <span
     class="${bgColor} relative ${textColor} px-0.1 py-0.1 rounded whitespace-nowrap"
