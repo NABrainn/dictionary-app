@@ -14,7 +14,6 @@ import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.dto.importData.ImportAttribute;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
-import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
@@ -46,12 +45,11 @@ public class ImportControllerImp implements ImportController {
     private final LocalizationService localizationService;
 
     @GetMapping("")
-    public String importListPage(Authentication authentication,
-                                 Model model) {
-
+    public String importListPage(Model model,
+                                 Authentication authentication) {
         List<ImportWithId> imports = getImports(authentication);
-        System.out.println("list: " + imports);
-        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+        model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
+        model.addAttribute("documentsLocalization", getDocumentListLocalization(authentication));
         model.addAttribute("imports", imports);
         return "document-list-page/documents";
     }
@@ -61,12 +59,13 @@ public class ImportControllerImp implements ImportController {
                                    @RequestParam("selectedWordId") int wordId,
                                    @RequestParam("importId") int importId,
                                    @RequestParam("page") int page,
-                                   Model model) {
+                                   Model model,
+                                   Authentication authentication) {
         try {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
-            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+            model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
             return "document-page/content/content";
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
@@ -81,12 +80,13 @@ public class ImportControllerImp implements ImportController {
                                   @RequestParam("selectedWordId") int wordId,
                                   @RequestParam("importId") int importId,
                                   @RequestParam("page") int page,
-                                  Model model) {
+                                  Model model,
+                                  Authentication authentication) {
         try {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", translationAttribute);
-            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+            model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
             return "document-page/content/content";
         }
         catch (InvalidUrlException | ImportNotFoundException e) {
@@ -96,20 +96,24 @@ public class ImportControllerImp implements ImportController {
     }
 
     @GetMapping({"/new", "/new/"})
-    public String createImportForm(Model model) {
-        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+    public String createImportForm(Model model,
+                                   Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
+        model.addAttribute("importFormLocalization", localizationService.createImportLocalization(principal.sourceLanguage()));
         return "create-import-form/base-form";
     }
 
     @GetMapping({"/{importId}", "/{importId}/"})
     public String importPage(@PathVariable("importId") int importId,
-                                       @RequestParam(name = "page", defaultValue = "1") int page,
-                                       Model model) {
+                             @RequestParam(name = "page", defaultValue = "1") int page,
+                             Model model,
+                             Authentication authentication) {
         try {
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(0, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", null);
-            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+            model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
             return "document-page/base-page";
 
         }
@@ -132,7 +136,7 @@ public class ImportControllerImp implements ImportController {
         try {
             ServiceResult<Integer> result = importService.createImport(CreateImportRequest.of(title, content, url, extractUsername(authentication)));
             model.addAttribute("result", result);
-            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+            model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
             return "redirect:/imports/" + result.value() + "?page=1";
         } catch (UserNotFoundException e) {
             log.info("Redirecting to login page due to user not found: {}", e.getMessage());
@@ -141,19 +145,25 @@ public class ImportControllerImp implements ImportController {
         } catch (InvalidInputException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
             model.addAttribute("result", e.getResult());
-            model.addAttribute("navbarLocalization", localizationService.navbarLocalization(Language.EN));
+            model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
             return "create-import-form/base-form";
         }
     }
 
     @GetMapping({"/url-form", "/url-form/"})
-    public String urlForm() {
+    public String urlForm(Model model,
+                          Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        model.addAttribute("importFormLocalization", localizationService.createImportLocalization(principal.sourceLanguage()));
         return "create-import-form/url-form";
     }
 
     @GetMapping({"/textarea-form", "/textarea-form/"})
-    public String contentForm() {
-        return "create-import-form/textarea-form";
+    public String contentForm(Model model,
+                              Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        model.addAttribute("importFormLocalization", localizationService.createImportLocalization(principal.sourceLanguage()));
+        return "create-import-form/content-form";
     }
 
 
@@ -260,5 +270,15 @@ public class ImportControllerImp implements ImportController {
 
     private List<List<Integer>> getRows(int pagesTotal) {
         return paginationService.getRows(pagesTotal);
+    }
+
+    private Map<String, String> getNavbarLocalization(Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        return localizationService.navbarLocalization(principal.sourceLanguage());
+    }
+
+    private Map<String, String> getDocumentListLocalization(Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        return localizationService.documentListLocalization(principal.sourceLanguage());
     }
 }
