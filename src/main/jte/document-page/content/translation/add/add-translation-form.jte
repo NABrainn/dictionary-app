@@ -1,7 +1,10 @@
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
 @import lule.dictionary.service.translation.dto.attribute.TranslationPair
+@import java.util.Map
 
 @param TranslationAttribute translationAttribute
+@param Map<String, String> translationFormLocalization
+
 <div
 onclick="event.stopPropagation()"
 class="translation-form-${translationAttribute.selectedWordId()} bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45 animate-fade">

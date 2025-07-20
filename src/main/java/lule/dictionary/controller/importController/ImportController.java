@@ -7,39 +7,46 @@ import org.springframework.web.bind.annotation.*;
 
 public interface ImportController {
     @GetMapping("")
-    String importListPage(Authentication authentication, Model model);
+    String importListPage(Model model,
+                          Authentication authentication);
 
     @PostMapping({"/page/reload", "/page/reload/"})
     String importPageOnPost(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
                             @RequestParam("selectedWordId") int wordId,
                             @RequestParam("importId") int importId,
                             @RequestParam("page") int page,
-                            Model model);
+                            Model model,
+                            Authentication authentication);
 
     @PutMapping({"/page/reload", "/page/reload/"})
     String importPageOnPut(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
                            @RequestParam("selectedWordId") int wordId,
                            @RequestParam("importId") int importId,
                            @RequestParam("page") int page,
-                           Model model);
+                           Model model,
+                           Authentication authentication);
     @GetMapping({"/new", "/new/"})
-    String createImportForm(Model model);
+    String createImportForm(Model model,
+                            Authentication authentication);
 
     @GetMapping({"/{importId}", "/{importId}/"})
     String importPage(@PathVariable("importId") int importId,
-                                @RequestParam(name = "page", defaultValue = "1") int page,
-                                Model model);
+                      @RequestParam(name = "page", defaultValue = "1") int page,
+                      Model model,
+                      Authentication authentication);
 
     @PostMapping({"/new", "/new/"})
     String createImport(@RequestParam("title") String title,
-                               @RequestParam("pageContent") String content,
-                               @RequestParam("url") String url,
-                               Model model,
-                               Authentication authentication);
+                        @RequestParam("pageContent") String content,
+                        @RequestParam("url") String url,
+                        Model model,
+                        Authentication authentication);
 
     @GetMapping({"/url-form", "/url-form/"})
-    String urlForm();
+    String urlForm(Model model,
+                   Authentication authentication);
 
     @GetMapping({"/pageContent-form", "/pageContent-form/"})
-    String contentForm();
+    String contentForm(Model model,
+                       Authentication authentication);
 }

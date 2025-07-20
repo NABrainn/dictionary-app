@@ -46,6 +46,28 @@ public class LocalizationServiceImp implements LocalizationService {
         };
     }
 
+    @Override
+    public Map<String, String> createImportLocalization(Language language) {
+        List<String> keys = List.of("title", "content", "import_by_url", "insert_manually", "space_for_url", "space_for_content", "submit");
+        return switch (language) {
+            case NO -> constructMap(keys, List.of("Logg inn", "Innhold", "Importer via URL", "Sett inn manuelt", "Plass for URL", "Plass for innhold", "Send inn"));
+            case IT -> constructMap(keys, List.of("Accedi", "Contenuto", "Importa tramite URL", "Inserisci manualmente", "Spazio per URL", "Spazio per contenuto", "Invia"));
+            case PL -> constructMap(keys, List.of("Zaloguj", "Treść", "Importuj przez URL", "Wstaw ręcznie", "Miejsce na URL", "Miejsce na treść", "Prześlij"));
+            default -> constructMap(keys, List.of("Login", "Content", "Import by URL", "Insert manually", "Space for URL", "Space for content", "Submit"));
+        };
+    }
+
+    @Override
+    public Map<String, String> translationFormLocalization(Language language) {
+        List<String> keys = List.of("add_translation", "ai_translation", "unknown", "recognized", "familiar", "known", "ignored");
+        return switch (language) {
+            case NO -> constructMap(keys, List.of("Legg til oversettelse", "AI-oversettelse", "Ukjent", "Gjenkjent", "Kjent", "Kjent", "Ignorert"));
+            case IT -> constructMap(keys, List.of("Aggiungi traduzione", "Traduzione AI", "Sconosciuto", "Riconosciuto", "Familiare", "Noto", "Ignorato"));
+            case PL -> constructMap(keys, List.of("Dodaj tłumaczenie", "Tłumaczenie AI", "Nieznany", "Rozpoznany", "Znajomy", "Znany", "Zignorowany"));
+            default -> constructMap(keys, List.of("Add translation", "AI translation", "Unknown", "Recognized", "Familiar", "Known", "Ignored"));
+        };
+    }
+
     private Map<String, String> constructMap(List<String> keys, List<String> values) {
         if (keys.size() != values.size()) {
             throw new IllegalArgumentException("Lists must have equal length: size of keys: " + keys.size() + "; size of values: " + values.size());

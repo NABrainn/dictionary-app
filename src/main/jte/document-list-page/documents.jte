@@ -6,6 +6,7 @@
 @param List<ImportWithId> imports
 @param BaseAttribute baseAttribute
 @param Map<String, String> navbarLocalization
+@param Map<String, String> documentsLocalization
 
 
 @template.layout.base(content = @`
@@ -25,14 +26,14 @@
         w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral animate-fade">
                 @if(imports.isEmpty())
                     <div class="flex justify-center">
-                            <span class="text-neutral font-bold">There are no books in the library.
-                                <a
-                                class="cursor-pointer text-accent underline"
-                                hx-get="/imports/new"
-                                hx-target="#main"
-                                hx-swap="innerHTML"
-                                hx-push-url="/imports/new">Click here</a> to add your first.
-                            </span>
+                        <span class="text-neutral font-bold">${documentsLocalization.get("there_are_no_documents_in_the_library")}
+                            <a
+                            class="cursor-pointer text-accent underline"
+                            hx-get="/imports/new"
+                            hx-target="#main"
+                            hx-swap="innerHTML"
+                            hx-push-url="/imports/new">${documentsLocalization.get("click_here")}</a> ${documentsLocalization.get("to_add_your_first")}
+                        </span>
                     </div>
                 @else
                     <div
@@ -62,7 +63,7 @@
                     hx-target="#main"
                     hx-swap="innerHTML"
                     hx-push-url="/imports/new"
-                    type="button">Add book</button>
+                    type="button">${documentsLocalization.get("add_book")}</button>
                 </div>
             </div>
     @endif
