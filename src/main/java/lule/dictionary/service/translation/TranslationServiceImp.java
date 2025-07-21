@@ -59,12 +59,6 @@ public class TranslationServiceImp implements TranslationService {
                     .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
                     .page(request.page())
-                    .formPositionData(FormPositionData.of(
-                            request.formPositionData().left(),
-                            request.formPositionData().right(),
-                            request.formPositionData().top(),
-                            request.formPositionData().bottom()
-                    ))
                     .build();
             return ServiceResultImp.success(translationAttribute);
         } catch (ConstraintViolationException e) {
@@ -135,13 +129,6 @@ public class TranslationServiceImp implements TranslationService {
                 .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                 .familiarityLevels(getFamiliarityTable())
                 .page(request.page())
-                .formPositionData(FormPositionData.of(
-                                request.formPositionData().left(),
-                                request.formPositionData().right(),
-                                request.formPositionData().top(),
-                                request.formPositionData().bottom()
-                        )
-                )
                 .translationId(-1)
                 .build();
         return ServiceResultImp.success(translationAttribute);

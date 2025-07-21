@@ -7,7 +7,6 @@
 @param int selectedWordId
 @param int page
 @param TranslationPair translationPair
-@param FormPositionData formPositionData 
 
 <form
 class="flex flex-col gap-2"
@@ -22,8 +21,8 @@ hx-vals='
     "page": "${page}"
 }'
 hx-post="/translations/new"
-hx-target="#page-content"
-hx-swap="outerHTML">
+hx-target="#translation-form-container-${selectedWordId}"
+hx-swap="innerHTML">
     <div id="source-words-list">
         @template.document-page.content.translation.source-words-list(translationPair = translationPair, isUpdateForm = false)
     </div>

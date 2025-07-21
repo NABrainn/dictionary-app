@@ -47,17 +47,6 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             hx-swap="innerHTML"
             hx-on::before-request="htmx.find('word-highlighter').highlightWords(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
                     <span>${level.getKey()}: </span>
-                @if(translationAttribute.formPositionData() != null)
-                    <input type="hidden" name="left" class="left-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().left()}">
-                    <input type="hidden" name="right" class="right-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().right()}">
-                    <input type="hidden" name="top" class="top-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().top()}">
-                    <input type="hidden" name="bottom" class="bottom-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().bottom()}">
-                @else
-                    <input type="hidden" name="left" class="left-${translationAttribute.selectedWordId()}">
-                    <input type="hidden" name="right" class="right-${translationAttribute.selectedWordId()}">
-                    <input type="hidden" name="top" class="top-${translationAttribute.selectedWordId()}">
-                    <input type="hidden" name="bottom" class="bottom-${translationAttribute.selectedWordId()}">
-                @endif
                     <input
                     class=" cursor-pointer"
                     value="${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}"

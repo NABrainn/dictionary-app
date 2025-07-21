@@ -25,7 +25,6 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             translationAttribute.translation().sourceWords(),
             translationAttribute.translation().targetWord()
         ),
-        formPositionData = translationAttribute.formPositionData()
     )
     </div>
     @template.document-page.content.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
@@ -55,17 +54,6 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">
                 @endfor
-                @if(translationAttribute.formPositionData() != null)
-                    <input type="hidden" name="left" class="left-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().left()}">
-                    <input type="hidden" name="right" class="right-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().right()}">
-                    <input type="hidden" name="top" class="top-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().top()}">
-                    <input type="hidden" name="bottom" class="bottom-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().bottom()}">
-                @else
-                    <input type="hidden" name="left" class="left-${translationAttribute.selectedWordId()}">
-                    <input type="hidden" name="right" class="right-${translationAttribute.selectedWordId()}">
-                    <input type="hidden" name="top" class="top-${translationAttribute.selectedWordId()}">
-                    <input type="hidden" name="bottom" class="bottom-${translationAttribute.selectedWordId()}">
-                @endif
 
                 <input
                 class=" cursor-pointer"
