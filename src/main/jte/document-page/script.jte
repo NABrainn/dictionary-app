@@ -19,41 +19,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
             connectedCallback() {
                 this.setAttribute('selected-word-id', 0);
-                this.highlightWord(0);
             }
-
-            #resetHighlights(config) {
-                document.querySelectorAll('[id^="target-word-"]').forEach(word => {
-                    if (word.classList.contains(config.bgColorToRemove)) {
-                        word.classList.remove(config.bgColorToRemove);
-                    }
-                    if (config.bgColors.some(color => word.classList.contains(color))) {
-
-                        word.classList.remove(config.textColorToRemove);
-                        word.classList.add(config.textColorToAdd);
-                    }
-                });
-            }
-
-            highlightWord(id) {
-                this.#closeAllTranslationForms();
-                this.#resetHighlights({
-                    bgColorToRemove: 'bg-tertiary',
-                    textColorToRemove: 'text-neutral',
-                    textColorToAdd: 'text-primary',
-                    bgColors: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40']
-                })
-                const wordElement = htmx.find('#target-word-raw-' + id);
-                if (wordElement) {
-                    this.#adjustColors({
-                        element: wordElement,
-                        textColorToRemove: 'text-primary',
-                        bgColorToAdd: 'bg-tertiary',
-                        textColorToAdd: 'text-neutral'
-                    });
-                }
-            }
-
             updateWordId(id) {
                 this.#updateId(id)
             }
@@ -71,13 +37,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 });
             }
 
-            #adjustColors(config) {
-                if(config.element.classList.contains(config.textColorToRemove)) {
-                    config.element.classList.remove(config.textColorToRemove);
-                }
-                config.element.classList.add(config.bgColorToAdd, config.textColorToAdd);
-            }
-
             #updateFormData() {
                 const wordId = this.getAttribute('selected-word-id')
                 htmx.findAll('.left-' + wordId).forEach((input) => {
@@ -92,12 +51,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 htmx.findAll('.bottom-' + wordId).forEach((input) => {
                     input.value=this.positions.bottom
                 })
-            }
-
-            attributeChangedCallback(name, oldValue, newValue) {
-                if (name === 'selected-word-id' && oldValue !== newValue) {
-                    this.highlightWord(parseInt(newValue));
-                }
             }
 
             #updateId(id) {
@@ -271,6 +224,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
         class WordHighlighter extends HTMLElement {
 
             static observedAttributes = ['selected-word-id'];
+            familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
 
             constructor() {
                 super();
@@ -283,59 +237,39 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
             attributeChangedCallback(name, oldValue, newValue) {
                 if (name === 'selected-word-id' && oldValue !== newValue) {
-                    this.highlightWord(parseInt(newValue));
+                    const wordData = this.highlightWord(parseInt(newValue));
+                    console.log(wordData.wordElement)
+                    if(wordData.wordElement) {
+                        const selectedWordFamiliarity = this.familiarities.find(familiarity => wordData.wordElement.classList.contains(familiarity))
+                        if(selectedWordFamiliarity) {
+                            this.highlightWords(wordData.id, selectedWordFamiliarity)
+                        }
+                    }
                 }
             }
 
-            highlightWords(id, familiarity) {
-                const classesToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary',  'text-neutral', 'text-primary'];
+            updateWordId(id) {
+                this.#updateId(id)
+            }
+
+            highlightWords(id, selectedWordFamiliarity) {
+                console.log('calling ya')
+                this.#markWordFamiliarities(id, selectedWordFamiliarity)
+                this.#highlightMarkedWords()
+            }
+
+            #markWordFamiliarities(id, selectedWordFamiliarity) {
                 const selectedWordValue = htmx.find('#target-word-raw-' + id).innerText.replace(/[^\p{L}\p{N}]/gu, '').toLowerCase();    
-                const allWordsByValue = htmx.findAll('.word-' + selectedWordValue).forEach(word => {
-                    switch(familiarity) {
-                        case 1:
-                            if(!word.classList.contains('bg-tertiary')) {
-                                word.classList.remove(...classesToRemove)
-                                word.classList.add('bg-accent')
-                                word.classList.add('text-primary')
-                            }
-                            break;
+                htmx.findAll('.word-' + selectedWordValue).forEach(word => {
+                    this.#updateFamiliarity(word, selectedWordFamiliarity);
+                })
+            }
 
-                        case 2:
-                            if(!word.classList.contains('bg-tertiary')) {
-                                word.classList.remove(...classesToRemove)
-                                word.classList.add('bg-accent/80')
-                                word.classList.add('text-primary')
-                            }
-                            break;
-
-                        case 3:
-                            if(!word.classList.contains('bg-tertiary')) {
-                                word.classList.remove(...classesToRemove)
-                                word.classList.add('bg-accent/60')
-                                word.classList.add('text-primary')
-                            }
-                            break;
-
-                        case 4:
-                            if(!word.classList.contains('bg-tertiary')) {
-                                word.classList.remove(...classesToRemove)
-                                word.classList.add('bg-primary')
-                                word.classList.add('text-neutral')
-                            }
-                            break;
-
-                        case 5:
-                            if(!word.classList.contains('bg-tertiary')) {
-                                word.classList.remove(...classesToRemove)
-                                word.classList.add('bg-primary')
-                                word.classList.add('text-neutral')
-                                break;
-                            }
-
-                        default:
-                            console.log('IGNORED')
-                            break;
-                    }
+            #highlightMarkedWords() {
+                htmx.findAll('.target-word').forEach(word => {
+                    const familiarity = this.familiarities.find(familiarity => word.classList.contains(familiarity))
+                    if(familiarity)
+                        this.#updateBgColor(word, familiarity)
                 })
             }
 
@@ -347,7 +281,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                     textColorToAdd: 'text-primary',
                     bgColors: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40']
                 })
-                const wordElement = htmx.find('#target-word-' + id);
+                const wordElement = htmx.find('#target-word-raw-' + id);
                 if (wordElement) {
                     this.#adjustColors({
                         element: wordElement,
@@ -356,6 +290,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                         textColorToAdd: 'text-neutral'
                     });
                 }
+                return {id, wordElement}
             }
 
             #resetHighlights(config) {
@@ -369,6 +304,141 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                         word.classList.add(config.textColorToAdd);
                     }
                 });
+            }
+
+            #updateFamiliarity(word, familiarity) {
+                switch(familiarity) {
+                    case 'unknown':
+                        this.#updateClasses({
+                            element: word,
+                            classToAdd: 'unknown',
+                            classesToRemove: this.familiarities
+                        });
+                        break;
+
+                    case 'recognized':
+                        this.#updateClasses({
+                            element: word,
+                            classToAdd: 'recognized',
+                            classesToRemove: this.familiarities
+                        });
+                        break;
+
+                    case 'familiar':
+                        this.#updateClasses({
+                            element: word,
+                            classToAdd: 'familiar',
+                            classesToRemove: this.familiarities
+                        });
+                        break;
+
+                    case 'known':
+                        this.#updateClasses({
+                            element: word,
+                            classToAdd: 'known',
+                            classesToRemove: this.familiarities
+                        });
+                        break;
+
+                    case 'ignored':
+                        this.#updateClasses({
+                            element: word,
+                            classToAdd: 'ignored',
+                            classesToRemove: this.familiarities
+                        });
+                        break;
+
+                    default:
+                        this.#updateClasses({
+                            element: word,
+                            classToAdd: 'ignored',
+                            classesToRemove: classesToRemove
+                        });
+                        break;
+                }
+            }
+
+            #updateClasses(config) {
+                config.element.classList.remove(...config.classesToRemove)
+                config.element.classList.add(config.classToAdd)
+            }
+
+            #updateBgColor(word, familiarity) {
+                const colorsToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary',  'text-neutral', 'text-primary'];
+                const selectedWordBgColor = 'bg-tertiary'
+                switch(familiarity) {
+                    case 'unknown':
+                        if(!word.classList.contains(selectedWordBgColor)) {
+                            this.#updateColors({
+                                element: word,
+                                colorsToRemove: colorsToRemove,
+                                bgColorToAdd: 'bg-accent',
+                                textColorToAdd: 'text-primary'
+                            });
+                        }
+                        break;
+
+                    case 'recognized':
+                        if(!word.classList.contains(selectedWordBgColor)) {
+                            this.#updateColors({
+                                element: word,
+                                colorsToRemove: colorsToRemove,
+                                bgColorToAdd: 'bg-accent/80',
+                                textColorToAdd: 'text-primary'
+                            });
+                        }
+                        break;
+
+                    case 'familiar':
+                        if(!word.classList.contains(selectedWordBgColor)) {
+                            this.#updateColors({
+                                element: word,
+                                colorsToRemove: colorsToRemove,
+                                bgColorToAdd: 'bg-accent/60',
+                                textColorToAdd: 'text-primary'
+                            });
+                        }   
+                        break;
+
+                    case 'known':
+                        if(!word.classList.contains(selectedWordBgColor)) {
+                            this.#updateColors({
+                                element: word,
+                                colorsToRemove: colorsToRemove,
+                                bgColorToAdd: 'bg-primary',
+                                textColorToAdd: 'text-neutral'
+                            });
+                        }
+                        break;
+
+                    case 'ignored':
+                        if(!word.classList.contains(selectedWordBgColor)) {
+                            this.#updateColors({
+                                element: word,
+                                colorsToRemove: colorsToRemove,
+                                bgColorToAdd: 'bg-primary',
+                                textColorToAdd: 'text-neutral'
+                            });
+                        }
+                        break;
+
+                    default:
+                        if(!word.classList.contains(selectedWordBgColor)) {
+                            this.#updateColors({
+                                element: word,
+                                colorsToRemove: colorsToRemove,
+                                bgColorToAdd: 'bg-primary',
+                                textColorToAdd: 'text-neutral'
+                            });
+                        }
+                        break;
+                }
+            }
+
+            #updateColors(config) {
+                config.element.classList.remove(...config.colorsToRemove)
+                config.element.classList.add(config.bgColorToAdd)
+                config.element.classList.add(config.textColorToAdd) 
             }
 
             #closeAllTranslationForms() {

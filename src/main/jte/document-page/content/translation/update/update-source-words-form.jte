@@ -26,7 +26,7 @@ hx-swap="innerHTML">
             name="sourceWords">
             <button
             id="submit-source-word"
-            class="text-3xl cursor-pointer"
+            class="text-3xl cursor-pointer text-accent"
             type="submit">+</button>
         @else
             <input
@@ -39,7 +39,7 @@ hx-swap="innerHTML">
             name="sourceWords">
             <button
             id="submit-source-word"
-            class="text-3xl cursor-pointer"
+            class="text-3xl cursor-pointer text-accent"
             type="submit">+</button>
         @endif
     </div>

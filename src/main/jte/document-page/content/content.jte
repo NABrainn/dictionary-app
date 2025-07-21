@@ -55,6 +55,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-accent",
                                             textColor = "text-neutral",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
@@ -68,6 +69,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-accent/80",
                                             textColor = "text-neutral",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
@@ -82,6 +84,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-accent/60",
                                             textColor = "text-neutral",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
@@ -95,6 +98,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-primary",
                                             textColor = "text-neutral",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
@@ -108,6 +112,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-primary",
                                             textColor = "text-neutral",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
@@ -123,6 +128,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-accent",
                                             textColor = "text-primary",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
@@ -135,6 +141,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-accent/80",
                                             textColor = "text-primary",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
@@ -147,6 +154,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-accent/60",
                                             textColor = "text-primary",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
@@ -159,6 +167,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-primary",
                                             textColor = "text-neutral",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
@@ -171,6 +180,7 @@
                                             processedWord = cleanWord,
                                             bgColor = "bg-primary",
                                             textColor = "text-neutral",
+                                            familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
                                             page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
@@ -187,6 +197,7 @@
                                         processedWord = cleanWord,
                                         bgColor = "bg-tertiary",
                                         textColor = "text-neutral",
+                                        familiarity = null,
                                         translationAttribute = null,
                                         page = importContentAttribute.paginationData().currentPageNumber()
                                     )
@@ -198,6 +209,7 @@
                                         processedWord = cleanWord,
                                         bgColor = "bg-accent",
                                         textColor = "text-primary",
+                                        familiarity = null,
                                         translationAttribute = null,
                                         page = importContentAttribute.paginationData().currentPageNumber()
                                     )
@@ -211,6 +223,7 @@
                                 processedWord = cleanWord,
                                 bgColor = "bg-primary",
                                 textColor = "text-neutral",
+                                familiarity = null,
                                 translationAttribute = null,
                                 page = importContentAttribute.paginationData().currentPageNumber(),
                                 selectable = false

@@ -7,11 +7,11 @@
 
 <div
 onclick="event.stopPropagation()"
-class="translation-form-${translationAttribute.selectedWordId()} bg-secondary flex flex-col gap-1.5 p-3 rounded form max-w-45 animate-fade">
+class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45">
     <div class="flex justify-end">
         <span
-        class="md:text-lg
-        text-md text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
+        class="md:text-md
+        text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
@@ -50,7 +50,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-secondary fl
                 timeZoneOffset: new Date().getTimezoneOffset()
             }'
             hx-swap="innerHTML"
-            hx-on::before-request="htmx.find('word-highlighter').highlightWords(${translationAttribute.selectedWordId()}, ${level.getValue().ordinal() + 1})">
+            hx-on::before-request="htmx.find('word-highlighter').highlightWords(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
                 <span class="cursor-pointer">${level.getKey()}: </span>
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">
