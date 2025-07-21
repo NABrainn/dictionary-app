@@ -15,7 +15,7 @@
 @if(selectable)
     <div
     class="
-    word-${processedWord} ${bgColor} ${textColor} inline relative cursor-pointer rounded whitespace-nowrap text-lg"
+    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg"
     id="target-word-${wordIndex}"
     hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
     hx-target="#translation-form-container-${wordIndex}"
@@ -29,7 +29,11 @@
         cursor-default z-2 absolute inline left-2 top-10"
         id="translation-form-container-${wordIndex}"
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordIndex})">
-        </div><span id="target-word-raw-${wordIndex}">${word}</span></div>
+        </div>
+        <span
+        class="word-${processedWord} ${bgColor} ${textColor} rounded"
+        id="target-word-raw-${wordIndex}">${word}</span>
+    </div>
 @else
     <span
     class="${bgColor} relative ${textColor} px-0.1 py-0.1 rounded whitespace-nowrap"
