@@ -78,11 +78,7 @@ public class TranslationControllerImp {
                                  @RequestParam("targetLanguage") Language targetLanguage,
                                  @RequestParam("importId") int importId,
                                  @RequestParam("selectedWordId") int selectedWordId,
-                                 @RequestParam("page") int page,
-                                 @RequestParam("left") String left,
-                                 @RequestParam("right") String right,
-                                 @RequestParam("top") String top,
-                                 @RequestParam("bottom") String bottom) {
+                                 @RequestParam("page") int page) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             AddTranslationRequest request = AddTranslationRequest.builder()
@@ -95,7 +91,6 @@ public class TranslationControllerImp {
                     .familiarity(familiarity)
                     .page(page)
                     .owner(principal.getUsername())
-                    .formPositionData(FormPositionData.of(left, right, top, bottom))
                     .build();
             ServiceResult<TranslationAttribute> result = createTranslation(request);
             model.addAttribute("translationAttribute", result.value());
@@ -117,11 +112,7 @@ public class TranslationControllerImp {
                                     @RequestParam("targetLanguage") Language targetLanguage,
                                     @RequestParam("importId") int importId,
                                     @RequestParam("selectedWordId") int selectedWordId,
-                                    @RequestParam("page") int page,
-                                    @RequestParam("left") String left,
-                                    @RequestParam("right") String right,
-                                    @RequestParam("top") String top,
-                                    @RequestParam("bottom") String bottom) {
+                                    @RequestParam("page") int page) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         UpdateTranslationFamiliarityRequest request = UpdateTranslationFamiliarityRequest.builder()
                 .importId(importId)
@@ -132,7 +123,6 @@ public class TranslationControllerImp {
                 .familiarity(familiarity)
                 .page(page)
                 .owner(principal.getUsername())
-                .formPositionData(FormPositionData.of(left, right, top, bottom))
                 .build();
         ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(request);
         model.addAttribute("translationAttribute", result.value());
