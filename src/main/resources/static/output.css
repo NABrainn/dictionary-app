@@ -334,8 +334,14 @@
   .justify-start {
     justify-content: flex-start;
   }
+  .gap-0\.5 {
+    gap: calc(var(--spacing) * 0.5);
+  }
   .gap-0\.25 {
     gap: calc(var(--spacing) * 0.25);
+  }
+  .gap-0\.75 {
+    gap: calc(var(--spacing) * 0.75);
   }
   .gap-1 {
     gap: calc(var(--spacing) * 1);
@@ -607,11 +613,6 @@
   .md\:min-h-150 {
     @media (width >= 48rem) {
       min-height: calc(var(--spacing) * 150);
-    }
-  }
-  .md\:min-h-200 {
-    @media (width >= 48rem) {
-      min-height: calc(var(--spacing) * 200);
     }
   }
   .md\:w-2\/5 {

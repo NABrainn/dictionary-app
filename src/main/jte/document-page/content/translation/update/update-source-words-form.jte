@@ -4,13 +4,13 @@
 @param boolean hasError = false
 
 <form
-    class="flex flex-col gap-2"
-    hx-vals='{
-        "targetWord": "${translationPair.targetWord()}"
-    }'
-    hx-put="/translations/sourceWords/update"
-    hx-target="#source-word-form"
-    hx-swap="innerHTML">
+class="flex flex-col gap-2"
+hx-vals='{
+    "targetWord": "${translationPair.targetWord()}"
+}'
+hx-put="/translations/sourceWords/update"
+hx-target="#source-word-form"
+hx-swap="innerHTML">
     <div id="source-words-list">
         @template.document-page.content.translation.source-words-list(translationPair = translationPair)
     </div>
@@ -26,7 +26,7 @@
             name="sourceWords">
             <button
             id="submit-source-word"
-            class="text-3xl cursor-pointer"
+            class="text-3xl cursor-pointer text-accent"
             type="submit">+</button>
         @else
             <input
@@ -39,7 +39,7 @@
             name="sourceWords">
             <button
             id="submit-source-word"
-            class="text-2xl cursor-pointer"
+            class="text-3xl cursor-pointer text-accent"
             type="submit">+</button>
         @endif
     </div>

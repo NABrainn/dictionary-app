@@ -38,18 +38,7 @@ hx-swap="outerHTML">
         name="sourceWords">
         <button
         id="submit-source-word"
-        class="text-3xl cursor-pointer"
+        class="text-3xl cursor-pointer text-accent"
         type="submit">+</button>
     </div>
-    @if(formPositionData != null)
-        <input type="hidden" name="left" class="left-${selectedWordId}" value="${selectedWordId}">
-        <input type="hidden" name="right" class="right-${selectedWordId}" value="${selectedWordId}">
-        <input type="hidden" name="top" class="top-${selectedWordId}" value="${selectedWordId}">
-        <input type="hidden" name="bottom" class="bottom-${selectedWordId}" value="${selectedWordId}">
-    @else
-        <input type="hidden" name="left" class="left-${selectedWordId}">
-        <input type="hidden" name="right" class="right-${selectedWordId}">
-        <input type="hidden" name="top" class="top-${selectedWordId}">
-        <input type="hidden" name="bottom" class="bottom-${selectedWordId}">
-    @endif
 </form>
