@@ -39,8 +39,7 @@ public class TranslationControllerImp {
                                    Authentication authentication,
                                    @RequestParam int importId,
                                    @RequestParam String targetWord,
-                                   @RequestParam("selectedWordId") int selectedWordId,
-                                   @RequestParam("page") int page) {
+                                   @RequestParam("selectedWordId") int selectedWordId) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             FindByTargetWordRequest request = FindByTargetWordRequest.builder()
@@ -49,7 +48,6 @@ public class TranslationControllerImp {
                     .targetWord(targetWord)
                     .sourceLanguage(principal.sourceLanguage())
                     .targetLanguage(principal.targetLanguage())
-                    .page(page)
                     .owner(principal.getUsername())
                     .build();
             ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(request);
@@ -77,8 +75,7 @@ public class TranslationControllerImp {
                                  @RequestParam("sourceLanguage") Language sourceLanguage,
                                  @RequestParam("targetLanguage") Language targetLanguage,
                                  @RequestParam("importId") int importId,
-                                 @RequestParam("selectedWordId") int selectedWordId,
-                                 @RequestParam("page") int page) {
+                                 @RequestParam("selectedWordId") int selectedWordId) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             AddTranslationRequest request = AddTranslationRequest.builder()
@@ -89,7 +86,6 @@ public class TranslationControllerImp {
                     .sourceLanguage(sourceLanguage)
                     .targetLanguage(targetLanguage)
                     .familiarity(familiarity)
-                    .page(page)
                     .owner(principal.getUsername())
                     .build();
             ServiceResult<TranslationAttribute> result = createTranslation(request);
@@ -110,18 +106,14 @@ public class TranslationControllerImp {
                                     @RequestParam("familiarity") Familiarity familiarity,
                                     @RequestParam("sourceLanguage") Language sourceLanguage,
                                     @RequestParam("targetLanguage") Language targetLanguage,
-                                    @RequestParam("importId") int importId,
-                                    @RequestParam("selectedWordId") int selectedWordId,
-                                    @RequestParam("page") int page) {
+                                    @RequestParam("selectedWordId") int selectedWordId) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         UpdateTranslationFamiliarityRequest request = UpdateTranslationFamiliarityRequest.builder()
-                .importId(importId)
                 .selectedWordId(selectedWordId)
                 .targetWord(targetWord)
                 .sourceLanguage(sourceLanguage)
                 .targetLanguage(targetLanguage)
                 .familiarity(familiarity)
-                .page(page)
                 .owner(principal.getUsername())
                 .build();
         ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(request);

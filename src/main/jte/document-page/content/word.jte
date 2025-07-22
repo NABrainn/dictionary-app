@@ -3,7 +3,6 @@
 
 @param int wordIndex
 @param int importId
-@param int page
 @param String word
 @param String processedWord
 @param String bgColor
@@ -19,7 +18,7 @@
     class="
     inline-block relative cursor-pointer rounded whitespace-nowrap text-lg"
     id="target-word-${wordIndex}"
-    hx-get="/translations?targetWord=${processedWord}&importId=${importId}&page=${page}"
+    hx-get="/translations?targetWord=${processedWord}&importId=${importId}"
     hx-target="#translation-form-container-${wordIndex}"
     hx-swap="innerHTML"
     hx-vals='{"selectedWordId": "${wordIndex}"}'

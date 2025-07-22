@@ -17,7 +17,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             translationPair = TranslationPair.of(translationAttribute.translation().sourceWords(), translationAttribute.translation().targetWord()),
         )
     </div>
-    @template.document-page.content.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
+    @template.document-page.content.translation.ai-btn(targetWord = translationAttribute.translation().targetWord())
     <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             @if(level.getKey() == translationAttribute.currentFamiliarity())
@@ -36,9 +36,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
-                "importId": "${translationAttribute.importId()}",
-                "selectedWordId": "${translationAttribute.selectedWordId()}",
-                "page": "${translationAttribute.page()}"
+                "selectedWordId": "${translationAttribute.selectedWordId()}"
             }'
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()

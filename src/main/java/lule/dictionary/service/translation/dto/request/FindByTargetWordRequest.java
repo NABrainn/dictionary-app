@@ -16,6 +16,5 @@ public record FindByTargetWordRequest(int importId,
                                       String targetWord,
                                       Language sourceLanguage,
                                       Language targetLanguage,
-                                      int page,
                                       String owner) implements ServiceRequest {
 }

@@ -24,6 +24,5 @@ public record AddTranslationRequest(int importId,
                                     Language sourceLanguage,
                                     Language targetLanguage,
                                     Familiarity familiarity,
-                                    int page,
                                     String owner) implements ServiceRequest {
 }

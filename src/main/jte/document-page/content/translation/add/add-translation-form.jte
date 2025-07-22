@@ -20,14 +20,13 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
         targetLanguage = translationAttribute.translation().targetLanguage().name(),
         importId = translationAttribute.importId(),
         selectedWordId = translationAttribute.selectedWordId(),
-        page = translationAttribute.page(),
         translationPair = TranslationPair.of(
             translationAttribute.translation().sourceWords(),
             translationAttribute.translation().targetWord()
         ),
     )
     </div>
-    @template.document-page.content.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
+    @template.document-page.content.translation.ai-btn(targetWord = translationAttribute.translation().targetWord())
     <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             <form
@@ -41,8 +40,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                     "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                     "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
                     "importId": "${translationAttribute.importId()}",
-                    "selectedWordId": "${translationAttribute.selectedWordId()}",
-                    "page": "${translationAttribute.page()}"
+                    "selectedWordId": "${translationAttribute.selectedWordId()}"
                 }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-headers='js:{

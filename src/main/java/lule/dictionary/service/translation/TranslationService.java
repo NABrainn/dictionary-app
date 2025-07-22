@@ -1,10 +1,7 @@
 package lule.dictionary.service.translation;
 
-import lombok.NonNull;
-import lule.dictionary.dto.database.interfaces.imports.base.Import;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.application.result.ServiceResult;
-import lule.dictionary.service.language.Language;
 import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.attribute.TranslationPair;
