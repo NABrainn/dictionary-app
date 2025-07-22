@@ -1,4 +1,3 @@
-@import lule.dictionary.service.imports.importService.dto.FormPositionData
 @import lule.dictionary.service.translation.dto.attribute.TranslationPair
 
 @param String placeholderText
@@ -9,7 +8,7 @@
 @param TranslationPair translationPair
 
 <form
-class="flex flex-col gap-2"
+class="flex gap-2"
 hx-vals='
 {
     "targetWord": "${translationPair.targetWord()}",
@@ -27,7 +26,6 @@ hx-swap="innerHTML">
         type="hidden"
         value="${word}">
     @endfor
-    <div class="flex gap-2">
         <input
         id="input-source-word"
         class="
@@ -40,5 +38,4 @@ hx-swap="innerHTML">
         id="submit-source-word"
         class="text-3xl cursor-pointer text-accent"
         type="submit">+</button>
-    </div>
 </form>

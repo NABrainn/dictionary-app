@@ -14,25 +14,27 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
         text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
-    <div id="source-word-form" class="flex flex-col">
-        <div id="source-words-list">
-            @template.document-page.content.translation.source-words-list(translationPair = TranslationPair.of(
-                translationAttribute.translation().sourceWords(),
-                translationAttribute.translation().targetWord()
-            ))
+    <div id="source-words-list">
+        @template.document-page.content.translation.source-words-list(translationPair = TranslationPair.of(
+            translationAttribute.translation().sourceWords(),
+            translationAttribute.translation().targetWord()
+        ))
+    </div>
+    <div class="flex flex-col gap-2">
+        <div id="source-word-form" class="flex">
+            @template.document-page.content.translation.update.update-source-words-form(
+                placeholderText = translationLocalization.get("add_translation"),
+                translationPair = TranslationPair.of(
+                    translationAttribute.translation().sourceWords(),
+                    translationAttribute.translation().targetWord()
+                ),
+            )
         </div>
-        @template.document-page.content.translation.update.update-source-words-form(
-            placeholderText = translationLocalization.get("add_translation"),
-            translationPair = TranslationPair.of(
-                translationAttribute.translation().sourceWords(),
-                translationAttribute.translation().targetWord()
-            ),
+        @template.document-page.content.translation.ai-btn(
+            text = translationLocalization.get("ai_translation"),
+            targetWord = translationAttribute.translation().targetWord()
         )
     </div>
-    @template.document-page.content.translation.ai-btn(
-        text = translationLocalization.get("ai_translation"),
-        targetWord = translationAttribute.translation().targetWord()
-    )
     <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             @if(level.getKey() == translationAttribute.currentFamiliarity())
