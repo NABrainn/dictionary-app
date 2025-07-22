@@ -54,47 +54,6 @@ public class ImportControllerImp implements ImportController {
         return "document-list-page/documents";
     }
 
-    @PostMapping({"/page/reload", "/page/reload/"})
-    public String importPageOnPost(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
-                                   @RequestParam("selectedWordId") int wordId,
-                                   @RequestParam("importId") int importId,
-                                   @RequestParam("page") int page,
-                                   Model model,
-                                   Authentication authentication) {
-        try {
-            ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
-            model.addAttribute("importContentAttribute", importContentAttribute);
-            model.addAttribute("translationAttribute", translationAttribute);
-            model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
-            return "document-page/content/content";
-        }
-        catch (InvalidUrlException | ImportNotFoundException e) {
-            log.warn("reloadImportPageOnPost(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
-            return "error";
-        }
-
-    }
-
-    @PutMapping({"/page/reload", "/page/reload/"})
-    public String importPageOnPut(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
-                                  @RequestParam("selectedWordId") int wordId,
-                                  @RequestParam("importId") int importId,
-                                  @RequestParam("page") int page,
-                                  Model model,
-                                  Authentication authentication) {
-        try {
-            ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
-            model.addAttribute("importContentAttribute", importContentAttribute);
-            model.addAttribute("translationAttribute", translationAttribute);
-            model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
-            return "document-page/content/content";
-        }
-        catch (InvalidUrlException | ImportNotFoundException e) {
-            log.warn("reloadImportPageOnPut(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
-            return "error";
-        }
-    }
-
     @GetMapping({"/new", "/new/"})
     public String createImportForm(Model model,
                                    Authentication authentication) {
