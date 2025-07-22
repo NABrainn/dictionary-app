@@ -1,13 +1,13 @@
 package lule.dictionary.repository.factory;
 
-import lule.dictionary.dto.database.implementation.imports.ImportWithIdImp;
+import lule.dictionary.dto.database.implementation.imports.ImportWithTranslationDataImp;
 import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
-import lule.dictionary.dto.database.implementation.imports.base.ImportWithPaginationImp;
+import lule.dictionary.dto.database.implementation.imports.ImportWithPaginationImp;
 import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
 import lule.dictionary.dto.database.implementation.userProfile.base.UserProfileImp;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
 import lule.dictionary.dto.database.interfaces.imports.base.Import;
-import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Familiarity;
@@ -45,29 +45,18 @@ public class RowMapperFactory {
     public static final RowMapper<String> SOURCE_WORDS = ((rs, rowNum) -> rs.getString("word"));
 
 
-    public static final RowMapper<ImportWithId> IMPORT_WITH_ID = ((rs, rowNum) ->
-            ImportWithIdImp.builder()
+    public static final RowMapper<ImportWithTranslationData> IMPORT_WITH_TRANSLATION_DATA = ((rs, rowNum) ->
+            ImportWithTranslationDataImp.builder()
                     .title(rs.getString("title"))
                     .url(rs.getString("url"))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
                     .targetLanguage(Language.valueOf(rs.getString("target_lang")))
                     .owner(rs.getString("import_owner"))
-                    .id(rs.getInt("imports_id"))
-                    .pageContent(rs.getString("page_content"))
-                    .totalContentLength(rs.getInt("total_length"))
-                    .build()
-    );
-
-    public static final RowMapper<ImportWithId> IMPORT_WITH_ID_NO_CONTENT = ((rs, rowNum) ->
-            ImportWithIdImp.builder()
-                    .title(rs.getString("title"))
-                    .url(rs.getString("url"))
-                    .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
-                    .targetLanguage(Language.valueOf(rs.getString("target_lang")))
-                    .owner(rs.getString("import_owner"))
-                    .id(rs.getInt("imports_id"))
-                    .pageContent("placeholder")
                     .totalContentLength(0)
+                    .id(rs.getInt("imports_id"))
+                    .wordCount(rs.getInt("word_count"))
+                    .newWordCount(rs.getInt("new_word_count"))
+                    .translationCount(rs.getInt("translation_count"))
                     .build()
     );
 

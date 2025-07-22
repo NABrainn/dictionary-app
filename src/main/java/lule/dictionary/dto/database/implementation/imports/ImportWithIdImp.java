@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 public record ImportWithIdImp(
         @NonNull
         String title,
-        @NonNull
         String pageContent,
         @NonNull
         String url,
@@ -30,26 +29,32 @@ public record ImportWithIdImp(
 
         public ImportWithIdImp {
                 EmptyValidator emptyValidator = (String... fields) -> Arrays.stream(fields).forEach(field -> {
-                        if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");
+                        if(field != null) {
+                                if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");
+                        }
                 });
 
                 final Pattern INVALID_FIRST_CHAR = Pattern.compile("[%&/^!<>@#$*;`:=\\-_+.,(){}\\[\\]?\\\\]");
 
                 PatternValidator patternValidator = (Pattern pattern, String field) -> {
-                        String first = String.valueOf(field.charAt(0));
-                        if(pattern.matcher(first).find()) {
-                                throw new IllegalArgumentException(field + " contains invalid characters");
-                        }
+                    String first = String.valueOf(field.charAt(0));
+                    if(pattern.matcher(first).find()) {
+                            throw new IllegalArgumentException(field + " contains invalid characters");
+                    }
                 };
 
                 LengthValidator maxLengthValidator = (int length, String field) -> {
-                        if(field.length() > length) throw new IllegalArgumentException("Field cannot be longer than " + length + " characters");
+                        if(field != null) {
+                                if(field.length() > length) throw new IllegalArgumentException("Field cannot be longer than " + length + " characters");
+                        }
                 };
 
                 emptyValidator.validate(title, pageContent, owner);
 
                 title = title.trim();
-                pageContent = pageContent.trim();
+                if(pageContent != null) {
+                        pageContent = pageContent.trim();
+                }
                 url = url.trim();
                 owner = owner.trim();
 

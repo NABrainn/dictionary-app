@@ -1,9 +1,10 @@
 @import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.dto.database.interfaces.imports.ImportWithId
+@import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData
 @import java.util.List
 @import java.util.Map
 
-@param List<ImportWithId> imports
+@param List<ImportWithTranslationData> imports
 @param BaseAttribute baseAttribute
 @param Map<String, String> navbarLocalization
 @param Map<String, String> documentsLocalization
@@ -38,7 +39,7 @@
                 @else
                     <div
                     class="md:grid-cols-3
-                    grid-cols-2 grid gap-2">
+                    grid-cols-1 grid gap-2">
                         @for(var item : imports)
                             <div
                             class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer"
@@ -46,12 +47,19 @@
                             hx-target="#main"
                             hx-swap="innerHTML"
                             hx-push-url="/imports/${item.id()}">
+                                <img
+                                class="border min-h-30"
+                                src=""
+                                alt="image of a document">
                                 <p
                                 class="md:text-xl
-                                text-lg font-bold">${item.title()}</p>
-                                <span>Created by:
-                                    <span class="text-secondary font-bold">${item.owner()}</span>
-                                </span>
+                                text-lg font-bold truncate text-primary">${item.title()}</p>
+                                <div class="flex flex-col gap-1">
+                                    <span>${documentsLocalization.get("words_total")}: <span class="text-secondary font-bold">${item.wordCount()}</span></span>
+                                    <span>${documentsLocalization.get("new_words")}: <span class="text-secondary font-bold">${item.newWordCount()}</span></span>
+                                    <span>${documentsLocalization.get("translations")}: <span class="text-secondary font-bold">${item.translationCount()}</span></span>
+                                    <span>${documentsLocalization.get("author")}: <span class="text-secondary font-bold">${item.owner()}</span></span>
+                                </div>
                             </div>
                         @endfor
                     </div>

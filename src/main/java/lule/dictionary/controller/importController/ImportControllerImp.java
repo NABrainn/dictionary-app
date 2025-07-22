@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.ContentData;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
@@ -47,7 +48,7 @@ public class ImportControllerImp implements ImportController {
     @GetMapping("")
     public String importListPage(Model model,
                                  Authentication authentication) {
-        List<ImportWithId> imports = getImports(authentication);
+        List<ImportWithTranslationData> imports = getImports(authentication);
         model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
         model.addAttribute("documentsLocalization", getDocumentListLocalization(authentication));
         model.addAttribute("imports", imports);
@@ -144,7 +145,7 @@ public class ImportControllerImp implements ImportController {
 
     }
 
-    private List<ImportWithId> getImports(Authentication authentication) {
+    private List<ImportWithTranslationData> getImports(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         return importService.findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage())).value();
     }

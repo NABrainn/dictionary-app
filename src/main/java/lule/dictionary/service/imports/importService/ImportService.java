@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
 import lule.dictionary.dto.database.interfaces.imports.base.Import;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.imports.importService.dto.request.CreateImportRequest;
@@ -15,6 +16,6 @@ import java.util.List;
 
 public interface ImportService {
     ServiceResult<Integer> createImport(CreateImportRequest createRequest) throws ConstraintViolationException;
-    ServiceResult<List<ImportWithId>> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request);
+    ServiceResult<List<ImportWithTranslationData>> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request);
     ServiceResult<ImportWithPagination> loadPage(LoadImportPageRequest loadRequest);
 }

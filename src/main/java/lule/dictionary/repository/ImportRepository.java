@@ -4,6 +4,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
 import lule.dictionary.dto.database.interfaces.imports.base.Import;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.service.language.Language;
@@ -80,19 +81,69 @@ public class ImportRepository {
         }
     }
 
-    public List<ImportWithId> findByOwnerAndTargetLanguage(@NonNull String owner, @NonNull Language targetLanguage) {
+    public List<ImportWithTranslationData> findByOwnerAndTargetLanguage(@NonNull String owner, @NonNull Language targetLanguage) {
         String sql = """
-                SELECT *
-                FROM dictionary.imports
-                WHERE import_owner=?
-                AND target_lang=CAST(? AS dictionary.lang)
-                """;
+            WITH cleaned_words AS (
+                SELECT
+                    i.imports_id,
+                    i.title,
+                    i.url,
+                    i.source_lang,
+                    i.target_lang,
+                    i.import_owner,
+                    ARRAY(
+                        SELECT DISTINCT TRIM(LOWER(word))
+                        FROM unnest(
+                            REGEXP_SPLIT_TO_ARRAY(
+                                REGEXP_REPLACE(i.content, '[^[:alpha:][:space:]]', '', 'g'),
+                                '\\s+'
+                            )
+                        ) AS word
+                        WHERE TRIM(word) != ''
+                    ) AS word_array
+                FROM dictionary.imports i
+                WHERE i.import_owner = ?
+                AND i.target_lang = CAST(? AS dictionary.lang)
+            )
+            SELECT
+                cw.title,
+                cw.url,
+                cw.source_lang,
+                cw.target_lang,
+                cw.import_owner,
+                cw.imports_id,
+                COALESCE(ARRAY_LENGTH(cw.word_array, 1), 0) AS word_count,
+                COALESCE(
+                    (SELECT COUNT(DISTINCT word)
+                     FROM unnest(cw.word_array) AS word
+                     WHERE word NOT IN (
+                         SELECT t.target_word
+                         FROM dictionary.translations t
+                         WHERE t.translation_owner = cw.import_owner
+                         AND t.target_lang = cw.target_lang
+                         AND t.familiarity IN ('UNKNOWN', 'RECOGNIZED', 'FAMILIAR')
+                     )
+                    ),
+                    0
+                ) AS new_word_count,
+                COALESCE(
+                    (SELECT COUNT(DISTINCT word)
+                     FROM unnest(cw.word_array) AS word
+                     WHERE word IN (
+                         SELECT t.target_word
+                         FROM dictionary.translations t
+                         WHERE t.translation_owner = cw.import_owner
+                         AND t.target_lang = cw.target_lang
+                         AND t.familiarity IN ('UNKNOWN', 'RECOGNIZED', 'FAMILIAR')
+                     )
+                    ),
+                    0
+                ) AS translation_count
+            FROM cleaned_words cw
+            GROUP BY cw.imports_id, cw.title, cw.url, cw.source_lang, cw.target_lang, cw.import_owner, cw.word_array;
+            """;
         try {
-            System.out.println("list: " + template.query(sql, IMPORT_WITH_ID_NO_CONTENT,
-                    owner,
-                    targetLanguage.name()
-            ));
-            return template.query(sql, IMPORT_WITH_ID_NO_CONTENT,
+            return template.query(sql, IMPORT_WITH_TRANSLATION_DATA,
                     owner,
                     targetLanguage.name()
             );

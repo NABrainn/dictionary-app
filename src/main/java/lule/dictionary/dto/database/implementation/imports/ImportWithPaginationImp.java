@@ -1,4 +1,4 @@
-package lule.dictionary.dto.database.implementation.imports.base;
+package lule.dictionary.dto.database.implementation.imports;
 
 import lombok.Builder;
 import lombok.NonNull;

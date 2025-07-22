@@ -128,21 +128,6 @@ public class TranslationRepository {
         }
     }
 
-    public List<Translation> findByOwner(@NonNull String username) {
-        String sql = """
-                SELECT *
-                FROM dictionary.translations
-                WHERE translations.translation_owner=?
-                """;
-
-        try {
-            return template.query(sql, TRANSLATION, username);
-        } catch (DataAccessException e) {
-            log.error(String.valueOf(e.getCause()));
-            return List.of();
-        }
-    }
-
     public List<Translation> findAll() {
         String sql = """
                 SELECT *
