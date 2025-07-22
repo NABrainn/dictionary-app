@@ -253,14 +253,15 @@
     width: calc(var(--spacing) * 5);
     height: calc(var(--spacing) * 5);
   }
+  .size-10 {
+    width: calc(var(--spacing) * 10);
+    height: calc(var(--spacing) * 10);
+  }
   .min-h-8 {
     min-height: calc(var(--spacing) * 8);
   }
   .min-h-18 {
     min-height: calc(var(--spacing) * 18);
-  }
-  .min-h-20 {
-    min-height: calc(var(--spacing) * 20);
   }
   .min-h-30 {
     min-height: calc(var(--spacing) * 30);
@@ -286,9 +287,6 @@
   .max-w-35 {
     max-width: calc(var(--spacing) * 35);
   }
-  .max-w-40 {
-    max-width: calc(var(--spacing) * 40);
-  }
   .max-w-45 {
     max-width: calc(var(--spacing) * 45);
   }
@@ -297,12 +295,6 @@
   }
   .grow-1 {
     flex-grow: 1;
-  }
-  .basis-3\/10 {
-    flex-basis: calc(3/10 * 100%);
-  }
-  .basis-7\/10 {
-    flex-basis: calc(7/10 * 100%);
   }
   .animate-fade {
     animation: var(--animate-fade);
@@ -324,12 +316,6 @@
   }
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .grid-rows-2 {
-    grid-template-rows: repeat(2, minmax(0, 1fr));
   }
   .flex-col {
     flex-direction: column;
@@ -364,9 +350,6 @@
   .gap-2 {
     gap: calc(var(--spacing) * 2);
   }
-  .gap-3 {
-    gap: calc(var(--spacing) * 3);
-  }
   .gap-4 {
     gap: calc(var(--spacing) * 4);
   }
@@ -380,9 +363,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-  .overflow-clip {
-    overflow: clip;
   }
   .rounded {
     border-radius: 0.25rem;
@@ -460,9 +440,6 @@
   }
   .p-1\.5 {
     padding: calc(var(--spacing) * 1.5);
-  }
-  .p-1\.25 {
-    padding: calc(var(--spacing) * 1.25);
   }
   .p-2 {
     padding: calc(var(--spacing) * 2);
@@ -569,12 +546,6 @@
   .text-secondary {
     color: var(--color-secondary);
   }
-  .text-tertiary {
-    color: var(--color-tertiary);
-  }
-  .capitalize {
-    text-transform: capitalize;
-  }
   .underline {
     text-decoration-line: underline;
   }
@@ -669,16 +640,6 @@
   .md\:gap-4 {
     @media (width >= 48rem) {
       gap: calc(var(--spacing) * 4);
-    }
-  }
-  .md\:gap-6 {
-    @media (width >= 48rem) {
-      gap: calc(var(--spacing) * 6);
-    }
-  }
-  .md\:p-2 {
-    @media (width >= 48rem) {
-      padding: calc(var(--spacing) * 2);
     }
   }
   .md\:p-4 {

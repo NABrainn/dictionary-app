@@ -33,7 +33,6 @@ public class TranslationControllerImp {
     private final TranslationServiceImp translationService;
     private final LocalizationService localizationService;
 
-
     @GetMapping("")
     public String findByTargetWord(Model model,
                                    Authentication authentication,

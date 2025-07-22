@@ -1,5 +1,6 @@
 package lule.dictionary.controllerAdvice;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.BaseAttribute;
@@ -24,7 +25,10 @@ public class JteControllerAdvice {
     private final LanguageHelper languageHelper;
 
     @ModelAttribute
-    public void addBaseAttribute(Model model, Authentication authentication, CsrfToken csrfToken) {
+    public void addBaseAttribute(Model model,
+                                 Authentication authentication,
+                                 CsrfToken csrfToken,
+                                 HttpSession httpSession) {
         if(authentication != null) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             model.addAttribute("baseAttribute", BaseAttribute.builder()
@@ -46,8 +50,14 @@ public class JteControllerAdvice {
                             )
                     )
                     .allLanguageData(languageHelper.getAllLanguageData())
-                    .wordsLearned(translationService.getWordsLearnedCount(GetWordsLearnedCountRequest.of(userDetails.getUsername(), userDetails.targetLanguage())).value())
+                    .wordsLearned(translationService.getWordsLearnedCount(
+                            GetWordsLearnedCountRequest.of(
+                                    userDetails.getUsername(),
+                                    userDetails.targetLanguage()
+                            )).value()
+                    )
                     .dailyStreak(userDetails.dailyStreak())
+                    .isProfileOpen((Boolean) httpSession.getAttribute("isProfileOpen"))
                     .build());
             return;
         }
@@ -72,10 +82,7 @@ public class JteControllerAdvice {
                 .allLanguageData(languageHelper.getAllLanguageData())
                 .wordsLearned(0)
                 .dailyStreak(0)
+                .isProfileOpen(false)
                 .build());
-    }
-
-    private boolean isAuthenticated(Authentication authentication) {
-        return authentication != null;
     }
 }

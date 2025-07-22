@@ -4,7 +4,9 @@
 @import gg.jte.support.ForSupport
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
 @import java.util.Map
+@import lule.dictionary.dto.application.attribute.ProfilePanelAttribute
 
+@param ProfilePanelAttribute profilePanelAttribute
 @param ImportContentAttribute importContentAttribute
 @param TranslationAttribute translationAttribute = null
 @param BaseAttribute baseAttribute
@@ -16,13 +18,9 @@
     class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
         @template.navbar.navbar(
             navbarLocalization = navbarLocalization,
-            username = baseAttribute.username(),
-            authenticated = baseAttribute.isAuthenticated(),
-            sourceLanguage = baseAttribute.sourceLanguageData(),
-            targetLanguage = baseAttribute.targetLanguageData(),
-            wordsLearned = baseAttribute.wordsLearned(),
-            dailyStreak = baseAttribute.dailyStreak(),
-            languageData = baseAttribute.allLanguageData()
+            profilePanelAttribute = profilePanelAttribute,
+            isAuthenticated = baseAttribute.isAuthenticated(),
+            isProfileOpen = baseAttribute.isProfileOpen()
         )
         <div
         class="

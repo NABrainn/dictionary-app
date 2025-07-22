@@ -1,4 +1,5 @@
 @import lule.dictionary.dto.application.BaseAttribute
+@import lule.dictionary.dto.application.attribute.ProfilePanelAttribute
 @import lule.dictionary.dto.application.result.ServiceResultImp
 @import java.util.Map
 
@@ -6,28 +7,26 @@
 @param BaseAttribute baseAttribute 
 @param Map<String, String> navbarLocalization
 @param Map<String, String> authLocalization
+@param ProfilePanelAttribute profilePanelAttribute 
+
 
 @template.layout.base(authView = @`
     @template.navbar.navbar(
         navbarLocalization = navbarLocalization,
-        username = baseAttribute.username(),
-        authenticated = baseAttribute.isAuthenticated(),
-        sourceLanguage = baseAttribute.sourceLanguageData(),
-        targetLanguage = baseAttribute.targetLanguageData(),
-        wordsLearned = baseAttribute.wordsLearned(),
-        dailyStreak = baseAttribute.dailyStreak(),
-        languageData = baseAttribute.allLanguageData()
+        profilePanelAttribute = profilePanelAttribute,
+        isAuthenticated = baseAttribute.isAuthenticated(),
+        isProfileOpen = baseAttribute.isProfileOpen()
     )
     <form
-        hx-post="/auth/login"
-        hx-target="#main"
-        hx-swap="outerHTML"
-        hx-push-url="true"
-        hx-headers='js:{
-            timeZoneOffset: new Date().getTimezoneOffset()
-        }'
-        class="md:w-2/5
-        w-4/5 flex flex-col bg-secondary p-8 mx-auto gap-8">
+    hx-post="/auth/login"
+    hx-target="#main"
+    hx-swap="outerHTML"
+    hx-push-url="true"
+    hx-headers='js:{
+        timeZoneOffset: new Date().getTimezoneOffset()
+    }'
+    class="md:w-2/5
+    w-4/5 flex flex-col bg-secondary p-8 mx-auto gap-8">
         <span class="text-accent text-2xl font-bold">${authLocalization.get("log_in")}</span>
         <div class="flex flex-col">
             <label class="text-accent" for="login">${authLocalization.get("username")}</label>
