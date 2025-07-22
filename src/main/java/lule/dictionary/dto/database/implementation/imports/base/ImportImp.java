@@ -2,20 +2,15 @@ package lule.dictionary.dto.database.implementation.imports.base;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.database.interfaces.imports.base.Import;
 import lule.dictionary.service.language.Language;
-import lule.dictionary.functionalInterface.validation.EmptyValidator;
-import lule.dictionary.functionalInterface.validation.LengthValidator;
-import lule.dictionary.functionalInterface.validation.PatternValidator;
-
-import java.util.Arrays;
-import java.util.regex.Pattern;
 
 @Builder(toBuilder = true)
+@Slf4j
 public record ImportImp(
         @NonNull
         String title,
-        @NonNull
         String pageContent,
         @NonNull
         String url,
@@ -27,35 +22,13 @@ public record ImportImp(
         String owner,
         int totalContentLength) implements Import {
 
-        public ImportImp {
-                EmptyValidator emptyValidator = (String... fields) -> Arrays.stream(fields).forEach(field -> {
-                        if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");
-                });
-
-                final Pattern INVALID_FIRST_CHAR = Pattern.compile("[%&/^!<>@#$*;`:=\\-_+.,(){}\\[\\]?\\\\]");
-
-                PatternValidator patternValidator = (Pattern pattern, String field) -> {
-                        String first = String.valueOf(field.charAt(0));
-                        if(pattern.matcher(first).find()) {
-                                throw new IllegalArgumentException(field + " contains invalid characters");
-                        }
-                };
-
-                LengthValidator maxLengthValidator = (int length, String field) -> {
-                        if(field.length() > length) throw new IllegalArgumentException("Field cannot be longer than " + length + " characters");
-                };
-
-                emptyValidator.validate(title, pageContent);
-
-                title = title.trim();
-                pageContent = pageContent.trim();
-                url = url.trim();
-
-                patternValidator.validate(INVALID_FIRST_CHAR, title);
-
-                maxLengthValidator.validate(200, title);
-                maxLengthValidator.validate(20000, pageContent);
-                maxLengthValidator.validate(200, url);
+        @Override
+        public String pageContent() {
+                if (pageContent == null) {
+                        log.info("Page content is null, returning empty string");
+                        return "";
+                }
+                return pageContent;
         }
 }
 

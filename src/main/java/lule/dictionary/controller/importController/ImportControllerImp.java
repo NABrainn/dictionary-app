@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.ContentData;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
@@ -47,52 +48,11 @@ public class ImportControllerImp implements ImportController {
     @GetMapping("")
     public String importListPage(Model model,
                                  Authentication authentication) {
-        List<ImportWithId> imports = getImports(authentication);
+        List<ImportWithTranslationData> imports = getImports(authentication);
         model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
         model.addAttribute("documentsLocalization", getDocumentListLocalization(authentication));
         model.addAttribute("imports", imports);
         return "document-list-page/documents";
-    }
-
-    @PostMapping({"/page/reload", "/page/reload/"})
-    public String importPageOnPost(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
-                                   @RequestParam("selectedWordId") int wordId,
-                                   @RequestParam("importId") int importId,
-                                   @RequestParam("page") int page,
-                                   Model model,
-                                   Authentication authentication) {
-        try {
-            ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
-            model.addAttribute("importContentAttribute", importContentAttribute);
-            model.addAttribute("translationAttribute", translationAttribute);
-            model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
-            return "document-page/content/content";
-        }
-        catch (InvalidUrlException | ImportNotFoundException e) {
-            log.warn("reloadImportPageOnPost(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
-            return "error";
-        }
-
-    }
-
-    @PutMapping({"/page/reload", "/page/reload/"})
-    public String importPageOnPut(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
-                                  @RequestParam("selectedWordId") int wordId,
-                                  @RequestParam("importId") int importId,
-                                  @RequestParam("page") int page,
-                                  Model model,
-                                  Authentication authentication) {
-        try {
-            ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(wordId, importId, page));
-            model.addAttribute("importContentAttribute", importContentAttribute);
-            model.addAttribute("translationAttribute", translationAttribute);
-            model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
-            return "document-page/content/content";
-        }
-        catch (InvalidUrlException | ImportNotFoundException e) {
-            log.warn("reloadImportPageOnPut(): Sending to error page due to invalid url or missing import: {}", e.getMessage());
-            return "error";
-        }
     }
 
     @GetMapping({"/new", "/new/"})
@@ -185,7 +145,7 @@ public class ImportControllerImp implements ImportController {
 
     }
 
-    private List<ImportWithId> getImports(Authentication authentication) {
+    private List<ImportWithTranslationData> getImports(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         return importService.findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage())).value();
     }

@@ -26,12 +26,12 @@ public class LocalizationServiceImp implements LocalizationService {
 
     @Override
     public Map<String, String> documentListLocalization(Language language) {
-        List<String> keys = List.of("created_by", "add_book", "there_are_no_documents_in_the_library", "click_here", "to_add_your_first");
+        List<String> keys = List.of("author", "words_total", "new_words", "translations", "add_book", "there_are_no_documents_in_the_library", "click_here", "to_add_your_first");
         return switch (language) {
             case NO -> constructMap(keys, List.of("Oprettet av", "Ny dokument", "Det finnes ingen dokumentar i biblioteket ditt.", "Klikk her", "for å legge til din første"));
             case IT -> constructMap(keys, List.of("Creato da", "Nuovo documento", "Non ci sono libri in biblioteca.", "Clicca qui", "per aggiungere il tuo primo documento"));
             case PL -> constructMap(keys, List.of("Autor", "Nowy dokument", "Nie znaleziono dokumentów w bibliotece.", "Kliknij tutaj", "aby dodać swój pierwszy"));
-            default -> constructMap(keys, List.of("Created by", "New document", "There are no documents in the library.", "Click here", "to add your first"));
+            default -> constructMap(keys, List.of("Author", "Words total", "New words", "Translations", "New document", "There are no documents in the library.", "Click here", "to add your first"));
         };
     }
 
@@ -50,10 +50,10 @@ public class LocalizationServiceImp implements LocalizationService {
     public Map<String, String> createImportLocalization(Language language) {
         List<String> keys = List.of("title", "content", "import_by_url", "insert_manually", "space_for_url", "space_for_content", "submit");
         return switch (language) {
-            case NO -> constructMap(keys, List.of("Logg inn", "Innhold", "Importer via URL", "Sett inn manuelt", "Plass for URL", "Plass for innhold", "Send inn"));
+            case NO -> constructMap(keys, List.of("Tittel", "Innhold", "Importer via URL", "Sett inn manuelt", "Plass for URL", "Plass for innhold", "Send inn"));
             case IT -> constructMap(keys, List.of("Accedi", "Contenuto", "Importa tramite URL", "Inserisci manualmente", "Spazio per URL", "Spazio per contenuto", "Invia"));
-            case PL -> constructMap(keys, List.of("Zaloguj", "Treść", "Importuj przez URL", "Wstaw ręcznie", "Miejsce na URL", "Miejsce na treść", "Prześlij"));
-            default -> constructMap(keys, List.of("Login", "Content", "Import by URL", "Insert manually", "Space for URL", "Space for content", "Submit"));
+            case PL -> constructMap(keys, List.of("Tytuł", "Treść", "Importuj przez URL", "Wstaw ręcznie", "Miejsce na URL", "Miejsce na treść", "Prześlij"));
+            default -> constructMap(keys, List.of("Title", "Content", "Import by URL", "Insert manually", "Space for URL", "Space for content", "Submit"));
         };
     }
 

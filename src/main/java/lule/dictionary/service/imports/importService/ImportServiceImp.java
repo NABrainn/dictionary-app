@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
@@ -52,8 +53,8 @@ public class ImportServiceImp implements ImportService {
         }
     }
 
-    public ServiceResult<List<ImportWithId>> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
-        List<ImportWithId> importList = getImportByUsernameAndTargetLanguage(request);
+    public ServiceResult<List<ImportWithTranslationData>> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
+        List<ImportWithTranslationData> importList = getImportByUsernameAndTargetLanguage(request);
         return ServiceResultImp.success(importList);
     }
 
@@ -67,7 +68,7 @@ public class ImportServiceImp implements ImportService {
         return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
     }
 
-    private List<ImportWithId> getImportByUsernameAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
+    private List<ImportWithTranslationData> getImportByUsernameAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
         return importRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
     }
     private UserProfile getUserProfile(CreateImportRequest addImportRequest) throws UserNotFoundException {

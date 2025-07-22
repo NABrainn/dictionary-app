@@ -10,21 +10,6 @@ public interface ImportController {
     String importListPage(Model model,
                           Authentication authentication);
 
-    @PostMapping({"/page/reload", "/page/reload/"})
-    String importPageOnPost(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
-                            @RequestParam("selectedWordId") int wordId,
-                            @RequestParam("importId") int importId,
-                            @RequestParam("page") int page,
-                            Model model,
-                            Authentication authentication);
-
-    @PutMapping({"/page/reload", "/page/reload/"})
-    String importPageOnPut(@RequestAttribute("translationAttribute") TranslationAttribute translationAttribute,
-                           @RequestParam("selectedWordId") int wordId,
-                           @RequestParam("importId") int importId,
-                           @RequestParam("page") int page,
-                           Model model,
-                           Authentication authentication);
     @GetMapping({"/new", "/new/"})
     String createImportForm(Model model,
                             Authentication authentication);
