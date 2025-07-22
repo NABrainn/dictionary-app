@@ -3,7 +3,7 @@
 @import java.util.Map
 
 @param TranslationAttribute translationAttribute
-@param Map<String, String> translationFormLocalization
+@param Map<String, String> translationLocalization
 
 <div
 onclick="event.stopPropagation()"
@@ -16,6 +16,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
     @template.document-page.content.translation.add.add-source-words-form(
+        placeholderText = translationLocalization.get("add_translation"),
         sourceLanguage = translationAttribute.translation().sourceLanguage().name(),
         targetLanguage = translationAttribute.translation().targetLanguage().name(),
         importId = translationAttribute.importId(),
@@ -26,7 +27,10 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
         ),
     )
     </div>
-    @template.document-page.content.translation.ai-btn(targetWord = translationAttribute.translation().targetWord())
+    @template.document-page.content.translation.ai-btn(
+        text = translationLocalization.get("ai_translation"),
+        targetWord = translationAttribute.translation().targetWord()
+    )
     <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             <form
@@ -34,14 +38,14 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             id="translation-form-${translationAttribute.selectedWordId()}"
             hx-post="/translations/new"
             hx-vals='
-                {
-                    "targetWord": "${translationAttribute.translation().targetWord()}",
-                    "familiarity": "${level.getValue().name()}",
-                    "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
-                    "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
-                    "importId": "${translationAttribute.importId()}",
-                    "selectedWordId": "${translationAttribute.selectedWordId()}"
-                }'
+            {
+                "targetWord": "${translationAttribute.translation().targetWord()}",
+                "familiarity": "${level.getValue().name()}",
+                "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
+                "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
+                "importId": "${translationAttribute.importId()}",
+                "selectedWordId": "${translationAttribute.selectedWordId()}"
+            }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()
@@ -55,7 +59,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
 
                 <input
                 class=" cursor-pointer"
-                value="${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}"
+                value="${translationLocalization.get(level.getValue().name().toLowerCase())}"
                 type="submit">
             </form>
         @endfor

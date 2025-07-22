@@ -1,7 +1,9 @@
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
 @import lule.dictionary.service.translation.dto.attribute.TranslationPair
+@import java.util.Map
 
 @param TranslationAttribute translationAttribute
+@param Map<String, String> translationLocalization
 
 <div
 onclick="event.stopPropagation()"
@@ -14,16 +16,20 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
         @template.document-page.content.translation.update.update-source-words-form(
+            placeholderText = translationLocalization.get("add_translation"),
             translationPair = TranslationPair.of(translationAttribute.translation().sourceWords(), translationAttribute.translation().targetWord()),
         )
     </div>
-    @template.document-page.content.translation.ai-btn(targetWord = translationAttribute.translation().targetWord())
+    @template.document-page.content.translation.ai-btn(
+        text = translationLocalization.get("ai_translation"),
+        targetWord = translationAttribute.translation().targetWord()
+    )
     <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             @if(level.getKey() == translationAttribute.currentFamiliarity())
                 <div class="font-bold text-primary flex gap-1">
                     <span>${level.getKey()}: </span>
-                    ${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}
+                    <span>${translationLocalization.get(level.getValue().name().toLowerCase())}</span>
                 </div>
             @else
             <form
@@ -47,7 +53,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                     <span>${level.getKey()}: </span>
                     <input
                     class=" cursor-pointer"
-                    value="${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}"
+                    value="${translationLocalization.get(level.getValue().name().toLowerCase())}"
                     type="submit">
             </form>
             @endif

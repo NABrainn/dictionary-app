@@ -543,6 +543,9 @@
   .text-secondary {
     color: var(--color-secondary);
   }
+  .capitalize {
+    text-transform: capitalize;
+  }
   .underline {
     text-decoration-line: underline;
   }

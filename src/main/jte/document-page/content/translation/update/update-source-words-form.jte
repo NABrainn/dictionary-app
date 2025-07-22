@@ -1,6 +1,7 @@
 @import lule.dictionary.service.translation.dto.attribute.TranslationPair
 
 @param TranslationPair translationPair
+@param String placeholderText
 @param boolean hasError = false
 
 <form
@@ -22,7 +23,7 @@ hx-swap="innerHTML">
             outline-none border border-2 border-error rounded text-neutral text-md max-w-35
             focus:border-accent"
             type="text"
-            placeholder="Add translation"
+            placeholder="${placeholderText}"
             name="sourceWords">
             <button
             id="submit-source-word"
@@ -35,7 +36,7 @@ hx-swap="innerHTML">
             outline-none border border-2 border-primary rounded text-neutral text-md max-w-35
             focus:border-accent"
             type="text"
-            placeholder="Add translation"
+            placeholder="${placeholderText}"
             name="sourceWords">
             <button
             id="submit-source-word"

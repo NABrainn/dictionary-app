@@ -40,8 +40,8 @@ public class TranslationControllerImp {
                                    @RequestParam int importId,
                                    @RequestParam String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         try {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             FindByTargetWordRequest request = FindByTargetWordRequest.builder()
                     .importId(importId)
                     .selectedWordId(selectedWordId)
@@ -58,6 +58,7 @@ public class TranslationControllerImp {
         } catch (TranslationNotFoundException e) {
             log.info("Translation not found, sending add-translation-form template: {}", e.getResult().value());
             model.addAttribute("translationAttribute", e.getResult().value());
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
             return "document-page/content/translation/add/add-translation-form";
 
         } catch (InvalidInputException e) {

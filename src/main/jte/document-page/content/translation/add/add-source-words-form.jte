@@ -1,6 +1,7 @@
 @import lule.dictionary.service.imports.importService.dto.FormPositionData
 @import lule.dictionary.service.translation.dto.attribute.TranslationPair
 
+@param String placeholderText
 @param String sourceLanguage
 @param String targetLanguage
 @param int selectedWordId
@@ -21,7 +22,10 @@ hx-post="/translations/new"
 hx-target="#translation-form-container-${selectedWordId}"
 hx-swap="innerHTML">
     <div id="source-words-list">
-        @template.document-page.content.translation.source-words-list(translationPair = translationPair, isUpdateForm = false)
+        @template.document-page.content.translation.source-words-list(
+            translationPair = translationPair, 
+            isUpdateForm = false
+        )
     </div>
     <div class="flex gap-2">
         <input
@@ -30,7 +34,7 @@ hx-swap="innerHTML">
         outline-none border border-2 border-primary rounded text-neutral text-md max-w-35
         focus:border-accent"
         type="text"
-        placeholder="Add translation"
+        placeholder="${placeholderText}"
         name="sourceWords">
         <button
         id="submit-source-word"
