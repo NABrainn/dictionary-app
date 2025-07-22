@@ -49,7 +49,7 @@
                             hx-push-url="/imports/${item.id()}">
                                 <img
                                 class="border min-h-30"
-                                src=""
+                                src="/images/open-book.svg"
                                 alt="image of a document">
                                 <p
                                 class="md:text-xl
