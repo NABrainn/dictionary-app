@@ -19,8 +19,5 @@ public record UpdateTranslationFamiliarityRequest(@NotBlank
                                                   @NonNull Language sourceLanguage,
                                                   @NonNull Language targetLanguage,
                                                   @NonNull String owner,
-                                                  int importId,
-                                                  int selectedWordId,
-                                                  int page,
-                                                  @NonNull FormPositionData formPositionData) implements ServiceRequest {
+                                                  int selectedWordId) implements ServiceRequest {
 }

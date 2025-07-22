@@ -1,6 +1,7 @@
 @import lule.dictionary.service.translation.dto.attribute.TranslationPair
 
 @param TranslationPair translationPair
+@param String placeholderText
 @param boolean hasError = false
 
 <form
@@ -11,9 +12,12 @@ hx-vals='{
 hx-put="/translations/sourceWords/update"
 hx-target="#source-word-form"
 hx-swap="innerHTML">
-    <div id="source-words-list">
-        @template.document-page.content.translation.source-words-list(translationPair = translationPair)
-    </div>
+    @for(String word : translationPair.sourceWords())
+        <input
+        name="sourceWords"
+        type="hidden"
+        value="${word}">
+    @endfor
     <div class="flex gap-2">
         @if(hasError)
             <input
@@ -22,7 +26,7 @@ hx-swap="innerHTML">
             outline-none border border-2 border-error rounded text-neutral text-md max-w-35
             focus:border-accent"
             type="text"
-            placeholder="Add translation"
+            placeholder="${placeholderText}"
             name="sourceWords">
             <button
             id="submit-source-word"
@@ -35,7 +39,7 @@ hx-swap="innerHTML">
             outline-none border border-2 border-primary rounded text-neutral text-md max-w-35
             focus:border-accent"
             type="text"
-            placeholder="Add translation"
+            placeholder="${placeholderText}"
             name="sourceWords">
             <button
             id="submit-source-word"

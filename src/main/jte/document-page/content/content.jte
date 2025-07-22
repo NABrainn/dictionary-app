@@ -57,7 +57,6 @@
                                             textColor = "text-neutral",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
                                             selected = true
                                         )
@@ -71,7 +70,6 @@
                                             textColor = "text-neutral",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
                                             selected = true
                                         )
@@ -86,7 +84,6 @@
                                             textColor = "text-neutral",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
                                             selected = true
                                         )
@@ -100,7 +97,6 @@
                                             textColor = "text-neutral",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
                                             selected = true
                                         )
@@ -114,7 +110,6 @@
                                             textColor = "text-neutral",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = translationAttribute,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true,
                                             selected = true
                                         )
@@ -130,7 +125,6 @@
                                             textColor = "text-primary",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
                                         )
                                     @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
@@ -143,7 +137,6 @@
                                             textColor = "text-primary",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
                                         )
                                     @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
@@ -156,7 +149,6 @@
                                             textColor = "text-primary",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
                                         )
                                     @elseif(importContentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
@@ -169,7 +161,6 @@
                                             textColor = "text-neutral",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
                                         )
                                     @else
@@ -182,7 +173,6 @@
                                             textColor = "text-neutral",
                                             familiarity = importContentAttribute.importData().translations().get(cleanWord).familiarity(),
                                             translationAttribute = null,
-                                            page = importContentAttribute.paginationData().currentPageNumber(),
                                             found = true
                                         )
                                     @endif
@@ -199,7 +189,6 @@
                                         textColor = "text-neutral",
                                         familiarity = null,
                                         translationAttribute = null,
-                                        page = importContentAttribute.paginationData().currentPageNumber()
                                     )
                                 @else
                                     @template.document-page.content.word(
@@ -211,7 +200,6 @@
                                         textColor = "text-primary",
                                         familiarity = null,
                                         translationAttribute = null,
-                                        page = importContentAttribute.paginationData().currentPageNumber()
                                     )
                                 @endif
                             @endif
@@ -225,7 +213,6 @@
                                 textColor = "text-neutral",
                                 familiarity = null,
                                 translationAttribute = null,
-                                page = importContentAttribute.paginationData().currentPageNumber(),
                                 selectable = false
                             )
                         @endif

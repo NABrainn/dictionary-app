@@ -15,9 +15,7 @@ public record TranslationAttribute(int importId,
                                    int translationId,
                                    Translation translation,
                                    int currentFamiliarity,
-                                   @NonNull Map<Integer, Familiarity> familiarityLevels,
-                                   int page,
-                                   FormPositionData formPositionData) {
+                                   @NonNull Map<Integer, Familiarity> familiarityLevels) {
     public static final int UNINITIALIZED_ID = -1;
 
     public TranslationAttribute {

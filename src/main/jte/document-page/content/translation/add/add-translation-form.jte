@@ -3,7 +3,7 @@
 @import java.util.Map
 
 @param TranslationAttribute translationAttribute
-@param Map<String, String> translationFormLocalization
+@param Map<String, String> translationLocalization
 
 <div
 onclick="event.stopPropagation()"
@@ -14,21 +14,34 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
         text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
-    <div id="source-word-form" class="flex flex-col">
-    @template.document-page.content.translation.add.add-source-words-form(
-        sourceLanguage = translationAttribute.translation().sourceLanguage().name(),
-        targetLanguage = translationAttribute.translation().targetLanguage().name(),
-        importId = translationAttribute.importId(),
-        selectedWordId = translationAttribute.selectedWordId(),
-        page = translationAttribute.page(),
+    <div id="source-words-list">
+        @template.document-page.content.translation.source-words-list(
         translationPair = TranslationPair.of(
             translationAttribute.translation().sourceWords(),
             translationAttribute.translation().targetWord()
         ),
-        formPositionData = translationAttribute.formPositionData()
-    )
+        isUpdateForm = false
+        )
     </div>
-    @template.document-page.content.translation.get-ai-translation-btn(targetWord = translationAttribute.translation().targetWord())
+    <div class="flex flex-col gap-2">
+        <div id="source-word-form" class="flex">
+            @template.document-page.content.translation.add.add-source-words-form(
+                placeholderText = translationLocalization.get("add_translation"),
+                sourceLanguage = translationAttribute.translation().sourceLanguage().name(),
+                targetLanguage = translationAttribute.translation().targetLanguage().name(),
+                importId = translationAttribute.importId(),
+                selectedWordId = translationAttribute.selectedWordId(),
+                translationPair = TranslationPair.of(
+                    translationAttribute.translation().sourceWords(),
+                    translationAttribute.translation().targetWord()
+                ),
+            )
+        </div>
+        @template.document-page.content.translation.ai-btn(
+            text = translationLocalization.get("ai_translation"),
+            targetWord = translationAttribute.translation().targetWord()
+        )
+    </div>
     <div class="flex flex-col gap-0.25">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             <form
@@ -36,15 +49,14 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             id="translation-form-${translationAttribute.selectedWordId()}"
             hx-post="/translations/new"
             hx-vals='
-                {
-                    "targetWord": "${translationAttribute.translation().targetWord()}",
-                    "familiarity": "${level.getValue().name()}",
-                    "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
-                    "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
-                    "importId": "${translationAttribute.importId()}",
-                    "selectedWordId": "${translationAttribute.selectedWordId()}",
-                    "page": "${translationAttribute.page()}"
-                }'
+            {
+                "targetWord": "${translationAttribute.translation().targetWord()}",
+                "familiarity": "${level.getValue().name()}",
+                "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
+                "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
+                "importId": "${translationAttribute.importId()}",
+                "selectedWordId": "${translationAttribute.selectedWordId()}"
+            }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()
@@ -55,21 +67,10 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">
                 @endfor
-                @if(translationAttribute.formPositionData() != null)
-                    <input type="hidden" name="left" class="left-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().left()}">
-                    <input type="hidden" name="right" class="right-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().right()}">
-                    <input type="hidden" name="top" class="top-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().top()}">
-                    <input type="hidden" name="bottom" class="bottom-${translationAttribute.selectedWordId()}" value="${translationAttribute.formPositionData().bottom()}">
-                @else
-                    <input type="hidden" name="left" class="left-${translationAttribute.selectedWordId()}">
-                    <input type="hidden" name="right" class="right-${translationAttribute.selectedWordId()}">
-                    <input type="hidden" name="top" class="top-${translationAttribute.selectedWordId()}">
-                    <input type="hidden" name="bottom" class="bottom-${translationAttribute.selectedWordId()}">
-                @endif
 
                 <input
                 class=" cursor-pointer"
-                value="${level.getValue().name().substring(0, 1).toUpperCase() + level.getValue().name().substring(1).toLowerCase()}"
+                value="${translationLocalization.get(level.getValue().name().toLowerCase())}"
                 type="submit">
             </form>
         @endfor

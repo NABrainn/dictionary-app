@@ -292,6 +292,12 @@
   .grow-1 {
     flex-grow: 1;
   }
+  .basis-3\/10 {
+    flex-basis: calc(3/10 * 100%);
+  }
+  .basis-7\/10 {
+    flex-basis: calc(7/10 * 100%);
+  }
   .animate-fade {
     animation: var(--animate-fade);
   }
@@ -312,6 +318,9 @@
   }
   .grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .grid-rows-2 {
+    grid-template-rows: repeat(2, minmax(0, 1fr));
   }
   .flex-col {
     flex-direction: column;
@@ -334,9 +343,6 @@
   .justify-start {
     justify-content: flex-start;
   }
-  .gap-0\.5 {
-    gap: calc(var(--spacing) * 0.5);
-  }
   .gap-0\.25 {
     gap: calc(var(--spacing) * 0.25);
   }
@@ -345,9 +351,6 @@
   }
   .gap-1 {
     gap: calc(var(--spacing) * 1);
-  }
-  .gap-1\.5 {
-    gap: calc(var(--spacing) * 1.5);
   }
   .gap-2 {
     gap: calc(var(--spacing) * 2);
@@ -548,6 +551,9 @@
   }
   .text-secondary {
     color: var(--color-secondary);
+  }
+  .capitalize {
+    text-transform: capitalize;
   }
   .underline {
     text-decoration-line: underline;

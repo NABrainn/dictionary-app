@@ -24,7 +24,5 @@ public record AddTranslationRequest(int importId,
                                     Language sourceLanguage,
                                     Language targetLanguage,
                                     Familiarity familiarity,
-                                    int page,
-                                    String owner,
-                                    @NonNull FormPositionData formPositionData) implements ServiceRequest {
+                                    String owner) implements ServiceRequest {
 }

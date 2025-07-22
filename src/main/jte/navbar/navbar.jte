@@ -11,6 +11,7 @@
 @param List<LanguageData> languageData
 
 @param Map<String, String> navbarLocalization
+@param boolean isNavbarVisible = false
 
 
 <nav
@@ -41,6 +42,7 @@ gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center min-h-18">
         </a>
     </div>
     @if(authenticated)
+        @if(isNavbarVisible)
         <div class="flex gap-3 items-center">
             <div
             class="
@@ -68,6 +70,7 @@ gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center min-h-18">
             </div>
 
         </div>
+        @endif
         <div class="fles justify-center">
             <a
             class="

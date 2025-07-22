@@ -52,30 +52,22 @@ public class TranslationServiceImp implements TranslationService {
                     .build();
             int translationId = insertIntoDatabase(translation, request.importId());
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                    .importId(request.importId())
                     .selectedWordId(request.selectedWordId())
                     .translationId(translationId)
                     .translation(translation)
                     .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
-                    .page(request.page())
-                    .formPositionData(FormPositionData.of(
-                            request.formPositionData().left(),
-                            request.formPositionData().right(),
-                            request.formPositionData().top(),
-                            request.formPositionData().bottom()
-                    ))
+                    .importId(request.importId())
                     .build();
             return ServiceResultImp.success(translationAttribute);
         } catch (ConstraintViolationException e) {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                    .importId(request.importId())
                     .selectedWordId(request.selectedWordId())
                     .translation(null)
                     .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
-                    .page(request.page())
                     .translationId(-1)
+                    .importId(request.importId())
                     .build();
             throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
@@ -89,13 +81,12 @@ public class TranslationServiceImp implements TranslationService {
             if(optionalTranslation.isPresent()) {
                 Translation translation = optionalTranslation.get();
                 TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                        .importId(request.importId())
                         .selectedWordId(request.selectedWordId())
                         .translation(translation)
                         .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                         .familiarityLevels(getFamiliarityTable())
-                        .page(request.page())
                         .translationId(-1)
+                        .importId(request.importId())
                         .build();
                 return ServiceResultImp.success(translationAttribute);
             }
@@ -110,13 +101,12 @@ public class TranslationServiceImp implements TranslationService {
                     .owner(request.owner())
                     .build();
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                    .importId(request.importId())
                     .selectedWordId(request.selectedWordId())
                     .translation(translation)
                     .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
-                    .page(request.page())
                     .translationId(-1)
+                    .importId(request.importId())
                     .build();
             throw new TranslationNotFoundException(ServiceResultImp.error(translationAttribute, Map.of()));
         } catch (ConstraintViolationException e) {
@@ -129,20 +119,12 @@ public class TranslationServiceImp implements TranslationService {
         Translation translation = translationRepository.updateFamiliarity(request)
                 .orElseThrow(() -> new RuntimeException("Failed to update familiarity for " + request.targetWord()));
         TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                .importId(request.importId())
                 .selectedWordId(request.selectedWordId())
                 .translation(translation)
                 .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                 .familiarityLevels(getFamiliarityTable())
-                .page(request.page())
-                .formPositionData(FormPositionData.of(
-                                request.formPositionData().left(),
-                                request.formPositionData().right(),
-                                request.formPositionData().top(),
-                                request.formPositionData().bottom()
-                        )
-                )
                 .translationId(-1)
+                .importId(-1)
                 .build();
         return ServiceResultImp.success(translationAttribute);
     }
