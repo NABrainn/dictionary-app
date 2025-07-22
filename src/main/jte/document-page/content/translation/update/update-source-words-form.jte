@@ -12,9 +12,12 @@ hx-vals='{
 hx-put="/translations/sourceWords/update"
 hx-target="#source-word-form"
 hx-swap="innerHTML">
-    <div id="source-words-list">
-        @template.document-page.content.translation.source-words-list(translationPair = translationPair)
-    </div>
+    @for(String word : translationPair.sourceWords())
+        <input
+        name="sourceWords"
+        type="hidden"
+        value="${word}">
+    @endfor
     <div class="flex gap-2">
         @if(hasError)
             <input

@@ -15,9 +15,18 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
     <div id="source-word-form" class="flex flex-col">
+        <div id="source-words-list">
+            @template.document-page.content.translation.source-words-list(translationPair = TranslationPair.of(
+                translationAttribute.translation().sourceWords(),
+                translationAttribute.translation().targetWord()
+            ))
+        </div>
         @template.document-page.content.translation.update.update-source-words-form(
             placeholderText = translationLocalization.get("add_translation"),
-            translationPair = TranslationPair.of(translationAttribute.translation().sourceWords(), translationAttribute.translation().targetWord()),
+            translationPair = TranslationPair.of(
+                translationAttribute.translation().sourceWords(),
+                translationAttribute.translation().targetWord()
+            ),
         )
     </div>
     @template.document-page.content.translation.ai-btn(
