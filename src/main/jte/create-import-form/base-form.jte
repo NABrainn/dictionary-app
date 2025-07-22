@@ -1,7 +1,9 @@
 @import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.dto.application.result.ServiceResultImp
 @import java.util.Map
+@import lule.dictionary.dto.application.attribute.ProfilePanelAttribute
 
+@param ProfilePanelAttribute profilePanelAttribute
 @param ServiceResultImp<?> result = null
 @param BaseAttribute baseAttribute 
 @param Map<String, String> navbarLocalization
@@ -11,13 +13,9 @@
 @template.layout.base(content = @`
     @template.navbar.navbar(
         navbarLocalization = navbarLocalization,
-        username = baseAttribute.username(),
-        authenticated = baseAttribute.isAuthenticated(),
-        sourceLanguage = baseAttribute.sourceLanguageData(),
-        targetLanguage = baseAttribute.targetLanguageData(),
-        wordsLearned = baseAttribute.wordsLearned(),
-        dailyStreak = baseAttribute.dailyStreak(),
-        languageData = baseAttribute.allLanguageData()
+        profilePanelAttribute = profilePanelAttribute,
+        isAuthenticated = baseAttribute.isAuthenticated(),
+        isProfileOpen = baseAttribute.isProfileOpen()
     )
     <form
     class="md:w-3/5

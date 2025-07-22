@@ -2,6 +2,7 @@ package lule.dictionary.service.auth;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -46,9 +47,10 @@ public class AuthService {
 
 
     public ServiceResult<?> login(@NonNull LoginRequest loginData,
-                                  @NonNull HttpServletResponse response) {
+                                  @NonNull HttpServletResponse response,
+                                  @NonNull HttpSession httpSession) {
         try {
-            return processLoginRequest(loginData, response);
+            return processLoginRequest(loginData, response, httpSession);
         }
 
         catch (ConstraintViolationException e) {
@@ -91,10 +93,10 @@ public class AuthService {
         return ServiceResultImp.successEmpty(Map.of());
     }
 
-    private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response) throws ConstraintViolationException, UserNotFoundException {
+    private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response, HttpSession httpSession) throws ConstraintViolationException, UserNotFoundException {
         validate(loginData);
         AuthenticationData authResult = authenticateUser(loginData);
-        setAuthenticationContext(SessionContext.of(authResult, response));
+        setAuthenticationContext(SessionContext.of(authResult, response, httpSession));
         return ServiceResultImp.successEmpty(Map.of());
     }
 
@@ -124,6 +126,7 @@ public class AuthService {
         setAuthentication(sessionContext);
         sendJwtCookie(sessionContext);
         updateTimezoneOffset(getUsername(sessionContext), TimeZoneOffsetContext.get());
+        sessionContext.httpSession().setAttribute("isProfileOpen", false);
     }
 
     private void updateTimezoneOffset(String owner, String offset) {

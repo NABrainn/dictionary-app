@@ -23,7 +23,16 @@ public class UserProfileRepository {
 
     public Optional<UserProfile> findByUsername(@NonNull String username) {
         String sql = """
-                    SELECT p.username, p.password, p.email, s.source_lang, s.target_lang, str.day_count, str.words_added_today, str.tz_offset, str.updated_at
+                    SELECT
+                        p.username,
+                        p.password,
+                        p.email,
+                        s.source_lang,
+                        s.target_lang,
+                        str.day_count,
+                        str.words_added_today,
+                        str.tz_offset,
+                        str.updated_at
                     FROM dictionary.user_profiles p
                     LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner

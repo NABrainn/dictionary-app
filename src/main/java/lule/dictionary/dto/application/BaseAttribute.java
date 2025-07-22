@@ -14,7 +14,8 @@ public record BaseAttribute(CsrfToken _csrf,
                             @NonNull LanguageData targetLanguageData,
                             @NonNull List<LanguageData> allLanguageData,
                             int wordsLearned,
-                            int dailyStreak) {
+                            int dailyStreak,
+                            boolean isProfileOpen) {
     @Override
     public List<LanguageData> allLanguageData() {
         return List.copyOf(allLanguageData);

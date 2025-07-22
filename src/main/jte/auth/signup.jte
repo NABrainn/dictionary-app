@@ -1,7 +1,9 @@
 @import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.dto.application.result.ServiceResultImp
 @import java.util.Map
+@import lule.dictionary.dto.application.attribute.ProfilePanelAttribute
 
+@param ProfilePanelAttribute profilePanelAttribute
 @param ServiceResultImp<?> result
 @param BaseAttribute baseAttribute
 @param Map<String, String> navbarLocalization
@@ -10,14 +12,10 @@
 
 @template.layout.base(authView = @`
     @template.navbar.navbar(
-    navbarLocalization = navbarLocalization,
-    username = baseAttribute.username(),
-    authenticated = baseAttribute.isAuthenticated(),
-    sourceLanguage = baseAttribute.sourceLanguageData(),
-    targetLanguage = baseAttribute.targetLanguageData(),
-    wordsLearned = baseAttribute.wordsLearned(),
-    dailyStreak = baseAttribute.dailyStreak(),
-    languageData = baseAttribute.allLanguageData()
+        navbarLocalization = navbarLocalization,
+        profilePanelAttribute = profilePanelAttribute,
+        isAuthenticated = baseAttribute.isAuthenticated(),
+        isProfileOpen = baseAttribute.isProfileOpen()
     )
     <form
         hx-post="/auth/signup"

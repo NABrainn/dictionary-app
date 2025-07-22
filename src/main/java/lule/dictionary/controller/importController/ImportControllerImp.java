@@ -4,6 +4,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.ContentData;
+import lule.dictionary.dto.application.LanguageData;
+import lule.dictionary.dto.application.attribute.ProfilePanelAttribute;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
@@ -15,12 +17,14 @@ import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.dto.importData.ImportAttribute;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
+import lule.dictionary.service.language.LanguageHelper;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.pagination.PaginationService;
 import lule.dictionary.service.pagination.dto.PaginationData;
 import lule.dictionary.service.translation.TranslationService;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.request.FindTranslationsByImportRequest;
+import lule.dictionary.service.translation.dto.request.GetWordsLearnedCountRequest;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -44,14 +48,37 @@ public class ImportControllerImp implements ImportController {
     private final TranslationService translationService;
     private final PaginationService paginationService;
     private final LocalizationService localizationService;
+    private final LanguageHelper languageHelper;
 
     @GetMapping("")
     public String importListPage(Model model,
                                  Authentication authentication) {
         List<ImportWithTranslationData> imports = getImports(authentication);
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
         model.addAttribute("documentsLocalization", getDocumentListLocalization(authentication));
         model.addAttribute("imports", imports);
+        model.addAttribute("profilePanelAttribute", ProfilePanelAttribute.builder()
+                .languageDataList(languageHelper.getAllLanguageData())
+                .targetLanguage(LanguageData.of(
+                                principal.targetLanguage(),
+                                languageHelper.getFullName(principal.targetLanguage()),
+                                languageHelper.getAbbreviation(principal.targetLanguage()),
+                                languageHelper.getImagePath(principal.targetLanguage())
+                        )
+                )
+                .wordsLearned(translationService.getWordsLearnedCount(
+                        GetWordsLearnedCountRequest.of(
+                                principal.getUsername(),
+                                principal.targetLanguage()
+                        )).value())
+                .dailyStreak(principal.dailyStreak())
+                .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
+                .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
+                .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
+                .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
+                .build()
+        );
         return "document-list-page/documents";
     }
 
@@ -61,6 +88,27 @@ public class ImportControllerImp implements ImportController {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
         model.addAttribute("importFormLocalization", localizationService.createImportLocalization(principal.sourceLanguage()));
+        model.addAttribute("profilePanelAttribute", ProfilePanelAttribute.builder()
+                .languageDataList(languageHelper.getAllLanguageData())
+                .targetLanguage(LanguageData.of(
+                                principal.targetLanguage(),
+                                languageHelper.getFullName(principal.targetLanguage()),
+                                languageHelper.getAbbreviation(principal.targetLanguage()),
+                                languageHelper.getImagePath(principal.targetLanguage())
+                        )
+                )
+                .wordsLearned(translationService.getWordsLearnedCount(
+                        GetWordsLearnedCountRequest.of(
+                                principal.getUsername(),
+                                principal.targetLanguage()
+                        )).value())
+                .dailyStreak(principal.dailyStreak())
+                .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
+                .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
+                .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
+                .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
+                .build()
+        );
         return "create-import-form/base-form";
     }
 
@@ -70,10 +118,32 @@ public class ImportControllerImp implements ImportController {
                              Model model,
                              Authentication authentication) {
         try {
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             ImportContentAttribute importContentAttribute = loadImportPage(LoadImportPageRequest.of(0, importId, page));
             model.addAttribute("importContentAttribute", importContentAttribute);
             model.addAttribute("translationAttribute", null);
             model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
+            model.addAttribute("profilePanelAttribute", ProfilePanelAttribute.builder()
+                    .languageDataList(languageHelper.getAllLanguageData())
+                    .targetLanguage(LanguageData.of(
+                                    principal.targetLanguage(),
+                                    languageHelper.getFullName(principal.targetLanguage()),
+                                    languageHelper.getAbbreviation(principal.targetLanguage()),
+                                    languageHelper.getImagePath(principal.targetLanguage())
+                            )
+                    )
+                    .wordsLearned(translationService.getWordsLearnedCount(
+                            GetWordsLearnedCountRequest.of(
+                                    principal.getUsername(),
+                                    principal.targetLanguage()
+                            )).value())
+                    .dailyStreak(principal.dailyStreak())
+                    .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
+                    .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
+                    .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
+                    .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
+                    .build()
+            );
             return "document-page/base-page";
 
         }
@@ -93,6 +163,7 @@ public class ImportControllerImp implements ImportController {
                                @RequestParam("url") String url,
                                 Model model,
                                 Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         try {
             ServiceResult<Integer> result = importService.createImport(CreateImportRequest.of(title, content, url, extractUsername(authentication)));
             model.addAttribute("result", result);
@@ -106,6 +177,27 @@ public class ImportControllerImp implements ImportController {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
             model.addAttribute("result", e.getResult());
             model.addAttribute("navbarLocalization", getNavbarLocalization(authentication));
+            model.addAttribute("profilePanelAttribute", ProfilePanelAttribute.builder()
+                    .languageDataList(languageHelper.getAllLanguageData())
+                    .targetLanguage(LanguageData.of(
+                                    principal.targetLanguage(),
+                                    languageHelper.getFullName(principal.targetLanguage()),
+                                    languageHelper.getAbbreviation(principal.targetLanguage()),
+                                    languageHelper.getImagePath(principal.targetLanguage())
+                            )
+                    )
+                    .wordsLearned(translationService.getWordsLearnedCount(
+                            GetWordsLearnedCountRequest.of(
+                                    principal.getUsername(),
+                                    principal.targetLanguage()
+                            )).value())
+                    .dailyStreak(principal.dailyStreak())
+                    .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
+                    .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
+                    .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
+                    .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
+                    .build()
+            );
             return "create-import-form/base-form";
         }
     }
