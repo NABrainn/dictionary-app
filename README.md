@@ -37,3 +37,16 @@ An application that makes language learning fun and engaging through reading.
 
 ### 23/07/2025 - home page UI + improved navbar
 ![image](readme_resources/23-07-2025-1.png)
+
+### document content preserving paragraphs
+![image](readme_resources/23-07-2025-2.png)
+
+### translation form adaptive positioning depending on available space on screen
+![image](readme_resources/23-07-2025-3.png)
+![image](readme_resources/23-07-2025-4.png)
+
+### mobile UI
+![image](readme_resources/23-07-2025-5.png)
+![image](readme_resources/23-07-2025-6.png)
+
+
