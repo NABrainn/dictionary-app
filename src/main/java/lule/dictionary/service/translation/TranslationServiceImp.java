@@ -130,30 +130,64 @@ public class TranslationServiceImp implements TranslationService {
     }
 
     @Transactional
-    public ServiceResult<TranslationPair> updateSourceWords(UpdateSourceWordsRequest request) throws InvalidInputException {
+    public ServiceResult<TranslationAttribute> updateSourceWords(UpdateSourceWordsRequest request) throws InvalidInputException {
         try {
             validate(request);
             Optional<Translation> optionalTranslation = executeDatabaseUpdate(request);
-            if(optionalTranslation.isPresent())
-                return ServiceResultImp.success(TranslationPair.of(optionalTranslation.get().sourceWords(), optionalTranslation.get().targetWord()));
+            if(optionalTranslation.isPresent()) {
+                TranslationAttribute translationAttribute = TranslationAttribute.builder()
+                        .importId(-1)
+                        .selectedWordId(request.selectedWordId())
+                        .translationId(-1)
+                        .translation(optionalTranslation.get())
+                        .currentFamiliarity(getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
+                        .familiarityLevels(getFamiliarityTable())
+                        .build();
+                return ServiceResultImp.success(translationAttribute);
+            }
             throw new RuntimeException("Unknown exception");
         } catch (ConstraintViolationException e) {
-            TranslationPair translationPair = TranslationPair.of(request.sourceWords()
-                    .stream()
-                    .filter(word -> !word.isBlank())
-                    .filter(word -> compileNonSpecialChars().matcher(word).matches())
-                    .toList(), request.targetWord());
-            throw new InvalidInputException(ServiceResultImp.error(translationPair, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+            Translation translation = TranslationImp.builder()
+                    .sourceWords(request.sourceWords()
+                            .stream()
+                            .filter(word -> !word.isBlank())
+                            .filter(word -> compileNonSpecialChars().matcher(word).matches())
+                            .toList()
+                    )
+                    .targetWord(request.targetWord())
+                    .familiarity(request.familiarity())
+                    .sourceLanguage(request.sourceLanguage())
+                    .targetLanguage(request.targetLanguage())
+                    .owner(request.owner())
+                    .build();
+            TranslationAttribute translationAttribute = TranslationAttribute.builder()
+                    .importId(-1)
+                    .selectedWordId(request.selectedWordId())
+                    .translationId(-1)
+                    .translation(translation)
+                    .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
+                    .familiarityLevels(getFamiliarityTable())
+                    .build();
+            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
     }
 
     @Transactional
-    public ServiceResult<TranslationPair> deleteSourceWord(DeleteSourceWordRequest request) {
+    public ServiceResult<TranslationAttribute> deleteSourceWord(DeleteSourceWordRequest request) {
         try {
             validate(request);
             Optional<Translation> optionalTranslation = translationRepository.deleteSourceWord(request);
-            if(optionalTranslation.isPresent())
-                return ServiceResultImp.success(TranslationPair.of(optionalTranslation.get().sourceWords(), optionalTranslation.get().targetWord()));
+            if(optionalTranslation.isPresent()) {
+                TranslationAttribute translationAttribute = TranslationAttribute.builder()
+                        .importId(-1)
+                        .selectedWordId(request.selectedWordId())
+                        .translationId(-1)
+                        .translation(optionalTranslation.get())
+                        .currentFamiliarity(getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
+                        .familiarityLevels(getFamiliarityTable())
+                        .build();
+                return ServiceResultImp.success(translationAttribute);
+            }
             throw new RuntimeException("Unknown exception");
         } catch (ConstraintViolationException e) {
             throw new InvalidInputException(ServiceResultImp.errorEmpty(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
