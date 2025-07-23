@@ -1,26 +1,27 @@
-@import lule.dictionary.service.translation.dto.attribute.TranslationPair
+@import java.util.List
 
 @param String placeholderText
 @param String sourceLanguage
 @param String targetLanguage
 @param int selectedWordId
 @param int importId
-@param TranslationPair translationPair
+@param List<String> sourceWords
+@param String targetWord
 
 <form
 class="flex gap-2"
 hx-vals='
 {
-    "targetWord": "${translationPair.targetWord()}",
+    "targetWord": "${targetWord}",
     "familiarity": "UNKNOWN",
     "sourceLanguage": "${sourceLanguage}",
-    "targetLanguage": "${targetLanguage}".
+    "targetLanguage": "${targetLanguage}",
     "importId": "${importId}"
 }'
 hx-post="/translations/new"
 hx-target="#translation-form-container-${selectedWordId}"
 hx-swap="innerHTML">
-    @for(String word : translationPair.sourceWords())
+    @for(String word : sourceWords)
         <input
         name="sourceWords"
         type="hidden"

@@ -61,9 +61,9 @@
                         @endfor
                     </div>
                 @endif
-                <div class="flex justify-end">
+                <div class="flex justify-end sticky bottom-8">
                     <button
-                    class="cursor-pointer bg-tertiary px-2 py-1 rounded text-lg font-bold text-neutral"
+                    class="cursor-pointer bg-secondary px-2 py-1 rounded text-lg font-bold text-neutral"
                     hx-get="/imports/new"
                     hx-target="#main"
                     hx-swap="innerHTML"

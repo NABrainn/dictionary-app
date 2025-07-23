@@ -11,7 +11,7 @@
         <label for="area"></label>
         <textarea
         class="
-        md:min-h-150
+        md:min-h-120
         min-h-85 outline-none border border-2 border-primary rounded text-neutral resize-none
         focus:border-accent w-full"
         name="content"

@@ -19,7 +19,7 @@
     )
     <form
     class="md:w-3/5
-    w-4/5 flex flex-col gap-8 bg-secondary mx-auto p-8"
+    w-4/5 flex flex-col gap-6 bg-tertiary mx-auto p-6 rounded"
     hx-post="/imports/new"
     hx-target="#main"
     hx-swap="innerHTML"

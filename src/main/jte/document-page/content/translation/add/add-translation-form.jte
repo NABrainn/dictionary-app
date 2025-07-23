@@ -1,5 +1,4 @@
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
-@import lule.dictionary.service.translation.dto.attribute.TranslationPair
 @import java.util.Map
 
 @param TranslationAttribute translationAttribute
@@ -14,32 +13,10 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
         text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
-    <div id="source-words-list">
-        @template.document-page.content.translation.source-words-list(
-        translationPair = TranslationPair.of(
-            translationAttribute.translation().sourceWords(),
-            translationAttribute.translation().targetWord()
-        ),
-        isUpdateForm = false
-        )
-    </div>
-    <div class="flex flex-col gap-2">
-        <div id="source-word-form" class="flex">
-            @template.document-page.content.translation.add.add-source-words-form(
-                placeholderText = translationLocalization.get("add_translation"),
-                sourceLanguage = translationAttribute.translation().sourceLanguage().name(),
-                targetLanguage = translationAttribute.translation().targetLanguage().name(),
-                importId = translationAttribute.importId(),
-                selectedWordId = translationAttribute.selectedWordId(),
-                translationPair = TranslationPair.of(
-                    translationAttribute.translation().sourceWords(),
-                    translationAttribute.translation().targetWord()
-                ),
-            )
-        </div>
-        @template.document-page.content.translation.ai-btn(
-            text = translationLocalization.get("ai_translation"),
-            targetWord = translationAttribute.translation().targetWord()
+    <div id="translation-manager">
+        @template.document-page.content.translation.add.translation-manager(
+            translationAttribute = translationAttribute,
+            translationLocalization = translationLocalization
         )
     </div>
     <div class="flex flex-col gap-0.25">

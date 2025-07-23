@@ -76,7 +76,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
             #handleNorthEastOverflow(form) {
                 if (this.#isOverflowRight(form) && !this.#isOverflowBottom(form)) {
-                    console.log('NE overflow: adjusting position');
                     this.#adjustPosition({
                         form: form,
                         top: 8,
@@ -86,7 +85,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
             #handleNorthWestOverflow(form) {
                 if (this.#isOverflowLeft(form) && !this.#isOverflowBottom(form)) {
-                    console.log('NW overflow: adjusting position');
                     this.#adjustPosition({
                         form: form,
                         top: 0,
@@ -98,7 +96,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
             #handleSouthEastOverflow(form) {
                 if (this.#isOverflowRight(form) && this.#isOverflowBottom(form)) {
-                    console.log('SE overflow: adjusting position');
                     this.#adjustPosition({
                         form: form,
                         bottom: 10,
@@ -108,7 +105,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
             #handleSouthWestOverflow(form) {
                 if (this.#isOverflowLeft(form) && this.#isOverflowBottom(form)) {
-                    console.log('SW overflow: adjusting position');
                     this.#adjustPosition({
                         form: form,
                         top: 0,
@@ -121,8 +117,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
             #handleSouthOverflow(form) {
                 if (!this.#isOverflowLeft(form) && !this.#isOverflowRight(form) && this.#isOverflowBottom(form)) {
-                    console.log('S overflow: adjusting position');
-                    this.#adjustPosition({  
+                    this.#adjustPosition({
                         form: form,
                         bottom: 10
                     });
@@ -238,7 +233,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             attributeChangedCallback(name, oldValue, newValue) {
                 if (name === 'selected-word-id' && oldValue !== newValue) {
                     const wordData = this.highlightWord(parseInt(newValue));
-                    console.log(wordData.wordElement)
                     if(wordData.wordElement) {
                         const selectedWordFamiliarity = this.familiarities.find(familiarity => wordData.wordElement.classList.contains(familiarity))
                         if(selectedWordFamiliarity) {
@@ -253,7 +247,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             highlightWords(id, selectedWordFamiliarity) {
-                console.log('calling ya')
                 this.#markWordFamiliarities(id, selectedWordFamiliarity)
                 this.#highlightMarkedWords()
             }

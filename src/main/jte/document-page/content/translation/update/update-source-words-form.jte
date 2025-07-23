@@ -1,18 +1,20 @@
-@import lule.dictionary.service.translation.dto.attribute.TranslationPair
+@import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
 
-@param TranslationPair translationPair
+@param TranslationAttribute translationAttribute 
 @param String placeholderText
 @param boolean hasError = false
 
 <form
 class="flex flex-col gap-2"
 hx-vals='{
-    "targetWord": "${translationPair.targetWord()}"
+    "targetWord": "${translationAttribute.translation().targetWord()}",
+    "familiarity": "${translationAttribute.translation().familiarity()}",
+    "selectedWordId": "${translationAttribute.selectedWordId()}"
 }'
 hx-put="/translations/sourceWords/update"
-hx-target="#source-word-form"
+hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
 hx-swap="innerHTML">
-    @for(String word : translationPair.sourceWords())
+    @for(String word : translationAttribute.translation().sourceWords())
         <input
         name="sourceWords"
         type="hidden"

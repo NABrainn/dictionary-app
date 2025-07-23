@@ -1,10 +1,12 @@
-@import lule.dictionary.service.translation.dto.attribute.TranslationPair
+@import java.util.List
 
-@param TranslationPair translationPair
-@param boolean isUpdateForm = true
+@param boolean isUpdateForm
+@param List<String> sourceWords
+@param String targetWord
+@param int selectedWordId
 
 <div class="flex flex-col gap-2 text-wrap">
-    @for(String word : translationPair.sourceWords())
+    @for(String word : sourceWords)
         <div
         class="flex gap-2">
             <input
@@ -14,11 +16,15 @@
             <span class="text-accent">${word}</span>
             @if(isUpdateForm)
                 <form
-                hx-delete="/translations/sourceWords/delete?sourceWord=${word}&targetWord=${translationPair.targetWord()}"
-                hx-target="#source-words-list"
+                hx-delete="/translations/sourceWords/delete?sourceWord=${word}&targetWord=${targetWord}"
+                hx-target="#translation-form-container-${selectedWordId}"
                 hx-swap="innerHTML"
-                hx-params="none">
-                    <button class="cursor-pointer" type="submit">🗑️</button>
+                hx-vals='{
+                    "selectedWordId": "${selectedWordId}"
+                }'>
+                    <button
+                    class="cursor-pointer"
+                    type="submit">🗑️</button>
                 </form>
             @endif
         </div>

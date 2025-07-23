@@ -1,5 +1,4 @@
 @import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
-@import lule.dictionary.service.translation.dto.attribute.TranslationPair
 @import java.util.Map
 
 @param TranslationAttribute translationAttribute
@@ -14,25 +13,10 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
         text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
-    <div id="source-words-list">
-        @template.document-page.content.translation.source-words-list(translationPair = TranslationPair.of(
-            translationAttribute.translation().sourceWords(),
-            translationAttribute.translation().targetWord()
-        ))
-    </div>
-    <div class="flex flex-col gap-2">
-        <div id="source-word-form" class="flex">
-            @template.document-page.content.translation.update.update-source-words-form(
-                placeholderText = translationLocalization.get("add_translation"),
-                translationPair = TranslationPair.of(
-                    translationAttribute.translation().sourceWords(),
-                    translationAttribute.translation().targetWord()
-                ),
-            )
-        </div>
-        @template.document-page.content.translation.ai-btn(
-            text = translationLocalization.get("ai_translation"),
-            targetWord = translationAttribute.translation().targetWord()
+    <div id="translation-manager">
+        @template.document-page.content.translation.update.translation-manager(
+            translationAttribute = translationAttribute,
+            translationLocalization = translationLocalization
         )
     </div>
     <div class="flex flex-col gap-0.25">
@@ -61,11 +45,11 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-swap="innerHTML"
             hx-on::before-request="htmx.find('word-highlighter').highlightWords(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
-                    <span>${level.getKey()}: </span>
-                    <input
-                    class=" cursor-pointer"
-                    value="${translationLocalization.get(level.getValue().name().toLowerCase())}"
-                    type="submit">
+                <span>${level.getKey()}: </span>
+                <input
+                class=" cursor-pointer"
+                value="${translationLocalization.get(level.getValue().name().toLowerCase())}"
+                type="submit">
             </form>
             @endif
         @endfor

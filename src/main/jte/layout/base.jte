@@ -35,7 +35,7 @@
         <title>here is the required title element</title>
     </head>
     <body
-    class="bg-primary grow-1 flex flex-col gap-8 min-h-screen pb-8"
+    class="bg-primary grow-1 flex flex-col gap-8 min-h-screen"
     id="main">
         @if(authView != null)
             ${authView}

@@ -126,18 +126,30 @@ public class TranslationControllerImp {
     public String updateSourceWords(Model model,
                                     Authentication authentication,
                                     @RequestParam("sourceWords") List<String> sourceWords,
-                                    @RequestParam("targetWord") String targetWord) {
-
+                                    @RequestParam("targetWord") String targetWord,
+                                    @RequestParam("familiarity") String currentFamiliarity,
+                                    @RequestParam("selectedWordId") int selectedWordId) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         try {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            UpdateSourceWordsRequest request = UpdateSourceWordsRequest.of(sourceWords, targetWord, userDetails.getUsername());
-            ServiceResult<TranslationPair> result = translationService.updateSourceWords(request);
-            model.addAttribute("translationPair", result.value());
+            UpdateSourceWordsRequest request = UpdateSourceWordsRequest.builder()
+                    .sourceWords(sourceWords)
+                    .familiarity(Familiarity.valueOf(currentFamiliarity.toUpperCase()))
+                    .sourceLanguage(principal.sourceLanguage())
+                    .targetLanguage(principal.targetLanguage())
+                    .owner(principal.getUsername())
+                    .targetWord(targetWord)
+                    .selectedWordId(selectedWordId)
+                    .build();
+            ServiceResult<TranslationAttribute> result = translationService.updateSourceWords(request);
+            model.addAttribute("translationAttribute", result.value());
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
             model.addAttribute("hasError", result.hasError());
-            return "document-page/content/translation/update/update-source-words-form";
+            return "document-page/content/translation/update/update-translation-form";
         } catch (InvalidInputException e) {
-            model.addAttribute("translationPair", e.getResult().value());
-            return "document-page/content/translation/update/update-source-words-form";
+            log.warn("Invalid input: returning back");
+            model.addAttribute("translationAttribute", e.getResult().value());
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+            return "document-page/content/translation/update/update-translation-form";
         }
     }
 
@@ -145,17 +157,24 @@ public class TranslationControllerImp {
     public String deleteSourceWord(Model model,
                                    Authentication authentication,
                                    @RequestParam("sourceWord") String sourceWord,
-                                   @RequestParam("targetWord") String targetWord) {
+                                   @RequestParam("targetWord") String targetWord,
+                                   @RequestParam("selectedWordId") int selectedWordId) {
         try {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            DeleteSourceWordRequest request = DeleteSourceWordRequest.of(sourceWord, targetWord, userDetails.getUsername());
-            ServiceResult<TranslationPair> result = translationService.deleteSourceWord(request);
-            model.addAttribute("translationPair", TranslationPair.of(result.value().sourceWords(), result.value().targetWord()));
-            return "document-page/content/translation/source-words-list";
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            DeleteSourceWordRequest request = DeleteSourceWordRequest.builder()
+                    .sourceWord(sourceWord)
+                    .targetWord(targetWord)
+                    .owner(principal.getUsername())
+                    .selectedWordId(selectedWordId)
+                    .build();
+            ServiceResult<TranslationAttribute> result = translationService.deleteSourceWord(request);
+            model.addAttribute("translationAttribute", result.value());
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+            return "document-page/content/translation/update/update-translation-form";
         } catch (InvalidInputException e) {
             log.info("Invalid input, sending source-words-list template");
             model.addAttribute("translationAttribute", e.getResult().value());
-            return "document-page/content/translation/source-words-list";
+            return "document-page/content/translation/update/update-translation-form";
         }
     }
 

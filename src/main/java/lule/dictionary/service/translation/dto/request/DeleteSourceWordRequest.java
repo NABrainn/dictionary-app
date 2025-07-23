@@ -3,9 +3,11 @@ package lule.dictionary.service.translation.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.dto.application.request.ServiceRequest;
 
+@Builder
 public record DeleteSourceWordRequest(@NotBlank(message = "Source word cannot be blank")
                                       @Size(max = 200, message = "Source word cannot be longer than 200 characters")
                                       @Pattern(regexp = "^[\\p{L}0-9 ]+$", message = "Source word contains invalid characters")
@@ -16,8 +18,7 @@ public record DeleteSourceWordRequest(@NotBlank(message = "Source word cannot be
                                       String targetWord,
 
                                       @NonNull
-                                      String owner) implements ServiceRequest {
-    public static DeleteSourceWordRequest of(String sourceWord, String targetWord, String username) {
-        return new DeleteSourceWordRequest(sourceWord, targetWord, username);
-    }
+                                      String owner,
+
+                                      int selectedWordId) implements ServiceRequest {
 }
