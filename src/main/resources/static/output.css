@@ -277,8 +277,20 @@
   .min-h-85 {
     min-height: calc(var(--spacing) * 85);
   }
+  .min-h-170 {
+    min-height: calc(var(--spacing) * 170);
+  }
+  .min-h-172 {
+    min-height: calc(var(--spacing) * 172);
+  }
   .min-h-175 {
     min-height: calc(var(--spacing) * 175);
+  }
+  .min-h-180 {
+    min-height: calc(var(--spacing) * 180);
+  }
+  .min-h-185 {
+    min-height: calc(var(--spacing) * 185);
   }
   .min-h-full {
     min-height: 100%;
