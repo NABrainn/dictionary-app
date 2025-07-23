@@ -3,7 +3,7 @@
 
 @param LanguageData targetLanguage
 @param List<LanguageData> languages
-<div class="relative text-left text-md">
+<div class="relative text-left text-md animate-fade">
         <button
         type="button"
         class="flex font-bold w-full cursor-default gap-2 items-center rounded-md bg-accent pl-1 text-left text-primary px-6

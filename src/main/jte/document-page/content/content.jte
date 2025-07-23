@@ -20,7 +20,8 @@
             navbarLocalization = navbarLocalization,
             profilePanelAttribute = profilePanelAttribute,
             isAuthenticated = baseAttribute.isAuthenticated(),
-            isProfileOpen = baseAttribute.isProfileOpen()
+            isProfileOpen = baseAttribute.isProfileOpen(),
+            isProfileToggleBtnVisible = false
         )
         <div
         class="
