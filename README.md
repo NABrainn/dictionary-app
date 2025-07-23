@@ -34,3 +34,6 @@ An application that makes language learning fun and engaging through reading.
 
 ### 03/07/2025 - words learned, daily goal trackers
 ![image](https://github.com/user-attachments/assets/b1ebcd42-fe2a-4827-9e99-7adb527cb9d5)
+
+### 23/07/2025 - home page UI + improved navbar
+![image](readme_resources/23-07-2025-1.png)
