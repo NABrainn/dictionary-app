@@ -1,6 +1,7 @@
 package lule.dictionary.controller.userSettings;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.dto.application.LanguageData;
 import lule.dictionary.dto.application.attribute.ProfilePanelAttribute;
@@ -8,6 +9,7 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.language.LanguageHelper;
 import lule.dictionary.service.localization.LocalizationService;
+import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.translation.TranslationService;
 import lule.dictionary.service.translation.dto.request.GetWordsLearnedCountRequest;
 import lule.dictionary.service.userProfile.UserProfileService;
@@ -27,6 +29,7 @@ public class SettingsController {
     private final LanguageHelper languageHelper;
     private final TranslationService translationService;
     private final LocalizationService localizationService;
+    private final SessionHelper sessionHelper;
 
     @GetMapping({"/changeLanguage", "/changeLanguage/"})
     public String changeLanguage(@RequestParam("lang") String language,
@@ -41,7 +44,7 @@ public class SettingsController {
                                Authentication authentication,
                                HttpSession httpSession) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        boolean isProfileOpen = (boolean) httpSession.getAttribute("isProfileOpen");
+        boolean isProfileOpen = sessionHelper.getOrDefault(httpSession, "isProfileOpen", false);
         httpSession.setAttribute("isProfileOpen", !isProfileOpen);
         model.addAttribute("isProfileOpen", !isProfileOpen);
         model.addAttribute("profilePanelAttribute", ProfilePanelAttribute.builder()

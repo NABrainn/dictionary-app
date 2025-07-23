@@ -8,11 +8,11 @@
 <nav
 class="
 md:justify-between md:p-4 md:py-2
-gap-2 justify-around px-0.5 py-1 flex bg-secondary items-center min-h-18">
+gap-2 justify-around px-1 py-1 flex bg-secondary items-center min-h-18">
     @template.navbar.home-btn(text = navbarLocalization.get("home"))
     @if(isAuthenticated)
         <div
-        class="flex gap-8 justify-center grow-1"
+        class="flex gap-4 justify-center grow-1"
         id="profile-panel">
             @template.navbar.profile-panel(
                 profilePanelAttribute = profilePanelAttribute,

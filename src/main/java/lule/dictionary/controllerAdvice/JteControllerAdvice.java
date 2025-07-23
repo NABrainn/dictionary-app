@@ -1,6 +1,7 @@
 package lule.dictionary.controllerAdvice;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.BaseAttribute;
@@ -8,6 +9,7 @@ import lule.dictionary.dto.application.LanguageData;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.language.LanguageHelper;
+import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.translation.TranslationService;
 import lule.dictionary.service.translation.dto.request.GetWordsLearnedCountRequest;
 import org.springframework.security.core.Authentication;
@@ -23,6 +25,8 @@ public class JteControllerAdvice {
 
     private final TranslationService translationService;
     private final LanguageHelper languageHelper;
+    private final SessionHelper sessionHelper;
+
 
     @ModelAttribute
     public void addBaseAttribute(Model model,
@@ -57,7 +61,7 @@ public class JteControllerAdvice {
                             )).value()
                     )
                     .dailyStreak(userDetails.dailyStreak())
-                    .isProfileOpen((Boolean) httpSession.getAttribute("isProfileOpen"))
+                    .isProfileOpen(sessionHelper.getOrDefault(httpSession, "isProfileOpen", false))
                     .build());
             return;
         }

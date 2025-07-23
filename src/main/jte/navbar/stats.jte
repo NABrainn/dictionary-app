@@ -8,16 +8,31 @@
     <span
     class="
     md:text-lg
-    text-lg font-bold text-neutral text-accent">🧠${wordsLearnedText}: ${wordsLearned}</span>
+    text-lg font-bold text-neutral text-accent">🧠
+        <span class="
+        md:inline
+        hidden">${wordsLearnedText}:</span>
+        <span>${wordsLearned}</span>
+    </span>
     @if(dailyStreak == 1)
         <span
         class="
         md:text-lg
-        text-lg font-bold text-neutral text-accent">💪${daysSingularText}: ${dailyStreak}</span>
+        text-lg font-bold text-neutral text-accent">💪
+            <span class="
+            md:inline
+            hidden">${daysSingularText}:</span>
+            <span>${dailyStreak}</span>
+        </span>
     @else
     <span
     class="
     md:text-lg
-    text-lg font-bold text-neutral text-accent">💪${daysPluralText}: ${dailyStreak}</span>
+    text-lg font-bold text-neutral text-accent">💪
+        <span class="
+        md:inline
+        hidden">${daysPluralText}:</span>
+        <span>${dailyStreak}</span>
+    </span>
     @endif
 </div>
