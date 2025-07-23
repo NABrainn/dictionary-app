@@ -9,13 +9,36 @@
     --color-neutral: #B8CFCE;
     --color-error: #E55050;
 
-      --animate-fade: fadeIn .25s ease-in-out;
-      @keyframes fadeIn {
+    --animate-fade: fadeIn .25s ease-in-out;
+    @keyframes fadeIn {
         0% {
           opacity: 0;
         }
         100% {
           opacity: 1;
         }
-      }
+    }
+
+    --animate-slide-down: slideDown 0.25s ease-in;
+    @keyframes slideDown {
+        0% { transform: translateY(-30%); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+    }
+
+    --animate-slide-up: slideUp 0.25s ease-out;
+    @keyframes slideUp {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(-30%); opacity: 0; }
+    }
+
+   ::view-transition-old(slide-it) {
+     animation: 250ms slideUp;
+   }
+   ::view-transition-new(slide-it) {
+     animation: 250ms slideDown;
+   }
+
+   .profile-panel-transition {
+        view-transition-name: slide-it;
+   }
 }

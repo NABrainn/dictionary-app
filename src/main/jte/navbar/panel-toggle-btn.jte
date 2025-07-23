@@ -6,7 +6,7 @@ size-8 cursor-pointer fill-accent"
 hx-trigger="click"
 hx-get="/settings/profilePanel"
 hx-target="#profile-panel"
-hx-swap="innerHTML">
+hx-swap="innerHTML transition:true">
 	<g>
         <path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967
 			C7.934,13.835,6.157,12.061,3.968,12.061z M16.233,12.061c-2.188,0-3.968,1.773-3.968,3.965c0,2.192,1.778,3.967,3.968,3.967
