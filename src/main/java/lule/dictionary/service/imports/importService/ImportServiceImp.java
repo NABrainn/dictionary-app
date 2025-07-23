@@ -83,7 +83,6 @@ public class ImportServiceImp implements ImportService {
     }
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest insertIntoDatabaseRequest) {
-        System.out.println("leng: " + insertIntoDatabaseRequest.request().content().length());
         return importRepository.createImport(ImportImp.builder()
                 .title(insertIntoDatabaseRequest.request().title())
                 .pageContent(insertIntoDatabaseRequest.content())
