@@ -42,7 +42,7 @@
 
                         !{var word = wordEntry.get(); var wordIndex = wordEntry.getIndex();}
                         !{var wordId = importContentAttribute.importData().content().startIndices().get(paragraphIndex) + wordIndex;}
-                        !{var cleanWord = word.replaceAll("[^\\p{L}\\p{N}]", "").toLowerCase();}
+                        !{var cleanWord = word.replaceAll("[^\\p{L}\\p{N}\\s-]", "").replaceAll("-", " ").toLowerCase();}
                         @if(!cleanWord.isEmpty())
                             @if(importContentAttribute.importData().translations().get(cleanWord) != null)
                                 @if(importContentAttribute.importData().selectedWordId() == wordId)
@@ -187,7 +187,7 @@
                                         bgColor = "bg-tertiary",
                                         textColor = "text-neutral",
                                         familiarity = null,
-                                        translationAttribute = null,
+                                        translationAttribute = null
                                     )
                                 @else
                                     @template.document-page.content.word(
@@ -198,7 +198,7 @@
                                         bgColor = "bg-accent",
                                         textColor = "text-primary",
                                         familiarity = null,
-                                        translationAttribute = null,
+                                        translationAttribute = null
                                     )
                                 @endif
                             @endif
