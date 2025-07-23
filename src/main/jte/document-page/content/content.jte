@@ -24,7 +24,7 @@
         )
         <div
         class="
-        w-full px-2 min-h-175
+        w-full px-2 min-h-172
         md:w-3/5 mx-auto text-wrap">
             @if(importContentAttribute.paginationData().currentPageNumber() == 1)
                 <span
