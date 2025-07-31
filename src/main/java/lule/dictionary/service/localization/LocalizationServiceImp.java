@@ -47,7 +47,7 @@ public class LocalizationServiceImp implements LocalizationService {
     }
 
     @Override
-    public Map<String, String> createImportLocalization(Language language) {
+    public Map<String, String> documentFormLocalization(Language language) {
         List<String> keys = List.of("title", "content", "import_by_url", "insert_manually", "space_for_url", "space_for_content", "submit");
         return switch (language) {
             case NO -> constructMap(keys, List.of("Tittel", "Innhold", "Importer via URL", "Sett inn manuelt", "Plass for URL", "Plass for innhold", "Send inn"));

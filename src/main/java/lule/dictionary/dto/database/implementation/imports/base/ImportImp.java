@@ -3,7 +3,7 @@ package lule.dictionary.dto.database.implementation.imports.base;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.database.interfaces.imports.base.Import;
+import lule.dictionary.dto.database.interfaces.imports.base.Document;
 import lule.dictionary.service.language.Language;
 
 @Builder(toBuilder = true)
@@ -20,7 +20,7 @@ public record ImportImp(
         Language targetLanguage,
         @NonNull
         String owner,
-        int totalContentLength) implements Import {
+        int totalContentLength) implements Document {
 
         @Override
         public String pageContent() {

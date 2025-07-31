@@ -1,5 +1,4 @@
 @import lule.dictionary.enumeration.Familiarity
-@import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
 
 @param int wordIndex
 @param int importId
@@ -8,7 +7,6 @@
 @param String bgColor
 @param String textColor
 @param Familiarity familiarity 
-@param TranslationAttribute translationAttribute
 @param boolean found = false
 @param boolean selected = false
 @param boolean selectable = true

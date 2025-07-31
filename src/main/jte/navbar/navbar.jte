@@ -1,8 +1,6 @@
-@import java.util.Map
-@import lule.dictionary.dto.application.attribute.ProfilePanelAttribute
+@import lule.dictionary.dto.application.attribute.NavbarAttribute
 
-@param ProfilePanelAttribute profilePanelAttribute
-@param Map<String, String> navbarLocalization
+@param NavbarAttribute navbarAttribute
 @param boolean isAuthenticated
 @param boolean isProfileOpen
 @param boolean isProfileToggleBtnVisible = true
@@ -11,17 +9,17 @@
     class="
     md:justify-between md:p-4 md:py-2
     gap-2 justify-between px-1.5 flex bg-secondary items-center min-h-18">
-        @template.navbar.home-btn(text = navbarLocalization.get("home"))
+        @template.navbar.home-btn(text = navbarAttribute.homeBtnText())
         @if(isAuthenticated)
             @if(isProfileToggleBtnVisible)
                 @template.navbar.panel-toggle-btn()
             @endif
             @template.navbar.logout-btn(
-            text = profilePanelAttribute.logoutBtnText()
+            text = navbarAttribute.logoutBtnText()
         )
         @else
             @template.navbar.login-btn(
-                text = navbarLocalization.get("log_in")
+                text = navbarAttribute.loginBtnText()
             )
         @endif
     </nav>
@@ -29,7 +27,7 @@
         <div
         id="profile-panel">
             @template.navbar.profile-panel(
-                profilePanelAttribute = profilePanelAttribute,
+                navbarAttribute = navbarAttribute,
                 isProfileOpen = isProfileOpen
             )
         </div>

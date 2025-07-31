@@ -3,10 +3,9 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.DocumentWithContent;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
-import lule.dictionary.dto.database.interfaces.imports.base.Import;
-import lule.dictionary.dto.database.interfaces.imports.ImportWithId;
+import lule.dictionary.dto.database.interfaces.imports.base.Document;
 import lule.dictionary.service.language.Language;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,7 +24,7 @@ public class ImportRepository {
 
     private final JdbcTemplate template;
 
-    public OptionalInt createImport(Import importt) {
+    public OptionalInt createImport(Document importt) {
         final String sql = """
                 INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner, total_length)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -51,7 +50,7 @@ public class ImportRepository {
     }
 
 
-    public Optional<ImportWithPagination> findById(int id, int page) {
+    public Optional<DocumentWithContent> findById(int id, int page) {
         String sql = """
                 SELECT
                     imports_id,
@@ -70,7 +69,7 @@ public class ImportRepository {
                 WHERE imports.imports_id=?
                 """;
         try {
-            List<ImportWithPagination> found = template.query(sql, IMPORT_WITH_PAGINATION,
+            List<DocumentWithContent> found = template.query(sql, IMPORT_WITH_PAGINATION,
                     page,
                     id
             );

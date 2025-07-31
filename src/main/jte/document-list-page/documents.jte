@@ -1,20 +1,18 @@
 @import lule.dictionary.dto.application.BaseAttribute
+@import lule.dictionary.dto.application.attribute.DocumentsLocalizationAttribute
+@import lule.dictionary.dto.application.attribute.NavbarAttribute
 @import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData
 @import java.util.List
-@import java.util.Map
-@import lule.dictionary.dto.application.attribute.ProfilePanelAttribute
 
-@param ProfilePanelAttribute profilePanelAttribute
-@param List<ImportWithTranslationData> imports
+@param NavbarAttribute navbarAttribute
 @param BaseAttribute baseAttribute
-@param Map<String, String> navbarLocalization
-@param Map<String, String> documentsLocalization
+@param DocumentsLocalizationAttribute documentsLocalizationAttribute
+@param List<ImportWithTranslationData> documentsAttribute 
 
 
 @template.layout.base(content = @`
     @template.navbar.navbar(
-        navbarLocalization = navbarLocalization,
-        profilePanelAttribute = profilePanelAttribute,
+        navbarAttribute = navbarAttribute,
         isAuthenticated = baseAttribute.isAuthenticated(),
         isProfileOpen = baseAttribute.isProfileOpen()
     )
@@ -22,22 +20,22 @@
         <div
         class="md:w-3/5
         w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral animate-fade">
-                @if(imports.isEmpty())
+                @if(documentsAttribute.isEmpty())
                     <div class="flex justify-center">
-                        <span class="text-neutral font-bold">${documentsLocalization.get("there_are_no_documents_in_the_library")}
+                        <span class="text-neutral font-bold">${documentsLocalizationAttribute.noDocumentsText()}
                             <a
                             class="cursor-pointer text-accent underline"
                             hx-get="/imports/new"
                             hx-target="#main"
                             hx-swap="innerHTML"
-                            hx-push-url="/imports/new">${documentsLocalization.get("click_here")}</a> ${documentsLocalization.get("to_add_your_first")}
+                            hx-push-url="/imports/new">${documentsLocalizationAttribute.clickHereBtnText()}</a> ${documentsLocalizationAttribute.addBookBtnText()}
                         </span>
                     </div>
                 @else
                     <div
                     class="md:grid-cols-3
                     grid-cols-1 grid gap-2">
-                        @for(var item : imports)
+                        @for(var item : documentsAttribute)
                             <div
                             class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer"
                             hx-get="/imports/${item.id()}?page=1"
@@ -52,10 +50,10 @@
                                 class="md:text-xl
                                 text-lg font-bold truncate text-primary">${item.title()}</p>
                                 <div class="flex flex-col gap-1">
-                                    <span>${documentsLocalization.get("words_total")}: <span class="text-secondary font-bold">${item.wordCount()}</span></span>
-                                    <span>${documentsLocalization.get("new_words")}: <span class="text-secondary font-bold">${item.newWordCount()}</span></span>
-                                    <span>${documentsLocalization.get("translations")}: <span class="text-secondary font-bold">${item.translationCount()}</span></span>
-                                    <span>${documentsLocalization.get("author")}: <span class="text-secondary font-bold">${item.owner()}</span></span>
+                                    <span>${documentsLocalizationAttribute.wordsTotalText()}: <span class="text-secondary font-bold">${item.wordCount()}</span></span>
+                                    <span>${documentsLocalizationAttribute.newWordsText()}: <span class="text-secondary font-bold">${item.newWordCount()}</span></span>
+                                    <span>${documentsLocalizationAttribute.translationsText()}: <span class="text-secondary font-bold">${item.translationCount()}</span></span>
+                                    <span>${documentsLocalizationAttribute.authorText()}: <span class="text-secondary font-bold">${item.owner()}</span></span>
                                 </div>
                             </div>
                         @endfor
@@ -68,7 +66,7 @@
                     hx-target="#main"
                     hx-swap="innerHTML"
                     hx-push-url="/imports/new"
-                    type="button">${documentsLocalization.get("add_book")}</button>
+                    type="button">${documentsLocalizationAttribute.addBookBtnText()}</button>
                 </div>
             </div>
     @endif

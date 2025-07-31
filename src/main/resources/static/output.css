@@ -34,8 +34,6 @@
     --color-neutral: #B8CFCE;
     --color-error: #E55050;
     --animate-fade: fadeIn .25s ease-in-out;
-    --animate-slide-down: slideDown 0.25s ease-in;
-    --animate-slide-up: slideUp 0.25s ease-out;
   }
 }
 @layer base {
@@ -211,9 +209,6 @@
   .right-4 {
     right: calc(var(--spacing) * 4);
   }
-  .bottom-0 {
-    bottom: calc(var(--spacing) * 0);
-  }
   .bottom-8 {
     bottom: calc(var(--spacing) * 8);
   }
@@ -314,17 +309,8 @@
   .grow-1 {
     flex-grow: 1;
   }
-  .transform {
-    transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
-  }
   .animate-fade {
     animation: var(--animate-fade);
-  }
-  .animate-slide-down {
-    animation: var(--animate-slide-down);
-  }
-  .animate-slide-up {
-    animation: var(--animate-slide-up);
   }
   .animate-spin {
     animation: var(--animate-spin);
@@ -349,9 +335,6 @@
   }
   .items-center {
     align-items: center;
-  }
-  .justify-around {
-    justify-content: space-around;
   }
   .justify-between {
     justify-content: space-between;
@@ -507,9 +490,6 @@
   .py-1 {
     padding-block: calc(var(--spacing) * 1);
   }
-  .py-1\.5 {
-    padding-block: calc(var(--spacing) * 1.5);
-  }
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
   }
@@ -633,11 +613,6 @@
       visibility: hidden;
     }
   }
-  .md\:static {
-    @media (width >= 48rem) {
-      position: static;
-    }
-  }
   .md\:hidden {
     @media (width >= 48rem) {
       display: none;
@@ -718,26 +693,6 @@
     }
   }
 }
-@property --tw-rotate-x {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-rotate-y {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-rotate-z {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-skew-x {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-skew-y {
-  syntax: "*";
-  inherits: false;
-}
 @property --tw-border-style {
   syntax: "*";
   inherits: false;
@@ -764,34 +719,9 @@
     opacity: 1;
   }
 }
-@keyframes slideDown {
-  0% {
-    transform: translateY(-30%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-@keyframes slideUp {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-30%);
-    opacity: 0;
-  }
-}
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
-      --tw-rotate-x: initial;
-      --tw-rotate-y: initial;
-      --tw-rotate-z: initial;
-      --tw-skew-x: initial;
-      --tw-skew-y: initial;
       --tw-border-style: solid;
       --tw-leading: initial;
       --tw-font-weight: initial;

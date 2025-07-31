@@ -1,9 +1,7 @@
 @import lule.dictionary.dto.application.result.ServiceResultImp
-@import java.util.Map
 
 @param ServiceResultImp<?> result
-@param Map<String, String> importFormLocalization
-
+@param String spaceForContentText
 
 <div class="flex flex-col" id="content">
     <input type="hidden" name="url">
@@ -16,7 +14,7 @@
         focus:border-accent w-full"
         name="content"
         id="area"
-        placeholder="${importFormLocalization.get("space_for_content")}"></textarea>
+        placeholder="${spaceForContentText}"></textarea>
         @if(result != null)
             @if(result.hasError() && result.messages().get("pageContent") != null)
                 <span class="text-error font-semibold text-sm">${result.messages().get("pageContent")}</span>
