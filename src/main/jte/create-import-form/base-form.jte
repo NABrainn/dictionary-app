@@ -1,19 +1,17 @@
 @import lule.dictionary.dto.application.BaseAttribute
+@import lule.dictionary.dto.application.attribute.DocumentFormAttribute
+@import lule.dictionary.dto.application.attribute.NavbarAttribute
 @import lule.dictionary.dto.application.result.ServiceResultImp
-@import java.util.Map
-@import lule.dictionary.dto.application.attribute.ProfilePanelAttribute
 
-@param ProfilePanelAttribute profilePanelAttribute
+@param DocumentFormAttribute documentFormAttribute
+@param NavbarAttribute navbarAttribute
+@param BaseAttribute baseAttribute
 @param ServiceResultImp<?> result = null
-@param BaseAttribute baseAttribute 
-@param Map<String, String> navbarLocalization
-@param Map<String, String> importFormLocalization
 
 
 @template.layout.base(content = @`
     @template.navbar.navbar(
-        navbarLocalization = navbarLocalization,
-        profilePanelAttribute = profilePanelAttribute,
+        navbarAttribute = navbarAttribute,
         isAuthenticated = baseAttribute.isAuthenticated(),
         isProfileOpen = baseAttribute.isProfileOpen()
     )
@@ -26,7 +24,7 @@
     hx-push-url="true">
         <input type="hidden" name="${baseAttribute._csrf().getParameterName()}" value="${baseAttribute._csrf().getToken()}">
         <div class="flex flex-col gap-2">
-            <label class="text-accent font-bold text-2xl min-h-8" for="title">${importFormLocalization.get("title")}</label>
+            <label class="text-accent font-bold text-2xl min-h-8" for="title">${documentFormAttribute.titleText()}</label>
             <input
             class="
             outline-none border border-2 border-primary rounded text-neutral
@@ -44,7 +42,7 @@
             @endif
         </div>
         <div class="flex flex-col gap-4">
-            <span class="text-accent font-bold text-2xl">${importFormLocalization.get("content")}</span>
+            <span class="text-accent font-bold text-2xl">${documentFormAttribute.contentText()}</span>
             <div class="flex justify-center">
                 <button class="
                 bg-primary border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
@@ -54,7 +52,7 @@
                 hx-target="#content"
                 hx-swap="outerHTML"
                 hx-push-url="false"
-                autofocus>${importFormLocalization.get("import_by_url")}</button>
+                autofocus>${documentFormAttribute.importByUrlBtnText()}</button>
                 <button class="
                 border border-2 border-l-1 border-primary text-accent px-4 py-1 grow-1"
                 type="button"
@@ -62,17 +60,17 @@
                 hx-get="/imports/textarea-form"
                 hx-target="#content"
                 hx-swap="outerHTML"
-                hx-push-url="false">${importFormLocalization.get("insert_manually")}</button>
+                hx-push-url="false">${documentFormAttribute.insertManuallyBtnText()}</button>
             </div>
             @template.create-import-form.url-form(
                 result = result,
-                importFormLocalization = importFormLocalization
+                spaceForUrlText = documentFormAttribute.spaceForUrlText()
             )
         </div>
         <div>
             <button
             type="submit"
-            class="text-left px-2 py-1 bg-accent text-primary rounded cursor-pointer">${importFormLocalization.get("submit")}</button>
+            class="text-left px-2 py-1 bg-accent text-primary rounded cursor-pointer">${documentFormAttribute.submitBtnText()}</button>
         </div>
     </form>
     <script>

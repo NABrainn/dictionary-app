@@ -1,5 +1,5 @@
 @import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.dto.application.attribute.ProfilePanelAttribute
+@import lule.dictionary.dto.application.attribute.NavbarAttribute
 @import lule.dictionary.dto.application.result.ServiceResultImp
 @import java.util.Map
 
@@ -7,13 +7,12 @@
 @param BaseAttribute baseAttribute 
 @param Map<String, String> navbarLocalization
 @param Map<String, String> authLocalization
-@param ProfilePanelAttribute profilePanelAttribute 
+@param NavbarAttribute profilePanelAttribute
 
 
 @template.layout.base(authView = @`
     @template.navbar.navbar(
-        navbarLocalization = navbarLocalization,
-        profilePanelAttribute = profilePanelAttribute,
+        navbarAttribute = profilePanelAttribute,
         isAuthenticated = baseAttribute.isAuthenticated(),
         isProfileOpen = baseAttribute.isProfileOpen()
     )

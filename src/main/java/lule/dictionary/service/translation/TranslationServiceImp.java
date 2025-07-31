@@ -10,13 +10,11 @@ import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.request.ServiceRequest;
 import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.dto.application.result.ServiceResult;
-import lule.dictionary.service.imports.importService.dto.FormPositionData;
 import lule.dictionary.service.libreTranslate.LibreTranslateService;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
-import lule.dictionary.service.translation.dto.attribute.TranslationPair;
 import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import lule.dictionary.service.validation.ValidationService;
@@ -110,7 +108,7 @@ public class TranslationServiceImp implements TranslationService {
                     .build();
             throw new TranslationNotFoundException(ServiceResultImp.error(translationAttribute, Map.of()));
         } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(ServiceResultImp.errorEmpty(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+            throw new InvalidInputException(ServiceResultImp.error(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
     }
 
@@ -190,7 +188,7 @@ public class TranslationServiceImp implements TranslationService {
             }
             throw new RuntimeException("Unknown exception");
         } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(ServiceResultImp.errorEmpty(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+            throw new InvalidInputException(ServiceResultImp.error(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
     }
 

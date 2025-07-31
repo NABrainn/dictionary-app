@@ -30,15 +30,4 @@
         0% { transform: translateY(0); opacity: 1; }
         100% { transform: translateY(-30%); opacity: 0; }
     }
-
-   ::view-transition-old(slide-it) {
-     animation: 250ms slideUp;
-   }
-   ::view-transition-new(slide-it) {
-     animation: 250ms slideDown;
-   }
-
-   .profile-panel-transition {
-        view-transition-name: slide-it;
-   }
 }

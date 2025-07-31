@@ -2,6 +2,6 @@ package lule.dictionary.dto.database.interfaces.imports;
 
 import lule.dictionary.dto.database.interfaces.imports.base.Document;
 
-public interface ImportWithId extends Document {
-    int id();
+public interface DocumentWithContent extends Document {
+    String pageContent();
 }

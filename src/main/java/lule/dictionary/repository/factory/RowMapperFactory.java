@@ -5,9 +5,9 @@ import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
 import lule.dictionary.dto.database.implementation.imports.ImportWithPaginationImp;
 import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
 import lule.dictionary.dto.database.implementation.userProfile.base.UserProfileImp;
-import lule.dictionary.dto.database.interfaces.imports.ImportWithPagination;
+import lule.dictionary.dto.database.interfaces.imports.DocumentWithContent;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
-import lule.dictionary.dto.database.interfaces.imports.base.Import;
+import lule.dictionary.dto.database.interfaces.imports.base.Document;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Familiarity;
@@ -60,7 +60,7 @@ public class RowMapperFactory {
                     .build()
     );
 
-    public static final RowMapper<Import> IMPORT = ((rs, rowNum) ->
+    public static final RowMapper<Document> IMPORT = ((rs, rowNum) ->
             ImportImp.builder()
                     .title(rs.getString("title"))
                     .url(rs.getString("url"))
@@ -72,7 +72,7 @@ public class RowMapperFactory {
                     .build()
     );
 
-    public static final RowMapper<ImportWithPagination> IMPORT_WITH_PAGINATION = ((rs, rowNum) ->
+    public static final RowMapper<DocumentWithContent> IMPORT_WITH_PAGINATION = ((rs, rowNum) ->
             ImportWithPaginationImp.builder()
                     .title(rs.getString("title"))
                     .url(rs.getString("url"))

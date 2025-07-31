@@ -90,25 +90,25 @@ public class AuthService {
     public ServiceResult<?> logout(@NonNull HttpServletResponse httpServletResponse) {
         clearAuthentication();
         deleteJwtCookie(httpServletResponse);
-        return ServiceResultImp.successEmpty(Map.of());
+        return ServiceResultImp.success(Map.of());
     }
 
     private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response, HttpSession httpSession) throws ConstraintViolationException, UserNotFoundException {
         validate(loginData);
         AuthenticationData authResult = authenticateUser(loginData);
         setAuthenticationContext(SessionContext.of(authResult, response, httpSession));
-        return ServiceResultImp.successEmpty(Map.of());
+        return ServiceResultImp.success(Map.of());
     }
 
     private ServiceResult<?> handleException(Map<String, String> errorMessages) {
-        return ServiceResultImp.errorEmpty(errorMessages);
+        return ServiceResultImp.error(errorMessages);
     }
 
     private ServiceResult<?> processSignupRequest(SignupRequest signupData) throws ConstraintViolationException, UserExistsException {
         validate(signupData);
         checkIfUserExists(signupData);
         addUser(signupData);
-        return ServiceResultImp.successEmpty(Map.of());
+        return ServiceResultImp.success(Map.of());
     }
 
     private void addUser(SignupRequest signupData) {

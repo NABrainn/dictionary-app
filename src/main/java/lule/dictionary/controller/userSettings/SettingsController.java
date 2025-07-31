@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.dto.application.LanguageData;
-import lule.dictionary.dto.application.attribute.ProfilePanelAttribute;
+import lule.dictionary.dto.application.attribute.NavbarAttribute;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.language.LanguageHelper;
@@ -47,7 +47,7 @@ public class SettingsController {
         boolean isProfileOpen = sessionHelper.getOrDefault(httpSession, "isProfileOpen", false);
         httpSession.setAttribute("isProfileOpen", !isProfileOpen);
         model.addAttribute("isProfileOpen", !isProfileOpen);
-        model.addAttribute("profilePanelAttribute", ProfilePanelAttribute.builder()
+        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                 .languageDataList(languageHelper.getAllLanguageData())
                 .targetLanguage(LanguageData.of(
                                 principal.targetLanguage(),
@@ -56,18 +56,15 @@ public class SettingsController {
                                 languageHelper.getImagePath(principal.targetLanguage())
                         )
                 )
-                .wordsLearned(translationService.getWordsLearnedCount(
-                        GetWordsLearnedCountRequest.of(
-                                principal.getUsername(),
-                                principal.targetLanguage()
-                        )).value())
+                .wordsLearned(translationService.getWordsLearnedCount(principal).value())
                 .dailyStreak(principal.dailyStreak())
                 .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
                 .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
                 .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
                 .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
-                .build()
-        );
+                .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
+                .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
+                .build());
         return "navbar/profile-panel";
     }
 
