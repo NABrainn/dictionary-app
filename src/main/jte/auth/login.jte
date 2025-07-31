@@ -5,14 +5,13 @@
 
 @param ServiceResultImp<?> result
 @param BaseAttribute baseAttribute 
-@param Map<String, String> navbarLocalization
 @param Map<String, String> authLocalization
-@param NavbarAttribute profilePanelAttribute
+@param NavbarAttribute navbarAttribute
 
 
 @template.layout.base(authView = @`
     @template.navbar.navbar(
-        navbarAttribute = profilePanelAttribute,
+        navbarAttribute = navbarAttribute,
         isAuthenticated = baseAttribute.isAuthenticated(),
         isProfileOpen = baseAttribute.isProfileOpen()
     )

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
 import lule.dictionary.dto.database.interfaces.translation.TranslationDetails;
+import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.request.ServiceRequest;
 import lule.dictionary.dto.application.result.ServiceResultImp;
@@ -193,8 +194,8 @@ public class TranslationServiceImp implements TranslationService {
     }
 
     @Override
-    public ServiceResult<Integer> getWordsLearnedCount(GetWordsLearnedCountRequest request) {
-        return ServiceResultImp.success(translationRepository.getWordsLearnedCount(request.owner(), request.targetLanguage()));
+    public ServiceResult<Integer> getWordsLearnedCount(CustomUserDetails principal) {
+        return ServiceResultImp.success(translationRepository.getWordsLearnedCount(principal.getUsername(), principal.targetLanguage()));
     }
 
 
