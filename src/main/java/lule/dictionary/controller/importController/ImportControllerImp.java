@@ -115,8 +115,8 @@ public class ImportControllerImp implements ImportController {
                              Authentication authentication) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            DocumentContentAttribute documentContentAttribute = loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
-            model.addAttribute("documentContentAttribute", documentContentAttribute);
+            DocumentAttribute documentAttribute = loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
+            model.addAttribute("documentContentAttribute", documentAttribute);
             model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                     .languageDataList(languageHelper.getAllLanguageData())
                     .targetLanguage(LanguageData.of(
@@ -219,7 +219,7 @@ public class ImportControllerImp implements ImportController {
         return principal.getUsername();
     }
 
-    private DocumentContentAttribute loadDocumentContent(LoadDocumentContentRequest loadRequest) {
+    private DocumentAttribute loadDocumentContent(LoadDocumentContentRequest loadRequest) {
         return importService.loadDocumentContent(loadRequest).value();
     }
 
