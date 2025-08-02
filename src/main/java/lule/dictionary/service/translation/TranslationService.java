@@ -6,6 +6,7 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 
+import java.util.List;
 import java.util.Map;
 
 public interface TranslationService {
@@ -16,4 +17,5 @@ public interface TranslationService {
     ServiceResult<TranslationAttribute> deleteSourceWord(DeleteSourceWordRequest request);
     ServiceResult<Integer> getWordsLearnedCount(CustomUserDetails principal);
     ServiceResult<Map<String, Translation>> findTranslationsByImport(FindTranslationsByImportRequest request);
+    ServiceResult<List<String>> extractPhrases(String content, String owner);
 }

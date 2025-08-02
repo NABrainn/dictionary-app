@@ -18,7 +18,7 @@
             placeholderText = translationLocalization.get("add_translation"),
             sourceLanguage = translationAttribute.translation().sourceLanguage().name(),
             targetLanguage = translationAttribute.translation().targetLanguage().name(),
-            importId = translationAttribute.importId(),
+            documentId = translationAttribute.documentId(),
             selectedWordId = translationAttribute.selectedWordId(),
             sourceWords = translationAttribute.translation().sourceWords(),
             targetWord = translationAttribute.translation().targetWord()

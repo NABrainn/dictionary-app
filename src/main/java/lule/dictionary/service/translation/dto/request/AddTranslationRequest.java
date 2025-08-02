@@ -11,7 +11,7 @@ import lule.dictionary.service.language.Language;
 import java.util.List;
 
 @Builder
-public record AddTranslationRequest(int importId,
+public record AddTranslationRequest(int documentId,
                                     int selectedWordId,
                                     @NonNull
                                     List<

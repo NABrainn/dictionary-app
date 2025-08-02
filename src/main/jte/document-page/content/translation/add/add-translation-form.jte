@@ -31,7 +31,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
-                "importId": "${translationAttribute.importId()}",
+                "documentId": "${translationAttribute.documentId()}",
                 "selectedWordId": "${translationAttribute.selectedWordId()}"
             }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"

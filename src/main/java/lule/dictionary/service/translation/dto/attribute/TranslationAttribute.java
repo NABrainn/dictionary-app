@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @Builder
-public record TranslationAttribute(int importId,
+public record TranslationAttribute(int documentId,
                                    int selectedWordId,
                                    int translationId,
                                    Translation translation,

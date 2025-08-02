@@ -116,7 +116,7 @@ public class ImportControllerImp implements ImportController {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             DocumentAttribute documentAttribute = loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
-            model.addAttribute("documentContentAttribute", documentAttribute);
+            model.addAttribute("documentAttribute", documentAttribute);
             model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                     .languageDataList(languageHelper.getAllLanguageData())
                     .targetLanguage(LanguageData.of(
@@ -124,8 +124,7 @@ public class ImportControllerImp implements ImportController {
                                     languageHelper.getFullName(principal.targetLanguage()),
                                     languageHelper.getAbbreviation(principal.targetLanguage()),
                                     languageHelper.getImagePath(principal.targetLanguage())
-                            )
-                    )
+                            ))
                     .wordsLearned(translationService.getWordsLearnedCount(principal).value())
                     .dailyStreak(principal.dailyStreak())
                     .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
@@ -173,8 +172,7 @@ public class ImportControllerImp implements ImportController {
                                     languageHelper.getFullName(principal.targetLanguage()),
                                     languageHelper.getAbbreviation(principal.targetLanguage()),
                                     languageHelper.getImagePath(principal.targetLanguage())
-                            )
-                    )
+                            ))
                     .wordsLearned(translationService.getWordsLearnedCount(principal).value())
                     .dailyStreak(principal.dailyStreak())
                     .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))

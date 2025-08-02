@@ -9,7 +9,7 @@
 @template.layout.base(content = @`
 
     @template.document-page.content.content(
-    documentAttribute = documentAttribute,
+        documentAttribute = documentAttribute,
         baseAttribute = baseAttribute,
         navbarAttribute = navbarAttribute
     )

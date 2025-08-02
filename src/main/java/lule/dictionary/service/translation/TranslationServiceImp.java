@@ -49,14 +49,14 @@ public class TranslationServiceImp implements TranslationService {
                     .targetLanguage(request.targetLanguage())
                     .owner(request.owner())
                     .build();
-            int translationId = insertIntoDatabase(translation, request.importId());
+            int translationId = insertIntoDatabase(translation, request.documentId());
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translationId(translationId)
                     .translation(translation)
                     .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
-                    .importId(request.importId())
+                    .documentId(request.documentId())
                     .build();
             return ServiceResultImp.success(translationAttribute);
         } catch (ConstraintViolationException e) {
@@ -66,7 +66,7 @@ public class TranslationServiceImp implements TranslationService {
                     .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
                     .translationId(-1)
-                    .importId(request.importId())
+                    .documentId(request.documentId())
                     .build();
             throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
@@ -85,7 +85,7 @@ public class TranslationServiceImp implements TranslationService {
                         .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                         .familiarityLevels(getFamiliarityTable())
                         .translationId(-1)
-                        .importId(request.importId())
+                        .documentId(request.documentId())
                         .build();
                 return ServiceResultImp.success(translationAttribute);
             }
@@ -105,7 +105,7 @@ public class TranslationServiceImp implements TranslationService {
                     .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
                     .translationId(-1)
-                    .importId(request.importId())
+                    .documentId(request.documentId())
                     .build();
             throw new TranslationNotFoundException(ServiceResultImp.error(translationAttribute, Map.of()));
         } catch (ConstraintViolationException e) {
@@ -123,7 +123,7 @@ public class TranslationServiceImp implements TranslationService {
                 .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                 .familiarityLevels(getFamiliarityTable())
                 .translationId(-1)
-                .importId(-1)
+                .documentId(-1)
                 .build();
         return ServiceResultImp.success(translationAttribute);
     }
@@ -135,7 +135,7 @@ public class TranslationServiceImp implements TranslationService {
             Optional<Translation> optionalTranslation = executeDatabaseUpdate(request);
             if(optionalTranslation.isPresent()) {
                 TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                        .importId(-1)
+                        .documentId(-1)
                         .selectedWordId(request.selectedWordId())
                         .translationId(-1)
                         .translation(optionalTranslation.get())
@@ -160,7 +160,7 @@ public class TranslationServiceImp implements TranslationService {
                     .owner(request.owner())
                     .build();
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                    .importId(-1)
+                    .documentId(-1)
                     .selectedWordId(request.selectedWordId())
                     .translationId(-1)
                     .translation(translation)
@@ -178,7 +178,7 @@ public class TranslationServiceImp implements TranslationService {
             Optional<Translation> optionalTranslation = translationRepository.deleteSourceWord(request);
             if(optionalTranslation.isPresent()) {
                 TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                        .importId(-1)
+                        .documentId(-1)
                         .selectedWordId(request.selectedWordId())
                         .translationId(-1)
                         .translation(optionalTranslation.get())
@@ -205,6 +205,13 @@ public class TranslationServiceImp implements TranslationService {
         Map<String, Translation> translations = extractTranslationsFromDatabase(wordList, request.owner());
         return ServiceResultImp.success(translations);
     }
+
+    @Override
+    public ServiceResult<List<String>> extractPhrases(String content, String owner) {
+        List<String> phrases = translationRepository.extractPhrases(content, owner);
+        return ServiceResultImp.success(phrases);
+    }
+
 
     private List<String> getContentAsWordList(FindTranslationsByImportRequest request) {
         return Arrays.stream(request.anImport().pageContent().replaceAll("\n+", " ")

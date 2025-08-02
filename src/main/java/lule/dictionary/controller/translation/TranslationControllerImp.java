@@ -34,13 +34,13 @@ public class TranslationControllerImp {
     @GetMapping("")
     public String findByTargetWord(Model model,
                                    Authentication authentication,
-                                   @RequestParam int importId,
+                                   @RequestParam int documentId,
                                    @RequestParam String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         try {
             FindByTargetWordRequest request = FindByTargetWordRequest.builder()
-                    .importId(importId)
+                    .documentId(documentId)
                     .selectedWordId(selectedWordId)
                     .targetWord(targetWord)
                     .sourceLanguage(principal.sourceLanguage())
@@ -72,12 +72,12 @@ public class TranslationControllerImp {
                                  @RequestParam("familiarity") Familiarity familiarity,
                                  @RequestParam("sourceLanguage") Language sourceLanguage,
                                  @RequestParam("targetLanguage") Language targetLanguage,
-                                 @RequestParam("documentId") int importId,
+                                 @RequestParam("documentId") int documentId,
                                  @RequestParam("selectedWordId") int selectedWordId) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             AddTranslationRequest request = AddTranslationRequest.builder()
-                    .importId(importId)
+                    .documentId(documentId)
                     .selectedWordId(selectedWordId)
                     .sourceWords(sourceWords)
                     .targetWord(targetWord)

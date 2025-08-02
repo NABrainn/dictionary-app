@@ -12,6 +12,9 @@ import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
+import lule.dictionary.service.imports.importService.dto.Phrase;
+import lule.dictionary.service.imports.importService.dto.Selectable;
+import lule.dictionary.service.imports.importService.dto.Word;
 import lule.dictionary.service.imports.importService.dto.importData.DocumentPageData;
 import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.repository.ImportRepository;
@@ -43,7 +46,6 @@ public class ImportServiceImp implements ImportService {
     private final PaginationService paginationService;
     private final JsoupService jsoupService;
     private final TranslationService translationService;
-
 
     @Transactional
     public ServiceResult<Integer> createImport(CreateImportRequest request) throws ConstraintViolationException, UserNotFoundException{
@@ -140,26 +142,59 @@ public class ImportServiceImp implements ImportService {
                 .build();
     }
 
-    private ContentData assembleDocumentContentData(Document importWithPagination) {
-        List<List<String>> paragraphs = extractParagraphs(importWithPagination);
+    private ContentData assembleDocumentContentData(Document document) {
+        List<String> phrases = extractPhrases(document.pageContent(), document.owner());
+        String parsedContent = markPhrases(document.pageContent(), phrases);
+        System.out.println("parsed content: " + parsedContent);
+        List<List<Selectable>> paragraphs = extractParagraphs(parsedContent);
         List<Integer> startIndices = extractIndices(paragraphs);
+        System.out.println("size" + startIndices.size());
         return ContentData.of(paragraphs, startIndices);
+    }
+
+    private List<String> extractPhrases(String content, String owner) {
+        return translationService.extractPhrases(content, owner).value();
+    }
+
+    private String markPhrases(String content, List<String> phrases) {
+        return phrases.stream()
+                .reduce(content, (subtotal, phrase) -> subtotal.replaceAll(phrase, "ph<" + phrase + ">"));
     }
 
     private Map<String, Translation> getTranslationsFromDatabase(Document importWithPagination) {
         return translationService.findTranslationsByImport(FindTranslationsByImportRequest.of(importWithPagination, importWithPagination.owner())).value();
     }
-
-    private List<List<String>> extractParagraphs(Document importWithPagination) {
-        return Stream.of(importWithPagination.pageContent().split("\n+"))
-                .map(paragraph -> Arrays.stream(paragraph.split("\\s+")).toList())
+    private List<List<Selectable>> extractParagraphs(String content) {
+        return Stream.of(content.split("\n+"))
+                .map(paragraph -> Arrays.stream(paragraph.split("\\s+"))
+                        .map(selectable -> selectable.startsWith("ph<") && selectable.endsWith(">") ?
+                                Phrase.of(convertPhraseLiteral(selectable)) :
+                                (Selectable) Word.of(selectable))
+                        .toList())
                 .filter(list -> !list.isEmpty())
                 .toList();
     }
 
-    private List<Integer> extractIndices(List<List<String>> paragraphs) {
-        return IntStream.range(0, paragraphs.size())
-                .map(i -> 1 + paragraphs.subList(0, i).stream().mapToInt(List::size).sum())
+    private List<String> convertPhraseLiteral(String selectable) {
+        return Arrays.stream(selectable
+                .replaceAll("ph<", "")
+                .replaceAll(">", "")
+                .replaceAll("-", " ")
+                .split(" "))
+                .toList();
+    }
+
+    private List<Integer> extractIndices(List<List<Selectable>> paragraphs) {
+        return IntStream.range(0, paragraphs.stream()
+                        .map(paragraph -> paragraph.stream()
+                                .map(selectable -> selectable instanceof Phrase ?
+                                        String.join("", ((Phrase) selectable).phrase()) :
+                                        selectable))
+                        .toList()
+                        .size())
+                .map(i -> 1 + paragraphs.subList(0, i).stream()
+                        .mapToInt(List::size)
+                        .sum())
                 .boxed()
                 .toList();
     }

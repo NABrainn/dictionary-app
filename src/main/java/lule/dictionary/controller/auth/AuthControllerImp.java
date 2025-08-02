@@ -32,8 +32,6 @@ public class AuthControllerImp implements AuthController {
 
     private final AuthService authService;
     private final LocalizationService localizationService;
-    private final LanguageHelper languageHelper;
-    private final TranslationService translationService;
 
     @GetMapping({"/login", "/login/"})
     public String loginPage(Model model,
@@ -92,7 +90,8 @@ public class AuthControllerImp implements AuthController {
                 .homeBtnText(localizationService.navbarLocalization(sourceLanguage).get("home"))
                 .wordsLearned(-1)
                 .dailyStreak(-1)
-                .build());        model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
+                .build());
+        model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
         return "auth/signup";
     }
 
@@ -117,6 +116,12 @@ public class AuthControllerImp implements AuthController {
             return "auth/signup";
         }
         model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
+        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
+                .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
+                .homeBtnText(localizationService.navbarLocalization(sourceLanguage).get("home"))
+                .wordsLearned(-1)
+                .dailyStreak(-1)
+                .build());
         return "auth/login";
     }
 
