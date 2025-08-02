@@ -59,7 +59,7 @@
 //        return importService.add(addedImport);
 //    }
 //
-//    public void processContent(String pageContent.jte, Language sourceLanguage, Language targetLanguage, String login, int importId) {
+//    public void processContent(String pageContent.jte, Language sourceLanguage, Language targetLanguage, String login, int documentId) {
 //        for (String targetWord : parser.wordsAsList(pageContent.jte)) {
 //            System.out.println("Word: " + targetWord);
 //            System.out.print("Meaning: ");
@@ -79,10 +79,10 @@
 //                            Familiarity.UNKNOWN
 //                    ),
 //                    userProfile
-//            ),  importId);
+//            ),  documentId);
 //        }
 //    }
-//    private void saveTranslation(Translation translation, int importId) {
+//    private void saveTranslation(Translation translation, int documentId) {
 //        while(true) {
 //            Map<String, Familiarity> cases = Map.of(
 //                    "0", Familiarity.UNKNOWN,
@@ -95,7 +95,7 @@
 //            for(var choice : cases.entrySet()) {
 //                String key = choice.getKey();
 //                if(key.equals(input)) {
-//                    translationService.add(translation, importId);
+//                    translationService.add(translation, documentId);
 //                    return;
 //                }
 //            }

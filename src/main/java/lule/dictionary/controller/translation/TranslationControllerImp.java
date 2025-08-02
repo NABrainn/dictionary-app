@@ -72,7 +72,7 @@ public class TranslationControllerImp {
                                  @RequestParam("familiarity") Familiarity familiarity,
                                  @RequestParam("sourceLanguage") Language sourceLanguage,
                                  @RequestParam("targetLanguage") Language targetLanguage,
-                                 @RequestParam("importId") int importId,
+                                 @RequestParam("documentId") int importId,
                                  @RequestParam("selectedWordId") int selectedWordId) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();

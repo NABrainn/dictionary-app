@@ -6,7 +6,7 @@ import lule.dictionary.dto.database.interfaces.imports.base.Document;
 
 @Builder
 public record AssembleDocumentAttributeRequest(int wordId,
-                                               int importId,
+                                               int documentId,
                                                int page,
                                                @NonNull Document document,
                                                int totalLength) {

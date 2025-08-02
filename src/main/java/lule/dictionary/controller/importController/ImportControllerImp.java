@@ -108,8 +108,8 @@ public class ImportControllerImp implements ImportController {
         return "create-import-form/base-form";
     }
 
-    @GetMapping({"/{importId}", "/{importId}/"})
-    public String importPage(@PathVariable("importId") int importId,
+    @GetMapping({"/{documentId}", "/{documentId}/"})
+    public String importPage(@PathVariable("documentId") int importId,
                              @RequestParam(name = "page", defaultValue = "1") int page,
                              Model model,
                              Authentication authentication) {

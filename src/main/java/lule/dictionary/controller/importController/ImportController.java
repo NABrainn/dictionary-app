@@ -14,8 +14,8 @@ public interface ImportController {
     String createImportForm(Model model,
                             Authentication authentication);
 
-    @GetMapping({"/{importId}", "/{importId}/"})
-    String importPage(@PathVariable("importId") int importId,
+    @GetMapping({"/{documentId}", "/{documentId}/"})
+    String importPage(@PathVariable("documentId") int importId,
                       @RequestParam(name = "page", defaultValue = "1") int page,
                       Model model,
                       Authentication authentication);

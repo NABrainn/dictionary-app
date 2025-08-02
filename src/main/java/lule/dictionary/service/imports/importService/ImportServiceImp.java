@@ -2,6 +2,7 @@ package lule.dictionary.service.imports.importService;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.dto.application.ContentData;
 import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
 import lule.dictionary.dto.database.interfaces.imports.base.Document;
@@ -11,7 +12,7 @@ import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
-import lule.dictionary.service.imports.importService.dto.importData.ContentData;
+import lule.dictionary.service.imports.importService.dto.importData.DocumentPageData;
 import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.repository.ImportRepository;
 import lule.dictionary.service.jsoup.JsoupService;
@@ -62,22 +63,22 @@ public class ImportServiceImp implements ImportService {
     }
 
     public ServiceResult<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest loadRequest) {
-        Document document = getDocument(loadRequest);
+        Document document = getImport(loadRequest);
         validatePageNumber(loadRequest.page(), getNumberOfPagesForDocument(document));
         AssembleDocumentAttributeRequest assembleRequest = AssembleDocumentAttributeRequest.builder()
                 .wordId(loadRequest.wordId())
-                .importId(loadRequest.importId())
+                .documentId(loadRequest.documentId())
                 .page(loadRequest.page())
                 .document(document)
                 .totalLength(document.totalContentLength())
                 .build();
-        ContentData contentData = createContentData(assembleRequest);
+        DocumentPageData documentPageData = createDocumentPageData(assembleRequest);
         PaginationData paginationData = createPaginationData(assembleRequest);
-        return ServiceResultImp.success(DocumentAttribute.of(contentData, paginationData));
+        return ServiceResultImp.success(DocumentAttribute.of(documentPageData, paginationData));
     }
 
-    private Document getDocument(LoadDocumentContentRequest loadRequest) throws ImportNotFoundException {
-        return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
+    private Document getImport(LoadDocumentContentRequest loadRequest) throws ImportNotFoundException {
+        return importRepository.findById(loadRequest.documentId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
     }
 
     private List<ImportWithTranslationData> getImportByUsernameAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
@@ -127,25 +128,25 @@ public class ImportServiceImp implements ImportService {
         }
     }
 
-    private ContentData createContentData(AssembleDocumentAttributeRequest request) {
-        lule.dictionary.dto.application.ContentData importContentData = assembleImportContentData(request.document());
-        Map<String, Translation> importTranslations = getImportTranslationsFromDatabase(request.document());
-        return ContentData.builder()
+    private DocumentPageData createDocumentPageData(AssembleDocumentAttributeRequest request) {
+        ContentData documentContentData = assembleDocumentContentData(request.document());
+        Map<String, Translation> translations = getTranslationsFromDatabase(request.document());
+        return DocumentPageData.builder()
                 .selectedWordId(request.wordId())
-                .importId(request.importId())
+                .documentId(request.documentId())
                 .title(request.document().title())
-                .content(importContentData)
-                .translations(importTranslations)
+                .content(documentContentData)
+                .translations(translations)
                 .build();
     }
 
-    private lule.dictionary.dto.application.ContentData assembleImportContentData(Document importWithPagination) {
+    private ContentData assembleDocumentContentData(Document importWithPagination) {
         List<List<String>> paragraphs = extractParagraphs(importWithPagination);
         List<Integer> startIndices = extractIndices(paragraphs);
-        return lule.dictionary.dto.application.ContentData.of(paragraphs, startIndices);
+        return ContentData.of(paragraphs, startIndices);
     }
 
-    private Map<String, Translation> getImportTranslationsFromDatabase(Document importWithPagination) {
+    private Map<String, Translation> getTranslationsFromDatabase(Document importWithPagination) {
         return translationService.findTranslationsByImport(FindTranslationsByImportRequest.of(importWithPagination, importWithPagination.owner())).value();
     }
 
