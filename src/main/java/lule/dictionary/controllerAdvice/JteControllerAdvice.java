@@ -1,7 +1,6 @@
 package lule.dictionary.controllerAdvice;
 
 import jakarta.servlet.http.HttpSession;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.BaseAttribute;
@@ -11,7 +10,6 @@ import lule.dictionary.service.language.Language;
 import lule.dictionary.service.language.LanguageHelper;
 import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.translation.TranslationService;
-import lule.dictionary.service.translation.dto.request.GetWordsLearnedCountRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.ui.Model;
@@ -34,33 +32,29 @@ public class JteControllerAdvice {
                                  CsrfToken csrfToken,
                                  HttpSession httpSession) {
         if(authentication != null) {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             model.addAttribute("baseAttribute", BaseAttribute.builder()
                     ._csrf(csrfToken)
                     .isAuthenticated(authentication.isAuthenticated())
-                    .username(userDetails.getUsername())
+                    .username(principal.getUsername())
                     .sourceLanguageData(LanguageData.of(
-                                    userDetails.sourceLanguage(),
-                                    languageHelper.getFullName(userDetails.sourceLanguage()),
-                                    languageHelper.getAbbreviation(userDetails.sourceLanguage()),
-                                    languageHelper.getImagePath(userDetails.sourceLanguage())
+                                    principal.sourceLanguage(),
+                                    languageHelper.getFullName(principal.sourceLanguage()),
+                                    languageHelper.getAbbreviation(principal.sourceLanguage()),
+                                    languageHelper.getImagePath(principal.sourceLanguage())
                             )
                     )
                     .targetLanguageData(LanguageData.of(
-                                    userDetails.targetLanguage(),
-                                    languageHelper.getFullName(userDetails.targetLanguage()),
-                                    languageHelper.getAbbreviation(userDetails.targetLanguage()),
-                                    languageHelper.getImagePath(userDetails.targetLanguage())
+                                    principal.targetLanguage(),
+                                    languageHelper.getFullName(principal.targetLanguage()),
+                                    languageHelper.getAbbreviation(principal.targetLanguage()),
+                                    languageHelper.getImagePath(principal.targetLanguage())
                             )
                     )
                     .allLanguageData(languageHelper.getAllLanguageData())
-                    .wordsLearned(translationService.getWordsLearnedCount(
-                            GetWordsLearnedCountRequest.of(
-                                    userDetails.getUsername(),
-                                    userDetails.targetLanguage()
-                            )).value()
+                    .wordsLearned(translationService.getWordsLearnedCount(principal).value()
                     )
-                    .dailyStreak(userDetails.dailyStreak())
+                    .dailyStreak(principal.dailyStreak())
                     .isProfileOpen(sessionHelper.getOrDefault(httpSession, "isProfileOpen", false))
                     .build());
             return;

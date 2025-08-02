@@ -2,7 +2,7 @@ package lule.dictionary.dto.database.implementation.imports;
 
 import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.dto.database.interfaces.imports.DocumentWithContent;
+import lule.dictionary.dto.database.interfaces.imports.base.Document;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.functionalInterface.validation.EmptyValidator;
 import lule.dictionary.functionalInterface.validation.LengthValidator;
@@ -24,7 +24,7 @@ public record ImportWithPaginationImp(@NonNull
                                       String owner,
                                       @NonNull
                                       String pageContent,
-                                      int totalContentLength) implements DocumentWithContent {
+                                      int totalContentLength) implements Document {
     public ImportWithPaginationImp {
         EmptyValidator emptyValidator = (String... fields) -> Arrays.stream(fields).forEach(field -> {
             if(field.isEmpty()) throw new IllegalArgumentException("Field cannot be empty");

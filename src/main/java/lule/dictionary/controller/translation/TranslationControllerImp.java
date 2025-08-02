@@ -7,12 +7,10 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.service.imports.importService.dto.FormPositionData;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.translation.TranslationServiceImp;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
-import lule.dictionary.service.translation.dto.attribute.TranslationPair;
 import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -36,13 +34,13 @@ public class TranslationControllerImp {
     @GetMapping("")
     public String findByTargetWord(Model model,
                                    Authentication authentication,
-                                   @RequestParam int importId,
+                                   @RequestParam int documentId,
                                    @RequestParam String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         try {
             FindByTargetWordRequest request = FindByTargetWordRequest.builder()
-                    .importId(importId)
+                    .documentId(documentId)
                     .selectedWordId(selectedWordId)
                     .targetWord(targetWord)
                     .sourceLanguage(principal.sourceLanguage())
@@ -74,12 +72,12 @@ public class TranslationControllerImp {
                                  @RequestParam("familiarity") Familiarity familiarity,
                                  @RequestParam("sourceLanguage") Language sourceLanguage,
                                  @RequestParam("targetLanguage") Language targetLanguage,
-                                 @RequestParam("importId") int importId,
+                                 @RequestParam("documentId") int documentId,
                                  @RequestParam("selectedWordId") int selectedWordId) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             AddTranslationRequest request = AddTranslationRequest.builder()
-                    .importId(importId)
+                    .documentId(documentId)
                     .selectedWordId(selectedWordId)
                     .sourceWords(sourceWords)
                     .targetWord(targetWord)

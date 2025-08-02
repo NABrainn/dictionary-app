@@ -16,7 +16,7 @@ public interface TranslationController {
                           @RequestParam("familiarity") Familiarity familiarity,
                           @RequestParam("sourceLanguage") Language sourceLanguage,
                           @RequestParam("targetLanguage") Language targetLanguage,
-                          @RequestParam("importId") int importId,
+                          @RequestParam("documentId") int importId,
                           @RequestParam("selectedWordId") int selectedWordId,
                           @RequestParam("page") int page,
                           @RequestParam("left") String left,

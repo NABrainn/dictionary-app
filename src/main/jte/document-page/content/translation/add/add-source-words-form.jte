@@ -4,7 +4,7 @@
 @param String sourceLanguage
 @param String targetLanguage
 @param int selectedWordId
-@param int importId
+@param int documentId
 @param List<String> sourceWords
 @param String targetWord
 
@@ -16,7 +16,7 @@ hx-vals='
     "familiarity": "UNKNOWN",
     "sourceLanguage": "${sourceLanguage}",
     "targetLanguage": "${targetLanguage}",
-    "importId": "${importId}"
+    "documentId": "${documentId}"
 }'
 hx-post="/translations/new"
 hx-target="#translation-form-container-${selectedWordId}"

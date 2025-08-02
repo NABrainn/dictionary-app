@@ -108,15 +108,15 @@ public class ImportControllerImp implements ImportController {
         return "create-import-form/base-form";
     }
 
-    @GetMapping({"/{importId}", "/{importId}/"})
-    public String importPage(@PathVariable("importId") int importId,
+    @GetMapping({"/{documentId}", "/{documentId}/"})
+    public String importPage(@PathVariable("documentId") int importId,
                              @RequestParam(name = "page", defaultValue = "1") int page,
                              Model model,
                              Authentication authentication) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            DocumentContentAttribute documentContentAttribute = loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
-            model.addAttribute("documentContentAttribute", documentContentAttribute);
+            DocumentAttribute documentAttribute = loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
+            model.addAttribute("documentAttribute", documentAttribute);
             model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                     .languageDataList(languageHelper.getAllLanguageData())
                     .targetLanguage(LanguageData.of(
@@ -124,8 +124,7 @@ public class ImportControllerImp implements ImportController {
                                     languageHelper.getFullName(principal.targetLanguage()),
                                     languageHelper.getAbbreviation(principal.targetLanguage()),
                                     languageHelper.getImagePath(principal.targetLanguage())
-                            )
-                    )
+                            ))
                     .wordsLearned(translationService.getWordsLearnedCount(principal).value())
                     .dailyStreak(principal.dailyStreak())
                     .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
@@ -173,8 +172,7 @@ public class ImportControllerImp implements ImportController {
                                     languageHelper.getFullName(principal.targetLanguage()),
                                     languageHelper.getAbbreviation(principal.targetLanguage()),
                                     languageHelper.getImagePath(principal.targetLanguage())
-                            )
-                    )
+                            ))
                     .wordsLearned(translationService.getWordsLearnedCount(principal).value())
                     .dailyStreak(principal.dailyStreak())
                     .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
@@ -219,7 +217,7 @@ public class ImportControllerImp implements ImportController {
         return principal.getUsername();
     }
 
-    private DocumentContentAttribute loadDocumentContent(LoadDocumentContentRequest loadRequest) {
+    private DocumentAttribute loadDocumentContent(LoadDocumentContentRequest loadRequest) {
         return importService.loadDocumentContent(loadRequest).value();
     }
 

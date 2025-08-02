@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS dictionary.translations (
     source_lang  					dictionary.lang NOT NULL,
     target_lang  					dictionary.lang NOT NULL,
   	translation_owner				VARCHAR(50) NOT NULL references dictionary.user_profiles(username) ON UPDATE CASCADE ON DELETE CASCADE,
-  	familiarity						dictionary.familiarity NOT NULL
+  	familiarity						dictionary.familiarity NOT NULL,
+  	is_phrase                       BOOLEAN default false
 );
 CREATE TABLE IF NOT EXISTS dictionary.imports (
   	imports_id						SERIAL PRIMARY KEY,

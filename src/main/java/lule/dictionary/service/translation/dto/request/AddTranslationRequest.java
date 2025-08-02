@@ -6,13 +6,12 @@ import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.dto.application.request.ServiceRequest;
-import lule.dictionary.service.imports.importService.dto.FormPositionData;
 import lule.dictionary.service.language.Language;
 
 import java.util.List;
 
 @Builder
-public record AddTranslationRequest(int importId,
+public record AddTranslationRequest(int documentId,
                                     int selectedWordId,
                                     @NonNull
                                     List<

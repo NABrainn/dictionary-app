@@ -1,19 +1,19 @@
 @import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.dto.application.attribute.NavbarAttribute
-@import lule.dictionary.service.imports.importService.dto.request.DocumentContentAttribute
+@import lule.dictionary.service.imports.importService.dto.request.DocumentAttribute
 
 @param NavbarAttribute navbarAttribute
-@param DocumentContentAttribute documentContentAttribute
+@param DocumentAttribute documentAttribute
 @param BaseAttribute baseAttribute
 
 @template.layout.base(content = @`
 
     @template.document-page.content.content(
-    documentContentAttribute = documentContentAttribute,
+        documentAttribute = documentAttribute,
         baseAttribute = baseAttribute,
         navbarAttribute = navbarAttribute
     )
-    @template.document-page.script(selectedWordId = documentContentAttribute.importData().selectedWordId())
+    @template.document-page.script(selectedWordId = documentAttribute.importData().selectedWordId())
 `,
 baseAttribute = baseAttribute
 )

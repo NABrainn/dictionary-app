@@ -253,4 +253,22 @@ public class TranslationRepository {
             return List.of();
         }
     }
+
+    public List<String> extractPhrases(String content, String owner) {
+        String sql = """
+                SELECT target_word
+                FROM dictionary.translations
+                WHERE position(target_word in ?) > 0
+                AND translation_owner = ?
+                AND is_phrase = true
+                """;
+        try {
+            return template.query(sql, PHRASES,
+                    content,
+                    owner);
+        } catch (DataAccessException e) {
+            log.error(String.valueOf(e.getCause()));
+            return List.of();
+        }
+    }
 }

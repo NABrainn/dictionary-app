@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.LanguageData;
 import lule.dictionary.dto.application.attribute.NavbarAttribute;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
@@ -16,9 +15,7 @@ import lule.dictionary.service.language.Language;
 import lule.dictionary.service.language.LanguageHelper;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.translation.TranslationService;
-import lule.dictionary.service.translation.dto.request.GetWordsLearnedCountRequest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +32,6 @@ public class AuthControllerImp implements AuthController {
 
     private final AuthService authService;
     private final LocalizationService localizationService;
-    private final LanguageHelper languageHelper;
-    private final TranslationService translationService;
 
     @GetMapping({"/login", "/login/"})
     public String loginPage(Model model,
@@ -44,30 +39,16 @@ public class AuthControllerImp implements AuthController {
                             Authentication authentication,
                             HttpSession httpSession) {
         if(authentication != null) {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            redirectAttributes.addFlashAttribute("documentsLocalization", localizationService.documentListLocalization(principal.sourceLanguage()));
-            redirectAttributes.addFlashAttribute("navbarAttribute", NavbarAttribute.builder()
-                    .languageDataList(languageHelper.getAllLanguageData())
-                    .targetLanguage(LanguageData.of(
-                                    principal.targetLanguage(),
-                                    languageHelper.getFullName(principal.targetLanguage()),
-                                    languageHelper.getAbbreviation(principal.targetLanguage()),
-                                    languageHelper.getImagePath(principal.targetLanguage())
-                            )
-                    )
-                    .wordsLearned(translationService.getWordsLearnedCount(principal).value())
-                    .dailyStreak(principal.dailyStreak())
-                    .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
-                    .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
-                    .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
-                    .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
-                    .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                    .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
-                    .build());
             return "redirect:/";
         }
         Language sourceLanguage = getSystemLanguageInfo(httpSession);
         model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
+        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
+                .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
+                .homeBtnText(localizationService.navbarLocalization(sourceLanguage).get("home"))
+                .wordsLearned(-1)
+                .dailyStreak(-1)
+                .build());
         return "auth/login";
     }
 
@@ -80,26 +61,6 @@ public class AuthControllerImp implements AuthController {
                         HttpServletResponse response,
                         HttpSession httpSession) {
         if(authentication != null) {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            redirectAttributes.addFlashAttribute("documentsLocalization", localizationService.documentListLocalization(principal.sourceLanguage()));
-            redirectAttributes.addFlashAttribute("navbarAttribute", NavbarAttribute.builder()
-                    .languageDataList(languageHelper.getAllLanguageData())
-                    .targetLanguage(LanguageData.of(
-                                    principal.targetLanguage(),
-                                    languageHelper.getFullName(principal.targetLanguage()),
-                                    languageHelper.getAbbreviation(principal.targetLanguage()),
-                                    languageHelper.getImagePath(principal.targetLanguage())
-                            )
-                    )
-                    .wordsLearned(translationService.getWordsLearnedCount(principal).value())
-                    .dailyStreak(principal.dailyStreak())
-                    .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
-                    .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
-                    .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
-                    .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
-                    .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                    .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
-                    .build());
             return "redirect:/";
         }
         ServiceResult<?> result = authService.login(LoginRequest.of(login, password), response, httpSession);
@@ -111,27 +72,7 @@ public class AuthControllerImp implements AuthController {
             model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
             return "auth/login";
         }
-        CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         redirectAttributes.addFlashAttribute("result", result);
-        redirectAttributes.addFlashAttribute("documentsLocalization", localizationService.documentListLocalization(principal.sourceLanguage()));
-        redirectAttributes.addFlashAttribute("navbarAttribute", NavbarAttribute.builder()
-                .languageDataList(languageHelper.getAllLanguageData())
-                .targetLanguage(LanguageData.of(
-                                principal.targetLanguage(),
-                                languageHelper.getFullName(principal.targetLanguage()),
-                                languageHelper.getAbbreviation(principal.targetLanguage()),
-                                languageHelper.getImagePath(principal.targetLanguage())
-                        )
-                )
-                .wordsLearned(translationService.getWordsLearnedCount(principal).value())
-                .dailyStreak(principal.dailyStreak())
-                .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
-                .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
-                .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
-                .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
-                .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
-                .build());
         return "redirect:/";
     }
 
@@ -141,31 +82,15 @@ public class AuthControllerImp implements AuthController {
                              Authentication authentication,
                              HttpSession httpSession) {
         if(authentication != null) {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            redirectAttributes.addFlashAttribute("navbarLocalization", localizationService.navbarLocalization(principal.sourceLanguage()));
-            redirectAttributes.addFlashAttribute("documentsLocalization", localizationService.documentListLocalization(principal.sourceLanguage()));
-            redirectAttributes.addFlashAttribute("navbarAttribute", NavbarAttribute.builder()
-                    .languageDataList(languageHelper.getAllLanguageData())
-                    .targetLanguage(LanguageData.of(
-                                    principal.targetLanguage(),
-                                    languageHelper.getFullName(principal.targetLanguage()),
-                                    languageHelper.getAbbreviation(principal.targetLanguage()),
-                                    languageHelper.getImagePath(principal.targetLanguage())
-                            )
-                    )
-                    .wordsLearned(translationService.getWordsLearnedCount(principal).value())
-                    .dailyStreak(principal.dailyStreak())
-                    .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
-                    .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
-                    .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
-                    .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
-                    .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                    .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
-                    .build());
             return "redirect:/";
         }
         Language sourceLanguage = getSystemLanguageInfo(httpSession);
-        model.addAttribute("navbarLocalization", localizationService.navbarLocalization(sourceLanguage));
+        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
+                .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
+                .homeBtnText(localizationService.navbarLocalization(sourceLanguage).get("home"))
+                .wordsLearned(-1)
+                .dailyStreak(-1)
+                .build());
         model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
         return "auth/signup";
     }
@@ -179,26 +104,6 @@ public class AuthControllerImp implements AuthController {
                          Authentication authentication,
                          HttpSession httpSession) {
         if(authentication != null) {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            redirectAttributes.addFlashAttribute("documentsLocalization", localizationService.documentListLocalization(principal.sourceLanguage()));
-            redirectAttributes.addFlashAttribute("navbarAttribute", NavbarAttribute.builder()
-                    .languageDataList(languageHelper.getAllLanguageData())
-                    .targetLanguage(LanguageData.of(
-                                    principal.targetLanguage(),
-                                    languageHelper.getFullName(principal.targetLanguage()),
-                                    languageHelper.getAbbreviation(principal.targetLanguage()),
-                                    languageHelper.getImagePath(principal.targetLanguage())
-                            )
-                    )
-                    .wordsLearned(translationService.getWordsLearnedCount(principal).value())
-                    .dailyStreak(principal.dailyStreak())
-                    .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
-                    .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
-                    .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
-                    .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
-                    .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                    .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
-                    .build());
             return "redirect:/";
         }
         ServiceResult<?> result = authService.signup(SignupRequest.of(login, email, password));
@@ -211,6 +116,12 @@ public class AuthControllerImp implements AuthController {
             return "auth/signup";
         }
         model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
+        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
+                .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
+                .homeBtnText(localizationService.navbarLocalization(sourceLanguage).get("home"))
+                .wordsLearned(-1)
+                .dailyStreak(-1)
+                .build());
         return "auth/login";
     }
 

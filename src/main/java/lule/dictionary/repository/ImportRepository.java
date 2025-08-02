@@ -3,7 +3,6 @@ package lule.dictionary.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.database.interfaces.imports.DocumentWithContent;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
 import lule.dictionary.dto.database.interfaces.imports.base.Document;
 import lule.dictionary.service.language.Language;
@@ -50,7 +49,7 @@ public class ImportRepository {
     }
 
 
-    public Optional<DocumentWithContent> findById(int id, int page) {
+    public Optional<Document> findById(int id, int page) {
         String sql = """
                 SELECT
                     imports_id,
@@ -69,7 +68,7 @@ public class ImportRepository {
                 WHERE imports.imports_id=?
                 """;
         try {
-            List<DocumentWithContent> found = template.query(sql, IMPORT_WITH_PAGINATION,
+            List<Document> found = template.query(sql, IMPORT,
                     page,
                     id
             );
