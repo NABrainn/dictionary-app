@@ -3,9 +3,7 @@ package lule.dictionary.service.translation.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import lombok.NonNull;
 import lule.dictionary.dto.application.request.ServiceRequest;
-import lule.dictionary.service.imports.importService.dto.FormPositionData;
 import lule.dictionary.service.language.Language;
 
 @Builder

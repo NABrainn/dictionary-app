@@ -4,8 +4,8 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.dto.application.ContentData;
 import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
-import lule.dictionary.dto.database.interfaces.imports.DocumentWithContent;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
+import lule.dictionary.dto.database.interfaces.imports.base.Document;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.exception.application.InvalidInputException;
@@ -63,21 +63,21 @@ public class ImportServiceImp implements ImportService {
     }
 
     public ServiceResult<DocumentContentAttribute> loadDocumentContent(LoadDocumentContentRequest loadRequest) {
-        DocumentWithContent documentWithContent = getImport(loadRequest);
-        checkPageNumberValidity(loadRequest.page(), getNumberOfPagesForDocument(documentWithContent));
+        Document document = getImport(loadRequest);
+        checkPageNumberValidity(loadRequest.page(), getNumberOfPagesForDocument(document));
         AssembleDocumentContentRequest request = AssembleDocumentContentRequest.builder()
                 .wordId(loadRequest.wordId())
                 .importId(loadRequest.importId())
                 .page(loadRequest.page())
-                .documentWithContent(documentWithContent)
-                .totalLength(documentWithContent.totalContentLength())
+                .document(document)
+                .totalLength(document.totalContentLength())
                 .build();
         ImportData importAttribute = createImportData(request);
         PaginationData paginationData = createPaginationData(request);
         return ServiceResultImp.success(DocumentContentAttribute.of(importAttribute, paginationData));
     }
 
-    private DocumentWithContent getImport(LoadDocumentContentRequest loadRequest) throws ImportNotFoundException {
+    private Document getImport(LoadDocumentContentRequest loadRequest) throws ImportNotFoundException {
         return importRepository.findById(loadRequest.importId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
     }
 
@@ -114,7 +114,7 @@ public class ImportServiceImp implements ImportService {
         return jsoupService.importDocumentContent(url);
     }
 
-    private int getNumberOfPagesForDocument(DocumentWithContent importWithPagination) {
+    private int getNumberOfPagesForDocument(Document importWithPagination) {
         return paginationService.getNumberOfPages(importWithPagination.totalContentLength());
     }
 
@@ -129,28 +129,28 @@ public class ImportServiceImp implements ImportService {
     }
 
     private ImportData createImportData(AssembleDocumentContentRequest request) {
-        ContentData importContentData = assembleImportContentData(request.documentWithContent());
-        Map<String, Translation> importTranslations = getImportTranslationsFromDatabase(request.documentWithContent());
+        ContentData importContentData = assembleImportContentData(request.document());
+        Map<String, Translation> importTranslations = getImportTranslationsFromDatabase(request.document());
         return ImportData.builder()
                 .selectedWordId(request.wordId())
                 .importId(request.importId())
-                .title(request.documentWithContent().title())
+                .title(request.document().title())
                 .content(importContentData)
                 .translations(importTranslations)
                 .build();
     }
 
-    private ContentData assembleImportContentData(DocumentWithContent importWithPagination) {
+    private ContentData assembleImportContentData(Document importWithPagination) {
         List<List<String>> paragraphs = extractParagraphs(importWithPagination);
         List<Integer> startIndices = extractIndices(paragraphs);
         return ContentData.of(paragraphs, startIndices);
     }
 
-    private Map<String, Translation> getImportTranslationsFromDatabase(DocumentWithContent importWithPagination) {
+    private Map<String, Translation> getImportTranslationsFromDatabase(Document importWithPagination) {
         return translationService.findTranslationsByImport(FindTranslationsByImportRequest.of(importWithPagination, importWithPagination.owner())).value();
     }
 
-    private List<List<String>> extractParagraphs(DocumentWithContent importWithPagination) {
+    private List<List<String>> extractParagraphs(Document importWithPagination) {
         return Stream.of(importWithPagination.pageContent().split("\n+"))
                 .map(paragraph -> Arrays.stream(paragraph.split("\\s+")).toList())
                 .filter(list -> !list.isEmpty())

@@ -5,7 +5,6 @@ import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
 import lule.dictionary.dto.database.implementation.imports.ImportWithPaginationImp;
 import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
 import lule.dictionary.dto.database.implementation.userProfile.base.UserProfileImp;
-import lule.dictionary.dto.database.interfaces.imports.DocumentWithContent;
 import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
 import lule.dictionary.dto.database.interfaces.imports.base.Document;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
@@ -62,18 +61,6 @@ public class RowMapperFactory {
 
     public static final RowMapper<Document> IMPORT = ((rs, rowNum) ->
             ImportImp.builder()
-                    .title(rs.getString("title"))
-                    .url(rs.getString("url"))
-                    .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
-                    .targetLanguage(Language.valueOf(rs.getString("target_lang")))
-                    .owner(rs.getString("import_owner"))
-                    .pageContent(rs.getString("page_content"))
-                    .totalContentLength(rs.getInt("total_length"))
-                    .build()
-    );
-
-    public static final RowMapper<DocumentWithContent> IMPORT_WITH_PAGINATION = ((rs, rowNum) ->
-            ImportWithPaginationImp.builder()
                     .title(rs.getString("title"))
                     .url(rs.getString("url"))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))

@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.service.imports.importService.dto.FormPositionData;
 
 import java.util.Collections;
 import java.util.Map;
