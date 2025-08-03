@@ -33,6 +33,7 @@ import org.springframework.web.util.InvalidUrlException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -156,7 +157,7 @@ public class ImportServiceImp implements ImportService {
 
     private String markPhrases(String content, List<String> phrases) {
         return phrases.stream()
-                .reduce(content, (subtotal, phrase) -> subtotal.replaceAll("\\b" + phrase + "\\b", "ph<" + phrase.replaceAll(" ", "-") + ">"));
+                .reduce(content, (subtotal, phrase) -> subtotal.replaceAll("\\b" + phrase + "\\b", "ph<" + phrase.replace(" ", "-") + ">"));
     }
 
     private Map<String, Translation> getTranslationsFromDatabase(Document importWithPagination) {
@@ -175,9 +176,9 @@ public class ImportServiceImp implements ImportService {
 
     private List<String> convertPhraseLiteral(String selectable) {
         return Arrays.stream(selectable
-                .replaceAll("ph<", "")
-                .replaceAll(">", "")
-                .replaceAll("-", " ")
+                .replace("ph<", "")
+                .replace(">", "")
+                .replace("-", " ")
                 .split(" "))
                 .toList();
     }

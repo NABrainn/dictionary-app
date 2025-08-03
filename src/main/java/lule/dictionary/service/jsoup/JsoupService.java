@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,7 +16,9 @@ import java.util.stream.Stream;
 public class JsoupService {
 
     public String importDocumentContent(String url) {
-        return formatDocumentContent(importDocument(url));
+        Pattern singleNewLinePattern = Pattern.compile("\n");
+        Pattern multiNewLinePattern = Pattern.compile("\n+");
+        return formatDocumentContent(importDocument(url), Map.of("singleNewLine", singleNewLinePattern, "multiNewLine", multiNewLinePattern));
     }
 
     public Document importDocument(String url) {
@@ -34,13 +38,13 @@ public class JsoupService {
             return "https://".concat(url);
         return url;
     }
-    private String formatDocumentContent(Document document) {
+    private String formatDocumentContent(Document document, Map<String, Pattern> patternMap) {
         return Arrays.stream(document.wholeText().split(" "))
                 .map(word ->
                         switch (getEndlineCount(word)) {
                             case 0 -> word;
-                            case 1 -> word.replaceAll("\n", " ");
-                            default -> word.replaceAll("\n+", produceEndlines());
+                            case 1 -> patternMap.get("singleLine").matcher(word).replaceAll(" ");
+                            default -> patternMap.get("multiLine").matcher(word).replaceAll(produceEndlines());
                         })
                 .filter(word -> !word.isBlank() && !word.matches("\n+"))
                 .reduce((s1, s2) ->s1 + " " + s2)
