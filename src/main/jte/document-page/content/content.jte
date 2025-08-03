@@ -5,6 +5,8 @@
 @import lule.dictionary.service.imports.importService.dto.request.DocumentAttribute
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
+@import java.util.regex.Pattern
+@import java.util.regex.Matcher
 
 @param NavbarAttribute navbarAttribute
 @param DocumentAttribute documentAttribute
@@ -29,6 +31,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
             text-xl text-neutral font-bold ">${documentAttribute.importData().title()}</span>
         @endif
         <div class="leading-10">
+            !{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
             @for(var paragraphEntry :  ForSupport.of(documentAttribute.importData().content().paragraphs()))
                 <div>
                 !{var paragraph = paragraphEntry.get(); var paragraphIndex = paragraphEntry.getIndex();}
@@ -40,7 +43,10 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                     @if(selectable instanceof Word)
                         !{var wordId = documentAttribute.importData().content().startIndices().get(paragraphIndex) + selectableIndex;}
                         !{var word = ((Word) selectable).value();}
-                        !{var cleanWord = word.replaceAll("[^\\p{L}\\p{N}\\s-]", "").replaceAll("-", " ").toLowerCase();}
+                        !{var cleanWord = cleanWordPattern.matcher(word)
+                                                .replaceAll("")
+                                                .replace("-", " ")
+                                                .toLowerCase();}
                         @if(!cleanWord.isEmpty())
                             @if(documentAttribute.importData().translations().get(cleanWord) != null)
                                 @if(documentAttribute.importData().selectedWordId() == wordId)
@@ -210,7 +216,10 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                     !{wordId = documentAttribute.importData().content().startIndices().get(paragraphIndex) + selectableIndex + (phraseEntry.getIndex() - 1);}
                                 @endif
                                 !{var word = phraseEntry.get();}
-                                !{var cleanWord = word.replaceAll("[^\\p{L}\\p{N}\\s-]", "").replaceAll("-", " ").toLowerCase();}
+                                !{var cleanWord = cleanWordPattern.matcher(word)
+                                                .replaceAll("")
+                                                .replace("-", " ")
+                                                .toLowerCase();}
                                 @if(!cleanWord.isEmpty())
                                     @if(documentAttribute.importData().translations().get(cleanWord) != null)
                                         @if(documentAttribute.importData().selectedWordId() == wordId)
