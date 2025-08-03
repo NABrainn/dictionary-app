@@ -35,7 +35,7 @@ public class JsoupService {
         return url;
     }
     private String formatDocumentContent(Document document) {
-        return Arrays.stream(document.wholeText().split("\s+"))
+        return Arrays.stream(document.wholeText().split(" "))
                 .map(word ->
                         switch (getEndlineCount(word)) {
                             case 0 -> word;

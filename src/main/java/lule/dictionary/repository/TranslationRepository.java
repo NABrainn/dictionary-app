@@ -256,9 +256,9 @@ public class TranslationRepository {
 
     public List<String> extractPhrases(String content, String owner) {
         String sql = """
-                SELECT target_word
+                SELECT DISTINCT target_word
                 FROM dictionary.translations
-                WHERE position(target_word in ?) > 0
+                WHERE to_tsvector(?) @@ plainto_tsquery(target_word)
                 AND translation_owner = ?
                 AND is_phrase = true
                 """;
