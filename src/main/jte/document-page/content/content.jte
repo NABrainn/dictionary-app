@@ -5,6 +5,8 @@
 @import lule.dictionary.service.imports.importService.dto.request.DocumentAttribute
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
+@import java.util.regex.Pattern
+@import java.util.regex.Matcher
 
 @param NavbarAttribute navbarAttribute
 @param DocumentAttribute documentAttribute
@@ -29,22 +31,28 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
             text-xl text-neutral font-bold ">${documentAttribute.importData().title()}</span>
         @endif
         <div class="leading-10">
+            !{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
             @for(var paragraphEntry :  ForSupport.of(documentAttribute.importData().content().paragraphs()))
                 <div>
                 !{var paragraph = paragraphEntry.get(); var paragraphIndex = paragraphEntry.getIndex();}
 
                 @for(var selectableEntry : ForSupport.of(paragraphEntry.get()))
-                    !{var selectable = selectableEntry.get(); var selectableIndex = selectableEntry.getIndex();}
-                    !{var selectableId = documentAttribute.importData().content().startIndices().get(paragraphIndex) + selectableIndex;}
+
+                    !{var selectable = selectableEntry.get();}
+                    !{var selectableIndex = selectableEntry.getIndex();}
                     @if(selectable instanceof Word)
+                        !{var wordId = documentAttribute.importData().content().startIndices().get(paragraphIndex) + selectableIndex;}
                         !{var word = ((Word) selectable).value();}
-                        !{var cleanWord = word.replaceAll("[^\\p{L}\\p{N}\\s-]", "").replaceAll("-", " ").toLowerCase();}
+                        !{var cleanWord = cleanWordPattern.matcher(word)
+                                                .replaceAll("")
+                                                .replace("-", " ")
+                                                .toLowerCase();}
                         @if(!cleanWord.isEmpty())
                             @if(documentAttribute.importData().translations().get(cleanWord) != null)
-                                @if(documentAttribute.importData().selectedWordId() == selectableId)
+                                @if(documentAttribute.importData().selectedWordId() == wordId)
                                     @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -56,7 +64,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -69,7 +77,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
 
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -81,7 +89,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -93,7 +101,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         )
                                     @else
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -107,7 +115,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                 @else
                                     @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -118,7 +126,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -129,7 +137,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -140,7 +148,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -151,7 +159,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         )
                                     @else
                                         @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -163,9 +171,9 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                     @endif
                                 @endif
                             @else
-                                @if(documentAttribute.importData().selectedWordId() == selectableId)
+                                @if(documentAttribute.importData().selectedWordId() == wordId)
                                     @template.document-page.content.word(
-                                        wordIndex = selectableId,
+                                        wordIndex = wordId,
                                         documentId = documentAttribute.importData().documentId(),
                                         word = word,
                                         processedWord = cleanWord,
@@ -175,7 +183,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                     )
                                 @else
                                     @template.document-page.content.word(
-                                        wordIndex = selectableId,
+                                        wordIndex = wordId,
                                         documentId = documentAttribute.importData().documentId(),
                                         word = word,
                                         processedWord = cleanWord,
@@ -188,7 +196,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
 
                         @else
                             @template.document-page.content.word(
-                                wordIndex = selectableId,
+                                wordIndex = wordId,
                                 documentId = documentAttribute.importData().documentId(),
                                 word = word,
                                 processedWord = cleanWord,
@@ -199,27 +207,37 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                             )
                         @endif
                     @else
-                        <div>
-                            @for(String word : ((Phrase) selectable).phrase())
-                                !{var cleanWord = word.replaceAll("[^\\p{L}\\p{N}\\s-]", "").replaceAll("-", " ").toLowerCase();}
+                        <div class="bg-secondary inline-flex rounded gap-1 py-0.25 px-0.25">
+                            @for(var phraseEntry : ForSupport.of(((Phrase) selectable).phrase()))
+                                !{var wordId = 0;}
+                                @if(((Phrase)selectable).phrase().size() == 1)
+                                    !{wordId = documentAttribute.importData().content().startIndices().get(paragraphIndex) + selectableIndex + (phraseEntry.getIndex());}
+                                @else
+                                    !{wordId = documentAttribute.importData().content().startIndices().get(paragraphIndex) + selectableIndex + (phraseEntry.getIndex() - 1);}
+                                @endif
+                                !{var word = phraseEntry.get();}
+                                !{var cleanWord = cleanWordPattern.matcher(word)
+                                                .replaceAll("")
+                                                .replace("-", " ")
+                                                .toLowerCase();}
                                 @if(!cleanWord.isEmpty())
                                     @if(documentAttribute.importData().translations().get(cleanWord) != null)
-                                        @if(documentAttribute.importData().selectedWordId() == selectableId)
+                                        @if(documentAttribute.importData().selectedWordId() == wordId)
                                             @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-tertiary bg-accent",
-                                                textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true,
-                                                selected = true
+                                                    wordIndex = wordId,
+                                                    documentId = documentAttribute.importData().documentId(),
+                                                    word = word,
+                                                    processedWord = cleanWord,
+                                                    bgColor = "bg-tertiary bg-accent",
+                                                    textColor = "text-neutral",
+                                                    familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                    found = true,
+                                                    selected = true
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
+                                                wordIndex = wordId,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
                                                 processedWord = cleanWord,
@@ -232,7 +250,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
 
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
+                                                wordIndex = wordId,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
                                                 processedWord = cleanWord,
@@ -244,7 +262,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
+                                                wordIndex = wordId,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
                                                 processedWord = cleanWord,
@@ -256,7 +274,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 )
                                             @else
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
+                                                wordIndex = wordId,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
                                                 processedWord = cleanWord,
@@ -270,7 +288,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         @else
                                             @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
+                                                wordIndex = wordId,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
                                                 processedWord = cleanWord,
@@ -281,7 +299,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
+                                                wordIndex = wordId,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
                                                 processedWord = cleanWord,
@@ -292,7 +310,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
+                                                wordIndex = wordId,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
                                                 processedWord = cleanWord,
@@ -303,7 +321,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
+                                                wordIndex = wordId,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
                                                 processedWord = cleanWord,
@@ -314,7 +332,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 )
                                             @else
                                                 @template.document-page.content.word(
-                                                wordIndex = selectableId,
+                                                wordIndex = wordId,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
                                                 processedWord = cleanWord,
@@ -326,9 +344,9 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                             @endif
                                         @endif
                                     @else
-                                        @if(documentAttribute.importData().selectedWordId() == selectableId)
+                                        @if(documentAttribute.importData().selectedWordId() == wordId)
                                             @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -338,7 +356,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                             )
                                         @else
                                             @template.document-page.content.word(
-                                            wordIndex = selectableId,
+                                            wordIndex = wordId,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
                                             processedWord = cleanWord,
@@ -351,7 +369,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
 
                                 @else
                                     @template.document-page.content.word(
-                                        wordIndex = selectableId,
+                                        wordIndex = wordId,
                                         documentId = documentAttribute.importData().documentId(),
                                         word = word,
                                         processedWord = cleanWord,

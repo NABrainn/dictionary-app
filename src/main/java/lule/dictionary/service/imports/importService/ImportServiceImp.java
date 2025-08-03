@@ -33,6 +33,7 @@ import org.springframework.web.util.InvalidUrlException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -145,10 +146,8 @@ public class ImportServiceImp implements ImportService {
     private ContentData assembleDocumentContentData(Document document) {
         List<String> phrases = extractPhrases(document.pageContent(), document.owner());
         String parsedContent = markPhrases(document.pageContent(), phrases);
-        System.out.println("parsed content: " + parsedContent);
         List<List<Selectable>> paragraphs = extractParagraphs(parsedContent);
         List<Integer> startIndices = extractIndices(paragraphs);
-        System.out.println("size" + startIndices.size());
         return ContentData.of(paragraphs, startIndices);
     }
 
@@ -158,7 +157,7 @@ public class ImportServiceImp implements ImportService {
 
     private String markPhrases(String content, List<String> phrases) {
         return phrases.stream()
-                .reduce(content, (subtotal, phrase) -> subtotal.replaceAll(phrase, "ph<" + phrase + ">"));
+                .reduce(content, (subtotal, phrase) -> subtotal.replaceAll("\\b" + phrase + "\\b", "ph<" + phrase.replace(" ", "-") + ">"));
     }
 
     private Map<String, Translation> getTranslationsFromDatabase(Document importWithPagination) {
@@ -177,9 +176,9 @@ public class ImportServiceImp implements ImportService {
 
     private List<String> convertPhraseLiteral(String selectable) {
         return Arrays.stream(selectable
-                .replaceAll("ph<", "")
-                .replaceAll(">", "")
-                .replaceAll("-", " ")
+                .replace("ph<", "")
+                .replace(">", "")
+                .replace("-", " ")
                 .split(" "))
                 .toList();
     }

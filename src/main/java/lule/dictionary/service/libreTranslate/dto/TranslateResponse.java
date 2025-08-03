@@ -7,6 +7,6 @@ public record TranslateResponse(String translatedText) {
         if(translatedText == null) {
             return "";
         }
-        return translatedText.replaceAll("-", " ");
+        return translatedText.replace("-", " ");
     }
 }

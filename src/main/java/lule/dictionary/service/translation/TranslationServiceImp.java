@@ -201,7 +201,9 @@ public class TranslationServiceImp implements TranslationService {
 
     @Override
     public ServiceResult<Map<String, Translation>> findTranslationsByImport(FindTranslationsByImportRequest request) {
-        List<String> wordList = getContentAsWordList(request);
+        Pattern newLinePattern = Pattern.compile("\n+");
+        Pattern nonLetterNonNumberPattern = Pattern.compile("[^\\p{L}\\p{N}]");
+        List<String> wordList = getContentAsWordList(request.anImport().pageContent(), Map.of("newLine", newLinePattern, "nonLetterNonNumber", nonLetterNonNumberPattern));
         Map<String, Translation> translations = extractTranslationsFromDatabase(wordList, request.owner());
         return ServiceResultImp.success(translations);
     }
@@ -213,10 +215,10 @@ public class TranslationServiceImp implements TranslationService {
     }
 
 
-    private List<String> getContentAsWordList(FindTranslationsByImportRequest request) {
-        return Arrays.stream(request.anImport().pageContent().replaceAll("\n+", " ")
+    private List<String> getContentAsWordList(String content, Map<String, Pattern> patternMap) {
+        return Arrays.stream(patternMap.get("newLine").matcher(content).replaceAll(" ")
                 .split(" "))
-                .map(word -> word.replaceAll("[^\\p{L}\\p{N}]", "")) // Remove all non-letter/number characters
+                .map(word -> patternMap.get("nonLetterNonNumber").matcher(word).replaceAll(""))
                 .map(String::trim)
                 .map(String::toLowerCase)
                 .filter(word -> !word.isEmpty())
