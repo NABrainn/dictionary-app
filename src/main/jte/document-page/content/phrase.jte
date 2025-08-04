@@ -25,7 +25,8 @@ hx-get="/translations?targetWord=${processedWord}&documentId=${documentAttribute
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
 hx-vals='{"selectedWordId": "${selectableId}"}'
-hx-trigger="click">
+hx-trigger="click"
+hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${selectableId})">
 
     <div
     onclick="event.stopPropagation()"
