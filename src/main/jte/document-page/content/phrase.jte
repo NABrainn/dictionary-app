@@ -1,7 +1,5 @@
 @import gg.jte.support.ForSupport
 @import lule.dictionary.enumeration.Familiarity
-@import lule.dictionary.service.imports.importService.dto.Phrase
-@import lule.dictionary.service.imports.importService.dto.Selectable
 @import lule.dictionary.service.imports.importService.dto.request.DocumentAttribute
 @import java.util.List
 @import java.util.regex.Pattern
@@ -38,9 +36,9 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
     @for(var phraseEntry : ForSupport.of(phrase))
         !{var wordId = 0;}
         @if(phrase.size() == 1)
-            !{wordId = documentAttribute.importData().content().startIndices().get(paragraphId) + selectableId + (phraseEntry.getIndex());}
+            !{wordId = documentAttribute.importData().content().startIndices().get(paragraphId) + (phraseEntry.getIndex());}
         @else
-            !{wordId = documentAttribute.importData().content().startIndices().get(paragraphId) + selectableId + (phraseEntry.getIndex() - 1);}
+            !{wordId = documentAttribute.importData().content().startIndices().get(paragraphId) + (phraseEntry.getIndex() - 1);}
         @endif
         !{var word = phraseEntry.get();}
         !{var cleanWord = cleanWordPattern.matcher(word)
