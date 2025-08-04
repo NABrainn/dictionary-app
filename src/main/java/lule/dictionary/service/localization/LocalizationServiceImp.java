@@ -64,7 +64,7 @@ public class LocalizationServiceImp implements LocalizationService {
             case NO -> constructMap(keys, List.of("Legg til oversettelse", "AI-oversettelse", "Ukjent", "Gjenkjent", "Kjent", "Kjent", "Ignorert"));
             case IT -> constructMap(keys, List.of("Aggiungi traduzione", "Traduzione AI", "Sconosciuto", "Riconosciuto", "Familiare", "Noto", "Ignorato"));
             case PL -> constructMap(keys, List.of("Dodaj tłumaczenie", "Tłumaczenie AI", "Nieznany", "Rozpoznany", "Znajomy", "Znany", "Zignorowany"));
-            default -> constructMap(keys, List.of("Add translation", "AI translation", "Unknown", "Recognized", "Familiar", "Known", "Ignored"));
+            default -> constructMap(keys, List.of("Add translation", "Ask AI", "Unknown", "Recognized", "Familiar", "Known", "Ignored"));
         };
     }
 
