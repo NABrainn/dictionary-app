@@ -50,6 +50,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                             @if(documentAttribute.importData().translations().get(cleanWord) != null)
                                 @if(documentAttribute.importData().selectedWordId() == wordId)
                                     @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
+
                                         @template.document-page.content.word(
                                             wordId = wordId,
                                             processedWord = cleanWord,
@@ -103,6 +104,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                     @endif
                                 @else
                                     @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
+
                                         @template.document-page.content.word(
                                             wordId = wordId,
                                             processedWord = cleanWord,
@@ -207,13 +209,15 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         @if(documentAttribute.importData().selectedWordId() == wordId)
                                             @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
                                                 @template.document-page.content.word(
-                                                    wordId = wordId,
-                                                    processedWord = cleanWord,
-                                                    documentId = documentAttribute.importData().documentId(),
-                                                    word = word,
-                                                    bgColor = "bg-tertiary bg-accent",
-                                                    textColor = "text-neutral",
-                                                    familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                wordId = wordId,
+                                                processedWord = cleanWord,
+                                                documentId = documentAttribute.importData().documentId(),
+                                                word = word,
+                                                bgColor = "bg-secondary",
+                                                textColor = "text-neutral",
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                                 @template.document-page.content.word(
@@ -221,9 +225,11 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 processedWord = cleanWord,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
-                                                bgColor = "bg-tertiary bg-accent/80",
+                                                bgColor = "bg-secondary",
                                                 textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
 
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
@@ -232,9 +238,11 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 processedWord = cleanWord,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
-                                                bgColor = "bg-tertiary bg-accent/60",
+                                                bgColor = "bg-secondary",
                                                 textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                                 @template.document-page.content.word(
@@ -242,9 +250,11 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 processedWord = cleanWord,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
-                                                bgColor = "bg-tertiary bg-primary",
+                                                bgColor = "bg-secondary",
                                                 textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
                                             @else
                                                 @template.document-page.content.word(
@@ -252,9 +262,11 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 processedWord = cleanWord,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
-                                                bgColor = "bg-tertiary bg-primary",
+                                                bgColor = "bg-secondary",
                                                 textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
                                             @endif
                                         @else
@@ -264,9 +276,11 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 processedWord = cleanWord,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
-                                                bgColor = "bg-accent",
-                                                textColor = "text-primary",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                bgColor = "bg-secondary",
+                                                textColor = "text-neutral",
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                                 @template.document-page.content.word(
@@ -274,9 +288,11 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 processedWord = cleanWord,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
-                                                bgColor = "bg-accent/80",
-                                                textColor = "text-primary",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                bgColor = "bg-secondary",
+                                                textColor = "text-neutral",
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                                                 @template.document-page.content.word(
@@ -284,9 +300,11 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 processedWord = cleanWord,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
-                                                bgColor = "bg-accent/60",
-                                                textColor = "text-primary",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                bgColor = "bg-secondary",
+                                                textColor = "text-neutral",
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
                                             @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                                 @template.document-page.content.word(
@@ -294,9 +312,11 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 processedWord = cleanWord,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
-                                                bgColor = "bg-primary",
+                                                bgColor = "bg-secondary",
                                                 textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
                                             @else
                                                 @template.document-page.content.word(
@@ -304,9 +324,11 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                                 processedWord = cleanWord,
                                                 documentId = documentAttribute.importData().documentId(),
                                                 word = word,
-                                                bgColor = "bg-primary",
+                                                bgColor = "bg-secondary",
                                                 textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
+                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
+                                                pointerEvents = "pointer-events-none",
+                                                phraseWord = "phrase-word"
                                                 )
                                             @endif
                                         @endif
@@ -317,8 +339,10 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                             processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            bgColor = "bg-tertiary",
-                                            textColor = "text-neutral"
+                                            bgColor = "bg-secondary",
+                                            textColor = "text-neutral",
+                                            pointerEvents = "pointer-events-none",
+                                            phraseWord = "phrase-word"
                                             )
                                         @else
                                             @template.document-page.content.word(
@@ -326,8 +350,10 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                             processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            bgColor = "bg-accent",
-                                            textColor = "text-primary"
+                                            bgColor = "bg-secondary",
+                                            textColor = "text-neutral",
+                                            pointerEvents = "pointer-events-none",
+                                            phraseWord = "phrase-word"
                                             )
                                         @endif
                                     @endif
@@ -338,7 +364,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                                         processedWord = cleanWord,
                                         documentId = documentAttribute.importData().documentId(),
                                         word = word,
-                                        bgColor = "bg-primary",
+                                        bgColor = "bg-secondary",
                                         textColor = "text-neutral",
                                         selectable = false
                                     )

@@ -8,18 +8,21 @@
 @param String textColor
 @param Familiarity familiarity = null
 @param boolean selectable = true
+@param String pointerEvents = null
+@param String phraseWord = null
 
 @if(selectable)
-    <div
-    class="
-    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg"
-    id="target-word-${wordId}"
-    hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
-    hx-target="#translation-form-container-${wordId}"
-    hx-swap="innerHTML"
-    hx-vals='{"selectedWordId": "${wordId}"}'
-    hx-trigger="click"
-    hx-on::before-request="htmx.find('word-highlighter').updateWordId(${wordId})">
+        <div
+        class="
+        inline-block relative cursor-pointer rounded whitespace-nowrap text-lg ${pointerEvents}"
+        id="target-word-${wordId}"
+        hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
+        hx-target="#translation-form-container-${wordId}"
+        hx-swap="innerHTML"
+        hx-vals='{"selectedWordId": "${wordId}"}'
+        hx-trigger="click"
+        hx-on::before-request="htmx.find('word-highlighter').updateWordId(${wordId})">
+
         <div
         onclick="event.stopPropagation()"
         class="
@@ -29,11 +32,11 @@
         </div>
         @if(familiarity != null)
             <span
-            class="${familiarity.name().toLowerCase()} word-${processedWord} ${bgColor} ${textColor} target-word rounded"
+            class="${familiarity.name().toLowerCase()} word-${processedWord} ${bgColor} ${textColor} target-word rounded ${phraseWord}"
             id="target-word-raw-${wordId}">${word}</span>
         @else
             <span
-            class="unknown word-${processedWord} ${bgColor} ${textColor} target-word rounded"
+            class="unknown word-${processedWord} ${bgColor} ${textColor} target-word rounded ${phraseWord}"
             id="target-word-raw-${wordId}">${word}</span>
         @endif
 

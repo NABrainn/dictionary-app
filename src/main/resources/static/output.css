@@ -8,7 +8,6 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --color-red-400: oklch(70.4% 0.191 22.216);
-    --color-red-500: oklch(63.7% 0.237 25.331);
     --spacing: 0.25rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
@@ -183,6 +182,9 @@
   }
 }
 @layer utilities {
+  .pointer-events-none {
+    pointer-events: none;
+  }
   .invisible {
     visibility: hidden;
   }
@@ -352,9 +354,6 @@
   .justify-start {
     justify-content: flex-start;
   }
-  .gap-0\.5 {
-    gap: calc(var(--spacing) * 0.5);
-  }
   .gap-0\.25 {
     gap: calc(var(--spacing) * 0.25);
   }
@@ -394,10 +393,6 @@
     border-radius: var(--radius-md);
   }
   .border {
-    border-style: var(--tw-border-style);
-    border-width: 1px;
-  }
-  .border-1 {
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
@@ -456,9 +451,6 @@
   .bg-primary {
     background-color: var(--color-primary);
   }
-  .bg-red-500 {
-    background-color: var(--color-red-500);
-  }
   .bg-secondary {
     background-color: var(--color-secondary);
   }
@@ -509,9 +501,6 @@
   }
   .py-0\.25 {
     padding-block: calc(var(--spacing) * 0.25);
-  }
-  .py-0\.75 {
-    padding-block: calc(var(--spacing) * 0.75);
   }
   .py-1 {
     padding-block: calc(var(--spacing) * 1);

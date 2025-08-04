@@ -261,7 +261,8 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             #highlightMarkedWords() {
                 htmx.findAll('.target-word').forEach(word => {
                     const familiarity = this.familiarities.find(familiarity => word.classList.contains(familiarity))
-                    if(familiarity)
+                    const isPhraseWord = word.classList.contains('phrase-word')
+                    if(familiarity && !isPhraseWord)
                         this.#updateBgColor(word, familiarity)
                 })
             }
@@ -287,12 +288,11 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #resetHighlights(config) {
-                document.querySelectorAll('[id^="target-word-"]').forEach(word => {
+                document.querySelectorAll('[id^="target-word-raw-"]').forEach(word => {
                     if (word.classList.contains(config.bgColorToRemove)) {
                         word.classList.remove(config.bgColorToRemove);
                     }
                     if (config.bgColors.some(color => word.classList.contains(color))) {
-
                         word.classList.remove(config.textColorToRemove);
                         word.classList.add(config.textColorToAdd);
                     }
