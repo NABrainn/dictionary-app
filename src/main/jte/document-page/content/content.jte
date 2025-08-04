@@ -193,7 +193,6 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                         !{var phrase = ((Phrase) selectable).phrase();}
                         @template.document-page.content.phrase(
                         phrase = phrase,
-                        selectable = selectable,
                         documentAttribute = documentAttribute,
                         cleanWordPattern = cleanWordPattern,
                         paragraphId = paragraphIndex,

@@ -27,6 +27,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             updatePositions(id) {
                 this.#updateId(id)
                 const form = this.#getTranslationForm();
+                console.log(form)
                 this.#handleOverflow(form);
                 this.#updateFormData();
             }

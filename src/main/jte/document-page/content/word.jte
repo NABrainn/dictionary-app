@@ -42,18 +42,10 @@
 
     </div>
 @else
-    @if(familiarity != null)
-        <span
-        class="${bgColor} ${familiarity.name().toLowerCase()} relative ${textColor} px-0.1 py-0.1 rounded whitespace-nowrap"
-        id="target-word-${wordId}">
-        ${word}<div class="cursor-default z-2 inline absolute" id="translation-form-${wordId}">
-        </div></span>
-    @else
-        <span
-        class="${bgColor} relative ${textColor} px-0.1 py-0.1 rounded whitespace-nowrap"
-        id="target-word-${wordId}">
-        ${word}<div class="cursor-default z-2 inline absolute" id="translation-form-${wordId}">
-        </div></span>
-    @endif
+    <span
+    class="${bgColor} relative ${textColor} px-0.1 py-0.1 rounded whitespace-nowrap"
+    id="target-word-${wordId}">
+    ${word}<div class="cursor-default z-2 inline absolute" id="translation-form-${wordId}">
+    </div></span>
 @endif
 

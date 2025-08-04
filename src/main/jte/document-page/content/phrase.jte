@@ -7,17 +7,36 @@
 @import java.util.regex.Pattern
 
 @param List<String> phrase
-@param Selectable selectable 
-@param DocumentAttribute documentAttribute 
+@param DocumentAttribute documentAttribute
 @param Pattern cleanWordPattern
 @param int paragraphId
 @param int selectableId
 
+!{var processedWord = String.join(" ", phrase.stream()
+                                                .map(word -> cleanWordPattern.matcher(word)
+                                                        .replaceAll("")
+                                                        .replace("-", " ")
+                                                        .toLowerCase())
+                                                .toList());}
+!{selectableId = documentAttribute.importData().content().startIndices().get(paragraphId) + selectableId;}
+<div 
+class="bg-secondary border border-2 border-tertiary inline-flex relative rounded text-lg gap-1 py-0.25 px-0.25 cursor-pointer"
+hx-get="/translations?targetWord=${processedWord}&documentId=${documentAttribute.importData().documentId()}"
+hx-target="#translation-form-container-${selectableId}"
+hx-swap="innerHTML"
+hx-vals='{"selectedWordId": "${selectableId}"}'
+hx-trigger="click">
 
-<div class="bg-secondary border border-2 border-tertiary inline-flex rounded gap-1 py-0.25 px-0.25 cursor-pointer">
+    <div
+    onclick="event.stopPropagation()"
+    class="
+    cursor-default z-2 absolute inline left-2 top-10"
+    id="translation-form-container-${selectableId}"
+    hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})">
+    </div>
     @for(var phraseEntry : ForSupport.of(phrase))
         !{var wordId = 0;}
-        @if(((Phrase)selectable).phrase().size() == 1)
+        @if(phrase.size() == 1)
             !{wordId = documentAttribute.importData().content().startIndices().get(paragraphId) + selectableId + (phraseEntry.getIndex());}
         @else
             !{wordId = documentAttribute.importData().content().startIndices().get(paragraphId) + selectableId + (phraseEntry.getIndex() - 1);}
