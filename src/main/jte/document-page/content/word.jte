@@ -21,7 +21,7 @@
         hx-swap="innerHTML"
         hx-vals='{"selectedWordId": "${wordId}"}'
         hx-trigger="click"
-        hx-on::before-request="htmx.find('word-highlighter').updateWordId(${wordId})">
+        hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${wordId})">
 
         <div
         onclick="event.stopPropagation()"

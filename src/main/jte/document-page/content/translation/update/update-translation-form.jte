@@ -44,7 +44,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-swap="innerHTML"
-            hx-on::before-request="htmx.find('word-highlighter').highlightWords(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
+            hx-on::before-request="htmx.find('selectable-highlighter').highlightWords(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
                 <span>${level.getKey()}: </span>
                 <input
                 class=" cursor-pointer"

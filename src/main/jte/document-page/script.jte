@@ -215,8 +215,8 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
         customElements.define('import-page', ImportPage);
     }
 
-    if (!customElements.get('word-highlighter')) {
-        class WordHighlighter extends HTMLElement {
+    if (!customElements.get('selectable-highlighter')) {
+        class SelectableHighlighter extends HTMLElement {
 
             static observedAttributes = ['selected-word-id'];
             familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
@@ -451,11 +451,11 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 this.setAttribute('selected-word-id', id);
             }
         }
-        customElements.define('word-highlighter', WordHighlighter);
+        customElements.define('selectable-highlighter', SelectableHighlighter);
     }
 </script>
 <import-page selected-word-id="${selectedWordId}"></import-page>
-<word-highlighter selected-word-id="${selectedWordId}"></word-highlighter>
+<selectable-highlighter selected-word-id="${selectedWordId}"></selectable-highlighter>
 
 
 
