@@ -215,8 +215,8 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
         customElements.define('import-page', ImportPage);
     }
 
-    if (!customElements.get('word-highlighter')) {
-        class WordHighlighter extends HTMLElement {
+    if (!customElements.get('selectable-highlighter')) {
+        class SelectableHighlighter extends HTMLElement {
 
             static observedAttributes = ['selected-word-id'];
             familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
@@ -252,17 +252,17 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #markWordFamiliarities(id, selectedWordFamiliarity) {
-                const selectedWordValue = htmx.find('#target-word-raw-' + id).innerText.replace(/[^\p{L}\p{N}]/gu, '').toLowerCase();    
-                htmx.findAll('.word-' + selectedWordValue).forEach(word => {
-                    this.#updateFamiliarity(word, selectedWordFamiliarity);
-                })
+                const selectedWordValue = htmx.find('#target-word-raw-' + id)?.innerText?.replace(/[^\p{L}\p{N}]/gu, '')?.toLowerCase();    
+                if(selectedWordValue)
+                    htmx.findAll('.word-' + selectedWordValue).forEach(word => {
+                        this.#updateFamiliarity(word, selectedWordFamiliarity);
+                    })
             }
 
             #highlightMarkedWords() {
                 htmx.findAll('.target-word').forEach(word => {
                     const familiarity = this.familiarities.find(familiarity => word.classList.contains(familiarity))
-                    if(familiarity)
-                        this.#updateBgColor(word, familiarity)
+                    this.#updateBgColor(word, familiarity)
                 })
             }
 
@@ -287,12 +287,11 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #resetHighlights(config) {
-                document.querySelectorAll('[id^="target-word-"]').forEach(word => {
+                document.querySelectorAll('[id^="target-word-raw-"]').forEach(word => {
                     if (word.classList.contains(config.bgColorToRemove)) {
                         word.classList.remove(config.bgColorToRemove);
                     }
                     if (config.bgColors.some(color => word.classList.contains(color))) {
-
                         word.classList.remove(config.textColorToRemove);
                         word.classList.add(config.textColorToAdd);
                     }
@@ -356,7 +355,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 config.element.classList.add(config.classToAdd)
             }
 
-            #updateBgColor(word, familiarity) {
+            #updateBgColor(word, familiarity, selectableType) {
                 const colorsToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary',  'text-neutral', 'text-primary'];
                 const selectedWordBgColor = 'bg-tertiary'
                 switch(familiarity) {
@@ -451,11 +450,11 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 this.setAttribute('selected-word-id', id);
             }
         }
-        customElements.define('word-highlighter', WordHighlighter);
+        customElements.define('selectable-highlighter', SelectableHighlighter);
     }
 </script>
 <import-page selected-word-id="${selectedWordId}"></import-page>
-<word-highlighter selected-word-id="${selectedWordId}"></word-highlighter>
+<%-- <selectable-highlighter selected-word-id="${selectedWordId}"></selectable-highlighter> --%>
 
 
 

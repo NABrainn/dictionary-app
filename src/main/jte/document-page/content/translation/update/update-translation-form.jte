@@ -37,14 +37,15 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
-                "selectedWordId": "${translationAttribute.selectedWordId()}"
+                "selectedWordId": "${translationAttribute.selectedWordId()}",
+                "isPhrase": "${translationAttribute.isPhrase()}"
             }'
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()
             }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-swap="innerHTML"
-            hx-on::before-request="htmx.find('word-highlighter').highlightWords(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
+            hx-on::before-request="htmx.find('selectable-highlighter').highlightWords(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
                 <span>${level.getKey()}: </span>
                 <input
                 class=" cursor-pointer"

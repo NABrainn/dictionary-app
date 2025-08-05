@@ -43,8 +43,8 @@ public class JsoupService {
                 .map(word ->
                         switch (getEndlineCount(word)) {
                             case 0 -> word;
-                            case 1 -> patternMap.get("singleLine").matcher(word).replaceAll(" ");
-                            default -> patternMap.get("multiLine").matcher(word).replaceAll(produceEndlines());
+                            case 1 -> patternMap.get("singleNewLine").matcher(word).replaceAll(" ");
+                            default -> patternMap.get("multiNewLine").matcher(word).replaceAll(produceEndlines());
                         })
                 .filter(word -> !word.isBlank() && !word.matches("\n+"))
                 .reduce((s1, s2) ->s1 + " " + s2)

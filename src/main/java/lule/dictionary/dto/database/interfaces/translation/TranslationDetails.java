@@ -8,4 +8,5 @@ public interface TranslationDetails {
     List<String> sourceWords();
     String targetWord();
     Familiarity familiarity();
+    boolean isPhrase();
 }

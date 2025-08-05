@@ -48,8 +48,9 @@ public class TranslationServiceImp implements TranslationService {
                     .sourceLanguage(request.sourceLanguage())
                     .targetLanguage(request.targetLanguage())
                     .owner(request.owner())
+                    .isPhrase(request.isPhrase())
                     .build();
-            int translationId = insertIntoDatabase(translation, request.documentId());
+            int translationId = insertIntoDatabase(translation, request);
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translationId(translationId)
@@ -57,6 +58,7 @@ public class TranslationServiceImp implements TranslationService {
                     .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
                     .documentId(request.documentId())
+                    .isPhrase(request.isPhrase())
                     .build();
             return ServiceResultImp.success(translationAttribute);
         } catch (ConstraintViolationException e) {
@@ -67,6 +69,7 @@ public class TranslationServiceImp implements TranslationService {
                     .familiarityLevels(getFamiliarityTable())
                     .translationId(-1)
                     .documentId(request.documentId())
+                    .isPhrase(request.isPhrase())
                     .build();
             throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
@@ -86,6 +89,7 @@ public class TranslationServiceImp implements TranslationService {
                         .familiarityLevels(getFamiliarityTable())
                         .translationId(-1)
                         .documentId(request.documentId())
+                        .isPhrase(request.isPhrase())
                         .build();
                 return ServiceResultImp.success(translationAttribute);
             }
@@ -98,6 +102,7 @@ public class TranslationServiceImp implements TranslationService {
                     .sourceLanguage(request.sourceLanguage())
                     .targetLanguage(request.targetLanguage())
                     .owner(request.owner())
+                    .isPhrase(request.isPhrase())
                     .build();
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
@@ -106,6 +111,7 @@ public class TranslationServiceImp implements TranslationService {
                     .familiarityLevels(getFamiliarityTable())
                     .translationId(-1)
                     .documentId(request.documentId())
+                    .isPhrase(request.isPhrase())
                     .build();
             throw new TranslationNotFoundException(ServiceResultImp.error(translationAttribute, Map.of()));
         } catch (ConstraintViolationException e) {
@@ -124,6 +130,7 @@ public class TranslationServiceImp implements TranslationService {
                 .familiarityLevels(getFamiliarityTable())
                 .translationId(-1)
                 .documentId(-1)
+                .isPhrase(request.isPhrase())
                 .build();
         return ServiceResultImp.success(translationAttribute);
     }
@@ -141,6 +148,7 @@ public class TranslationServiceImp implements TranslationService {
                         .translation(optionalTranslation.get())
                         .currentFamiliarity(getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
                         .familiarityLevels(getFamiliarityTable())
+                        .isPhrase(request.isPhrase())
                         .build();
                 return ServiceResultImp.success(translationAttribute);
             }
@@ -158,6 +166,7 @@ public class TranslationServiceImp implements TranslationService {
                     .sourceLanguage(request.sourceLanguage())
                     .targetLanguage(request.targetLanguage())
                     .owner(request.owner())
+                    .isPhrase(request.isPhrase())
                     .build();
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .documentId(-1)
@@ -166,6 +175,7 @@ public class TranslationServiceImp implements TranslationService {
                     .translation(translation)
                     .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
                     .familiarityLevels(getFamiliarityTable())
+                    .isPhrase(request.isPhrase())
                     .build();
             throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
@@ -184,6 +194,7 @@ public class TranslationServiceImp implements TranslationService {
                         .translation(optionalTranslation.get())
                         .currentFamiliarity(getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
                         .familiarityLevels(getFamiliarityTable())
+                        .isPhrase(request.isPhrase())
                         .build();
                 return ServiceResultImp.success(translationAttribute);
             }
@@ -209,8 +220,8 @@ public class TranslationServiceImp implements TranslationService {
     }
 
     @Override
-    public ServiceResult<List<String>> extractPhrases(String content, String owner) {
-        List<String> phrases = translationRepository.extractPhrases(content, owner);
+    public ServiceResult<List<Translation>> extractPhrases(String content, String owner) {
+        List<Translation> phrases = translationRepository.extractPhrases(content, owner);
         return ServiceResultImp.success(phrases);
     }
 
@@ -257,8 +268,8 @@ public class TranslationServiceImp implements TranslationService {
                 .toList();
     }
 
-    private int insertIntoDatabase(Translation translation,  int importId) {
-        return translationRepository.addTranslation(translation, importId).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
+    private int insertIntoDatabase(Translation translation,  AddTranslationRequest request) {
+        return translationRepository.addTranslation(translation, request.documentId()).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
     }
 
     private void validate(ServiceRequest request) throws ConstraintViolationException {

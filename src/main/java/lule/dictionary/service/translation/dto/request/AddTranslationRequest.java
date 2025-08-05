@@ -23,5 +23,6 @@ public record AddTranslationRequest(int documentId,
                                     Language sourceLanguage,
                                     Language targetLanguage,
                                     Familiarity familiarity,
-                                    String owner) implements ServiceRequest {
+                                    String owner,
+                                    boolean isPhrase) implements ServiceRequest {
 }

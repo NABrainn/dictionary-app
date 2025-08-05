@@ -16,7 +16,7 @@ hx-vals='
     "familiarity": "UNKNOWN",
     "sourceLanguage": "${sourceLanguage}",
     "targetLanguage": "${targetLanguage}",
-    "documentId": "${documentId}"
+    "documentId": "${documentId}",
 }'
 hx-post="/translations/new"
 hx-target="#translation-form-container-${selectedWordId}"

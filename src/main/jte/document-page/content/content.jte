@@ -6,7 +6,6 @@
 @import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
 @import java.util.regex.Pattern
-@import java.util.regex.Matcher
 
 @param NavbarAttribute navbarAttribute
 @param DocumentAttribute documentAttribute
@@ -51,336 +50,154 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                             @if(documentAttribute.importData().translations().get(cleanWord) != null)
                                 @if(documentAttribute.importData().selectedWordId() == wordId)
                                     @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
+
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-accent",
                                             textColor = "text-neutral",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true,
-                                            selected = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-accent/80",
                                             textColor = "text-neutral",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true,
-                                            selected = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
 
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-accent/60",
                                             textColor = "text-neutral",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true,
-                                            selected = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-primary",
                                             textColor = "text-neutral",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true,
-                                            selected = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
                                     @else
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-tertiary bg-primary",
                                             textColor = "text-neutral",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true,
-                                            selected = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
                                     @endif
                                 @else
                                     @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
+
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-accent",
                                             textColor = "text-primary",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-accent/80",
                                             textColor = "text-primary",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-accent/60",
                                             textColor = "text-primary",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
                                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-primary",
                                             textColor = "text-neutral",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
                                     @else
                                         @template.document-page.content.word(
-                                            wordIndex = wordId,
+                                            wordId = wordId,
+                                            processedWord = cleanWord,
                                             documentId = documentAttribute.importData().documentId(),
                                             word = word,
-                                            processedWord = cleanWord,
                                             bgColor = "bg-primary",
                                             textColor = "text-neutral",
-                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                            found = true
+                                            familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity()
                                         )
                                     @endif
                                 @endif
                             @else
                                 @if(documentAttribute.importData().selectedWordId() == wordId)
                                     @template.document-page.content.word(
-                                        wordIndex = wordId,
+                                        wordId = wordId,
+                                        processedWord = cleanWord,
                                         documentId = documentAttribute.importData().documentId(),
                                         word = word,
-                                        processedWord = cleanWord,
                                         bgColor = "bg-tertiary",
-                                        textColor = "text-neutral",
-                                        familiarity = null
+                                        textColor = "text-neutral"
                                     )
                                 @else
                                     @template.document-page.content.word(
-                                        wordIndex = wordId,
+                                        wordId = wordId,
+                                        processedWord = cleanWord,
                                         documentId = documentAttribute.importData().documentId(),
                                         word = word,
-                                        processedWord = cleanWord,
                                         bgColor = "bg-accent",
-                                        textColor = "text-primary",
-                                        familiarity = null
+                                        textColor = "text-primary"
                                     )
                                 @endif
                             @endif
 
                         @else
                             @template.document-page.content.word(
-                                wordIndex = wordId,
+                                wordId = wordId,
+                                processedWord = cleanWord,
                                 documentId = documentAttribute.importData().documentId(),
                                 word = word,
-                                processedWord = cleanWord,
                                 bgColor = "bg-primary",
                                 textColor = "text-neutral",
-                                familiarity = null,
                                 selectable = false
                             )
                         @endif
                     @else
-                        <div class="bg-secondary inline-flex rounded gap-1 py-0.25 px-0.25">
-                            @for(var phraseEntry : ForSupport.of(((Phrase) selectable).phrase()))
-                                !{var wordId = 0;}
-                                @if(((Phrase)selectable).phrase().size() == 1)
-                                    !{wordId = documentAttribute.importData().content().startIndices().get(paragraphIndex) + selectableIndex + (phraseEntry.getIndex());}
-                                @else
-                                    !{wordId = documentAttribute.importData().content().startIndices().get(paragraphIndex) + selectableIndex + (phraseEntry.getIndex() - 1);}
-                                @endif
-                                !{var word = phraseEntry.get();}
-                                !{var cleanWord = cleanWordPattern.matcher(word)
-                                                .replaceAll("")
-                                                .replace("-", " ")
-                                                .toLowerCase();}
-                                @if(!cleanWord.isEmpty())
-                                    @if(documentAttribute.importData().translations().get(cleanWord) != null)
-                                        @if(documentAttribute.importData().selectedWordId() == wordId)
-                                            @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                                                @template.document-page.content.word(
-                                                    wordIndex = wordId,
-                                                    documentId = documentAttribute.importData().documentId(),
-                                                    word = word,
-                                                    processedWord = cleanWord,
-                                                    bgColor = "bg-tertiary bg-accent",
-                                                    textColor = "text-neutral",
-                                                    familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                    found = true,
-                                                    selected = true
-                                                )
-                                            @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                                                @template.document-page.content.word(
-                                                wordIndex = wordId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-tertiary bg-accent/80",
-                                                textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true,
-                                                selected = true
-                                                )
-
-                                            @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                                                @template.document-page.content.word(
-                                                wordIndex = wordId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-tertiary bg-accent/60",
-                                                textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true,
-                                                selected = true
-                                                )
-                                            @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
-                                                @template.document-page.content.word(
-                                                wordIndex = wordId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-tertiary bg-primary",
-                                                textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true,
-                                                selected = true
-                                                )
-                                            @else
-                                                @template.document-page.content.word(
-                                                wordIndex = wordId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-tertiary bg-primary",
-                                                textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true,
-                                                selected = true
-                                                )
-                                            @endif
-                                        @else
-                                            @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                                                @template.document-page.content.word(
-                                                wordIndex = wordId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-accent",
-                                                textColor = "text-primary",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true
-                                                )
-                                            @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                                                @template.document-page.content.word(
-                                                wordIndex = wordId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-accent/80",
-                                                textColor = "text-primary",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true
-                                                )
-                                            @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                                                @template.document-page.content.word(
-                                                wordIndex = wordId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-accent/60",
-                                                textColor = "text-primary",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true
-                                                )
-                                            @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.KNOWN)
-                                                @template.document-page.content.word(
-                                                wordIndex = wordId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-primary",
-                                                textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true
-                                                )
-                                            @else
-                                                @template.document-page.content.word(
-                                                wordIndex = wordId,
-                                                documentId = documentAttribute.importData().documentId(),
-                                                word = word,
-                                                processedWord = cleanWord,
-                                                bgColor = "bg-primary",
-                                                textColor = "text-neutral",
-                                                familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
-                                                found = true
-                                                )
-                                            @endif
-                                        @endif
-                                    @else
-                                        @if(documentAttribute.importData().selectedWordId() == wordId)
-                                            @template.document-page.content.word(
-                                            wordIndex = wordId,
-                                            documentId = documentAttribute.importData().documentId(),
-                                            word = word,
-                                            processedWord = cleanWord,
-                                            bgColor = "bg-tertiary",
-                                            textColor = "text-neutral",
-                                            familiarity = null
-                                            )
-                                        @else
-                                            @template.document-page.content.word(
-                                            wordIndex = wordId,
-                                            documentId = documentAttribute.importData().documentId(),
-                                            word = word,
-                                            processedWord = cleanWord,
-                                            bgColor = "bg-accent",
-                                            textColor = "text-primary",
-                                            familiarity = null
-                                            )
-                                        @endif
-                                    @endif
-
-                                @else
-                                    @template.document-page.content.word(
-                                        wordIndex = wordId,
-                                        documentId = documentAttribute.importData().documentId(),
-                                        word = word,
-                                        processedWord = cleanWord,
-                                        bgColor = "bg-primary",
-                                        textColor = "text-neutral",
-                                        familiarity = null,
-                                        selectable = false
-                                    )
-                                @endif
-                            @endfor
-                        </div>
+                        !{var phrase = ((Phrase) selectable);}
+                        @template.document-page.content.phrase(
+                        phrase = phrase,
+                        documentAttribute = documentAttribute,
+                        cleanWordPattern = cleanWordPattern,
+                        paragraphId = paragraphIndex,
+                        selectableId = selectableIndex
+                        )
                     @endif
                 @endfor
                 </div>
