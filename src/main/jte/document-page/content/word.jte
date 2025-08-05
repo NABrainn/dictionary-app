@@ -5,7 +5,7 @@
 @param String word
 @param String processedWord
 @param String bgColor = ""
-@param String textColor
+@param String textColor = ""
 @param Familiarity familiarity = null
 @param boolean selectable = true
 @param String pointerEvents = "pointer-events-auto"
@@ -21,7 +21,7 @@
     hx-swap="innerHTML"
     hx-vals='{"selectedWordId": "${wordId}"}'
     hx-trigger="click"
-    hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${wordId})">
+    hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${wordId})">
         <div
         onclick="event.stopPropagation()"
         class="
@@ -31,12 +31,14 @@
         </div>
         @if(familiarity != null)
             <span
-            class="${familiarity.name().toLowerCase()} word-${processedWord} ${bgColor} ${textColor} target-word rounded"
-            id="target-word-raw-${wordId}">${word}</span>
+            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} target-word rounded selectable"
+            data-selectable-value="${processedWord}"
+            id="selectable-${wordId}">${word}</span>
         @else
             <span
-            class="unknown word-${processedWord} ${bgColor} ${textColor} target-word rounded"
-            id="target-word-raw-${wordId}">${word}</span>
+            class="unknown word-${processedWord} ${bgColor} ${textColor} target-word rounded selectable"
+            data-selectable-value="${processedWord}"
+            id="selectable-${wordId}">${word}</span>
         @endif
     </div>
 @else
@@ -49,7 +51,7 @@
     hx-swap="innerHTML"
     hx-vals='{"selectedWordId": "${wordId}"}'
     hx-trigger="click"
-    hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${wordId})">
+    hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${wordId})">
         <div
         onclick="event.stopPropagation()"
         class="
@@ -60,11 +62,11 @@
         @if(familiarity != null)
             <span
             class="${familiarity.name().toLowerCase()} word-${processedWord} ${bgColor} ${textColor} target-word rounded"
-            id="target-word-raw-${wordId}">${word}</span>
+            id="selectable-${wordId}">${word}</span>
         @else
             <span
             class="unknown word-${processedWord} ${bgColor} ${textColor} target-word rounded"
-            id="target-word-raw-${wordId}">${word}</span>
+            id="selectable-${wordId}">${word}</span>
         @endif
     </div>
 @endif

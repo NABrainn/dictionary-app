@@ -39,13 +39,15 @@
 @endif
 
 <div 
-class="${phrase.familiarity().name().toLowerCase()} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary ${containerBgColor} selectable"
+class="${phrase.familiarity().name().toLowerCase()} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary ${containerTextColor} ${containerBgColor} selectable selectable-${processedWord.replace(" ", "-")}"
+id="selectable-${selectableId}"
+data-selectable-value="${processedWord.replace(" ", "-")}"
 hx-get="/translations?targetWord=${processedWord}&documentId=${documentAttribute.importData().documentId()}&isPhrase=true"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
 hx-vals='{"selectedWordId": "${selectableId}"}'
 hx-trigger="click"
-hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${selectableId})">
+hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${selectableId})">
 
     <div
     onclick="event.stopPropagation()"
@@ -71,7 +73,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                 @if(documentAttribute.importData().selectedWordId() == wordId)
                     @if(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.UNKNOWN)
                         @template.document-page.content.word(
-                            textColor = containerTextColor,
                             familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
                             wordId = wordId,
                             processedWord = cleanWord,
@@ -81,7 +82,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                         )
                     @elseif(documentAttribute.importData().translations().get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                         @template.document-page.content.word(
-                            textColor = containerTextColor,
                             wordId = wordId,
                             processedWord = cleanWord,
                             documentId = documentAttribute.importData().documentId(),
@@ -96,7 +96,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                             processedWord = cleanWord,
                             documentId = documentAttribute.importData().documentId(),
                             word = word,
-                            textColor = containerTextColor,
                             familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
                             selectable = false
                         )
@@ -106,7 +105,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                             processedWord = cleanWord,
                             documentId = documentAttribute.importData().documentId(),
                             word = word,
-                            textColor = containerTextColor,
                             familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
                             selectable = false
                         )
@@ -116,7 +114,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                             processedWord = cleanWord,
                             documentId = documentAttribute.importData().documentId(),
                             word = word,
-                            textColor = containerTextColor,
                             familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
                             selectable = false
                         )
@@ -128,7 +125,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                             processedWord = cleanWord,
                             documentId = documentAttribute.importData().documentId(),
                             word = word,
-                            textColor = containerTextColor,
                             familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
                             selectable = false
                         )
@@ -138,7 +134,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                             processedWord = cleanWord,
                             documentId = documentAttribute.importData().documentId(),
                             word = word,
-                            textColor = containerTextColor,
                             familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
                             selectable = false
                         )
@@ -148,7 +143,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                             processedWord = cleanWord,
                             documentId = documentAttribute.importData().documentId(),
                             word = word,
-                            textColor = containerTextColor,
                             familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
                             selectable = false
                         )
@@ -158,7 +152,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                             processedWord = cleanWord,
                             documentId = documentAttribute.importData().documentId(),
                             word = word,
-                            textColor = containerTextColor,
                             familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
                             selectable = false
                         )
@@ -168,7 +161,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                             processedWord = cleanWord,
                             documentId = documentAttribute.importData().documentId(),
                             word = word,
-                            textColor = containerTextColor,
                             familiarity = documentAttribute.importData().translations().get(cleanWord).familiarity(),
                             selectable = false
                         )
@@ -181,7 +173,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                         processedWord = cleanWord,
                         documentId = documentAttribute.importData().documentId(),
                         word = word,
-                        textColor = containerTextColor,
                         selectable = false
                     )
                 @else
@@ -190,7 +181,6 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateWordId(${select
                         processedWord = cleanWord,
                         documentId = documentAttribute.importData().documentId(),
                         word = word,
-                        textColor = containerTextColor,
                         selectable = false
                     )
                 @endif

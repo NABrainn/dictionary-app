@@ -218,7 +218,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
     if (!customElements.get('selectable-highlighter')) {
         class SelectableHighlighter extends HTMLElement {
 
-            static observedAttributes = ['selected-word-id'];
+            static observedAttributes = ['target-selectable-id'];
             familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
 
             constructor() {
@@ -226,83 +226,93 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             connectedCallback() {
-                this.setAttribute('selected-word-id', 0);
-                this.highlightWord(0);
+                this.setAttribute('target-selectable-id', 0);
             }
 
             attributeChangedCallback(name, oldValue, newValue) {
-                if (name === 'selected-word-id' && oldValue !== newValue) {
-                    const wordData = this.highlightWord(parseInt(newValue));
-                    if(wordData.wordElement) {
-                        const selectedWordFamiliarity = this.familiarities.find(familiarity => wordData.wordElement.classList.contains(familiarity))
-                        if(selectedWordFamiliarity) {
-                            this.highlightWords(wordData.id, selectedWordFamiliarity)
-                        }
+                if (name === 'target-selectable-id' && oldValue !== newValue) {
+                    this.#closeAllTranslationForms();
+                    const targetSelectable = this.highlightTargetSelectable(parseInt(newValue));
+                    const familiarity = this.#getFamiliarity(targetSelectable.element);
+                    if(familiarity) {
+                        this.highlightSelectables(targetSelectable.id, familiarity)
                     }
                 }
             }
 
-            updateWordId(id) {
+            #getFamiliarity(element) {
+                    if(element) 
+                        return this.familiarities.find(familiarity => element.classList.contains(familiarity))
+            }
+
+            updateSelectableId(id) {
                 this.#updateId(id)
             }
 
-            highlightWords(id, selectedWordFamiliarity) {
-                this.#markWordFamiliarities(id, selectedWordFamiliarity)
-                this.#highlightMarkedWords()
+            highlightSelectables(id, familiarity) {
+                this.#markSelectableFamiliarities(id, familiarity)
+                this.#highlightMarkedSelectables()
             }
 
-            #markWordFamiliarities(id, selectedWordFamiliarity) {
-                const selectedWordValue = htmx.find('#target-word-raw-' + id)?.innerText?.replace(/[^\p{L}\p{N}]/gu, '')?.toLowerCase();    
-                if(selectedWordValue)
-                    htmx.findAll('.word-' + selectedWordValue).forEach(word => {
-                        this.#updateFamiliarity(word, selectedWordFamiliarity);
+            #markSelectableFamiliarities(id, familiarity) {
+                const targetSelectableValue = htmx.find('#selectable-' + id).dataset.selectableValue
+                if(targetSelectableValue)
+                    htmx.findAll('.selectable-' + targetSelectableValue).forEach(selectable => {
+                        this.#updateFamiliarity(selectable, familiarity);
                     })
             }
 
-            #highlightMarkedWords() {
-                htmx.findAll('.target-word').forEach(word => {
-                    const familiarity = this.familiarities.find(familiarity => word.classList.contains(familiarity))
-                    this.#updateBgColor(word, familiarity)
+            #highlightMarkedSelectables() {
+                htmx.findAll('.selectable').forEach(selectable => {
+                    const familiarity = this.#getFamiliarity(selectable);
+                    this.#updateBgColor(selectable, familiarity)
                 })
             }
 
-            highlightWord(id) {
-                this.#closeAllTranslationForms();
-                this.#resetHighlights({
+            highlightTargetSelectable(id) {
+                this.#resetNonTargetSelectables({
                     bgColorToRemove: 'bg-tertiary',
                     textColorToRemove: 'text-neutral',
                     textColorToAdd: 'text-primary',
                     bgColors: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40']
                 })
-                const wordElement = htmx.find('#target-word-raw-' + id);
-                if (wordElement) {
-                    this.#adjustColors({
-                        element: wordElement,
+                const targetSelectable = htmx.find('#selectable-' + id);
+                if (targetSelectable) {
+                    this.#adjustTargetSelectableColors({
+                        element: targetSelectable,
                         textColorToRemove: 'text-primary',
                         bgColorToAdd: 'bg-tertiary',
                         textColorToAdd: 'text-neutral'
                     });
                 }
-                return {id, wordElement}
+                return {id, element: targetSelectable}
             }
 
-            #resetHighlights(config) {
-                document.querySelectorAll('[id^="target-word-raw-"]').forEach(word => {
-                    if (word.classList.contains(config.bgColorToRemove)) {
-                        word.classList.remove(config.bgColorToRemove);
-                    }
-                    if (config.bgColors.some(color => word.classList.contains(color))) {
-                        word.classList.remove(config.textColorToRemove);
-                        word.classList.add(config.textColorToAdd);
-                    }
+            #resetNonTargetSelectables(config) {
+                document.querySelectorAll('[id^="selectable-"]').forEach(selectable => {
+                    this.#removeHighlight(selectable, config.bgColorToRemove);
+                    this.#restoreTextColor(selectable, config.bgColors, config.textColorToRemove, config.textColorToAdd)
                 });
             }
 
-            #updateFamiliarity(word, familiarity) {
+            #removeHighlight(selectable, bgColorToRemove) {
+                if (selectable.classList.contains(bgColorToRemove)) {
+                    selectable.classList.remove(bgColorToRemove);
+                }
+            }
+
+            #restoreTextColor(selectable, bgColors, textColorToRemove, textColorToAdd) {
+                if (bgColors.some(color => selectable.classList.contains(color))) {
+                    selectable.classList.remove(textColorToRemove);
+                    selectable.classList.add(textColorToAdd);
+                }
+            }
+
+            #updateFamiliarity(selectable, familiarity) {
                 switch(familiarity) {
                     case 'unknown':
                         this.#updateClasses({
-                            element: word,
+                            element: selectable,
                             classToAdd: 'unknown',
                             classesToRemove: this.familiarities
                         });
@@ -310,7 +320,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
                     case 'recognized':
                         this.#updateClasses({
-                            element: word,
+                            element: selectable,
                             classToAdd: 'recognized',
                             classesToRemove: this.familiarities
                         });
@@ -318,7 +328,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
                     case 'familiar':
                         this.#updateClasses({
-                            element: word,
+                            element: selectable,
                             classToAdd: 'familiar',
                             classesToRemove: this.familiarities
                         });
@@ -326,7 +336,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
                     case 'known':
                         this.#updateClasses({
-                            element: word,
+                            element: selectable,
                             classToAdd: 'known',
                             classesToRemove: this.familiarities
                         });
@@ -334,7 +344,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
                     case 'ignored':
                         this.#updateClasses({
-                            element: word,
+                            element: selectable,
                             classToAdd: 'ignored',
                             classesToRemove: this.familiarities
                         });
@@ -342,7 +352,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
 
                     default:
                         this.#updateClasses({
-                            element: word,
+                            element: selectable,
                             classToAdd: 'ignored',
                             classesToRemove: classesToRemove
                         });
@@ -355,7 +365,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 config.element.classList.add(config.classToAdd)
             }
 
-            #updateBgColor(word, familiarity, selectableType) {
+            #updateBgColor(word, familiarity) {
                 const colorsToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary',  'text-neutral', 'text-primary'];
                 const selectedWordBgColor = 'bg-tertiary'
                 switch(familiarity) {
@@ -439,7 +449,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 });
             }
 
-            #adjustColors(config) {
+            #adjustTargetSelectableColors(config) {
                 if(config.element.classList.contains(config.textColorToRemove)) {
                     config.element.classList.remove(config.textColorToRemove);
                 }
@@ -447,14 +457,14 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #updateId(id) {
-                this.setAttribute('selected-word-id', id);
+                this.setAttribute('target-selectable-id', id);
             }
         }
         customElements.define('selectable-highlighter', SelectableHighlighter);
     }
 </script>
 <import-page selected-word-id="${selectedWordId}"></import-page>
-<%-- <selectable-highlighter selected-word-id="${selectedWordId}"></selectable-highlighter> --%>
+<selectable-highlighter target-selectable-id="${selectedWordId}"></selectable-highlighter>
 
 
 
