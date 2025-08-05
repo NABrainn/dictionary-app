@@ -156,11 +156,14 @@ public class ImportServiceImp implements ImportService {
         return translationService.extractPhrases(content, owner).value();
     }
 
+    //not very efficient
     private String markPhrases(String content, List<Translation> phrases) {
-        System.out.println("phrases:" + phrases);
         String finalContent = content;
         for(Translation translation : phrases) {
-            finalContent = content.replaceAll("\\b(?i)" + translation.targetWord() + "\\b", "ph<" + translation.familiarity().ordinal() + 1 + "<" + translation.targetWord().replace(" ", "-") + ">>");
+            finalContent = content
+                    .replaceAll("\\b" + translation.targetWord().substring(0, 1).toUpperCase() + translation.targetWord().substring(1) + "\\b", "ph<" + translation.familiarity().ordinal() + 1 + "<" + translation.targetWord().substring(0, 1).toUpperCase() + translation.targetWord().substring(1).replace(" ", "-") + ">>")
+                    .replaceAll("\\b" + translation.targetWord().toLowerCase() + "\\b", "ph<" + translation.familiarity().ordinal() + 1 + "<" + translation.targetWord().toLowerCase().replace(" ", "-") + ">>")
+                    .replaceAll("\\b" + translation.targetWord().toUpperCase() + "\\b", "ph<" + translation.familiarity().ordinal() + 1 + "<" + translation.targetWord().toUpperCase().replace(" ", "-") + ">>");
         }
         return finalContent;
     }
