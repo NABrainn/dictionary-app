@@ -20,5 +20,6 @@ public record DeleteSourceWordRequest(@NotBlank(message = "Source word cannot be
                                       @NonNull
                                       String owner,
 
-                                      int selectedWordId) implements ServiceRequest {
+                                      int selectedWordId,
+                                      boolean isPhrase) implements ServiceRequest {
 }

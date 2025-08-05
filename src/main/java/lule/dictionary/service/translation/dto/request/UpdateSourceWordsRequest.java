@@ -34,7 +34,8 @@ public record UpdateSourceWordsRequest(@NonNull
                                        @NonNull
                                        String owner,
 
-                                       int selectedWordId) implements ServiceRequest {
+                                       int selectedWordId,
+                                       boolean isPhrase) implements ServiceRequest {
 
     @Override
     public List<String> sourceWords() {

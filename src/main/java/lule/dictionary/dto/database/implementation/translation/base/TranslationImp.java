@@ -24,7 +24,8 @@ public record TranslationImp(
         @NonNull
         Language targetLanguage,
         @NonNull
-        String owner) implements Translation {
+        String owner,
+        boolean isPhrase) implements Translation {
 
         public TranslationImp {
                 EmptyValidator emptyValidator = (String... fields) -> {

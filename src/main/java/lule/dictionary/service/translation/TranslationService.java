@@ -17,5 +17,5 @@ public interface TranslationService {
     ServiceResult<TranslationAttribute> deleteSourceWord(DeleteSourceWordRequest request);
     ServiceResult<Integer> getWordsLearnedCount(CustomUserDetails principal);
     ServiceResult<Map<String, Translation>> findTranslationsByImport(FindTranslationsByImportRequest request);
-    ServiceResult<List<String>> extractPhrases(String content, String owner);
+    ServiceResult<List<Translation>> extractPhrases(String content, String owner);
 }

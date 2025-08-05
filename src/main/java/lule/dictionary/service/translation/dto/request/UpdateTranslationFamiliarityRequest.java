@@ -18,5 +18,6 @@ public record UpdateTranslationFamiliarityRequest(@NotBlank
                                                   @NonNull Language sourceLanguage,
                                                   @NonNull Language targetLanguage,
                                                   @NonNull String owner,
-                                                  int selectedWordId) implements ServiceRequest {
+                                                  int selectedWordId,
+                                                  boolean isPhrase) implements ServiceRequest {
 }

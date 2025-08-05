@@ -262,9 +262,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             #highlightMarkedWords() {
                 htmx.findAll('.target-word').forEach(word => {
                     const familiarity = this.familiarities.find(familiarity => word.classList.contains(familiarity))
-                    const isPhraseWord = word.classList.contains('phrase-word')
-                    if(!isPhraseWord) this.#updateBgColor(word, familiarity, 'word')
-                    // else this.#updateBgColor(word, familiarity, 'phrase')
+                    this.#updateBgColor(word, familiarity)
                 })
             }
 
@@ -358,13 +356,14 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #updateBgColor(word, familiarity, selectableType) {
-                const config = this.#getColorConfig(selectableType);
+                const colorsToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary',  'text-neutral', 'text-primary'];
+                const selectedWordBgColor = 'bg-tertiary'
                 switch(familiarity) {
                     case 'unknown':
-                        if(!word.classList.contains(config.selectedWordBgColor)) {
+                        if(!word.classList.contains(selectedWordBgColor)) {
                             this.#updateColors({
                                 element: word,
-                                colorsToRemove: config.colorsToRemove,
+                                colorsToRemove: colorsToRemove,
                                 bgColorToAdd: 'bg-accent',
                                 textColorToAdd: 'text-primary'
                             });
@@ -372,10 +371,10 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                         break;
 
                     case 'recognized':
-                        if(!word.classList.contains(config.selectedWordBgColor)) {
+                        if(!word.classList.contains(selectedWordBgColor)) {
                             this.#updateColors({
                                 element: word,
-                                colorsToRemove: config.colorsToRemove,
+                                colorsToRemove: colorsToRemove,
                                 bgColorToAdd: 'bg-accent/80',
                                 textColorToAdd: 'text-primary'
                             });
@@ -383,10 +382,10 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                         break;
 
                     case 'familiar':
-                        if(!word.classList.contains(config.selectedWordBgColor)) {
+                        if(!word.classList.contains(selectedWordBgColor)) {
                             this.#updateColors({
                                 element: word,
-                                colorsToRemove: config.colorsToRemove,
+                                colorsToRemove: colorsToRemove,
                                 bgColorToAdd: 'bg-accent/60',
                                 textColorToAdd: 'text-primary'
                             });
@@ -394,10 +393,10 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                         break;
 
                     case 'known':
-                        if(!word.classList.contains(config.selectedWordBgColor)) {
+                        if(!word.classList.contains(selectedWordBgColor)) {
                             this.#updateColors({
                                 element: word,
-                                colorsToRemove: config.colorsToRemove,
+                                colorsToRemove: colorsToRemove,
                                 bgColorToAdd: 'bg-primary',
                                 textColorToAdd: 'text-neutral'
                             });
@@ -405,10 +404,10 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                         break;
 
                     case 'ignored':
-                        if(!word.classList.contains(config.selectedWordBgColor)) {
+                        if(!word.classList.contains(selectedWordBgColor)) {
                             this.#updateColors({
                                 element: word,
-                                colorsToRemove: config.colorsToRemove,
+                                colorsToRemove: colorsToRemove,
                                 bgColorToAdd: 'bg-primary',
                                 textColorToAdd: 'text-neutral'
                             });
@@ -416,35 +415,15 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                         break;
 
                     default:
-                        if(!word.classList.contains(config.selectedWordBgColor)) {
+                        if(!word.classList.contains(selectedWordBgColor)) {
                             this.#updateColors({
                                 element: word,
-                                colorsToRemove: config.colorsToRemove,
+                                colorsToRemove: colorsToRemove,
                                 bgColorToAdd: 'bg-primary',
                                 textColorToAdd: 'text-neutral'
                             });
                         }
                         break;
-                }
-            }
-
-            #getColorConfig(selectableType) {
-                switch(selectableType) {
-                    case 'phrase':
-                        return {
-                            colorsToRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary',  'text-neutral', 'text-primary'], 
-                            selectedWordBgColor: 'bg-tertiary'
-                        };
-                    case 'word':
-                        return {
-                            colorsToRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary',  'text-neutral', 'text-primary'], 
-                            selectedWordBgColor: 'bg-tertiary'
-                        };
-                    default:
-                        return {
-                            colorsToRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary',  'text-neutral', 'text-primary'], 
-                            selectedWordBgColor: 'bg-tertiary'
-                        };
                 }
             }
 
@@ -475,7 +454,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
     }
 </script>
 <import-page selected-word-id="${selectedWordId}"></import-page>
-<selectable-highlighter selected-word-id="${selectedWordId}"></selectable-highlighter>
+<%-- <selectable-highlighter selected-word-id="${selectedWordId}"></selectable-highlighter> --%>
 
 
 

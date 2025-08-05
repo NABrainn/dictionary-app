@@ -14,6 +14,7 @@ public record TranslationAttribute(int documentId,
                                    int translationId,
                                    Translation translation,
                                    int currentFamiliarity,
+                                   boolean isPhrase,
                                    @NonNull Map<Integer, Familiarity> familiarityLevels) {
     public static final int UNINITIALIZED_ID = -1;
 

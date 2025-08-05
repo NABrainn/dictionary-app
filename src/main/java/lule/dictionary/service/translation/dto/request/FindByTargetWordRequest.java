@@ -14,5 +14,6 @@ public record FindByTargetWordRequest(int documentId,
                                       String targetWord,
                                       Language sourceLanguage,
                                       Language targetLanguage,
-                                      String owner) implements ServiceRequest {
+                                      String owner,
+                                      boolean isPhrase) implements ServiceRequest {
 }

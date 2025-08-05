@@ -33,9 +33,9 @@ public class TranslationRepository {
         String insertSql = """
             WITH inserted_translation AS (
                 INSERT INTO dictionary.translations (
-                    source_words, target_word, source_lang, target_lang, translation_owner, familiarity
+                    source_words, target_word, source_lang, target_lang, translation_owner, familiarity, is_phrase
                 )
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 RETURNING translations_id, translation_owner
             ),
             inserted_import AS (
@@ -69,8 +69,9 @@ public class TranslationRepository {
                 ps.setString(4, translation.targetLanguage().toString());
                 ps.setString(5, translation.owner());
                 ps.setString(6, translation.familiarity().toString());
-                ps.setInt(7, importId);
-                ps.setInt(8, 1);
+                ps.setBoolean(7, translation.isPhrase());
+                ps.setInt(8, importId);
+                ps.setInt(9, 1);
                 return ps;
             }, TRANSLATION_ID).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
             template.update(updateSql, translation.owner());
@@ -254,11 +255,11 @@ public class TranslationRepository {
         }
     }
 
-    public List<String> extractPhrases(String content, String owner) {
+    public List<Translation> extractPhrases(String content, String owner) {
         String sql = """
-                SELECT DISTINCT target_word
+                SELECT DISTINCT *
                 FROM dictionary.translations
-                WHERE to_tsvector(?) @@ plainto_tsquery(target_word)
+                WHERE to_tsvector(lower(?)) @@ plainto_tsquery(lower(target_word))
                 AND translation_owner = ?
                 AND is_phrase = true
                 """;

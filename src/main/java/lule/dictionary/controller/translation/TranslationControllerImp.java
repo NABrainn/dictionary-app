@@ -36,7 +36,8 @@ public class TranslationControllerImp {
                                    Authentication authentication,
                                    @RequestParam int documentId,
                                    @RequestParam String targetWord,
-                                   @RequestParam("selectedWordId") int selectedWordId) {
+                                   @RequestParam("selectedWordId") int selectedWordId,
+                                   @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         try {
             FindByTargetWordRequest request = FindByTargetWordRequest.builder()
@@ -46,6 +47,7 @@ public class TranslationControllerImp {
                     .sourceLanguage(principal.sourceLanguage())
                     .targetLanguage(principal.targetLanguage())
                     .owner(principal.getUsername())
+                    .isPhrase(isPhrase)
                     .build();
             ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(request);
             model.addAttribute("translationAttribute", result.value());
@@ -73,7 +75,8 @@ public class TranslationControllerImp {
                                  @RequestParam("sourceLanguage") Language sourceLanguage,
                                  @RequestParam("targetLanguage") Language targetLanguage,
                                  @RequestParam("documentId") int documentId,
-                                 @RequestParam("selectedWordId") int selectedWordId) {
+                                 @RequestParam("selectedWordId") int selectedWordId,
+                                 @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             AddTranslationRequest request = AddTranslationRequest.builder()
@@ -85,6 +88,7 @@ public class TranslationControllerImp {
                     .targetLanguage(targetLanguage)
                     .familiarity(familiarity)
                     .owner(principal.getUsername())
+                    .isPhrase(isPhrase)
                     .build();
             ServiceResult<TranslationAttribute> result = createTranslation(request);
             model.addAttribute("translationAttribute", result.value());
@@ -104,7 +108,8 @@ public class TranslationControllerImp {
                                     @RequestParam("familiarity") Familiarity familiarity,
                                     @RequestParam("sourceLanguage") Language sourceLanguage,
                                     @RequestParam("targetLanguage") Language targetLanguage,
-                                    @RequestParam("selectedWordId") int selectedWordId) {
+                                    @RequestParam("selectedWordId") int selectedWordId,
+                                    @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         UpdateTranslationFamiliarityRequest request = UpdateTranslationFamiliarityRequest.builder()
                 .selectedWordId(selectedWordId)
@@ -113,6 +118,7 @@ public class TranslationControllerImp {
                 .targetLanguage(targetLanguage)
                 .familiarity(familiarity)
                 .owner(principal.getUsername())
+                .isPhrase(isPhrase)
                 .build();
         ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(request);
         model.addAttribute("translationAttribute", result.value());
@@ -126,7 +132,8 @@ public class TranslationControllerImp {
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord,
                                     @RequestParam("familiarity") String currentFamiliarity,
-                                    @RequestParam("selectedWordId") int selectedWordId) {
+                                    @RequestParam("selectedWordId") int selectedWordId,
+                                    @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         try {
             UpdateSourceWordsRequest request = UpdateSourceWordsRequest.builder()
@@ -137,6 +144,7 @@ public class TranslationControllerImp {
                     .owner(principal.getUsername())
                     .targetWord(targetWord)
                     .selectedWordId(selectedWordId)
+                    .isPhrase(isPhrase)
                     .build();
             ServiceResult<TranslationAttribute> result = translationService.updateSourceWords(request);
             model.addAttribute("translationAttribute", result.value());
@@ -156,7 +164,8 @@ public class TranslationControllerImp {
                                    Authentication authentication,
                                    @RequestParam("sourceWord") String sourceWord,
                                    @RequestParam("targetWord") String targetWord,
-                                   @RequestParam("selectedWordId") int selectedWordId) {
+                                   @RequestParam("selectedWordId") int selectedWordId,
+                                   @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         try {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             DeleteSourceWordRequest request = DeleteSourceWordRequest.builder()
@@ -164,6 +173,7 @@ public class TranslationControllerImp {
                     .targetWord(targetWord)
                     .owner(principal.getUsername())
                     .selectedWordId(selectedWordId)
+                    .isPhrase(isPhrase)
                     .build();
             ServiceResult<TranslationAttribute> result = translationService.deleteSourceWord(request);
             model.addAttribute("translationAttribute", result.value());

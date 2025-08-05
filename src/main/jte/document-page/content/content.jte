@@ -190,7 +190,7 @@ class="flex flex-col gap-8 min-h-full justify-between select-none text-wrap">
                             )
                         @endif
                     @else
-                        !{var phrase = ((Phrase) selectable).phrase();}
+                        !{var phrase = ((Phrase) selectable);}
                         @template.document-page.content.phrase(
                         phrase = phrase,
                         documentAttribute = documentAttribute,

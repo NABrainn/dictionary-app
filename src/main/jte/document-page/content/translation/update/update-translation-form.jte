@@ -37,7 +37,8 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
-                "selectedWordId": "${translationAttribute.selectedWordId()}"
+                "selectedWordId": "${translationAttribute.selectedWordId()}",
+                "isPhrase": "${translationAttribute.isPhrase()}"
             }'
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()

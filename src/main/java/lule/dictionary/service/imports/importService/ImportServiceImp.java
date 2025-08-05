@@ -8,6 +8,7 @@ import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData
 import lule.dictionary.dto.database.interfaces.imports.base.Document;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.application.result.ServiceResultImp;
@@ -144,20 +145,24 @@ public class ImportServiceImp implements ImportService {
     }
 
     private ContentData assembleDocumentContentData(Document document) {
-        List<String> phrases = extractPhrases(document.pageContent(), document.owner());
-        String parsedContent = markPhrases(document.pageContent(), phrases);
+        List<Translation> phrases = extractPhrases(document.pageContent(), document.owner());
+        String parsedContent = markPhrases(document.pageContent(), phrases.stream().toList());
         List<List<Selectable>> paragraphs = extractParagraphs(parsedContent);
         List<Integer> startIndices = extractIndices(paragraphs);
         return ContentData.of(paragraphs, startIndices);
     }
 
-    private List<String> extractPhrases(String content, String owner) {
+    private List<Translation> extractPhrases(String content, String owner) {
         return translationService.extractPhrases(content, owner).value();
     }
 
-    private String markPhrases(String content, List<String> phrases) {
-        return phrases.stream()
-                .reduce(content, (subtotal, phrase) -> subtotal.replaceAll("\\b" + phrase + "\\b", "ph<" + phrase.replace(" ", "-") + ">"));
+    private String markPhrases(String content, List<Translation> phrases) {
+        System.out.println("phrases:" + phrases);
+        String finalContent = content;
+        for(Translation translation : phrases) {
+            finalContent = content.replaceAll("\\b(?i)" + translation.targetWord() + "\\b", "ph<" + translation.familiarity().ordinal() + 1 + "<" + translation.targetWord().replace(" ", "-") + ">>");
+        }
+        return finalContent;
     }
 
     private Map<String, Translation> getTranslationsFromDatabase(Document importWithPagination) {
@@ -167,27 +172,29 @@ public class ImportServiceImp implements ImportService {
         return Stream.of(content.split("\n+"))
                 .map(paragraph -> Arrays.stream(paragraph.split("\\s+"))
                         .map(selectable -> selectable.startsWith("ph<") && selectable.endsWith(">") ?
-                                Phrase.of(convertPhraseLiteral(selectable)) :
+                                buildPhraseFrom(selectable) :
                                 (Selectable) Word.of(selectable))
                         .toList())
                 .filter(list -> !list.isEmpty())
                 .toList();
     }
 
-    private List<String> convertPhraseLiteral(String selectable) {
-        return Arrays.stream(selectable
+    private Phrase buildPhraseFrom(String literal) {
+
+        return Phrase.of(Arrays.stream(literal
                 .replace("ph<", "")
                 .replace(">", "")
                 .replace("-", " ")
+                .substring(3)
                 .split(" "))
-                .toList();
+                .toList(), Familiarity.values()[Integer.parseInt(literal.substring(3, 4))]);
     }
 
     private List<Integer> extractIndices(List<List<Selectable>> paragraphs) {
         return IntStream.range(0, paragraphs.stream()
                         .map(paragraph -> paragraph.stream()
                                 .map(selectable -> selectable instanceof Phrase ?
-                                        String.join("", ((Phrase) selectable).phrase()) :
+                                        String.join("", ((Phrase) selectable).targetWords()) :
                                         selectable))
                         .toList()
                         .size())

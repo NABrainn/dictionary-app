@@ -32,7 +32,8 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                 "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
                 "documentId": "${translationAttribute.documentId()}",
-                "selectedWordId": "${translationAttribute.selectedWordId()}"
+                "selectedWordId": "${translationAttribute.selectedWordId()}",
+                "isPhrase": "${translationAttribute.isPhrase()}"
             }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-headers='js:{
