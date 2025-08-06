@@ -462,9 +462,108 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
         }
         customElements.define('selectable-highlighter', SelectableHighlighter);
     }
+    if (!customElements.get('phrase-selector')) {
+        class PhraseSelector extends HTMLElement {
+            #data = {}
+            constructor() {
+                super()
+            }
+
+            setupContainer() {
+                this.#removePhraseSelections()
+                const phraseChildNodes = this.#getPhraseChildNodes();
+                if(!phraseChildNodes) return
+
+                const phraseText = this.#getPhraseText(phraseChildNodes)
+                if(!phraseText) return
+
+                const phraseParentNodes = this.#getPhraseParentNodes(phraseChildNodes)
+                if(!phraseParentNodes) return
+
+                const paragraph = this.#getParagraph(phraseParentNodes)
+                if(!paragraph) return
+
+                const container = this.#createPhraseContainer()
+                if(!container) return
+
+                paragraph.insertBefore(container, phraseParentNodes.at(0))
+                this.data = {
+                    phraseText: phraseText,
+                    paragraphId: parseInt(paragraph.dataset.paragraphId),
+                    selectableId: parseInt(phraseParentNodes.at(0).dataset.id),
+                    phraseNodes: phraseParentNodes
+                }
+            }
+
+            set data(data) {
+                this.#data = data;
+            }
+
+            get data() {
+                return this.#data ?? new Error('Data not initialized');
+            }
+
+            removeNodes(phraseNodes) {
+                phraseNodes.forEach(node => node.remove())
+            }
+
+            #removePhraseSelections() {
+                const container = htmx.find('.selected-phrase-form')
+                if(container) {
+                    container.replaceWith(...container.childNodes)
+                }
+
+
+            }
+
+            #createPhraseContainer() {
+                const container = document.createElement('div')
+                htmx.addClass(container, 'selected-phrase')
+                htmx.addClass(container, 'inline-block')
+                return container
+            }
+
+            #getParagraph(phraseParentNodes) {
+                return phraseParentNodes.at(0).parentElement;
+            }
+
+            #getPhraseChildNodes() {
+                if(this.#getAnchorId() === this.#getFocusId()) return
+                const phraseNodes = []
+                for(let i = this.#getAnchorId(); i <= this.#getFocusId(); i++) {
+                    phraseNodes.push(htmx.find('#selectable-' + i))
+                }
+                return phraseNodes;
+            }
+            
+            #getPhraseParentNodes(phraseChildNodes) {
+                return phraseChildNodes
+                            .filter(node => node !== null)
+                            .map(node => node.parentElement)
+            }
+
+            #getPhraseText(phraseNodes) {
+                return phraseNodes
+                            .filter(node => node !== null)
+                            .map(node => node.innerText).join(" ")
+            }
+
+            #getAnchorId() {
+                return parseInt(window.getSelection().anchorNode.parentElement.id.substring(11))
+            }
+
+            #getFocusId() {
+                return parseInt(window.getSelection().focusNode.parentElement.id.substring(11))
+            }
+
+
+        }
+        customElements.define('phrase-selector', PhraseSelector);
+    }
 </script>
 <import-page selected-word-id="${selectedWordId}"></import-page>
 <selectable-highlighter target-selectable-id="${selectedWordId}"></selectable-highlighter>
+<phrase-selector></phrase-selector>
 
 
 

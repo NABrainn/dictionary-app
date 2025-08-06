@@ -27,21 +27,23 @@
 @for(var row : ForSupport.of(rows.get(currentRow)))
     @if(currentPage == row.get())
         <form
-        class="bg-tertiary rounded text-primary font-bold text-xl"
         hx-get="/imports/${id}?page=${row.get()}"
         hx-target="#main"
         hx-swap="outerHTML"
         hx-push-url="false">
-            <button class="px-2 cursor-pointer" type="submit">${row.get()}</button>
+            <div class="bg-tertiary rounded text-primary font-bold text-xl">
+                <button class="px-2 cursor-pointer" type="submit">${row.get()}</button>
+            </div>
         </form>
     @else
         <form
-        class="bg-accent rounded text-primary font-bold text-xl"
         hx-get="/imports/${id}?page=${row.get()}"
         hx-target="#main"
         hx-swap="outerHTML"
         hx-push-url="false">
-            <button class="px-2 cursor-pointer" type="submit">${row.get()}</button>
+            <div class="bg-accent rounded text-primary font-bold text-xl">
+                <button class="px-2 cursor-pointer" type="submit">${row.get()}</button>
+            </div>
         </form>
     @endif
 @endfor

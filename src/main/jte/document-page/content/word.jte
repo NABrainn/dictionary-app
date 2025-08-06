@@ -10,12 +10,12 @@
 @param boolean selectable = true
 @param String pointerEvents = "pointer-events-auto"
 
-
 @if(selectable)
     <div
     class="
     inline-block relative cursor-pointer rounded whitespace-nowrap text-lg selectable"
     id="target-word-${wordId}"
+    data-id="${wordId}"
     hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"

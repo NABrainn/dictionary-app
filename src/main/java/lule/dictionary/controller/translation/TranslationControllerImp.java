@@ -7,6 +7,7 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.service.imports.importService.dto.Phrase;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.translation.TranslationServiceImp;
@@ -20,7 +21,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Controller
 @RequiredArgsConstructor
@@ -64,6 +67,21 @@ public class TranslationControllerImp {
             log.info("Invalid input, sending info back");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid target word");
         }
+    }
+
+    @GetMapping({"/phrase", "/phrase/"})
+    public String newPhrase(@RequestParam("targetWords") String targetWords,
+                            @RequestParam("selectableId") int selectableId,
+                            Model model) {
+        var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");
+        model.addAttribute("targetWords", targetWords);
+        System.out.println("WTF: " + Arrays.stream(cleanWordPattern
+                .matcher(targetWords).replaceAll("")
+                .split(" "))
+                .filter(word -> !word.isBlank())
+                .toList());
+        model.addAttribute("selectableId", selectableId);
+        return "document-page/content/selected-phrase";
     }
 
     @PostMapping({"/new", "/new/"})
