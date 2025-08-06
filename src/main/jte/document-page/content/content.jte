@@ -26,7 +26,6 @@ hx-vals='js:{
     targetWords: htmx.find("phrase-selector").data.phraseText,
     selectableId: htmx.find("phrase-selector").data.selectableId
 }'
-onmouseup="htmx.find('phrase-selector').setupContainer()"
 hx-on::after-request="htmx.find('phrase-selector').removeNodes(htmx.find('phrase-selector').data.phraseNodes)"
 >
     @template.navbar.navbar(

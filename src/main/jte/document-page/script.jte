@@ -467,25 +467,38 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             #data = {}
             constructor() {
                 super()
+                this.#initializeListener()
             }
 
             setupContainer() {
-                this.#removePhraseSelections()
                 const phraseChildNodes = this.#getPhraseChildNodes();
-                if(!phraseChildNodes) return
+
+                if(!phraseChildNodes) 
+                    return this.#destroySelector()
+
+                if(phraseChildNodes.length > 5) 
+                    return this.#destroySelector()
 
                 const phraseText = this.#getPhraseText(phraseChildNodes)
-                if(!phraseText) return
+                if(!phraseText) 
+                    return this.#destroySelector()
 
                 const phraseParentNodes = this.#getPhraseParentNodes(phraseChildNodes)
-                if(!phraseParentNodes) return
+                if(!phraseParentNodes) 
+                    return this.#destroySelector()
+
+                if(!phraseParentNodes.every(node => node.classList.contains('selectable'))) 
+                    return this.#destroySelector()
 
                 const paragraph = this.#getParagraph(phraseParentNodes)
-                if(!paragraph) return
+                if(!paragraph) 
+                    return this.#destroySelector()
 
                 const container = this.#createPhraseContainer()
-                if(!container) return
+                if(!container) 
+                    return this.#destroySelector()
 
+                this.#removePhraseSelections()
                 paragraph.insertBefore(container, phraseParentNodes.at(0))
                 this.data = {
                     phraseText: phraseText,
@@ -493,6 +506,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                     selectableId: parseInt(phraseParentNodes.at(0).dataset.id),
                     phraseNodes: phraseParentNodes
                 }
+                window.getSelection().removeAllRanges()
             }
 
             set data(data) {
@@ -504,7 +518,20 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             removeNodes(phraseNodes) {
-                phraseNodes.forEach(node => node.remove())
+                if(phraseNodes)
+                    phraseNodes.forEach(node => node.remove())
+            }
+
+            #destroySelector() {
+                window.getSelection().removeAllRanges()
+                return
+            }
+
+            #initializeListener() {
+                const content = htmx.find('#page-content')
+                content.addEventListener('mouseup', () => {
+                    this.setupContainer()
+                })
             }
 
             #removePhraseSelections() {
@@ -512,7 +539,6 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 if(container) {
                     container.replaceWith(...container.childNodes)
                 }
-
 
             }
 

@@ -14,12 +14,12 @@ data-selectable-value="${targetWords.replace(" ", "-")}">
     </div>
     @for(String word : targetWords.split(" "))
         @template.document-page.content.word(
-        wordId = 0,
-        processedWord = word,
-        documentId = 0,
-        word = word,
-        familiarity = lule.dictionary.enumeration.Familiarity.IGNORED,
-        selectable = false
+            wordId = 0,
+            processedWord = word,
+            documentId = 0,
+            word = word,
+            familiarity = lule.dictionary.enumeration.Familiarity.IGNORED,
+            selectable = false
         )
     @endfor
 </div>
