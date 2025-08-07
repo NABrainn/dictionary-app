@@ -17,17 +17,18 @@
 
 <form
 id="page-content"
+data-document-id="${documentAttribute.importData().documentId()}"
 class="flex flex-col gap-8 min-h-full justify-between text-wrap"
 hx-get="/translations/phrase"
-hx-trigger="mouseup"
+hx-trigger="selectphrase from:document"
 hx-target=".selected-phrase"
 hx-swap="outerHTML"
 hx-vals='js:{
-    targetWords: htmx.find("phrase-selector").data.phraseText,
-    selectableId: htmx.find("phrase-selector").data.selectableId
-}'
-hx-on::after-request="htmx.find('phrase-selector').removeNodes(htmx.find('phrase-selector').data.phraseNodes)"
->
+    targetWords: htmx.find("phrase-selector").data.targetWords,
+    selectableId: htmx.find("phrase-selector").data.selectableId,
+    familiarities: htmx.find("phrase-selector").data.familiarities
+}'>
+    <input type="hidden" name="documentId" value="${documentId}">
     @template.navbar.navbar(
         navbarAttribute = navbarAttribute,
         isAuthenticated = baseAttribute.isAuthenticated(),

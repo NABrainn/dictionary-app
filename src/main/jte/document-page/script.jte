@@ -1,6 +1,5 @@
 @param int selectedWordId
-<script
-class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
+<script class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
     if (!customElements.get('import-page')) {
         class ImportPage extends HTMLElement {
 
@@ -168,7 +167,7 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 if(value !== undefined) {
                     if(value >= 0) {
                         return "right-" + value;
-                    }
+                    }destroySelector
                     return "-right-" + Math.abs(value)
                 }
             }
@@ -465,12 +464,13 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
     if (!customElements.get('phrase-selector')) {
         class PhraseSelector extends HTMLElement {
             #data = {}
+            #familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
             constructor() {
                 super()
                 this.#initializeListener()
             }
 
-            setupContainer() {
+            #selectPhrase() {
                 const phraseChildNodes = this.#getPhraseChildNodes();
 
                 if(!phraseChildNodes) 
@@ -494,19 +494,40 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 if(!paragraph) 
                     return this.#destroySelector()
 
-                const container = this.#createPhraseContainer()
-                if(!container) 
-                    return this.#destroySelector()
+                @raw
+                //hacky
+                @endraw
 
-                this.#removePhraseSelections()
-                paragraph.insertBefore(container, phraseParentNodes.at(0))
-                this.data = {
-                    phraseText: phraseText,
-                    paragraphId: parseInt(paragraph.dataset.paragraphId),
-                    selectableId: parseInt(phraseParentNodes.at(0).dataset.id),
-                    phraseNodes: phraseParentNodes
+                if(htmx.find('.selected-phrase')) {
+                    this.#removeUnusedSelections().then(() => {
+                        this.#wrapWords(paragraph, phraseParentNodes)                
+                        this.#emitEvent()
+                        this.#destroySelector()
+                    })
+                    this.#data = {
+                    targetWords: phraseText,
+                    selectableId: phraseParentNodes.at(0).dataset.id,
+                    familiarities: [...phraseChildNodes]
+                                    .map(node => [...node.classList]
+                                        .filter(cls => this.#familiarities.includes(cls)))
+                                    .map(list => !list.length ? ['unknown'] : list)
+                    }
                 }
-                window.getSelection().removeAllRanges()
+                else {
+                    this.#data = {
+                        targetWords: phraseText,
+                        selectableId: phraseParentNodes.at(0).dataset.id,
+                        familiarities: [...phraseChildNodes]
+                                        .map(node => [...node.classList]
+                                            .filter(cls => this.#familiarities.includes(cls)))
+                                        .map(list => !list.length ? ['unknown'] : list)
+                    }
+                    this.#wrapWords(paragraph, phraseParentNodes)                
+                    this.#emitEvent()
+                    this.#destroySelector()
+                }
+
+
             }
 
             set data(data) {
@@ -517,9 +538,21 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
                 return this.#data ?? new Error('Data not initialized');
             }
 
-            removeNodes(phraseNodes) {
-                if(phraseNodes)
-                    phraseNodes.forEach(node => node.remove())
+            #wrapWords(paragraph, phraseNodes) {
+                const phraseContainer = this.#createPhraseContainer()
+                paragraph.insertBefore(phraseContainer, phraseNodes.at(0))
+                phraseNodes.forEach(node => node.remove())
+                phraseNodes.forEach((node, id) => {
+                    phraseContainer.appendChild(node)
+                    if(id < phraseNodes.length - 1) {
+                        phraseContainer.appendChild(document.createTextNode("\u00A0"))
+                    }
+                })
+            }
+
+            #emitEvent() {
+                const event = new Event('selectphrase')
+                document.dispatchEvent(event)
             }
 
             #destroySelector() {
@@ -530,22 +563,22 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             #initializeListener() {
                 const content = htmx.find('#page-content')
                 content.addEventListener('mouseup', () => {
-                    this.setupContainer()
+                    this.#selectPhrase()
                 })
             }
 
-            #removePhraseSelections() {
-                const container = htmx.find('.selected-phrase-form')
-                if(container) {
-                    container.replaceWith(...container.childNodes)
-                }
-
+            #removeUnusedSelections() {
+                return htmx.ajax('GET', '/translations/unselect-phrase', {target: '.selected-phrase', swap: 'outerHTML', values: {
+                    targetWords: this.data.targetWords,
+                    selectableId: this.data.selectableId,
+                    familiarities: this.data.familiarities,
+                    documentId: htmx.find('#page-content').dataset.documentId
+                }})
             }
 
             #createPhraseContainer() {
                 const container = document.createElement('div')
-                htmx.addClass(container, 'selected-phrase')
-                htmx.addClass(container, 'inline-block')
+                container.classList.add("inline-block", "relative", "rounded", "text-lg", "gap-1", "cursor-pointer", "border", "border-3", "border-secondary", "selected-phrase")
                 return container
             }
 
@@ -575,13 +608,12 @@ class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
             }
 
             #getAnchorId() {
-                return parseInt(window.getSelection().anchorNode.parentElement.id.substring(11))
+                return parseInt(window.getSelection()?.anchorNode?.parentElement.id.substring(11))
             }
 
             #getFocusId() {
-                return parseInt(window.getSelection().focusNode.parentElement.id.substring(11))
+                return parseInt(window.getSelection()?.focusNode?.parentElement.id.substring(11))
             }
-
 
         }
         customElements.define('phrase-selector', PhraseSelector);

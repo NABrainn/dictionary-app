@@ -23,7 +23,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Controller
 @RequiredArgsConstructor
@@ -69,18 +68,29 @@ public class TranslationControllerImp {
         }
     }
 
+    @GetMapping({"/unselect-phrase", "/unselect-phrase/"})
+    public String unselectPhrase(@RequestParam("targetWords") String targetWords,
+                                 @RequestParam("selectableId") int selectableId,
+                                 @RequestParam("documentId") int documentId,
+                                 @RequestParam("familiarities") List<String> familiarities,
+                            Model model) {
+        model.addAttribute("targetWords", targetWords);
+        model.addAttribute("selectableId", selectableId);
+        model.addAttribute("documentId", documentId);
+        model.addAttribute("familiarities", familiarities);
+        return "document-page/content/unselected-phrase";
+    }
+
     @GetMapping({"/phrase", "/phrase/"})
     public String newPhrase(@RequestParam("targetWords") String targetWords,
                             @RequestParam("selectableId") int selectableId,
+                            @RequestParam("documentId") int documentId,
+                            @RequestParam("familiarities") List<String> familiarities,
                             Model model) {
-        var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");
         model.addAttribute("targetWords", targetWords);
-        System.out.println("WTF: " + Arrays.stream(cleanWordPattern
-                .matcher(targetWords).replaceAll("")
-                .split(" "))
-                .filter(word -> !word.isBlank())
-                .toList());
         model.addAttribute("selectableId", selectableId);
+        model.addAttribute("documentId", documentId);
+        model.addAttribute("familiarities", familiarities);
         return "document-page/content/selected-phrase";
     }
 

@@ -40,7 +40,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                 timeZoneOffset: new Date().getTimezoneOffset()
             }'
             hx-swap="innerHTML"
-            hx-on::before-request="htmx.find('selectable-highlighter').highlighSelectables(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
+            hx-on::before-request="htmx.find('selectable-highlighter').highlightSelectables(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
                 <span class="cursor-pointer">${level.getKey()}: </span>
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">
