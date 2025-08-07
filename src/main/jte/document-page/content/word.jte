@@ -9,11 +9,12 @@
 @param Familiarity familiarity = null
 @param boolean selectable = true
 @param String pointerEvents = "pointer-events-auto"
+@param String parentClass = ""
 
 @if(selectable)
     <div
     class="
-    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg selectable"
+    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg selectable ${parentClass}"
     id="target-word-${wordId}"
     data-id="${wordId}"
     hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
@@ -44,7 +45,7 @@
 @else
     <div
     class="
-    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg pointer-events-none"
+    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg pointer-events-none ${parentClass}"
     id="target-word-${wordId}"
     hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
     hx-target="#translation-form-container-${wordId}"

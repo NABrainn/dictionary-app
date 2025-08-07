@@ -33,7 +33,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             hx-put="/translations/familiarity/update"
             hx-vals='
             {
-                "targetWord": "${translationAttribute.translation().targetWord()}",
+                "targetWord": "${translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",

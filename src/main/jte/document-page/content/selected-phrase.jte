@@ -23,7 +23,7 @@
 }
 
 <div
-class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary selected-phrase selectable selectable-${targetWords.replace(" ", "-")}"
+class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary selected-phrase selectable selectable-${targetWords.replaceAll("\\p{P}", "").replace(" ", "-").toLowerCase()}"
 id="selectable-${selectableId}"
 data-selectable-value="${targetWords.replace(" ", "-")}">
     <div
@@ -37,7 +37,7 @@ data-selectable-value="${targetWords.replace(" ", "-")}">
     hx-swap="innerHTML"
     hx-vals='{
         "documentId": "${documentId}",
-        "targetWord": "${targetWords}",
+        "targetWord": "${targetWords.toLowerCase()}",
         "selectedWordId": "${selectableId}",
         "isPhrase": "true"
     }'
@@ -45,6 +45,7 @@ data-selectable-value="${targetWords.replace(" ", "-")}">
     </div>
     @for(var wordEntry : ForSupport.of(targetWords.split(" ")))
         @template.document-page.content.word(
+            parentClass = "selectable-" + targetWords.replace(" ", "-").toLowerCase(),
             wordId = selectableId + wordEntry.getIndex(),
             bgColor = containerBgColor,
             textColor = containerTextColor,
