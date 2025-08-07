@@ -29,9 +29,19 @@ data-selectable-value="${targetWords.replace(" ", "-")}">
     <div
     onclick="event.stopPropagation()"
     class="
-    cursor-default z-2 absolute inline left-2 top-10"
+    cursor-default z-2 absolute inline left-2 top-10 select-phrase-form-container"
     id="translation-form-container-${selectableId}"
-    hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})">
+    hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})"
+    hx-get="/translations/"
+    hx-target="this"
+    hx-swap="innerHTML"
+    hx-vals='{
+        "documentId": "${documentId}",
+        "targetWord": "${targetWords}",
+        "selectedWordId": "${selectableId}",
+        "isPhrase": "true"
+    }'
+    hx-trigger="revealed">
     </div>
     @for(var wordEntry : ForSupport.of(targetWords.split(" ")))
         @template.document-page.content.word(

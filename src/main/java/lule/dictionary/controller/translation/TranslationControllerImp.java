@@ -33,7 +33,7 @@ public class TranslationControllerImp {
     private final TranslationServiceImp translationService;
     private final LocalizationService localizationService;
 
-    @GetMapping("")
+    @GetMapping({"", "/"})
     public String findByTargetWord(Model model,
                                    Authentication authentication,
                                    @RequestParam int documentId,
@@ -73,7 +73,7 @@ public class TranslationControllerImp {
                                  @RequestParam("selectableId") int selectableId,
                                  @RequestParam("documentId") int documentId,
                                  @RequestParam("familiarities") List<String> familiarities,
-                            Model model) {
+                                 Model model) {
         model.addAttribute("targetWords", targetWords);
         model.addAttribute("selectableId", selectableId);
         model.addAttribute("documentId", documentId);

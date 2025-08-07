@@ -526,8 +526,6 @@
                     this.#emitEvent()
                     this.#destroySelector()
                 }
-
-
             }
 
             set data(data) {
