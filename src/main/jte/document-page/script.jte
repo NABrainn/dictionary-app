@@ -255,7 +255,6 @@
 
             #markSelectableFamiliarities(id, familiarity) {
                 const targetSelectableValue = htmx.find('#selectable-' + id).dataset.selectableValue
-                console.log(targetSelectableValue)
                 if(targetSelectableValue)
                     htmx.findAll('.selectable-' + targetSelectableValue).forEach(selectable => {
                         this.#updateFamiliarity(selectable, familiarity);
@@ -264,8 +263,22 @@
 
             #highlightMarkedSelectables() {
                 htmx.findAll('.selectable').forEach(selectable => {
+                    @raw
+                    // if(this.#isPhrase(selectable)) {
+                    //     const familiarity = this.#getFamiliarity(selectable);
+                    //     const config = this.#updateBgColor(selectable, familiarity)
+                    //     htmx.find('.phrase-word').forEach(word => this.#updateColors({
+                    //         element: word,
+                    //         colorsToRemove: config.colorsToRemove,
+                    //         bgColorToAdd: config.bgColorToAdd,
+                    //         textColorToAdd: config.textColorToAdd
+                    //     }))
+                    // }
+                    @endraw
                     const familiarity = this.#getFamiliarity(selectable);
                     this.#updateBgColor(selectable, familiarity)
+                
+
                 })
             }
 
@@ -286,6 +299,10 @@
                     });
                 }
                 return {id, element: targetSelectable}
+            }
+
+            #isPhrase(selectable) {
+                selectable.classList.contains('selected-phrase')
             }
 
             #resetNonTargetSelectables(config) {
@@ -378,7 +395,11 @@
                                 textColorToAdd: 'text-primary'
                             });
                         }
-                        break;
+                        return {
+                            colorsToRemove: colorsToRemove,
+                            bgColorToAdd: 'bg-accent',
+                            textColorToAdd: 'text-primary'
+                        };
 
                     case 'recognized':
                         if(!word.classList.contains(selectedWordBgColor)) {
@@ -389,7 +410,11 @@
                                 textColorToAdd: 'text-primary'
                             });
                         }
-                        break;
+                        return {
+                            colorsToRemove: colorsToRemove,
+                            bgColorToAdd: 'bg-accent',
+                            textColorToAdd: 'text-primary'
+                        };
 
                     case 'familiar':
                         if(!word.classList.contains(selectedWordBgColor)) {
@@ -400,7 +425,11 @@
                                 textColorToAdd: 'text-primary'
                             });
                         }   
-                        break;
+                        return {
+                            colorsToRemove: colorsToRemove,
+                            bgColorToAdd: 'bg-accent',
+                            textColorToAdd: 'text-primary'
+                        };
 
                     case 'known':
                         if(!word.classList.contains(selectedWordBgColor)) {
@@ -411,7 +440,11 @@
                                 textColorToAdd: 'text-neutral'
                             });
                         }
-                        break;
+                        return {
+                            colorsToRemove: colorsToRemove,
+                            bgColorToAdd: 'bg-accent',
+                            textColorToAdd: 'text-primary'
+                        };
 
                     case 'ignored':
                         if(!word.classList.contains(selectedWordBgColor)) {
@@ -422,7 +455,11 @@
                                 textColorToAdd: 'text-neutral'
                             });
                         }
-                        break;
+                        return {
+                            colorsToRemove: colorsToRemove,
+                            bgColorToAdd: 'bg-accent',
+                            textColorToAdd: 'text-primary'
+                        };
 
                     default:
                         if(!word.classList.contains(selectedWordBgColor)) {
@@ -433,8 +470,12 @@
                                 textColorToAdd: 'text-neutral'
                             });
                         }
-                        break;
-                }
+                        return {
+                            colorsToRemove: colorsToRemove,
+                            bgColorToAdd: 'bg-accent',
+                            textColorToAdd: 'text-primary'
+                        };
+                    }
             }
 
             #updateColors(config) {

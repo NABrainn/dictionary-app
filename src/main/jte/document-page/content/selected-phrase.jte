@@ -45,7 +45,6 @@ data-selectable-value="${targetWords.replace(" ", "-")}">
     </div>
     @for(var wordEntry : ForSupport.of(targetWords.split(" ")))
         @template.document-page.content.word(
-            parentClass = "selectable-" + targetWords.replace(" ", "-").toLowerCase(),
             wordId = selectableId + wordEntry.getIndex(),
             bgColor = containerBgColor,
             textColor = containerTextColor,
@@ -53,7 +52,8 @@ data-selectable-value="${targetWords.replace(" ", "-")}">
             documentId = documentId,
             word = wordEntry.get(),
             familiarity = familiarityEnums.get(wordEntry.getIndex()),
-            selectable = false
+            selectable = false,
+            isPhraseWord = true
         )
     @endfor
 </div>

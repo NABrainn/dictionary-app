@@ -8,13 +8,19 @@
 @param String textColor = ""
 @param Familiarity familiarity = null
 @param boolean selectable = true
+@param boolean isPhraseWord = false
 @param String pointerEvents = "pointer-events-auto"
-@param String parentClass = ""
+
+
+!{var phraseWord = "";}
+@if(isPhraseWord)
+    !{phraseWord = "phrase-word";}
+@endif
 
 @if(selectable)
     <div
     class="
-    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg selectable ${parentClass}"
+    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg selectable"
     id="target-word-${wordId}"
     data-id="${wordId}"
     hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
@@ -32,7 +38,7 @@
         </div>
         @if(familiarity != null)
             <span
-            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
+            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable ${phraseWord}"
             data-selectable-value="${processedWord}"
             id="selectable-${wordId}">${word}</span>
         @else
@@ -45,7 +51,7 @@
 @else
     <div
     class="
-    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg pointer-events-none ${parentClass}"
+    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg pointer-events-none"
     id="target-word-${wordId}"
     hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
     hx-target="#translation-form-container-${wordId}"
@@ -62,7 +68,7 @@
         </div>
         @if(familiarity != null)
             <span
-            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} target-word rounded"
+            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} target-word rounded ${phraseWord}"
             id="selectable-${wordId}">${word}</span>
         @else
             <span
