@@ -32,12 +32,12 @@
         </div>
         @if(familiarity != null)
             <span
-            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} target-word rounded selectable"
+            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
             data-selectable-value="${processedWord}"
             id="selectable-${wordId}">${word}</span>
         @else
             <span
-            class="unknown word-${processedWord} ${bgColor} ${textColor} target-word rounded selectable"
+            class="unknown selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
             data-selectable-value="${processedWord}"
             id="selectable-${wordId}">${word}</span>
         @endif
@@ -62,11 +62,11 @@
         </div>
         @if(familiarity != null)
             <span
-            class="${familiarity.name().toLowerCase()} word-${processedWord} ${bgColor} ${textColor} target-word rounded"
+            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} target-word rounded"
             id="selectable-${wordId}">${word}</span>
         @else
             <span
-            class="unknown word-${processedWord} ${bgColor} ${textColor} target-word rounded"
+            class="unknown selectable-${processedWord} ${bgColor} ${textColor} target-word rounded"
             id="selectable-${wordId}">${word}</span>
         @endif
     </div>

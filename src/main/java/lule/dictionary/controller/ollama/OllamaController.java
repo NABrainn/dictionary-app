@@ -3,7 +3,7 @@ package lule.dictionary.controller.ollama;
 import io.github.ollama4j.exceptions.OllamaBaseException;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.service.ollama.OllamaService;
+import lule.dictionary.service.translateAPI.ollama.OllamaService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

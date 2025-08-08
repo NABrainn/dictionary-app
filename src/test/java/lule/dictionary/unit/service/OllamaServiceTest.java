@@ -3,7 +3,7 @@ package lule.dictionary.unit.service;
 import io.github.ollama4j.OllamaAPI;
 import io.github.ollama4j.exceptions.OllamaBaseException;
 import lule.dictionary.service.language.Language;
-import lule.dictionary.service.ollama.OllamaService;
+import lule.dictionary.service.translateAPI.ollama.OllamaService;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

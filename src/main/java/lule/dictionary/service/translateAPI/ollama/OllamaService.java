@@ -1,4 +1,4 @@
-package lule.dictionary.service.ollama;
+package lule.dictionary.service.translateAPI.ollama;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

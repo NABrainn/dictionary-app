@@ -255,6 +255,7 @@
 
             #markSelectableFamiliarities(id, familiarity) {
                 const targetSelectableValue = htmx.find('#selectable-' + id).dataset.selectableValue
+                console.log(targetSelectableValue)
                 if(targetSelectableValue)
                     htmx.findAll('.selectable-' + targetSelectableValue).forEach(selectable => {
                         this.#updateFamiliarity(selectable, familiarity);

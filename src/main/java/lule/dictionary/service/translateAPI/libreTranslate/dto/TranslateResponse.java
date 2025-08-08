@@ -1,4 +1,4 @@
-package lule.dictionary.service.libreTranslate.dto;
+package lule.dictionary.service.translateAPI.libreTranslate.dto;
 
 public record TranslateResponse(String translatedText) {
 

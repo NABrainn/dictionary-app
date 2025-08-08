@@ -1,7 +1,6 @@
 package lule.dictionary.controller.userSettings;
 
 import jakarta.servlet.http.HttpSession;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.dto.application.LanguageData;
 import lule.dictionary.dto.application.attribute.NavbarAttribute;
@@ -11,7 +10,6 @@ import lule.dictionary.service.language.LanguageHelper;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.translation.TranslationService;
-import lule.dictionary.service.translation.dto.request.GetWordsLearnedCountRequest;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -52,7 +50,7 @@ public class SettingsController {
                 .targetLanguage(LanguageData.of(
                                 principal.targetLanguage(),
                                 languageHelper.getFullName(principal.targetLanguage()),
-                                languageHelper.getAbbreviation(principal.targetLanguage()),
+                                languageHelper.getCode(principal.targetLanguage()),
                                 languageHelper.getImagePath(principal.targetLanguage())
                         )
                 )
