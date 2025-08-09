@@ -7,6 +7,7 @@ import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.service.imports.importService.dto.Phrase;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.translation.TranslationServiceImp;
@@ -20,6 +21,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -31,7 +33,7 @@ public class TranslationControllerImp {
     private final TranslationServiceImp translationService;
     private final LocalizationService localizationService;
 
-    @GetMapping("")
+    @GetMapping({"", "/"})
     public String findByTargetWord(Model model,
                                    Authentication authentication,
                                    @RequestParam int documentId,
@@ -64,6 +66,32 @@ public class TranslationControllerImp {
             log.info("Invalid input, sending info back");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid target word");
         }
+    }
+
+    @GetMapping({"/unselect-phrase", "/unselect-phrase/"})
+    public String unselectPhrase(@RequestParam("targetWords") String targetWords,
+                                 @RequestParam("selectableId") int selectableId,
+                                 @RequestParam("documentId") int documentId,
+                                 @RequestParam("familiarities") List<String> familiarities,
+                                 Model model) {
+        model.addAttribute("targetWords", targetWords);
+        model.addAttribute("selectableId", selectableId);
+        model.addAttribute("documentId", documentId);
+        model.addAttribute("familiarities", familiarities);
+        return "document-page/content/unselected-phrase";
+    }
+
+    @GetMapping({"/phrase", "/phrase/"})
+    public String newPhrase(@RequestParam("targetWords") String targetWords,
+                            @RequestParam("selectableId") int selectableId,
+                            @RequestParam("documentId") int documentId,
+                            @RequestParam("familiarities") List<String> familiarities,
+                            Model model) {
+        model.addAttribute("targetWords", targetWords);
+        model.addAttribute("selectableId", selectableId);
+        model.addAttribute("documentId", documentId);
+        model.addAttribute("familiarities", familiarities);
+        return "document-page/content/selected-phrase";
     }
 
     @PostMapping({"/new", "/new/"})

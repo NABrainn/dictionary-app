@@ -6,13 +6,15 @@
 
 <div
 onclick="event.stopPropagation()"
-class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45">
+class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45"
+id="translation-form">
     <div class="flex justify-end">
         <span
         class="md:text-md
-        text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
+        text-sm text-red-400 font-bold cursor-pointer"
+        onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
-    <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
+    <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}</span>
     <div id="translation-manager">
         @template.document-page.content.translation.add.translation-manager(
             translationAttribute = translationAttribute,
@@ -25,9 +27,8 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             class="flex gap-1 cursor-pointer font-bold text-neutral hover:text-primary"
             id="translation-form-${translationAttribute.selectedWordId()}"
             hx-post="/translations/new"
-            hx-vals='
-            {
-                "targetWord": "${translationAttribute.translation().targetWord()}",
+            hx-vals='{
+                "targetWord": "${translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
@@ -40,7 +41,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
                 timeZoneOffset: new Date().getTimezoneOffset()
             }'
             hx-swap="innerHTML"
-            hx-on::before-request="htmx.find('selectable-highlighter').highlightWords(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
+            hx-on::before-request="htmx.find('selectable-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')">
                 <span class="cursor-pointer">${level.getKey()}: </span>
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">

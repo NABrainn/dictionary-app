@@ -40,14 +40,14 @@ public class JteControllerAdvice {
                     .sourceLanguageData(LanguageData.of(
                                     principal.sourceLanguage(),
                                     languageHelper.getFullName(principal.sourceLanguage()),
-                                    languageHelper.getAbbreviation(principal.sourceLanguage()),
+                                    languageHelper.getCode(principal.sourceLanguage()),
                                     languageHelper.getImagePath(principal.sourceLanguage())
                             )
                     )
                     .targetLanguageData(LanguageData.of(
                                     principal.targetLanguage(),
                                     languageHelper.getFullName(principal.targetLanguage()),
-                                    languageHelper.getAbbreviation(principal.targetLanguage()),
+                                    languageHelper.getCode(principal.targetLanguage()),
                                     languageHelper.getImagePath(principal.targetLanguage())
                             )
                     )
@@ -66,14 +66,14 @@ public class JteControllerAdvice {
                 .sourceLanguageData(LanguageData.of(
                                 Language.EN,
                                 languageHelper.getFullName(Language.EN),
-                                languageHelper.getAbbreviation(Language.EN),
+                                languageHelper.getCode(Language.EN),
                                 languageHelper.getImagePath(Language.EN)
                         )
                 )
                 .targetLanguageData(LanguageData.of(
                                 Language.NO,
                                 languageHelper.getFullName(Language.NO),
-                                languageHelper.getAbbreviation(Language.NO),
+                                languageHelper.getCode(Language.NO),
                                 languageHelper.getImagePath(Language.NO)
                         )
                 )

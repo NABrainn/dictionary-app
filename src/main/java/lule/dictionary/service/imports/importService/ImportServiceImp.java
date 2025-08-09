@@ -34,6 +34,7 @@ import org.springframework.web.util.InvalidUrlException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -156,14 +157,37 @@ public class ImportServiceImp implements ImportService {
         return translationService.extractPhrases(content, owner).value();
     }
 
-    //not very efficient
-    private String markPhrases(String content, List<Translation> phrases) {
+    public String markPhrases(String content, List<Translation> phrases) {
         String finalContent = content;
-        for(Translation translation : phrases) {
-            finalContent = content
-                    .replaceAll("\\b" + translation.targetWord().substring(0, 1).toUpperCase() + translation.targetWord().substring(1) + "\\b", "ph<" + translation.familiarity().ordinal() + 1 + "<" + translation.targetWord().substring(0, 1).toUpperCase() + translation.targetWord().substring(1).replace(" ", "-") + ">>")
-                    .replaceAll("\\b" + translation.targetWord().toLowerCase() + "\\b", "ph<" + translation.familiarity().ordinal() + 1 + "<" + translation.targetWord().toLowerCase().replace(" ", "-") + ">>")
-                    .replaceAll("\\b" + translation.targetWord().toUpperCase() + "\\b", "ph<" + translation.familiarity().ordinal() + 1 + "<" + translation.targetWord().toUpperCase().replace(" ", "-") + ">>");
+        for (Translation translation : phrases) {
+            String rawPhrase = translation.targetWord().trim();
+            String[] words = rawPhrase.split("\\s+");
+            if(words.length > 1) {
+                StringBuilder phrase = new StringBuilder(String.join("\\s*", Pattern.quote(words[0]), Pattern.quote(words[1])));
+                for (int i = 2; i < words.length; i++) {
+                    phrase.append("\\s*").append(Pattern.quote(words[i]));
+                }
+
+                String regex = "(?<!\\w|[a-zA-Z0-9])(?:" + phrase + ")(?!\\w|[a-zA-Z0-9])";
+                Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+
+                Matcher matcher = pattern.matcher(finalContent);
+
+                StringBuilder result = new StringBuilder();
+                int lastEnd = 0;
+                while (matcher.find()) {
+                    result.append(finalContent, lastEnd, matcher.start());
+                    result.append("ph<")
+                            .append(translation.familiarity().ordinal())
+                            .append("<")
+                            .append(matcher.group().replaceAll("\\s+", "-"))
+                            .append(">>");
+                    lastEnd = matcher.end();
+                }
+
+                result.append(finalContent.substring(lastEnd));
+                finalContent = result.toString();
+            }
         }
         return finalContent;
     }
@@ -188,7 +212,7 @@ public class ImportServiceImp implements ImportService {
                 .replace("ph<", "")
                 .replace(">", "")
                 .replace("-", " ")
-                .substring(3)
+                .substring(2)
                 .split(" "))
                 .toList(), Familiarity.values()[Integer.parseInt(literal.substring(3, 4))]);
     }

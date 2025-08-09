@@ -58,7 +58,7 @@ public class ImportControllerImp implements ImportController {
                 .targetLanguage(LanguageData.of(
                                 principal.targetLanguage(),
                                 languageHelper.getFullName(principal.targetLanguage()),
-                                languageHelper.getAbbreviation(principal.targetLanguage()),
+                                languageHelper.getCode(principal.targetLanguage()),
                                 languageHelper.getImagePath(principal.targetLanguage())
                         )
                 )
@@ -92,7 +92,7 @@ public class ImportControllerImp implements ImportController {
                 .targetLanguage(LanguageData.of(
                                 principal.targetLanguage(),
                                 languageHelper.getFullName(principal.targetLanguage()),
-                                languageHelper.getAbbreviation(principal.targetLanguage()),
+                                languageHelper.getCode(principal.targetLanguage()),
                                 languageHelper.getImagePath(principal.targetLanguage())
                         )
                 )
@@ -122,7 +122,7 @@ public class ImportControllerImp implements ImportController {
                     .targetLanguage(LanguageData.of(
                                     principal.targetLanguage(),
                                     languageHelper.getFullName(principal.targetLanguage()),
-                                    languageHelper.getAbbreviation(principal.targetLanguage()),
+                                    languageHelper.getCode(principal.targetLanguage()),
                                     languageHelper.getImagePath(principal.targetLanguage())
                             ))
                     .wordsLearned(translationService.getWordsLearnedCount(principal).value())
@@ -170,7 +170,7 @@ public class ImportControllerImp implements ImportController {
                     .targetLanguage(LanguageData.of(
                                     principal.targetLanguage(),
                                     languageHelper.getFullName(principal.targetLanguage()),
-                                    languageHelper.getAbbreviation(principal.targetLanguage()),
+                                    languageHelper.getCode(principal.targetLanguage()),
                                     languageHelper.getImagePath(principal.targetLanguage())
                             ))
                     .wordsLearned(translationService.getWordsLearnedCount(principal).value())

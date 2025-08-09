@@ -11,7 +11,7 @@ import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.request.ServiceRequest;
 import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.dto.application.result.ServiceResult;
-import lule.dictionary.service.libreTranslate.LibreTranslateService;
+import lule.dictionary.service.translateAPI.dictCC.DictService;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 public class TranslationServiceImp implements TranslationService {
 
     private final TranslationRepository translationRepository;
-    private final LibreTranslateService libreTranslateService;
+    private final DictService dictService;
     private final ValidationService validationService;
 
     @Transactional
@@ -93,10 +93,10 @@ public class TranslationServiceImp implements TranslationService {
                         .build();
                 return ServiceResultImp.success(translationAttribute);
             }
-            List<String> sourceWordsFromLibreTranslate = libreTranslateService.translate(request);
+            String sourceWordsFromDict = dictService.translate(request.targetLanguage(), request.sourceLanguage(), request.targetWord());
             List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
             Translation translation = TranslationImp.builder()
-                    .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, sourceWordsFromLibreTranslate))
+                    .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, List.of(sourceWordsFromDict)))
                     .targetWord(request.targetWord())
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(request.sourceLanguage())
@@ -259,11 +259,9 @@ public class TranslationServiceImp implements TranslationService {
         return Pattern.compile("^[\\p{L}0-9 ]+$");
     }
 
-    private List<String> mergeSourceWordLists(List<String> sourceWordsFromDatabase, List<String> sourceWordsFromLibreTranslate) {
-        return Stream.concat(
-                        sourceWordsFromDatabase.stream(),
-                        sourceWordsFromLibreTranslate.stream()
-                )
+    private List<String> mergeSourceWordLists(List<String> sourceWordsFromDatabase, List<String> sourceWordsFromDict) {
+        return Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromDict.stream())
+                .filter(word -> !word.isBlank())
                 .distinct()
                 .toList();
     }

@@ -1,10 +1,11 @@
 package lule.dictionary.service.imports.importService.dto;
 
+import lombok.NonNull;
 import lule.dictionary.enumeration.Familiarity;
 
 import java.util.List;
 
-public record Phrase(List<String> targetWords,
+public record Phrase(@NonNull List<@NonNull String> targetWords,
                      Familiarity familiarity) implements Selectable {
     public static Phrase of(List<String> phrase, Familiarity familiarity) {
         return new Phrase(phrase, familiarity);
@@ -13,5 +14,11 @@ public record Phrase(List<String> targetWords,
     @Override
     public List<String> targetWords() {
         return List.copyOf(targetWords);
+    }
+
+    @Override
+    public Familiarity familiarity() {
+        if(familiarity == null) throw new NullPointerException("Illegal access: value is null");
+        return familiarity;
     }
 }

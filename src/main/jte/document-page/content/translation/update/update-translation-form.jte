@@ -6,7 +6,8 @@
 
 <div
 onclick="event.stopPropagation()"
-class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45">
+class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45"
+id="translation-form">
     <div class="flex justify-end">
         <span
         class="md:text-md
@@ -33,7 +34,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             hx-put="/translations/familiarity/update"
             hx-vals='
             {
-                "targetWord": "${translationAttribute.translation().targetWord()}",
+                "targetWord": "${translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
@@ -45,7 +46,7 @@ class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary fle
             }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-swap="innerHTML"
-            hx-on::before-request="htmx.find('selectable-highlighter').highlightWords(${translationAttribute.selectedWordId()}, '${level.getValue().name().toLowerCase()}')">
+            hx-on::before-request="htmx.find('selectable-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')">
                 <span>${level.getKey()}: </span>
                 <input
                 class=" cursor-pointer"
