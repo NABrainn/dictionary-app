@@ -47,11 +47,9 @@
     !{containerBgColor = "bg-primary";}
     !{containerTextColor = "text-neutral";}
 @endif
-
-<div 
-class="${familiarity} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary ${containerTextColor} ${containerBgColor} selectable selectable-${processedWord.replace(" ", "-")}"
+<div
+class="${familiarity} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary ${containerTextColor} ${containerBgColor} selectable value-${processedWord.replace(" ", "-")}"
 id="selectable-${selectableId}"
-data-selectable-value="${processedWord.replace(" ", "-")}"
 hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}&isPhrase=true"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"

@@ -23,7 +23,7 @@
 @if(isSelectable)
     <div
     class="
-    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg word selectable word-${wordId}"
+    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg word selectable word-${wordId} value-${processedWord}"
     id="selectable-${wordId}"
     data-id="${wordId}"
     hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
@@ -41,7 +41,6 @@
         </div>
         <span
         class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
-        data-selectable-value="${processedWord}"
         id="word-span-${wordId}">${word}</span>
     </div>
 @else

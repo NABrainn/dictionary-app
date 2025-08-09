@@ -1,4 +1,5 @@
 @param int selectedWordId
+@raw
 <script class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
     if (!customElements.get('import-page')) {
         class ImportPage extends HTMLElement {
@@ -240,15 +241,69 @@
                 this.#updateId(id)
             }
 
-            highlightSelectables(id, familiarity) {
-                console.log('')
+            highlightSelectables(targetWord, familiarity) {
+                const selectables = this.#updateFamiliarities(targetWord.replace(" ", "-"), familiarity)
+                
+                selectables.forEach(selectable => {
+                    if(this.#isWord(selectable)) {
+                        if(!this.#isSelected(selectable)) {
+                            const spanElement = selectable?.children[1]
+                            const colorsToAdd = this.#getColorsFromFamiliarity(familiarity)
+                            this.#removeColors({
+                                selectable: spanElement, 
+                                colorsToRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary']
+                            })
+                            this.#addColors({
+                                selectable: spanElement,
+                                colorsToAdd: colorsToAdd
+                            })
+                        }
+                    }
+                    else {
+                        if(!this.#isSelected(selectable)) {
+                            const colorsToAdd = this.#getColorsFromFamiliarity(familiarity)
+
+                            this.#removeColors({
+                                selectable: selectable, 
+                                colorsToRemove: ['bg-tertiary', 'text-neutral']
+                            })
+                            this.#addColors({
+                                selectable: selectable,
+                                colorsToAdd: colorsToAdd
+                            })
+                            const spans = [...selectable?.children]
+                                                    .map(child => child.children?.[1])
+                                                    .filter(span => span !== undefined)
+                            if(spans) {
+                                spans.forEach(span => {
+                                    this.#removeColors({
+                                        selectable: span, 
+                                        colorsToRemove: ['bg-tertiary', 'text-neutral']
+                                    })
+                            
+                                })
+                            }
+                        }
+                    }
+                })
+            }
+
+            #updateFamiliarities(targetWord, familiarity) {
+                const familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
+                const selectables = htmx.findAll(`.value-${targetWord}`)                
+                selectables.forEach(selectable => {
+                    selectable.classList.remove(...familiarities)
+                    selectable.classList.add(familiarity)
+                })
+                return selectables
+                
             }
 
             #highlightTargetSelectable() {
                 const targetSelectable = this.#getSelectable();
                 if(targetSelectable) {
                     this.#markTargetSelectable(targetSelectable)
-                    this.#colorTargetSelectable(targetSelectable)
+                    this.#colorSelectable(targetSelectable)
                 }
             }
 
@@ -257,6 +312,10 @@
                 if(form) {
                     form.outerHTML = ''
                 }
+            }
+
+            #isSelected(selectable) {
+                return selectable.classList.contains('target-selectable')
             }
 
             #fadeLastTargetSelectable() {
@@ -270,7 +329,7 @@
                             selectable: spanElement, 
                             colorsToRemove: ['bg-tertiary', 'text-neutral']
                         })
-                                                this.#addColors({
+                        this.#addColors({
                             selectable: spanElement,
                             colorsToAdd: colorsToAdd
                         })
@@ -311,9 +370,9 @@
                 return familiarities.filter(fam => element.classList.contains(fam)).at(0)
             }
 
-            #colorTargetSelectable(targetSelectable) {
-                if(this.#isWord(targetSelectable)) {
-                    const spanElement = targetSelectable?.children[1]
+            #colorSelectable(selectable) {
+                if(this.#isWord(selectable)) {
+                    const spanElement = selectable?.children[1]
                     this.#removeColors({
                         selectable: spanElement, 
                         colorsToRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary']
@@ -325,14 +384,14 @@
                 }
                 else {
                     this.#removeColors({
-                        selectable: targetSelectable, 
+                        selectable: selectable, 
                         colorsToRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary']
                     })
                     this.#addColors({
-                        selectable: targetSelectable,
+                        selectable: selectable,
                         colorsToAdd: ['bg-tertiary', 'text-neutral']
                     })
-                    const spans = [...targetSelectable?.children].map(child => child.children?.[1]).filter(span => span !== undefined)
+                    const spans = [...selectable?.children].map(child => child.children?.[1]).filter(span => span !== undefined)
                     if(spans) {
                         spans.forEach(span => {
                             this.#removeColors({
@@ -437,9 +496,7 @@
                 if(!paragraph) 
                     return this.#destroySelector('paragraph cant be empty')
 
-                @raw
                 //hacky
-                @endraw
 
                 if(htmx.find('.selected-phrase')) {
                     this.#removeUnusedSelections().then(() => {
@@ -497,11 +554,9 @@
             }
 
             #destroySelector(message) {
-                @raw
                 // if(message) {
                 //    console.err or('destroying selector: ' + message)
                 // }
-                @endraw
                 window.getSelection().removeAllRanges()
                 return
             }
@@ -558,6 +613,7 @@
         }
         customElements.define('phrase-selector', PhraseSelector);
     }
+@endraw
 </script>
 <import-page selected-word-id="${selectedWordId}"></import-page>
 <selectable-highlighter target-selectable-id="${selectedWordId}"></selectable-highlighter>
