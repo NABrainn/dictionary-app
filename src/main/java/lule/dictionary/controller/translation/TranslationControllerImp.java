@@ -36,76 +36,37 @@ public class TranslationControllerImp {
     private final TranslationServiceImp translationService;
     private final LocalizationService localizationService;
 
-    @GetMapping({"", "/"})
+    @GetMapping({"/find", "/find/"})
     public String findByTargetWord(Model model,
                                    Authentication authentication,
                                    @RequestParam int documentId,
                                    @RequestParam String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId,
-                                   @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        try {
-            FindByTargetWordRequest request = FindByTargetWordRequest.builder()
+                                   @RequestParam(value = "isPhrase", required = false) boolean isPhrase,
+                                   @RequestParam("isFound") boolean isFound) {
+        if(!isFound) {
+            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            List<String> sourceWords = translationService.translate(TranslateRequest.of(targetWord, principal.sourceLanguage(), principal.targetLanguage()));
+            model.addAttribute("translationAttribute", TranslationAttribute.builder()
                     .documentId(documentId)
                     .selectedWordId(selectedWordId)
-                    .targetWord(targetWord)
-                    .sourceLanguage(principal.sourceLanguage())
-                    .targetLanguage(principal.targetLanguage())
-                    .owner(principal.getUsername())
+                    .translationId(-1)
+                    .translation(TranslationImp.builder()
+                            .sourceWords(sourceWords)
+                            .targetWord(targetWord)
+                            .familiarity(Familiarity.UNKNOWN)
+                            .sourceLanguage(principal.sourceLanguage())
+                            .targetLanguage(principal.targetLanguage())
+                            .owner(principal.getUsername())
+                            .isPhrase(isPhrase)
+                            .build())
+                    .currentFamiliarity(getFamiliarityAsDigit(Familiarity.UNKNOWN))
                     .isPhrase(isPhrase)
-                    .build();
-            ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(request);
-            model.addAttribute("translationAttribute", result.value());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
-            return "document-page/content/translation/update/update-translation-form";
-
-        } catch (TranslationNotFoundException e) {
-            log.info("Translation not found, sending add-translation-form template: {}", e.getResult().value());
-            model.addAttribute("translationAttribute", e.getResult().value());
+                    .familiarityLevels(getFamiliarityTable())
+                    .build());
             model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
             return "document-page/content/translation/add/add-translation-form";
-
-        } catch (InvalidInputException e) {
-            log.info("Invalid input, sending info back");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid target word");
         }
-    }
-
-    @GetMapping({"/add", "/add/"})
-    public String addTranslationForm(Model model,
-                                     Authentication authentication,
-                                     @RequestParam("selectedWordId") int selectedWordId,
-                                     @RequestParam("documentId") int documentId,
-                                     @RequestParam("targetWord") String targetWord) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        List<String> sourceWords = translationService.translate(TranslateRequest.of(targetWord, principal.sourceLanguage(), principal.targetLanguage()));
-        model.addAttribute("translationAttribute", TranslationAttribute.builder()
-                .documentId(documentId)
-                .selectedWordId(selectedWordId)
-                .translationId(-1)
-                .translation(TranslationImp.builder()
-                        .sourceWords(sourceWords)
-                        .targetWord(targetWord)
-                        .familiarity(Familiarity.UNKNOWN)
-                        .sourceLanguage(principal.sourceLanguage())
-                        .targetLanguage(principal.targetLanguage())
-                        .owner(principal.getUsername())
-                        .isPhrase(true)
-                        .build())
-                .currentFamiliarity(getFamiliarityAsDigit(Familiarity.UNKNOWN))
-                .isPhrase(false)
-                .familiarityLevels(getFamiliarityTable())
-                .build());
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
-        return "document-page/content/translation/add/add-translation-form";
-    }
-
-    @GetMapping({"/update", "/update/"})
-    public String updateTranslationForm(Model model,
-                                        Authentication authentication,
-                                        @RequestParam("selectedWordId") int selectedWordId,
-                                        @RequestParam("documentId") int documentId,
-                                        @RequestParam String targetWord) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         FindByTargetWordRequest request = FindByTargetWordRequest.builder()
                 .documentId(documentId)
@@ -114,7 +75,7 @@ public class TranslationControllerImp {
                 .sourceLanguage(principal.sourceLanguage())
                 .targetLanguage(principal.targetLanguage())
                 .owner(principal.getUsername())
-                .isPhrase(false)
+                .isPhrase(isPhrase)
                 .build();
         ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(request);
         model.addAttribute("translationAttribute", result.value());

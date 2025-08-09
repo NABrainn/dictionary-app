@@ -1,6 +1,15 @@
 @param int selectedWordId
 @raw
 <script class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
+    if (!customElements.get('import-page-utils')) {
+        
+
+        class ImportPageUtils extends HTMLElement {
+
+        }
+        customElements.define('import-page-utils', ImportPageUtils);
+    }
+
     if (!customElements.get('import-page')) {
         class ImportPage extends HTMLElement {
 
@@ -615,6 +624,7 @@
     }
 @endraw
 </script>
+<import-page-utils></import-page-utils>
 <import-page selected-word-id="${selectedWordId}"></import-page>
 <selectable-highlighter target-selectable-id="${selectedWordId}"></selectable-highlighter>
 <phrase-selector></phrase-selector>

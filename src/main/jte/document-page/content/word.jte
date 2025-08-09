@@ -1,4 +1,3 @@
-@import lule.dictionary.dto.database.interfaces.translation.Translation
 @import lule.dictionary.enumeration.Familiarity
 
 @param int wordId
@@ -10,8 +9,7 @@
 @param boolean isSelectable = true
 @param boolean isPhraseWord = false
 @param Familiarity familiarity = null
- 
-
+@param boolean isFound = false
 
 !{var phraseWord = "";}
 @if(isPhraseWord)
@@ -19,12 +17,12 @@
 @endif
 
 !{var familiarityString = "unknown";}
-!{var requestString = "/translations/add?selectedWordId=" + wordId + "&documentId=" + documentId + "&targetWord=" + processedWord;}
 
-@if(familiarity != null)
-    !{familiarityString = familiarity.name().toLowerCase();}
-    !{requestString = "/translations/update?selectedWordId=" + wordId + "&documentId=" + documentId + "&targetWord=" + processedWord;}
-@endif
+<input
+id="word-input-${wordId}"
+type="hidden"
+data-is-found="${isFound}"
+class="word-value-${processedWord}">
 
 @if(isSelectable)
     <div
@@ -32,10 +30,16 @@
     inline-block relative cursor-pointer rounded whitespace-nowrap text-lg word selectable word-${wordId} value-${processedWord}"
     id="selectable-${wordId}"
     data-id="${wordId}"
-    hx-get="${requestString}"
+    hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
-    hx-trigger="click"
+    hx-vals='js:{
+        documentId: ${documentId},
+        targetWord: "${processedWord}",
+        selectedWordId: ${wordId},
+        isPhrase: false,
+        isFound: htmx.find("#word-input-${wordId}").dataset.isFound ?? false
+    }'
     hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${wordId})">
         <div
         onclick="event.stopPropagation()"
@@ -54,12 +58,18 @@
     inline-block relative rounded whitespace-nowrap text-lg pointer-events-none word word-${wordId}"
     id="word-${wordId}"
     data-id="${wordId}"
-    hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
+    hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
-    hx-vals='{"selectedWordId": "${wordId}"}'
-    hx-trigger="click"
+    hx-vals='js:{
+        documentId: ${documentId},
+        targetWord: "${processedWord}",
+        selectedWordId: ${wordId},
+        isPhrase: false,
+        isFound: htmx.find("#word-input-${wordId}").dataset.isFound ?? false
+    }'
     hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${wordId})">
+        <input type="hidden" name="isFound" value="${isFound}">
         <div
         onclick="event.stopPropagation()"
         class="

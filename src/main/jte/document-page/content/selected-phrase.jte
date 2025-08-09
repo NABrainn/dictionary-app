@@ -39,14 +39,15 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
     id="translation-form-container-${selectableId}"
     hx-on::before-swap="htmx.find('selectable-highlighter').closeLastTranslationForm()"
     hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})"
-    hx-get="/translations/"
+    hx-get="/translations/find"
     hx-target="this"
     hx-swap="innerHTML"
     hx-vals='{
         "documentId": "${documentId}",
         "targetWord": "${targetWords.toLowerCase()}",
         "selectedWordId": "${selectableId}",
-        "isPhrase": "true"
+        "isPhrase": "true",
+        "isFound": "false"
     }'
     hx-trigger="revealed">
     </div>
