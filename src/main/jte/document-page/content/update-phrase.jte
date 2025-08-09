@@ -26,7 +26,6 @@
 !{var familiarity = "";}
 
 @if(phrase.familiarity() != null)
-    !{familiarity = phrase.familiarity().name().toLowerCase();}
     @if(phrase.familiarity() == Familiarity.UNKNOWN)
         !{containerBgColor = "bg-accent";}
         !{containerTextColor = "text-primary";}
@@ -43,6 +42,7 @@
         !{containerBgColor = "bg-primary";}
         !{containerTextColor = "text-neutral";}
     @endif
+    !{familiarity = phrase.familiarity().name().toLowerCase();}
 @else
     !{containerBgColor = "bg-primary";}
     !{containerTextColor = "text-neutral";}
@@ -87,7 +87,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        selectable = false
+                        isSelectable = false
                     )
                 @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                     @template.document-page.content.word(
@@ -96,7 +96,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        selectable = false
+                        isSelectable = false
                     )
                 @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                     @template.document-page.content.word(
@@ -105,7 +105,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        selectable = false
+                        isSelectable = false
                     )
                 @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
                     @template.document-page.content.word(
@@ -114,7 +114,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        selectable = false
+                        isSelectable = false
                     )
                 @else
                     @template.document-page.content.word(
@@ -123,7 +123,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        selectable = false
+                        isSelectable = false
                     )
                 @endif
             @else
@@ -132,7 +132,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                     processedWord = cleanWord,
                     documentId = documentId,
                     word = word,
-                    selectable = false
+                    isSelectable = false
                 )
             @endif
 
@@ -143,7 +143,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                 documentId = documentId,
                 word = word,
                 textColor = containerTextColor,
-                selectable = false
+                isSelectable = false
             )
         @endif
     @endfor

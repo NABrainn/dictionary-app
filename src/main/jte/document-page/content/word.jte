@@ -7,21 +7,24 @@
 @param String bgColor = ""
 @param String textColor = ""
 @param Familiarity familiarity = null
-@param boolean selectable = true
+@param boolean isSelectable = true
 @param boolean isPhraseWord = false
-@param String pointerEvents = "pointer-events-auto"
+@param String pointerEvents = ""
 
 
 !{var phraseWord = "";}
 @if(isPhraseWord)
     !{phraseWord = "phrase-word";}
 @endif
+@if(familiarity == null)
+    !{familiarity = Familiarity.UNKNOWN;}
+@endif
 
-@if(selectable)
+@if(isSelectable)
     <div
     class="
-    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg selectable"
-    id="target-word-${wordId}"
+    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg word selectable word-${wordId}"
+    id="selectable-${wordId}"
     data-id="${wordId}"
     hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
     hx-target="#translation-form-container-${wordId}"
@@ -36,23 +39,17 @@
         id="translation-form-container-${wordId}"
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
-        @if(familiarity != null)
-            <span
-            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable ${phraseWord}"
-            data-selectable-value="${processedWord}"
-            id="selectable-${wordId}">${word}</span>
-        @else
-            <span
-            class="unknown selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
-            data-selectable-value="${processedWord}"
-            id="selectable-${wordId}">${word}</span>
-        @endif
+        <span
+        class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
+        data-selectable-value="${processedWord}"
+        id="word-span-${wordId}">${word}</span>
     </div>
 @else
     <div
     class="
-    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg pointer-events-none"
-    id="target-word-${wordId}"
+    inline-block relative rounded whitespace-nowrap text-lg pointer-events-none word word-${wordId}"
+    id="word-${wordId}"
+    data-id="${wordId}"
     hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
@@ -66,15 +63,8 @@
         id="translation-form-container-${wordId}"
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
-        @if(familiarity != null)
-            <span
-            class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} target-word rounded ${phraseWord}"
-            id="selectable-${wordId}">${word}</span>
-        @else
-            <span
-            class="unknown selectable-${processedWord} ${bgColor} ${textColor} target-word rounded"
-            id="selectable-${wordId}">${word}</span>
-        @endif
+        <span
+        class="${familiarity.name().toLowerCase()} ${bgColor} ${textColor} rounded ${phraseWord}"
+        >${word}</span>
     </div>
 @endif
-

@@ -23,14 +23,21 @@
 }
 
 <div
-class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary selected-phrase selectable selectable-${targetWords.replaceAll("\\p{P}", "").replace(" ", "-").toLowerCase()}"
-id="selectable-${selectableId}"
-data-selectable-value="${targetWords.replace(" ", "-")}">
+class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary selected-phrase"
+id="selected-phrase-${selectableId}"
+data-selected-phrase-value="${targetWords.replace(" ", "-")}"
+hx-get="/translations?targetWord=${targetWords}&documentId=${documentId}&isPhrase=true"
+hx-target="#translation-form-container-${selectableId}"
+hx-swap="innerHTML"
+hx-vals='{"selectedWordId": "${selectableId}"}'
+hx-trigger="click"
+hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${selectableId})">
     <div
     onclick="event.stopPropagation()"
     class="
     cursor-default z-2 absolute inline left-2 top-10 select-phrase-form-container"
     id="translation-form-container-${selectableId}"
+    hx-on::before-swap="htmx.find('selectable-highlighter').closeLastTranslationForm()"
     hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})"
     hx-get="/translations/"
     hx-target="this"
@@ -52,7 +59,7 @@ data-selectable-value="${targetWords.replace(" ", "-")}">
             documentId = documentId,
             word = wordEntry.get(),
             familiarity = familiarityEnums.get(wordEntry.getIndex()),
-            selectable = false,
+            isSelectable = false,
             isPhraseWord = true
         )
     @endfor

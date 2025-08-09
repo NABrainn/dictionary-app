@@ -6,11 +6,13 @@
 
 <div
 onclick="event.stopPropagation()"
-class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45">
+class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45"
+id="translation-form">
     <div class="flex justify-end">
         <span
         class="md:text-md
-        text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
+        text-sm text-red-400 font-bold cursor-pointer"
+        onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
     <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}</span>
     <div id="translation-manager">

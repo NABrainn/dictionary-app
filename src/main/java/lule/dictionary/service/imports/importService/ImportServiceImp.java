@@ -178,7 +178,7 @@ public class ImportServiceImp implements ImportService {
                 while (matcher.find()) {
                     result.append(finalContent, lastEnd, matcher.start());
                     result.append("ph<")
-                            .append(translation.familiarity().ordinal() + 1)
+                            .append(translation.familiarity().ordinal())
                             .append("<")
                             .append(matcher.group().replaceAll("\\s+", "-"))
                             .append(">>");

@@ -39,6 +39,6 @@
             documentId = documentId,
             word = wordEntry.get(),
             familiarity = familiarityEnums.get(wordEntry.getIndex()),
-            selectable = true
+            isSelectable = true
         )
     @endfor

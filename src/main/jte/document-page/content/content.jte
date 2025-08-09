@@ -204,7 +204,7 @@ hx-vals='js:{
                                 word = word,
                                 bgColor = "bg-primary",
                                 textColor = "text-neutral",
-                                selectable = false
+                                isSelectable = false
                             )
                         @endif
                     @else
