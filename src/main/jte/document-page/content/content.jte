@@ -75,7 +75,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-accent",
                                             textColor = "text-neutral",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                         @template.document-page.content.word(
@@ -85,7 +85,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-accent/80",
                                             textColor = "text-neutral",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
 
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
@@ -96,7 +96,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-accent/60",
                                             textColor = "text-neutral",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
                                         @template.document-page.content.word(
@@ -106,7 +106,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-primary",
                                             textColor = "text-neutral",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
                                     @else
                                         @template.document-page.content.word(
@@ -116,7 +116,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-primary",
                                             textColor = "text-neutral",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
                                     @endif
                                 @else
@@ -129,7 +129,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-accent",
                                             textColor = "text-primary",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                         @template.document-page.content.word(
@@ -139,7 +139,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-accent/80",
                                             textColor = "text-primary",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                                         @template.document-page.content.word(
@@ -149,7 +149,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-accent/60",
                                             textColor = "text-primary",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
                                         @template.document-page.content.word(
@@ -159,7 +159,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-primary",
                                             textColor = "text-neutral",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
                                     @else
                                         @template.document-page.content.word(
@@ -169,7 +169,7 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-primary",
                                             textColor = "text-neutral",
-                                            translation = translations.get(cleanWord)
+                                            familiarity = translations.get(cleanWord).familiarity()
                                         )
                                     @endif
                                 @endif

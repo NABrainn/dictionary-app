@@ -1,4 +1,5 @@
 @import lule.dictionary.dto.database.interfaces.translation.Translation
+@import lule.dictionary.enumeration.Familiarity
 
 @param int wordId
 @param int documentId
@@ -8,7 +9,8 @@
 @param String textColor = ""
 @param boolean isSelectable = true
 @param boolean isPhraseWord = false
-@param Translation translation = null
+@param Familiarity familiarity = null
+ 
 
 
 !{var phraseWord = "";}
@@ -16,14 +18,12 @@
     !{phraseWord = "phrase-word";}
 @endif
 
-!{var familiarity = "unknown";}
-@if(translation != null)
-    !{familiarity = translation.familiarity().name().toLowerCase();}
-@endif
+!{var familiarityString = "unknown";}
+!{var requestString = "/translations/add?selectedWordId=" + wordId + "&documentId=" + documentId + "&targetWord=" + processedWord;}
 
-!{var requestString = "/translations/update?selectedWordId=" + wordId + "&documentId=" + documentId + "&targetWord=" + processedWord;}
-@if(translation == null)
-    !{requestString = "/translations/add?selectedWordId=" + wordId + "&documentId=" + documentId + "&targetWord=" + processedWord;}
+@if(familiarity != null)
+    !{familiarityString = familiarity.name().toLowerCase();}
+    !{requestString = "/translations/update?selectedWordId=" + wordId + "&documentId=" + documentId + "&targetWord=" + processedWord;}
 @endif
 
 @if(isSelectable)
@@ -45,7 +45,7 @@
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
         <span
-        class="${familiarity} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
+        class="${familiarityString} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
         id="word-span-${wordId}">${word}</span>
     </div>
 @else
@@ -68,7 +68,7 @@
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
         <span
-        class="${familiarity} ${bgColor} ${textColor} rounded ${phraseWord}"
+        class="${familiarityString} ${bgColor} ${textColor} rounded ${phraseWord}"
         >${word}</span>
     </div>
 @endif

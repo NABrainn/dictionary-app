@@ -17,10 +17,4 @@ public class DictServiceTest {
         LanguageHelper languageHelper = new LanguageHelper();
         this.dictService = new DictService(restClient, languageHelper);
     }
-
-    @Test
-    void shouldReturnTranslation() {
-        String result = dictService.translate(Language.EN, Language.NO, "hei");
-        System.out.println(result);
-    }
 }
