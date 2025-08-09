@@ -5,7 +5,7 @@
 @param String targetWord
 @param Map<String, String> translationLocalization
 
-!{var processedWord = translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase();}
+!{var processedWord = translationAttribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
 <div
 onclick="event.stopPropagation()"
 class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45"

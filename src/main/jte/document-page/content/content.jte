@@ -15,6 +15,9 @@
 !{var content = documentAttribute.importData().content();}
 !{var documentId = documentAttribute.importData().documentId();}
 
+@for(var value : translations.values())
+    value ${value.targetWord()}
+@endfor
 <form
 id="page-content"
 data-document-id="${documentAttribute.importData().documentId()}"
@@ -62,7 +65,7 @@ hx-vals='js:{
                         !{var word = ((Word) selectable).value();}
                         !{var cleanWord = cleanWordPattern.matcher(word)
                                                 .replaceAll("")
-                                                .replace("-", " ")
+                                                .replace("-", "")
                                                 .toLowerCase();}
                         @if(!cleanWord.isEmpty())
                             @if(translations.get(cleanWord) != null)
@@ -196,6 +199,7 @@ hx-vals='js:{
                             @endif
 
                         @else
+
                             @template.document-page.content.word(
                                 wordId = wordId,
                                 processedWord = cleanWord,

@@ -1,9 +1,7 @@
 package lule.dictionary.unit.service;
 
-import lule.dictionary.service.language.Language;
 import lule.dictionary.service.language.LanguageHelper;
 import lule.dictionary.service.translateAPI.dictCC.DictService;
-import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
 
 public class DictServiceTest {

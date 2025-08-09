@@ -177,6 +177,7 @@ public class TranslationRepository {
                 FROM dictionary.translations
                 WHERE translations.target_word IN (%s)
                 AND translation_owner = ?
+                AND is_phrase = false
                 """, placeholders);
 
         try {
