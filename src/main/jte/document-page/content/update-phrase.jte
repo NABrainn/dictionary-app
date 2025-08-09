@@ -84,7 +84,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         processedWord = cleanWord,
                         documentId = documentId,
                         word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
+                        translation = translations.get(cleanWord),
                         isSelectable = false
                     )
                 @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
@@ -93,7 +93,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         processedWord = cleanWord,
                         documentId = documentId,
                         word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
+                        translation = translations.get(cleanWord),
                         isSelectable = false
                     )
                 @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
@@ -102,7 +102,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         processedWord = cleanWord,
                         documentId = documentId,
                         word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
+                        translation = translations.get(cleanWord),
                         isSelectable = false
                     )
                 @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
@@ -111,7 +111,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         processedWord = cleanWord,
                         documentId = documentId,
                         word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
+                        translation = translations.get(cleanWord),
                         isSelectable = false
                     )
                 @else
@@ -120,7 +120,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
                         processedWord = cleanWord,
                         documentId = documentId,
                         word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
+                        translation = translations.get(cleanWord),
                         isSelectable = false
                     )
                 @endif

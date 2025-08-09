@@ -12,6 +12,7 @@
 class="flex gap-2"
 hx-vals='
 {
+    "selectedWordId": "${selectedWordId}",
     "targetWord": "${targetWord}",
     "familiarity": "UNKNOWN",
     "sourceLanguage": "${sourceLanguage}",

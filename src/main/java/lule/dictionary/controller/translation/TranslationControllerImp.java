@@ -3,6 +3,7 @@ package lule.dictionary.controller.translation;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.result.ServiceResult;
@@ -23,6 +24,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Controller
 @RequiredArgsConstructor
@@ -66,6 +69,57 @@ public class TranslationControllerImp {
             log.info("Invalid input, sending info back");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid target word");
         }
+    }
+
+    @GetMapping({"/add", "/add/"})
+    public String addTranslationForm(Model model,
+                                     Authentication authentication,
+                                     @RequestParam("selectedWordId") int selectedWordId,
+                                     @RequestParam("documentId") int documentId,
+                                     @RequestParam("targetWord") String targetWord) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        List<String> sourceWords = translationService.translate(TranslateRequest.of(targetWord, principal.sourceLanguage(), principal.targetLanguage()));
+        model.addAttribute("translationAttribute", TranslationAttribute.builder()
+                .documentId(documentId)
+                .selectedWordId(selectedWordId)
+                .translationId(-1)
+                .translation(TranslationImp.builder()
+                        .sourceWords(sourceWords)
+                        .targetWord(targetWord)
+                        .familiarity(Familiarity.UNKNOWN)
+                        .sourceLanguage(principal.sourceLanguage())
+                        .targetLanguage(principal.targetLanguage())
+                        .owner(principal.getUsername())
+                        .isPhrase(true)
+                        .build())
+                .currentFamiliarity(getFamiliarityAsDigit(Familiarity.UNKNOWN))
+                .isPhrase(false)
+                .familiarityLevels(getFamiliarityTable())
+                .build());
+        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+        return "document-page/content/translation/add/add-translation-form";
+    }
+
+    @GetMapping({"/update", "/update/"})
+    public String updateTranslationForm(Model model,
+                                        Authentication authentication,
+                                        @RequestParam("selectedWordId") int selectedWordId,
+                                        @RequestParam("documentId") int documentId,
+                                        @RequestParam String targetWord) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        FindByTargetWordRequest request = FindByTargetWordRequest.builder()
+                .documentId(documentId)
+                .selectedWordId(selectedWordId)
+                .targetWord(targetWord)
+                .sourceLanguage(principal.sourceLanguage())
+                .targetLanguage(principal.targetLanguage())
+                .owner(principal.getUsername())
+                .isPhrase(false)
+                .build();
+        ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(request);
+        model.addAttribute("translationAttribute", result.value());
+        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+        return "document-page/content/translation/update/update-translation-form";
     }
 
     @GetMapping({"/unselect-phrase", "/unselect-phrase/"})
@@ -216,5 +270,25 @@ public class TranslationControllerImp {
 
     private ServiceResult<TranslationAttribute> createTranslation(AddTranslationRequest request) {
         return translationService.createTranslation(request);
+    }
+
+    private int getFamiliarityAsDigit(Familiarity familiarity) {
+        return switch (familiarity) {
+            case UNKNOWN -> 1;
+            case RECOGNIZED -> 2;
+            case FAMILIAR -> 3;
+            case KNOWN -> 4;
+            case IGNORED -> 5;
+        };
+    }
+
+    private Map<Integer, Familiarity> getFamiliarityTable() {
+        return new TreeMap<>(Map.of(
+                1, Familiarity.UNKNOWN,
+                2, Familiarity.RECOGNIZED,
+                3, Familiarity.FAMILIAR,
+                4, Familiarity.KNOWN,
+                5, Familiarity.IGNORED)
+        );
     }
 }

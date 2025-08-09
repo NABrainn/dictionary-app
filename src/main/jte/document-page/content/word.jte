@@ -1,4 +1,4 @@
-@import lule.dictionary.enumeration.Familiarity
+@import lule.dictionary.dto.database.interfaces.translation.Translation
 
 @param int wordId
 @param int documentId
@@ -6,18 +6,24 @@
 @param String processedWord
 @param String bgColor = ""
 @param String textColor = ""
-@param Familiarity familiarity = null
 @param boolean isSelectable = true
 @param boolean isPhraseWord = false
-@param String pointerEvents = ""
+@param Translation translation = null
 
 
 !{var phraseWord = "";}
 @if(isPhraseWord)
     !{phraseWord = "phrase-word";}
 @endif
-@if(familiarity == null)
-    !{familiarity = Familiarity.UNKNOWN;}
+
+!{var familiarity = "unknown";}
+@if(translation != null)
+    !{familiarity = translation.familiarity().name().toLowerCase();}
+@endif
+
+!{var requestString = "/translations/update?selectedWordId=" + wordId + "&documentId=" + documentId + "&targetWord=" + processedWord;}
+@if(translation == null)
+    !{requestString = "/translations/add?selectedWordId=" + wordId + "&documentId=" + documentId + "&targetWord=" + processedWord;}
 @endif
 
 @if(isSelectable)
@@ -26,10 +32,9 @@
     inline-block relative cursor-pointer rounded whitespace-nowrap text-lg word selectable word-${wordId} value-${processedWord}"
     id="selectable-${wordId}"
     data-id="${wordId}"
-    hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
+    hx-get="${requestString}"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
-    hx-vals='{"selectedWordId": "${wordId}"}'
     hx-trigger="click"
     hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${wordId})">
         <div
@@ -40,7 +45,7 @@
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
         <span
-        class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
+        class="${familiarity} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
         id="word-span-${wordId}">${word}</span>
     </div>
 @else
@@ -63,7 +68,7 @@
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
         <span
-        class="${familiarity.name().toLowerCase()} ${bgColor} ${textColor} rounded ${phraseWord}"
+        class="${familiarity} ${bgColor} ${textColor} rounded ${phraseWord}"
         >${word}</span>
     </div>
 @endif

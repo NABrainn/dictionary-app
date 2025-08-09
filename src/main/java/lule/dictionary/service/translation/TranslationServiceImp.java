@@ -93,10 +93,10 @@ public class TranslationServiceImp implements TranslationService {
                         .build();
                 return ServiceResultImp.success(translationAttribute);
             }
-            String sourceWordsFromDict = dictService.translate(request.targetLanguage(), request.sourceLanguage(), request.targetWord());
+            List<String> sourceWordsFromDict = dictService.translate(request.targetLanguage(), request.sourceLanguage(), request.targetWord());
             List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
             Translation translation = TranslationImp.builder()
-                    .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, List.of(sourceWordsFromDict)))
+                    .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, sourceWordsFromDict))
                     .targetWord(request.targetWord())
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(request.sourceLanguage())
@@ -223,6 +223,13 @@ public class TranslationServiceImp implements TranslationService {
     public ServiceResult<List<Translation>> extractPhrases(String content, String owner) {
         List<Translation> phrases = translationRepository.extractPhrases(content, owner);
         return ServiceResultImp.success(phrases);
+    }
+
+    @Override
+    public List<String> translate(TranslateRequest request) {
+        List<String> sourceWordsFromDict = dictService.translate(request.targetLanguage(), request.sourceLanguage(), request.targetWord());
+        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
+        return mergeSourceWordLists(sourceWordsFromDict, sourceWordsFromDatabase);
     }
 
 

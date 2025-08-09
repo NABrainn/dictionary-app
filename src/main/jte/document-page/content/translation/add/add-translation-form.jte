@@ -2,8 +2,10 @@
 @import java.util.Map
 
 @param TranslationAttribute translationAttribute
+@param String targetWord
 @param Map<String, String> translationLocalization
 
+!{var processedWord = translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase();}
 <div
 onclick="event.stopPropagation()"
 class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45"
@@ -14,7 +16,7 @@ id="translation-form">
         text-sm text-red-400 font-bold cursor-pointer"
         onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
-    <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}</span>
+    <span class="font-bold text-lg text-accent">${processedWord}</span>
     <div id="translation-manager">
         @template.document-page.content.translation.add.translation-manager(
             translationAttribute = translationAttribute,
@@ -28,7 +30,7 @@ id="translation-form">
             id="translation-form-${translationAttribute.selectedWordId()}"
             hx-post="/translations/new"
             hx-vals='{
-                "targetWord": "${translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}",
+                "targetWord": "${processedWord}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
