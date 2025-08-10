@@ -43,8 +43,10 @@ id="translation-form">
                 timeZoneOffset: new Date().getTimezoneOffset()
             }'
             hx-swap="innerHTML"
-            hx-on::before-request="htmx.findAll('.word-value-${translationAttribute.translation().targetWord()}').forEach(input => input.dataset.isFound = true)"
-            hx-on::before-request="htmx.find('selectable-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')">
+            hx-on::before-request="
+            htmx.findAll('.selectable-state-${translationAttribute.translation().targetWord()}').forEach(input => input.dataset.isFound = true)
+            htmx.find('selectable-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')
+            ">
                 <span class="cursor-pointer">${level.getKey()}: </span>
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">

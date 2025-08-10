@@ -46,7 +46,11 @@ id="translation-form">
             }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-swap="innerHTML"
-            hx-on::before-request="htmx.find('selectable-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')">
+            hx-on::before-request="
+            htmx.findAll('.selectable-state-${translationAttribute.translation().targetWord()}').forEach(input => input.dataset.isFound = true);
+            htmx.find('selectable-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}');
+            "
+            >
                 <span>${level.getKey()}: </span>
                 <input
                 class=" cursor-pointer"

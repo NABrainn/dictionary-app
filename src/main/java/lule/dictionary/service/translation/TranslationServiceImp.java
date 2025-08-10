@@ -113,7 +113,7 @@ public class TranslationServiceImp implements TranslationService {
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
                     .build();
-            throw new TranslationNotFoundException(ServiceResultImp.error(translationAttribute, Map.of()));
+            return ServiceResultImp.success(translationAttribute);
         } catch (ConstraintViolationException e) {
             throw new InvalidInputException(ServiceResultImp.error(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
