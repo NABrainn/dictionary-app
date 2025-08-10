@@ -93,10 +93,10 @@ public class TranslationServiceImp implements TranslationService {
                         .build();
                 return ServiceResultImp.success(translationAttribute);
             }
-            String sourceWordsFromDict = dictService.translate(request.targetLanguage(), request.sourceLanguage(), request.targetWord());
+            List<String> sourceWordsFromDict = dictService.translate(request.targetLanguage(), request.sourceLanguage(), request.targetWord());
             List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
             Translation translation = TranslationImp.builder()
-                    .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, List.of(sourceWordsFromDict)))
+                    .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, sourceWordsFromDict))
                     .targetWord(request.targetWord())
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(request.sourceLanguage())
@@ -113,7 +113,7 @@ public class TranslationServiceImp implements TranslationService {
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
                     .build();
-            throw new TranslationNotFoundException(ServiceResultImp.error(translationAttribute, Map.of()));
+            return ServiceResultImp.success(translationAttribute);
         } catch (ConstraintViolationException e) {
             throw new InvalidInputException(ServiceResultImp.error(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
@@ -213,9 +213,11 @@ public class TranslationServiceImp implements TranslationService {
     @Override
     public ServiceResult<Map<String, Translation>> findTranslationsByImport(FindTranslationsByImportRequest request) {
         Pattern newLinePattern = Pattern.compile("\n+");
-        Pattern nonLetterNonNumberPattern = Pattern.compile("[^\\p{L}\\p{N}]");
+        Pattern nonLetterNonNumberPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");
         List<String> wordList = getContentAsWordList(request.anImport().pageContent(), Map.of("newLine", newLinePattern, "nonLetterNonNumber", nonLetterNonNumberPattern));
+        System.out.println("searching db for: " + wordList);
         Map<String, Translation> translations = extractTranslationsFromDatabase(wordList, request.owner());
+        System.out.println("db has: " + translations.values().stream().map(TranslationDetails::targetWord).toList());
         return ServiceResultImp.success(translations);
     }
 
@@ -225,11 +227,18 @@ public class TranslationServiceImp implements TranslationService {
         return ServiceResultImp.success(phrases);
     }
 
+    @Override
+    public List<String> translate(TranslateRequest request) {
+        List<String> sourceWordsFromDict = dictService.translate(request.targetLanguage(), request.sourceLanguage(), request.targetWord());
+        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
+        return mergeSourceWordLists(sourceWordsFromDict, sourceWordsFromDatabase);
+    }
+
 
     private List<String> getContentAsWordList(String content, Map<String, Pattern> patternMap) {
         return Arrays.stream(patternMap.get("newLine").matcher(content).replaceAll(" ")
                 .split(" "))
-                .map(word -> patternMap.get("nonLetterNonNumber").matcher(word).replaceAll(""))
+                .map(word -> patternMap.get("nonLetterNonNumber").matcher(word).replaceAll("").replace("-", ""))
                 .map(String::trim)
                 .map(String::toLowerCase)
                 .filter(word -> !word.isEmpty())

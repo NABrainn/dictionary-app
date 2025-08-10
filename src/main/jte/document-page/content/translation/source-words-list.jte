@@ -16,7 +16,7 @@
             <span class="text-accent">${word}</span>
             @if(isUpdateForm)
                 <form
-                hx-delete="/translations/sourceWords/delete?sourceWord=${word}&targetWord=${targetWord}"
+                hx-delete="/translations/sourceWords/delete?sourceWord=${word}"
                 hx-target="#translation-form-container-${selectedWordId}"
                 hx-swap="innerHTML"
                 hx-vals='{

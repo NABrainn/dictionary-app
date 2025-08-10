@@ -62,13 +62,12 @@ hx-vals='js:{
                         !{var word = ((Word) selectable).value();}
                         !{var cleanWord = cleanWordPattern.matcher(word)
                                                 .replaceAll("")
-                                                .replace("-", " ")
+                                                .replace("-", "")
                                                 .toLowerCase();}
                         @if(!cleanWord.isEmpty())
                             @if(translations.get(cleanWord) != null)
                                 @if(documentAttribute.importData().selectedWordId() == wordId)
                                     @if(translations.get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-
                                         @template.document-page.content.word(
                                             wordId = wordId,
                                             processedWord = cleanWord,
@@ -76,7 +75,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-accent",
                                             textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                            isFound = true
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                         @template.document-page.content.word(
@@ -86,7 +86,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-accent/80",
                                             textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                        isFound = true
                                         )
 
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
@@ -97,7 +98,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-accent/60",
                                             textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                        isFound = true
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
                                         @template.document-page.content.word(
@@ -107,7 +109,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-primary",
                                             textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                        isFound = true
                                         )
                                     @else
                                         @template.document-page.content.word(
@@ -117,7 +120,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-tertiary bg-primary",
                                             textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                        isFound = true
                                         )
                                     @endif
                                 @else
@@ -130,7 +134,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-accent",
                                             textColor = "text-primary",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                        isFound = true
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                                         @template.document-page.content.word(
@@ -140,7 +145,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-accent/80",
                                             textColor = "text-primary",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                        isFound = true
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                                         @template.document-page.content.word(
@@ -150,7 +156,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-accent/60",
                                             textColor = "text-primary",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                        isFound = true
                                         )
                                     @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
                                         @template.document-page.content.word(
@@ -160,7 +167,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-primary",
                                             textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                        isFound = true
                                         )
                                     @else
                                         @template.document-page.content.word(
@@ -170,7 +178,8 @@ hx-vals='js:{
                                             word = word,
                                             bgColor = "bg-primary",
                                             textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity()
+                                            familiarity = translations.get(cleanWord).familiarity(),
+                                        isFound = true
                                         )
                                     @endif
                                 @endif
@@ -197,6 +206,7 @@ hx-vals='js:{
                             @endif
 
                         @else
+
                             @template.document-page.content.word(
                                 wordId = wordId,
                                 processedWord = cleanWord,

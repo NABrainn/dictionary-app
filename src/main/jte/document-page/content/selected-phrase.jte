@@ -23,13 +23,19 @@
 }
 
 <div
-class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary selected-phrase"
-id="selected-phrase-${selectableId}"
+class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary selected-phrase target-selectable"
+id="selectable-${selectableId}"
 data-selected-phrase-value="${targetWords.replace(" ", "-")}"
-hx-get="/translations?targetWord=${targetWords}&documentId=${documentId}&isPhrase=true"
+hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
-hx-vals='{"selectedWordId": "${selectableId}"}'
+hx-vals='js:{
+        documentId: ${documentId},
+        targetWord: "${targetWords.toLowerCase()}",
+        selectedWordId: ${selectableId},
+        isPhrase: true,
+        isFound: htmx.find("#phrase-input-${selectableId}").dataset.isFound
+    }'
 hx-trigger="click"
 hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${selectableId})">
     <div
@@ -37,16 +43,19 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
     class="
     cursor-default z-2 absolute inline left-2 top-10 select-phrase-form-container"
     id="translation-form-container-${selectableId}"
-    hx-on::before-swap="htmx.find('selectable-highlighter').closeLastTranslationForm()"
+    hx-on::before-swap="
+    htmx.find('selectable-highlighter').closeLastTranslationForm();
+    "
     hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})"
-    hx-get="/translations/"
+    hx-get="/translations/find"
     hx-target="this"
     hx-swap="innerHTML"
-    hx-vals='{
-        "documentId": "${documentId}",
-        "targetWord": "${targetWords.toLowerCase()}",
-        "selectedWordId": "${selectableId}",
-        "isPhrase": "true"
+    hx-vals='js:{
+        documentId: ${documentId},
+        targetWord: "${targetWords.toLowerCase()}",
+        selectedWordId: ${selectableId},
+        isPhrase: true,
+        isFound: false
     }'
     hx-trigger="revealed">
     </div>
@@ -64,3 +73,8 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
         )
     @endfor
 </div>
+<input
+id="phrase-input-${selectableId}"
+type="hidden"
+data-is-found="false"
+class="selectable-state-${targetWords.replace(" ", "-")}">

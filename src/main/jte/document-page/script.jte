@@ -1,6 +1,15 @@
 @param int selectedWordId
 @raw
 <script class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
+    if (!customElements.get('import-page-utils')) {
+        
+
+        class ImportPageUtils extends HTMLElement {
+
+        }
+        customElements.define('import-page-utils', ImportPageUtils);
+    }
+
     if (!customElements.get('import-page')) {
         class ImportPage extends HTMLElement {
 
@@ -243,7 +252,6 @@
 
             highlightSelectables(targetWord, familiarity) {
                 const selectables = this.#updateFamiliarities(targetWord.replace(" ", "-"), familiarity)
-                
                 selectables.forEach(selectable => {
                     if(this.#isWord(selectable)) {
                         if(!this.#isSelected(selectable)) {
@@ -294,6 +302,7 @@
                 selectables.forEach(selectable => {
                     selectable.classList.remove(...familiarities)
                     selectable.classList.add(familiarity)
+
                 })
                 return selectables
                 
@@ -322,8 +331,8 @@
                 const lastTargetSelectable = this.#getMarkedTargetSelectable();
                 if(lastTargetSelectable) {
                     if(this.#isWord(lastTargetSelectable)) {
+                        const familiarity = this.#getFamiliarity(lastTargetSelectable)
                         const spanElement = lastTargetSelectable?.children[1]
-                        const familiarity = this.#getFamiliarity(spanElement)
                         const colorsToAdd = this.#getColorsFromFamiliarity(familiarity)
                         this.#removeColors({
                             selectable: spanElement, 
@@ -347,11 +356,14 @@
                             selectable: lastTargetSelectable,
                             colorsToAdd: colorsToAdd
                         })
-                        const spans = [...lastTargetSelectable?.children]
-                                                .map(child => child.children?.[1])
-                                                .filter(span => span !== undefined)
-                        if(spans) {
-                            spans.forEach(span => {
+                        const spanElements = [...lastTargetSelectable?.children]
+                                    .filter(word => word instanceof HTMLDivElement)
+                                    .map(word => [...word.children])
+                                    .filter(wordChildren => wordChildren.length)
+                                    .map(wordChildren => wordChildren.at(2))
+                                    .filter(spanElement => spanElement !== undefined)
+                        if(spanElements) {
+                            spanElements.forEach(span => {
                                 this.#removeColors({
                                     selectable: span, 
                                     colorsToRemove: ['bg-tertiary', 'text-neutral']
@@ -391,9 +403,14 @@
                         selectable: selectable,
                         colorsToAdd: ['bg-tertiary', 'text-neutral']
                     })
-                    const spans = [...selectable?.children].map(child => child.children?.[1]).filter(span => span !== undefined)
-                    if(spans) {
-                        spans.forEach(span => {
+                    const spanElements = [...selectable?.children]
+                                .filter(word => word instanceof HTMLDivElement)
+                                .map(word => [...word.children])
+                                .filter(wordChildren => wordChildren.length)
+                                .map(wordChildren => wordChildren.at(2))
+                                .filter(spanElement => spanElement !== undefined)
+                    if(spanElements) {
+                        spanElements.forEach(span => {
                             this.#removeColors({
                                 selectable: span, 
                                 colorsToRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary']
@@ -615,6 +632,7 @@
     }
 @endraw
 </script>
+<import-page-utils></import-page-utils>
 <import-page selected-word-id="${selectedWordId}"></import-page>
 <selectable-highlighter target-selectable-id="${selectedWordId}"></selectable-highlighter>
 <phrase-selector></phrase-selector>

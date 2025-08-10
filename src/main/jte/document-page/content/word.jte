@@ -6,30 +6,44 @@
 @param String processedWord
 @param String bgColor = ""
 @param String textColor = ""
-@param Familiarity familiarity = null
 @param boolean isSelectable = true
 @param boolean isPhraseWord = false
-@param String pointerEvents = ""
-
+@param Familiarity familiarity = null
+@param boolean isFound = false
 
 !{var phraseWord = "";}
 @if(isPhraseWord)
     !{phraseWord = "phrase-word";}
 @endif
-@if(familiarity == null)
-    !{familiarity = Familiarity.UNKNOWN;}
+
+!{var familiarityString = "unknown";}
+@if(familiarity != null)
+    !{familiarityString = familiarity.name().toLowerCase();
+}
 @endif
+
+<input
+id="selectable-input-${wordId}"
+type="hidden"
+data-is-found="${isFound}"
+class="selectable-state-${processedWord}">
 
 @if(isSelectable)
     <div
     class="
-    inline-block relative cursor-pointer rounded whitespace-nowrap text-lg word selectable word-${wordId} value-${processedWord}"
+    ${familiarityString} inline-block relative cursor-pointer rounded whitespace-nowrap text-lg word selectable word-${wordId} word value-${processedWord}"
     id="selectable-${wordId}"
     data-id="${wordId}"
-    hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
+    hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
-    hx-vals='{"selectedWordId": "${wordId}"}'
+    hx-vals='js:{
+        documentId: ${documentId},
+        targetWord: "${processedWord}",
+        selectedWordId: ${wordId},
+        isPhrase: false,
+        isFound: htmx.find("#selectable-input-${wordId}").dataset.isFound ?? false
+    }'
     hx-trigger="click"
     hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${wordId})">
         <div
@@ -40,21 +54,28 @@
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
         <span
-        class="${familiarity.name().toLowerCase()} selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
+        class=" selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
         id="word-span-${wordId}">${word}</span>
     </div>
 @else
     <div
     class="
-    inline-block relative rounded whitespace-nowrap text-lg pointer-events-none word word-${wordId}"
+    inline-block relative rounded whitespace-nowrap text-lg pointer-events-none word-${wordId} word value-${processedWord}"
     id="word-${wordId}"
     data-id="${wordId}"
-    hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}"
+    hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
-    hx-vals='{"selectedWordId": "${wordId}"}'
+    hx-vals='js:{
+        documentId: ${documentId},
+        targetWord: "${processedWord}",
+        selectedWordId: ${wordId},
+        isPhrase: false,
+        isFound: htmx.find("#selectable-input-${wordId}").dataset.isFound ?? false
+    }'
     hx-trigger="click"
     hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${wordId})">
+        <input type="hidden" name="isFound" value="${isFound}">
         <div
         onclick="event.stopPropagation()"
         class="
@@ -63,7 +84,7 @@
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
         <span
-        class="${familiarity.name().toLowerCase()} ${bgColor} ${textColor} rounded ${phraseWord}"
+        class="${bgColor} ${textColor} rounded ${phraseWord}"
         >${word}</span>
     </div>
 @endif

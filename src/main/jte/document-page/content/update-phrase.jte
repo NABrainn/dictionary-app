@@ -50,10 +50,16 @@
 <div
 class="${familiarity} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary ${containerTextColor} ${containerBgColor} selectable value-${processedWord.replace(" ", "-")}"
 id="selectable-${selectableId}"
-hx-get="/translations?targetWord=${processedWord}&documentId=${documentId}&isPhrase=true"
+hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
-hx-vals='{"selectedWordId": "${selectableId}"}'
+hx-vals='{
+    "documentId": "${documentId}",
+    "targetWord": "${processedWord}",
+    "selectedWordId": "${selectableId}",
+    "isPhrase": "true",
+    "isFound": "true"
+}'
 hx-trigger="click"
 hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${selectableId})">
 

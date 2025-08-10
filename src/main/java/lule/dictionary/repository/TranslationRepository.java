@@ -177,6 +177,7 @@ public class TranslationRepository {
                 FROM dictionary.translations
                 WHERE translations.target_word IN (%s)
                 AND translation_owner = ?
+                AND is_phrase = false
                 """, placeholders);
 
         try {
@@ -192,6 +193,7 @@ public class TranslationRepository {
     }
 
     public Optional<Translation> deleteSourceWord(DeleteSourceWordRequest request) {
+        System.out.println("request: " + request);
         String sql = """
                 UPDATE dictionary.translations
                 SET source_words = array_remove(source_words, ?)

@@ -16,7 +16,7 @@ public class DictService {
     private final RestClient dictClient;
     private final LanguageHelper languageHelper;
 
-    public String translate(Language sourceLanguage, Language targetLanguage, String targetWord) {
+    public List<String> translate(Language sourceLanguage, Language targetLanguage, String targetWord) {
         String sourceLanguageCode = languageHelper.getCode(sourceLanguage);
         String targetLanguageCode = languageHelper.getCode(targetLanguage);
         String response =  dictClient
@@ -32,16 +32,16 @@ public class DictService {
         return extractTranslation(response);
     }
 
-    private String extractTranslation(String response) {
+    private List<String> extractTranslation(String response) {
         if(response != null) {
             String leftTrimmedString = leftTrim("var c2Arr = new Array(", response);
             String leftRightTrimmedString = rightTrim(";", leftTrimmedString);
             List<String> results = Arrays.stream(leftRightTrimmedString.split(","))
                     .map(word -> word.substring(1, word.length() - 1))
                     .toList();
-            return results.size() >= 2 ? results.get(1) : "";
+            return results.size() >= 2 ? List.of(results.get(1)) : List.of();
         }
-        return "";
+        return List.of();
     }
 
     private String leftTrim(String searchTarget, String text) {

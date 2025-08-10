@@ -18,4 +18,6 @@ public interface TranslationService {
     ServiceResult<Integer> getWordsLearnedCount(CustomUserDetails principal);
     ServiceResult<Map<String, Translation>> findTranslationsByImport(FindTranslationsByImportRequest request);
     ServiceResult<List<Translation>> extractPhrases(String content, String owner);
+
+    List<String> translate(TranslateRequest request);
 }
