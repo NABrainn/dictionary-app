@@ -49,4 +49,7 @@ An application that makes language learning fun and engaging through reading.
 ![image](readme_resources/23-07-2025-5.png)
 ![image](readme_resources/23-07-2025-6.png)
 
+### 10/08/2025 - phrase selection feature
+![image](readme_resources/10-08-2025-1.png)
+
 
