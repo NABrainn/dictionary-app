@@ -193,6 +193,7 @@ public class TranslationRepository {
     }
 
     public Optional<Translation> deleteSourceWord(DeleteSourceWordRequest request) {
+        System.out.println("request: " + request);
         String sql = """
                 UPDATE dictionary.translations
                 SET source_words = array_remove(source_words, ?)

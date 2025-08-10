@@ -79,4 +79,4 @@ hx-on::after-request="htmx.find('#phrase-input-${selectableId}').dataset.isFound
 id="phrase-input-${selectableId}"
 type="hidden"
 data-is-found="false"
-class="selectable-state-${targetWords}">
+class="selectable-state-${targetWords.replace(" ", "-")}">
