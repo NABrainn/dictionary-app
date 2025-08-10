@@ -23,8 +23,8 @@
 }
 
 <div
-class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary selected-phrase"
-id="selected-phrase-${selectableId}"
+class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-3 border-secondary selected-phrase target-selectable"
+id="selectable-${selectableId}"
 data-selected-phrase-value="${targetWords.replace(" ", "-")}"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
@@ -37,8 +37,7 @@ hx-vals='js:{
         isFound: htmx.find("#phrase-input-${selectableId}").dataset.isFound
     }'
 hx-trigger="click"
-hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${selectableId})"
-hx-on::after-request="htmx.find('#phrase-input-${selectableId}').dataset.isFound = true">
+hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${selectableId})">
     <div
     onclick="event.stopPropagation()"
     class="
@@ -46,7 +45,6 @@ hx-on::after-request="htmx.find('#phrase-input-${selectableId}').dataset.isFound
     id="translation-form-container-${selectableId}"
     hx-on::before-swap="
     htmx.find('selectable-highlighter').closeLastTranslationForm();
-
     "
     hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})"
     hx-get="/translations/find"
@@ -57,7 +55,7 @@ hx-on::after-request="htmx.find('#phrase-input-${selectableId}').dataset.isFound
         targetWord: "${targetWords.toLowerCase()}",
         selectedWordId: ${selectableId},
         isPhrase: true,
-        isFound: htmx.find("#selectable-input-${selectableId}").dataset.isFound
+        isFound: false
     }'
     hx-trigger="revealed">
     </div>

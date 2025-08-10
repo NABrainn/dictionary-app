@@ -269,7 +269,6 @@
                     }
                     else {
                         if(!this.#isSelected(selectable)) {
-                            console.log('is-phrase')
                             const colorsToAdd = this.#getColorsFromFamiliarity(familiarity)
 
                             this.#removeColors({
@@ -346,7 +345,6 @@
                         this.#unmarkTargetSelectable(lastTargetSelectable);
                     }
                     else {
-                        console.log(lastTargetSelectable)
                         const familiarity = this.#getFamiliarity(lastTargetSelectable)
                         const colorsToAdd = this.#getColorsFromFamiliarity(familiarity)
 
