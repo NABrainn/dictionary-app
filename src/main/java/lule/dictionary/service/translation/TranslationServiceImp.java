@@ -11,13 +11,13 @@ import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.request.ServiceRequest;
 import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.dto.application.result.ServiceResult;
-import lule.dictionary.service.translateAPI.dictCC.DictService;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
+import lule.dictionary.service.translationFetching.TranslationFetchingService;
 import lule.dictionary.service.validation.ValidationService;
 import lule.dictionary.util.errors.ErrorMapFactory;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 public class TranslationServiceImp implements TranslationService {
 
     private final TranslationRepository translationRepository;
-    private final DictService dictService;
+    private final TranslationFetchingService translationFetchingService;
     private final ValidationService validationService;
 
     @Transactional
@@ -93,10 +93,13 @@ public class TranslationServiceImp implements TranslationService {
                         .build();
                 return ServiceResultImp.success(translationAttribute);
             }
-            List<String> sourceWordsFromDict = dictService.translate(request.targetLanguage(), request.sourceLanguage(), request.targetWord());
             List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
+
             Translation translation = TranslationImp.builder()
-                    .sourceWords(mergeSourceWordLists(sourceWordsFromDatabase, sourceWordsFromDict))
+                    .sourceWords(mergeSourceWordLists(
+                            sourceWordsFromDatabase,
+                            translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord())
+                    ).stream().limit(3).toList())
                     .targetWord(request.targetWord())
                     .familiarity(Familiarity.UNKNOWN)
                     .sourceLanguage(request.sourceLanguage())
@@ -229,9 +232,12 @@ public class TranslationServiceImp implements TranslationService {
 
     @Override
     public List<String> translate(TranslateRequest request) {
-        List<String> sourceWordsFromDict = dictService.translate(request.targetLanguage(), request.sourceLanguage(), request.targetWord());
+
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
-        return mergeSourceWordLists(sourceWordsFromDict, sourceWordsFromDatabase);
+        return mergeSourceWordLists(
+                sourceWordsFromDatabase,
+                translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord())
+        );
     }
 
 
