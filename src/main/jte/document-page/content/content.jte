@@ -18,7 +18,7 @@
 <form
 id="page-content"
 data-document-id="${documentAttribute.importData().documentId()}"
-class="flex flex-col gap-8 min-h-full justify-between text-wrap"
+class="flex flex-col gap-8  text-wrap"
 hx-get="/translations/phrase"
 hx-trigger="selectphrase from:document"
 hx-target=".selected-phrase"
@@ -37,7 +37,7 @@ hx-vals='js:{
     )
     <div
     class="
-    w-full px-2 min-h-172
+    w-full px-2 min-h-165
     md:w-3/5 mx-auto text-wrap">
         @if(documentAttribute.paginationData().currentPageNumber() == 1)
             <span
@@ -237,7 +237,7 @@ hx-vals='js:{
     <div
     class="
     md:max-w-2/5 md:gap-4
-    max-w-full flex justify-center gap-2  mx-auto items-center">
+    max-w-full flex justify-center gap-2  mx-auto items-center basis-3/10">
         @template.document-page.content.paginator(
             id = documentAttribute.importData().documentId(),
             currentPage = documentAttribute.paginationData().currentPageNumber(),
