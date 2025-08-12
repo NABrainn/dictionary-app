@@ -291,9 +291,6 @@
     width: calc(var(--spacing) * 8);
     height: calc(var(--spacing) * 8);
   }
-  .min-h-1 {
-    min-height: calc(var(--spacing) * 1);
-  }
   .min-h-8 {
     min-height: calc(var(--spacing) * 8);
   }
@@ -308,15 +305,6 @@
   }
   .min-h-165 {
     min-height: calc(var(--spacing) * 165);
-  }
-  .min-h-168 {
-    min-height: calc(var(--spacing) * 168);
-  }
-  .min-h-172 {
-    min-height: calc(var(--spacing) * 172);
-  }
-  .min-h-full {
-    min-height: 100%;
   }
   .min-h-screen {
     min-height: 100vh;
@@ -342,11 +330,20 @@
   .grow-1 {
     flex-grow: 1;
   }
+  .basis-1\/2 {
+    flex-basis: calc(1/2 * 100%);
+  }
+  .basis-1\/5 {
+    flex-basis: calc(1/5 * 100%);
+  }
+  .basis-2\/5 {
+    flex-basis: calc(2/5 * 100%);
+  }
   .basis-3\/10 {
     flex-basis: calc(3/10 * 100%);
   }
-  .basis-7\/10 {
-    flex-basis: calc(7/10 * 100%);
+  .basis-4\/10 {
+    flex-basis: calc(4/10 * 100%);
   }
   .animate-fade {
     animation: var(--animate-fade);
@@ -480,6 +477,9 @@
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-accent) 80%, transparent);
     }
+  }
+  .bg-neutral {
+    background-color: var(--color-neutral);
   }
   .bg-primary {
     background-color: var(--color-primary);

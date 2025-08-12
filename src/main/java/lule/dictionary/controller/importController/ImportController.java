@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 public interface ImportController {
     @GetMapping("")
-    String importListPage(Model model,
-                          Authentication authentication);
+    String importListPage();
 
     @GetMapping({"/new", "/new/"})
     String createImportForm(Model model,
