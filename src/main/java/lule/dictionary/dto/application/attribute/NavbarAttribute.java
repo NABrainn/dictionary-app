@@ -16,7 +16,8 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
                               String daysPluralText,
                               String logoutBtnText,
                               @NonNull String loginBtnText,
-                              @NonNull String homeBtnText) {
+                              @NonNull String lessonsBtnText,
+                              @NonNull String vocabularyBtnText) {
 
     @Override
     public List<LanguageData> languageDataList() {

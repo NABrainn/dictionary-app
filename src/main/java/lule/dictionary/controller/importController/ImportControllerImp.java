@@ -38,40 +38,8 @@ public class ImportControllerImp implements ImportController {
     private final LanguageHelper languageHelper;
 
     @GetMapping({"", "/"})
-    public String importListPage(Model model,
-                                 Authentication authentication) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        List<ImportWithTranslationData> imports = getImports(principal);
-        model.addAttribute("documentsAttribute", imports);
-        model.addAttribute("documentsLocalizationAttribute", DocumentsLocalizationAttribute.builder()
-                .noDocumentsText(localizationService.documentListLocalization(principal.sourceLanguage()).get("there_are_no_documents_in_the_library"))
-                .clickHereBtnText(localizationService.documentListLocalization(principal.sourceLanguage()).get("click_here"))
-                .addFirstText(localizationService.documentListLocalization(principal.sourceLanguage()).get("to_add_your_first"))
-                .wordsTotalText(localizationService.documentListLocalization(principal.sourceLanguage()).get("words_total"))
-                .newWordsText(localizationService.documentListLocalization(principal.sourceLanguage()).get("new_words"))
-                .translationsText(localizationService.documentListLocalization(principal.sourceLanguage()).get("translations"))
-                .authorText(localizationService.documentListLocalization(principal.sourceLanguage()).get("author"))
-                .addBookBtnText(localizationService.documentListLocalization(principal.sourceLanguage()).get("add_book"))
-                .build());
-        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
-                .languageDataList(languageHelper.getAllLanguageData())
-                .targetLanguage(LanguageData.of(
-                                principal.targetLanguage(),
-                                languageHelper.getFullName(principal.targetLanguage()),
-                                languageHelper.getCode(principal.targetLanguage()),
-                                languageHelper.getImagePath(principal.targetLanguage())
-                        )
-                )
-                .wordsLearned(translationService.getWordsLearnedCount(principal).value())
-                .dailyStreak(principal.dailyStreak())
-                .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
-                .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
-                .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
-                .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
-                .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
-                .build());
-        return "document-list-page/documents";
+    public String importListPage() {
+        return "redirect:/lessons";
     }
 
     @GetMapping({"/new", "/new/"})
@@ -103,7 +71,8 @@ public class ImportControllerImp implements ImportController {
                 .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
                 .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
                 .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
+                .lessonsBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("lessons"))
+                .vocabularyBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("vocabulary"))
                 .build());
         return "create-import-form/base-form";
     }
@@ -124,7 +93,8 @@ public class ImportControllerImp implements ImportController {
                                     languageHelper.getFullName(principal.targetLanguage()),
                                     languageHelper.getCode(principal.targetLanguage()),
                                     languageHelper.getImagePath(principal.targetLanguage())
-                            ))
+                            )
+                    )
                     .wordsLearned(translationService.getWordsLearnedCount(principal).value())
                     .dailyStreak(principal.dailyStreak())
                     .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
@@ -132,7 +102,8 @@ public class ImportControllerImp implements ImportController {
                     .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
                     .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
                     .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                    .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
+                    .lessonsBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("lessons"))
+                    .vocabularyBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("vocabulary"))
                     .build());
             return "document-page/base-page";
 
@@ -172,7 +143,8 @@ public class ImportControllerImp implements ImportController {
                                     languageHelper.getFullName(principal.targetLanguage()),
                                     languageHelper.getCode(principal.targetLanguage()),
                                     languageHelper.getImagePath(principal.targetLanguage())
-                            ))
+                            )
+                    )
                     .wordsLearned(translationService.getWordsLearnedCount(principal).value())
                     .dailyStreak(principal.dailyStreak())
                     .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
@@ -180,7 +152,8 @@ public class ImportControllerImp implements ImportController {
                     .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
                     .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
                     .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                    .homeBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("home"))
+                    .lessonsBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("lessons"))
+                    .vocabularyBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("vocabulary"))
                     .build());
             model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
                     .titleText(localizationService.documentFormLocalization(principal.sourceLanguage()).get("title"))
@@ -219,9 +192,5 @@ public class ImportControllerImp implements ImportController {
 
     private DocumentAttribute loadDocumentContent(LoadDocumentContentRequest loadRequest) {
         return importService.loadDocumentContent(loadRequest).value();
-    }
-
-    private List<ImportWithTranslationData> getImports(CustomUserDetails principal) {
-        return importService.findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage())).value();
     }
 }

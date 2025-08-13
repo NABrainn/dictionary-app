@@ -15,12 +15,12 @@ public class LocalizationServiceImp implements LocalizationService {
 
     @Override
     public Map<String, String> navbarLocalization(Language language) {
-        List<String> keys = List.of("home", "words", "days_singular", "days_plural", "log_in", "log_out");
+        List<String> keys = List.of("lessons", "vocabulary", "words", "days_singular", "days_plural", "log_in", "log_out");
         return switch (language) {
-            case NO -> constructMap(keys, List.of("Hjem", "Ord", "Dag", "Dager", "Logg på" , "Logg av"));
-            case IT -> constructMap(keys, List.of("Casa", "Parole", "Giorno", "Giorni", "Login", "Disconnettersi"));
-            case PL -> constructMap(keys, List.of("Dom", "Słowa", "Dzień", "Dni", "Zaloguj się", "Wyloguj się"));
-            default -> constructMap(keys, List.of("Home", "Words", "Day", "Days", "Log in", "Log out"));
+            case NO -> constructMap(keys, List.of("Hjem", "vocabularyImpl", "Ord", "Dag", "Dager", "Logg på" , "Logg av"));
+            case IT -> constructMap(keys, List.of("Casa", "vocabularyImpl", "Parole", "Giorno", "Giorni", "Login", "Disconnettersi"));
+            case PL -> constructMap(keys, List.of("Dom", "vocabularyImpl", "Słowa", "Dzień", "Dni", "Zaloguj się", "Wyloguj się"));
+            default -> constructMap(keys, List.of("Lessons", "Vocabulary", "Words", "Day", "Days", "Log in", "Log out"));
         };
     }
 

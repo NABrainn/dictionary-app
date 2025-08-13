@@ -1,5 +1,7 @@
 package lule.dictionary.service.translation;
 
+import lule.dictionary.controller.vocabularyController.dto.BaseFlashcardAttribute;
+import lule.dictionary.controller.vocabularyController.dto.GetRandomTranslationsRequest;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
@@ -20,4 +22,6 @@ public interface TranslationService {
     ServiceResult<List<Translation>> extractPhrases(String content, String owner);
 
     List<String> translate(TranslateRequest request);
+
+    ServiceResult<BaseFlashcardAttribute> getRandomTranslations(GetRandomTranslationsRequest request);
 }

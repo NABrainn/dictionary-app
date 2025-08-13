@@ -45,7 +45,8 @@ public class AuthControllerImp implements AuthController {
         model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
         model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                 .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
-                .homeBtnText(localizationService.navbarLocalization(sourceLanguage).get("home"))
+                .lessonsBtnText(localizationService.navbarLocalization(sourceLanguage).get("lessons"))
+                .vocabularyBtnText(localizationService.navbarLocalization(sourceLanguage).get("vocabulary"))
                 .wordsLearned(-1)
                 .dailyStreak(-1)
                 .build());
@@ -87,7 +88,8 @@ public class AuthControllerImp implements AuthController {
         Language sourceLanguage = getSystemLanguageInfo(httpSession);
         model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                 .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
-                .homeBtnText(localizationService.navbarLocalization(sourceLanguage).get("home"))
+                .lessonsBtnText(localizationService.navbarLocalization(sourceLanguage).get("lessons"))
+                .vocabularyBtnText(localizationService.navbarLocalization(sourceLanguage).get("vocabulary"))
                 .wordsLearned(-1)
                 .dailyStreak(-1)
                 .build());
@@ -118,7 +120,8 @@ public class AuthControllerImp implements AuthController {
         model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
         model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                 .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
-                .homeBtnText(localizationService.navbarLocalization(sourceLanguage).get("home"))
+                .lessonsBtnText(localizationService.navbarLocalization(sourceLanguage).get("lessons"))
+                .vocabularyBtnText(localizationService.navbarLocalization(sourceLanguage).get("vocabulary"))
                 .wordsLearned(-1)
                 .dailyStreak(-1)
                 .build());

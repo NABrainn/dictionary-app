@@ -1,6 +1,7 @@
 @param String text
+@param String size
 
-<div class=" flex items-center justify-center">
+<div class="flex justify-end items-center justify-center ${size}">
     <a
     class="
     md:text-lg md:inline

@@ -4,22 +4,38 @@
 @param boolean isAuthenticated
 @param boolean isProfileOpen
 @param boolean isProfileToggleBtnVisible = true
+
+!{var navButtonsSize = "";}
+!{var authButtonsSize = "";}
+@if(isProfileToggleBtnVisible)
+    !{navButtonsSize = "basis-2/5";}
+    !{authButtonsSize = "basis-2/5";}
+@else
+    !{navButtonsSize = "basis-1/2";}
+    !{authButtonsSize = "basis-1/2";}
+@endif
 <div>
     <nav
     class="
-    md:justify-between md:p-4 md:py-2
-    gap-2 justify-between px-1.5 flex bg-secondary items-center min-h-18">
-        @template.navbar.home-btn(text = navbarAttribute.homeBtnText())
+    md:p-4 md:py-2
+    gap-2 px-1.5 flex bg-secondary justify-between items-center min-h-18">
+        @template.navbar.nav-buttons(
+            lessons = navbarAttribute.lessonsBtnText(),
+            vocabulary = navbarAttribute.vocabularyBtnText(),
+            size = navButtonsSize
+        )
         @if(isAuthenticated)
             @if(isProfileToggleBtnVisible)
                 @template.navbar.panel-toggle-btn()
             @endif
             @template.navbar.logout-btn(
-            text = navbarAttribute.logoutBtnText()
+            text = navbarAttribute.logoutBtnText(),
+            size = authButtonsSize
         )
         @else
             @template.navbar.login-btn(
-                text = navbarAttribute.loginBtnText()
+                text = navbarAttribute.loginBtnText(),
+                size = authButtonsSize
             )
         @endif
     </nav>
