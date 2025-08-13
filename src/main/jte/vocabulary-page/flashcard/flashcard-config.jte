@@ -16,7 +16,7 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col gap-12 p-8">
                     class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${familiarity}</div>
                 @else
                     <div
-                    class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                    class="p-0.5 flex justify-center items-center size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
                     hx-get="/vocabulary/config-form/"
                     hx-target="#flashcard-config-form"
                     hx-swap="outerHTML"
@@ -29,10 +29,10 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col gap-12 p-8">
             @endfor
             @if(familiarity > 5 || familiarity < 1)
                 <div
-                class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">-</div>
+                class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">-</div>
             @else
                 <div
-                class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
                 hx-get="/vocabulary/config-form/"
                 hx-target="#flashcard-config-form"
                 hx-swap="outerHTML"
@@ -49,10 +49,10 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col gap-12 p-8">
         <div class="flex gap-8 select-none">
             @if(quantity == 10)
                 <div
-                class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">10</div>
+                class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">10</div>
             @else
                 <div
-                class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
                 hx-get="/vocabulary/config-form/"
                 hx-target="#flashcard-config-form"
                 hx-swap="outerHTML"
@@ -64,10 +64,10 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col gap-12 p-8">
             @endif
             @if(quantity == 50)
                 <div
-                class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">50</div>
+                class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">50</div>
             @else
                 <div
-                class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
                 hx-get="/vocabulary/config-form/"
                 hx-target="#flashcard-config-form"
                 hx-swap="outerHTML"
@@ -79,10 +79,10 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col gap-12 p-8">
             @endif
             @if(quantity == 100)
                 <div
-                class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">100</div>
+                class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">100</div>
             @else
                 <div
-                class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
                 hx-get="/vocabulary/config-form/"
                 hx-target="#flashcard-config-form"
                 hx-swap="outerHTML"

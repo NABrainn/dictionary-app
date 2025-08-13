@@ -524,6 +524,9 @@
   .fill-accent {
     fill: var(--color-accent);
   }
+  .p-0\.5 {
+    padding: calc(var(--spacing) * 0.5);
+  }
   .p-1\.5 {
     padding: calc(var(--spacing) * 1.5);
   }
