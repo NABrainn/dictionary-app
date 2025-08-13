@@ -3,10 +3,32 @@ package lule.dictionary.service.sessionHelper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
 @Service
 public class SessionHelper {
 
-    public <T> T getOrDefault(HttpSession session, String key, T defaultValue) {
-        T value = (T) session.getAttribute(key);
-        return value != null ? value : defaultValue;
-    }}
+    public boolean gerOrFalse(HttpSession session, String key) {
+        return session.getAttribute(key) != null;
+    }
+
+    public <T> List<T> getList(HttpSession session, String key, Class<T> elementType) {
+        if (session == null || key == null) {
+            throw new IllegalArgumentException("Session or key cannot be null");
+        }
+        return Stream.of(session.getAttribute(key))
+                .filter(Objects::nonNull)
+                .filter(attribute -> attribute instanceof List<?>)
+                .map(attribute -> (List<?>) attribute)
+                .filter(list -> list.stream().allMatch(item -> item == null || elementType.isInstance(item)))
+                .map(list -> {
+                    @SuppressWarnings("unchecked")
+                    List<T> result = (List<T>) list;
+                    return (List<T>) result;
+                })
+                .findFirst()
+                .orElseGet(List::of);
+    }
+}

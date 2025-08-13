@@ -42,7 +42,7 @@ public class SettingsController {
                                Authentication authentication,
                                HttpSession httpSession) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        boolean isProfileOpen = sessionHelper.getOrDefault(httpSession, "isProfileOpen", false);
+        boolean isProfileOpen = sessionHelper.gerOrFalse(httpSession, "isProfileOpen");
         httpSession.setAttribute("isProfileOpen", !isProfileOpen);
         model.addAttribute("isProfileOpen", !isProfileOpen);
         model.addAttribute("navbarAttribute", NavbarAttribute.builder()

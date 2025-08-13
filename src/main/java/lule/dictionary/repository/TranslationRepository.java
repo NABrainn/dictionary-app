@@ -274,4 +274,47 @@ public class TranslationRepository {
             return List.of();
         }
     }
+
+    public List<Translation> getRandomTranslations(boolean isPhrase, String owner, int limit, int familiarity) {
+        if (familiarity > 0 && familiarity <= 5) {
+            String sql = """
+                SELECT *
+                FROM dictionary.translations
+                WHERE is_phrase = ?
+                AND translation_owner = ?
+                AND familiarity = CAST(? AS dictionary.familiarity)
+                ORDER BY RANDOM()
+                LIMIT ?
+                """;
+            try {
+                return template.query(sql, TRANSLATION,
+                        isPhrase,
+                        owner,
+                        Familiarity.values()[familiarity - 1].name(),
+                        limit);
+            } catch (DataAccessException e) {
+                log.error(String.valueOf(e.getCause()));
+                return List.of();
+            }
+        }
+        String sql = """
+                SELECT *
+                FROM dictionary.translations
+                WHERE is_phrase = ?
+                AND translation_owner = ?
+                ORDER BY RANDOM()
+                LIMIT ?
+                """;
+        try {
+            return template.query(sql, TRANSLATION,
+                    isPhrase,
+                    owner,
+                    limit);
+        } catch (DataAccessException e) {
+            log.error(String.valueOf(e.getCause()));
+            return List.of();
+        }
+
+
+    }
 }

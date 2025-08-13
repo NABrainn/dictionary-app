@@ -4,6 +4,8 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.controller.vocabularyController.dto.BaseFlashcardAttribute;
+import lule.dictionary.controller.vocabularyController.dto.GetRandomTranslationsRequest;
 import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
 import lule.dictionary.dto.database.interfaces.translation.TranslationDetails;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
@@ -238,6 +240,23 @@ public class TranslationServiceImp implements TranslationService {
                 sourceWordsFromDatabase,
                 translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord())
         );
+    }
+
+    @Override
+    public ServiceResult<BaseFlashcardAttribute> getRandomTranslations(GetRandomTranslationsRequest request) {
+        List<Translation> translations = translationRepository.getRandomTranslations(request.isPhrase(), request.owner(), request.quantity(), request.familiarity());
+        if(!translations.isEmpty()) {
+            return ServiceResultImp.success(BaseFlashcardAttribute.builder()
+                    .id(request.id())
+                    .size(translations.size())
+                    .familiarity(request.familiarity())
+                    .quantity(request.quantity())
+                    .isPhrase(request.isPhrase())
+                    .translations(translations)
+                    .build());
+        }
+        return ServiceResultImp.error(Map.of("emptyList", "No translations found to review"));
+
     }
 
 
