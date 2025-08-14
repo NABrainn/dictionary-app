@@ -28,10 +28,13 @@
             @if(isProfileToggleBtnVisible)
                 @template.navbar.panel-toggle-btn()
             @endif
-            @template.navbar.logout-btn(
-            text = navbarAttribute.logoutBtnText(),
-            size = authButtonsSize
-        )
+            @template.navbar.settings(
+                text = navbarAttribute.logoutBtnText(),
+                size = authButtonsSize,
+                languages = navbarAttribute.languageDataList(),
+                selectedInterfaceLanguage = ,
+                selectedTranslationLanguage =
+            )
         @else
             @template.navbar.login-btn(
                 text = navbarAttribute.loginBtnText(),

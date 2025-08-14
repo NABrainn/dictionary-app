@@ -6,7 +6,7 @@
 @if(isProfileOpen)
     <div class="profile-panel-transition flex bg-secondary justify-center gap-4 pb-4">
         @template.navbar.language-picker(
-            targetLanguage = navbarAttribute.targetLanguage(),
+            selectedLanguage = navbarAttribute.targetLanguage(),
             languages = navbarAttribute.languageDataList()
         )
         @template.navbar.stats(

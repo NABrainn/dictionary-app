@@ -52,8 +52,7 @@ public class JteControllerAdvice {
                             )
                     )
                     .allLanguageData(languageHelper.getAllLanguageData())
-                    .wordsLearned(translationService.getWordsLearnedCount(principal).value()
-                    )
+                    .wordsLearned(translationService.getWordsLearnedCount(principal).value())
                     .dailyStreak(principal.dailyStreak())
                     .isProfileOpen(sessionHelper.getOrFalse(httpSession, "isProfileOpen"))
                     .build());
@@ -82,5 +81,8 @@ public class JteControllerAdvice {
                 .dailyStreak(0)
                 .isProfileOpen(false)
                 .build());
+    }
+    public void addNavbarAttribute() {
+
     }
 }
