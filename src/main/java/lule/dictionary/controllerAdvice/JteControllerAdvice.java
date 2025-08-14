@@ -55,7 +55,7 @@ public class JteControllerAdvice {
                     .wordsLearned(translationService.getWordsLearnedCount(principal).value()
                     )
                     .dailyStreak(principal.dailyStreak())
-                    .isProfileOpen(sessionHelper.gerOrFalse(httpSession, "isProfileOpen"))
+                    .isProfileOpen(sessionHelper.getOrFalse(httpSession, "isProfileOpen"))
                     .build());
             return;
         }

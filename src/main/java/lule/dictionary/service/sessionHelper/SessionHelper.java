@@ -10,8 +10,11 @@ import java.util.stream.Stream;
 @Service
 public class SessionHelper {
 
-    public boolean gerOrFalse(HttpSession session, String key) {
-        return session.getAttribute(key) != null;
+    public boolean getOrFalse(HttpSession session, String key) {
+        if (session == null || key == null) {
+            throw new IllegalArgumentException("Session or key cannot be null");
+        }
+        return session.getAttribute(key) instanceof Boolean && (boolean) session.getAttribute(key);
     }
 
     public <T> List<T> getList(HttpSession session, String key, Class<T> elementType) {
