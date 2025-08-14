@@ -7,7 +7,7 @@
     --color-tertiary: #648DB3;
     --color-accent: #B2D8CE;
     --color-neutral: #B8CFCE;
-    --color-error: #E55050;
+    --color-error: #C03A3A;
 
     --animate-fade: fadeIn .25s ease-in-out;
     @keyframes fadeIn {
