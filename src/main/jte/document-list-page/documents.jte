@@ -13,8 +13,7 @@
 @template.layout.base(content = @`
     @template.navbar.navbar(
         navbarAttribute = navbarAttribute,
-        isAuthenticated = baseAttribute.isAuthenticated(),
-        isProfileOpen = baseAttribute.isProfileOpen()
+        isAuthenticated = baseAttribute.isAuthenticated()
     )
     @if(baseAttribute.isAuthenticated())
         <div
@@ -28,7 +27,7 @@
                             hx-get="/imports/new"
                             hx-target="#main"
                             hx-swap="innerHTML"
-                            hx-push-url="/imports/new">${documentsLocalizationAttribute.clickHereBtnText()}</a> ${documentsLocalizationAttribute.addBookBtnText()}
+                            hx-push-url="/imports/new">${documentsLocalizationAttribute.clickHereBtnText()}</a> ${documentsLocalizationAttribute.toAddYourFirstBtnText()}
                         </span>
                     </div>
                 @else

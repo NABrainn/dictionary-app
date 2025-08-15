@@ -16,11 +16,12 @@
 <form
 id="flashcard-form"
 class="min-h-140 rounded-md w-1/4 mx-auto flex flex-col">
+
     @template.vocabulary-page.flashcard.target-word-screen(
-    targetWord = targetWord,
-    sourceWord = sourceWord
+        targetWord = targetWord,
+        sourceWord = sourceWord
     )
-    <div class="rounded-b-md flex py-6 items-center font-bold bg-secondary text-accent text-xl select-none">
+    <div class="rounded-b-md flex py-10 items-center font-bold bg-secondary text-accent text-xl select-none">
         @if(attribute.id() > 1)
             <form
             class="cursor-pointer visible basis-1/4 text-center"

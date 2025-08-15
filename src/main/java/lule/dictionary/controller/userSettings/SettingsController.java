@@ -2,14 +2,9 @@ package lule.dictionary.controller.userSettings;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.dto.application.LanguageData;
-import lule.dictionary.dto.application.attribute.NavbarAttribute;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.language.Language;
-import lule.dictionary.service.language.LanguageHelper;
-import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
-import lule.dictionary.service.translation.TranslationService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -24,51 +19,51 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SettingsController {
 
     private final UserProfileService userProfileService;
-    private final LanguageHelper languageHelper;
-    private final TranslationService translationService;
-    private final LocalizationService localizationService;
     private final SessionHelper sessionHelper;
 
-    @GetMapping({"/changeLanguage", "/changeLanguage/"})
-    public String changeLanguage(@RequestParam("lang") String language,
-                                 Authentication authentication) {
+    @GetMapping({"/changeLanguage/target", "/changeLanguage/target/"})
+    public String changeTargetLanguage(@RequestParam("lang") String language,
+                                       Authentication authentication) {
         String username = extractUsername(authentication);
         updateTargetLanguage(username, language);
         return "redirect:/";
     }
 
+    @GetMapping({"/changeLanguage/source", "/changeLanguage/source/"})
+    public String changeSourceLanguage(@RequestParam("lang") String language,
+                                       Authentication authentication) {
+        String username = extractUsername(authentication);
+        updateSourceLanguage(username, language);
+        return "redirect:/";
+    }
+
+    @GetMapping({"/changeLanguage/ui", "/changeLanguage/ui/"})
+    public String changeUILanguage(@RequestParam("lang") String language,
+                                   Authentication authentication) {
+        String username = extractUsername(authentication);
+        updateUILanguage(username, language);
+        return "redirect:/";
+    }
+
     @GetMapping({"/profilePanel", "/profilePanel/"})
-    public String profilePanel(Model model,
-                               Authentication authentication,
-                               HttpSession httpSession) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        boolean isProfileOpen = sessionHelper.gerOrFalse(httpSession, "isProfileOpen");
+    public String profilePanel(HttpSession httpSession,
+                               Model model) {
+        boolean isProfileOpen = sessionHelper.getOrFalse(httpSession, "isProfileOpen");
         httpSession.setAttribute("isProfileOpen", !isProfileOpen);
         model.addAttribute("isProfileOpen", !isProfileOpen);
-        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
-                .languageDataList(languageHelper.getAllLanguageData())
-                .targetLanguage(LanguageData.of(
-                                principal.targetLanguage(),
-                                languageHelper.getFullName(principal.targetLanguage()),
-                                languageHelper.getCode(principal.targetLanguage()),
-                                languageHelper.getImagePath(principal.targetLanguage())
-                        )
-                )
-                .wordsLearned(translationService.getWordsLearnedCount(principal).value())
-                .dailyStreak(principal.dailyStreak())
-                .wordsLearnedText(localizationService.navbarLocalization(principal.sourceLanguage()).get("words"))
-                .daysSingularText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_singular"))
-                .daysPluralText(localizationService.navbarLocalization(principal.sourceLanguage()).get("days_plural"))
-                .logoutBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_out"))
-                .loginBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("log_in"))
-                .lessonsBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("lessons"))
-                .vocabularyBtnText(localizationService.navbarLocalization(principal.sourceLanguage()).get("vocabulary"))
-                .build());
         return "navbar/profile-panel";
     }
 
     private void updateTargetLanguage(String username, String language) {
         userProfileService.updateTargetLanguage(username, Language.valueOf(language));
+    }
+
+    private void updateSourceLanguage(String username, String language) {
+        userProfileService.updateSourceLanguage(username, Language.valueOf(language));
+    }
+
+    private void updateUILanguage(String username, String language) {
+        userProfileService.updateUILanguage(username, Language.valueOf(language));
     }
 
     private String extractUsername(Authentication authentication) {

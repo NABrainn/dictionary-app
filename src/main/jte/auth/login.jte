@@ -12,8 +12,7 @@
 @template.layout.base(authView = @`
     @template.navbar.navbar(
         navbarAttribute = navbarAttribute,
-        isAuthenticated = baseAttribute.isAuthenticated(),
-        isProfileOpen = baseAttribute.isProfileOpen()
+        isAuthenticated = baseAttribute.isAuthenticated()
     )
     <form
     hx-post="/auth/login"

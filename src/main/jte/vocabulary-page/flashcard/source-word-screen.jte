@@ -15,5 +15,8 @@ hx-vals='{
     @for(var sw : sourceWord)
         <input name="sourceWord" value="${sw}" type="hidden">
     @endfor
+    @if(sourceWord.isEmpty())
+        <input name="sourceWord" value="" type="hidden">
+    @endif
     <p class="block text-center grow-1 font-bold text-primary text-3xl select-none">${String.join(" ", sourceWord)}</p>
 </form>

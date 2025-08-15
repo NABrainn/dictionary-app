@@ -1,6 +1,5 @@
-package lule.dictionary.controller.importController;
+package lule.dictionary.controller.document;
 
-import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

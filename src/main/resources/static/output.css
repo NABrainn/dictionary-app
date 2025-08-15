@@ -8,7 +8,6 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --color-red-400: oklch(70.4% 0.191 22.216);
-    --color-red-500: oklch(63.7% 0.237 25.331);
     --spacing: 0.25rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
@@ -34,7 +33,7 @@
     --color-tertiary: #648DB3;
     --color-accent: #B2D8CE;
     --color-neutral: #B8CFCE;
-    --color-error: #E55050;
+    --color-error: #C03A3A;
     --animate-fade: fadeIn .25s ease-in-out;
   }
 }
@@ -214,8 +213,14 @@
   .top-10 {
     top: calc(var(--spacing) * 10);
   }
+  .top-16 {
+    top: calc(var(--spacing) * 16);
+  }
   .right-4 {
     right: calc(var(--spacing) * 4);
+  }
+  .right-8 {
+    right: calc(var(--spacing) * 8);
   }
   .bottom-8 {
     bottom: calc(var(--spacing) * 8);
@@ -259,8 +264,14 @@
   .mx-auto {
     margin-inline: auto;
   }
+  .mt-1 {
+    margin-top: calc(var(--spacing) * 1);
+  }
   .mt-1\.5 {
     margin-top: calc(var(--spacing) * 1.5);
+  }
+  .mt-2 {
+    margin-top: calc(var(--spacing) * 2);
   }
   .block {
     display: block;
@@ -311,9 +322,6 @@
   .min-h-85 {
     min-height: calc(var(--spacing) * 85);
   }
-  .min-h-130 {
-    min-height: calc(var(--spacing) * 130);
-  }
   .min-h-140 {
     min-height: calc(var(--spacing) * 140);
   }
@@ -329,11 +337,23 @@
   .w-4\/5 {
     width: calc(4/5 * 100%);
   }
+  .w-8 {
+    width: calc(var(--spacing) * 8);
+  }
   .w-9\/10 {
     width: calc(9/10 * 100%);
   }
+  .w-16 {
+    width: calc(var(--spacing) * 16);
+  }
+  .w-20 {
+    width: calc(var(--spacing) * 20);
+  }
   .w-full {
     width: 100%;
+  }
+  .max-w-20 {
+    max-width: calc(var(--spacing) * 20);
   }
   .max-w-35 {
     max-width: calc(var(--spacing) * 35);
@@ -356,11 +376,17 @@
   .basis-1\/5 {
     flex-basis: calc(1/5 * 100%);
   }
+  .basis-1\/10 {
+    flex-basis: calc(1/10 * 100%);
+  }
   .basis-2\/5 {
     flex-basis: calc(2/5 * 100%);
   }
   .basis-3\/10 {
     flex-basis: calc(3/10 * 100%);
+  }
+  .basis-4\/5 {
+    flex-basis: calc(4/5 * 100%);
   }
   .animate-fade {
     animation: var(--animate-fade);
@@ -388,9 +414,6 @@
   }
   .items-center {
     align-items: center;
-  }
-  .justify-around {
-    justify-content: space-around;
   }
   .justify-between {
     justify-content: space-between;
@@ -425,8 +448,8 @@
   .gap-8 {
     gap: calc(var(--spacing) * 8);
   }
-  .gap-12 {
-    gap: calc(var(--spacing) * 12);
+  .gap-10 {
+    gap: calc(var(--spacing) * 10);
   }
   .gap-16 {
     gap: calc(var(--spacing) * 16);
@@ -524,6 +547,9 @@
   .fill-accent {
     fill: var(--color-accent);
   }
+  .p-0\.5 {
+    padding: calc(var(--spacing) * 0.5);
+  }
   .p-1\.5 {
     padding: calc(var(--spacing) * 1.5);
   }
@@ -566,8 +592,11 @@
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
   }
-  .py-6 {
-    padding-block: calc(var(--spacing) * 6);
+  .py-4 {
+    padding-block: calc(var(--spacing) * 4);
+  }
+  .py-10 {
+    padding-block: calc(var(--spacing) * 10);
   }
   .pb-4 {
     padding-bottom: calc(var(--spacing) * 4);
@@ -629,20 +658,14 @@
   .text-error {
     color: var(--color-error);
   }
-  .text-error\/50 {
-    color: color-mix(in srgb, #E55050 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      color: color-mix(in oklab, var(--color-error) 50%, transparent);
-    }
-  }
   .text-error\/80 {
-    color: color-mix(in srgb, #E55050 80%, transparent);
+    color: color-mix(in srgb, #C03A3A 80%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       color: color-mix(in oklab, var(--color-error) 80%, transparent);
     }
   }
   .text-error\/90 {
-    color: color-mix(in srgb, #E55050 90%, transparent);
+    color: color-mix(in srgb, #C03A3A 90%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       color: color-mix(in oklab, var(--color-error) 90%, transparent);
     }
@@ -655,9 +678,6 @@
   }
   .text-red-400 {
     color: var(--color-red-400);
-  }
-  .text-red-500 {
-    color: var(--color-red-500);
   }
   .text-secondary {
     color: var(--color-secondary);
