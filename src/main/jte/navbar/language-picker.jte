@@ -3,7 +3,9 @@
 
 @param LanguageData selectedLanguage
 @param List<LanguageData> languages
-<div class="relative text-left text-md animate-fade">
+@param String type
+
+<div class="relative text-left text-md animate-fade w-16">
         <button
         type="button"
         class="flex font-bold w-full cursor-default gap-2 items-center rounded-md bg-accent pl-1 text-left text-primary px-6
@@ -12,7 +14,7 @@
         aria-expanded="true"
         aria-labelledby="listbox-label"
         id="dropdown-btn"
-        onclick="htmx.find('#dropdown-menu').classList.toggle('hidden')">
+        onclick="htmx.find('#dropdown-menu-${type}').classList.toggle('hidden')">
             <img
             class="size-5"
             src="${selectedLanguage.imgPath()}" alt="image showcasing flag of selected language">
@@ -22,7 +24,7 @@
             text-md">${selectedLanguage.languageCode().toUpperCase()}</span>
         </button>
 
-        <div id="dropdown-menu" class="hidden mt-1.5 left-0 absolute bg-accent w-full text-left text-primary rounded-md z-10 py-2 gap-2">
+        <div id="dropdown-menu-${type}" class="hidden mt-1.5 left-0 absolute bg-accent w-full text-left text-primary rounded-md z-10 py-2 gap-2">
             <div class="flex flex-col gap-1">
                 @for(var language : languages)
                     @if(!language.languageCode().equals(selectedLanguage.languageCode()))
@@ -30,7 +32,7 @@
                         class="
                         hover:bg-primary/80 hover:text-accent
                         flex gap-2 pl-1 font-bold cursor-pointer"
-                        hx-get="/settings/changeLanguage"
+                        hx-get="/settings/changeLanguage/${type}"
                         hx-vals='{
                             "lang": "${language.language()}"
                         }'
@@ -53,11 +55,11 @@
 <div class="hidden">
     <label for="lang-select"></label>
     <select
-            class="hidden" aria-hidden="true"
-            name="langs"
-            id="lang-select">
-        <option
-                value="${selectedLanguage.fullName()}">${selectedLanguage.languageCode().toUpperCase()}</option>
+    class="hidden" aria-hidden="true"
+    name="langs"
+    id="lang-select">
+    <option
+    value="${selectedLanguage.fullName()}">${selectedLanguage.languageCode().toUpperCase()}</option>
         @for(var language : languages)
             @if(!language.languageCode().equals(selectedLanguage))
                 <option

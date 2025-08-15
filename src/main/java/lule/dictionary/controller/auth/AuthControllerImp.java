@@ -5,13 +5,13 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.attribute.NavbarAttribute;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.AuthService;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
+import lule.dictionary.service.sessionHelper.SessionHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +29,7 @@ public class AuthControllerImp implements AuthController {
 
     private final AuthService authService;
     private final LocalizationService localizationService;
+    private final SessionHelper sessionHelper;
 
     @GetMapping({"/login", "/login/"})
     public String loginPage(Model model,
@@ -38,15 +39,8 @@ public class AuthControllerImp implements AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
-        Language sourceLanguage = getSystemLanguageInfo(httpSession);
+        Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
         model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
-        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
-                .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
-                .lessonsBtnText(localizationService.navbarLocalization(sourceLanguage).get("lessons"))
-                .vocabularyBtnText(localizationService.navbarLocalization(sourceLanguage).get("vocabulary"))
-                .wordsLearned(-1)
-                .dailyStreak(-1)
-                .build());
         return "auth/login";
     }
 
@@ -62,7 +56,7 @@ public class AuthControllerImp implements AuthController {
             return "redirect:/";
         }
         ServiceResult<?> result = authService.login(LoginRequest.of(login, password), response, httpSession);
-        Language sourceLanguage = getSystemLanguageInfo(httpSession);
+        Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
 
         if (result.hasError()) {
             log.warn("login authentication failure, resending page");
@@ -82,14 +76,7 @@ public class AuthControllerImp implements AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
-        Language sourceLanguage = getSystemLanguageInfo(httpSession);
-        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
-                .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
-                .lessonsBtnText(localizationService.navbarLocalization(sourceLanguage).get("lessons"))
-                .vocabularyBtnText(localizationService.navbarLocalization(sourceLanguage).get("vocabulary"))
-                .wordsLearned(-1)
-                .dailyStreak(-1)
-                .build());
+        Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
         model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
         return "auth/signup";
     }
@@ -106,7 +93,7 @@ public class AuthControllerImp implements AuthController {
             return "redirect:/";
         }
         ServiceResult<?> result = authService.signup(SignupRequest.of(login, email, password));
-        Language sourceLanguage = getSystemLanguageInfo(httpSession);
+        Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
 
         model.addAttribute("result", result);
         if(result.hasError()) {
@@ -115,13 +102,6 @@ public class AuthControllerImp implements AuthController {
             return "auth/signup";
         }
         model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
-        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
-                .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
-                .lessonsBtnText(localizationService.navbarLocalization(sourceLanguage).get("lessons"))
-                .vocabularyBtnText(localizationService.navbarLocalization(sourceLanguage).get("vocabulary"))
-                .wordsLearned(-1)
-                .dailyStreak(-1)
-                .build());
         return "auth/login";
     }
 
@@ -136,13 +116,11 @@ public class AuthControllerImp implements AuthController {
             log.warn("logout attempt failure");
             return "/error";
         }
-        Language sourceLanguage = getSystemLanguageInfo(httpSession);
+        Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
         redirectAttributes.addFlashAttribute("result", result);
         redirectAttributes.addFlashAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
         return "redirect:/auth/login";
     }
 
-    private Language getSystemLanguageInfo(HttpSession httpSession) {
-        return (Language) httpSession.getAttribute("sourceLanguage");
-    }
+
 }

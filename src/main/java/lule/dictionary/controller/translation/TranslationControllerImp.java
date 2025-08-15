@@ -76,7 +76,7 @@ public class TranslationControllerImp {
                 .build();
         ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(request);
         model.addAttribute("translationAttribute", result.value());
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
         return "document-page/content/translation/update/update-translation-form";
     }
 
@@ -132,7 +132,7 @@ public class TranslationControllerImp {
                     .build();
             ServiceResult<TranslationAttribute> result = createTranslation(request);
             model.addAttribute("translationAttribute", result.value());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/update/update-translation-form";
         } catch (InvalidInputException e) {
             String exceptionMessage = "Failed to add translation due to invalid input.";
@@ -162,7 +162,7 @@ public class TranslationControllerImp {
                 .build();
         ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(request);
         model.addAttribute("translationAttribute", result.value());
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
         return "document-page/content/translation/update/update-translation-form";
     }
 
@@ -188,13 +188,13 @@ public class TranslationControllerImp {
                     .build();
             ServiceResult<TranslationAttribute> result = translationService.updateSourceWords(request);
             model.addAttribute("translationAttribute", result.value());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             model.addAttribute("hasError", result.hasError());
             return "document-page/content/translation/update/update-translation-form";
         } catch (InvalidInputException e) {
             log.warn("Invalid input: returning back");
             model.addAttribute("translationAttribute", e.getResult().value());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/update/update-translation-form";
         }
     }
@@ -217,7 +217,7 @@ public class TranslationControllerImp {
                     .build();
             ServiceResult<TranslationAttribute> result = translationService.deleteSourceWord(request);
             model.addAttribute("translationAttribute", result.value());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/update/update-translation-form";
         } catch (InvalidInputException e) {
             log.info("Invalid input, sending source-words-list template");

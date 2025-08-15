@@ -1,9 +1,12 @@
 package lule.dictionary.dto.application;
 
+import lombok.Builder;
+import lombok.NonNull;
 import lule.dictionary.service.language.Language;
 
-public record LanguageData(Language language, String fullName, String languageCode, String imgPath) {
-    public static LanguageData of(Language language, String fullName, String languageCode, String imgPath) {
-        return new LanguageData(language, fullName, languageCode, imgPath);
-    }
+@Builder
+public record LanguageData(@NonNull Language language,
+                           @NonNull String fullName,
+                           @NonNull String languageCode,
+                           @NonNull String imgPath) {
 }

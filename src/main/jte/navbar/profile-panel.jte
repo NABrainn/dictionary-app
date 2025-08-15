@@ -7,7 +7,8 @@
     <div class="profile-panel-transition flex bg-secondary justify-center gap-4 pb-4">
         @template.navbar.language-picker(
             selectedLanguage = navbarAttribute.targetLanguage(),
-            languages = navbarAttribute.languageDataList()
+            languages = navbarAttribute.languageDataList(),
+            type = "target"
         )
         @template.navbar.stats(
             wordsLearned = navbarAttribute.wordsLearned(),

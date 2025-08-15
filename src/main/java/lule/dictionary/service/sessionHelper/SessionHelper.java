@@ -1,6 +1,7 @@
 package lule.dictionary.service.sessionHelper;
 
 import jakarta.servlet.http.HttpSession;
+import lule.dictionary.service.language.Language;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,5 +34,9 @@ public class SessionHelper {
                 })
                 .findFirst()
                 .orElseGet(List::of);
+    }
+
+    public Language getSystemLanguageInfo(HttpSession httpSession) {
+        return httpSession.getAttribute("sourceLanguage") != null ? (Language) httpSession.getAttribute("sourceLanguage") : Language.EN;
     }
 }

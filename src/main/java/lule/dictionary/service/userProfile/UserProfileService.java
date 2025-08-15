@@ -10,6 +10,7 @@ import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.repository.UserProfileRepository;
+import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.util.DateUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,6 +45,7 @@ public class UserProfileService implements UserDetailsService {
                 .password(encode(signupRequest.password()))
                 .sourceLanguage(Language.EN)
                 .targetLanguage(Language.NO)
+                .userInterfaceLanguage(Language.EN)
                 .wordsAddedToday(0)
                 .dailyStreak(0)
                 .offset(TimeZoneOffsetContext.get())
@@ -89,5 +91,25 @@ public class UserProfileService implements UserDetailsService {
 
     private String encode(String password) {
         return encoder.encode(password);
+    }
+
+    public void updateSourceLanguage(String username, Language language) {
+        userProfileRepository.updateSourceLanguage(username, language.name());
+        CustomUserDetails userDetails = (CustomUserDetails) loadUserByUsername(username);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        ));
+    }
+
+    public void updateUILanguage(String username, Language language) {
+        userProfileRepository.updateUILanguage(username, language.name());
+        CustomUserDetails userDetails = (CustomUserDetails) loadUserByUsername(username);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        ));
     }
 }

@@ -2,7 +2,6 @@
 
 @param NavbarAttribute navbarAttribute
 @param boolean isAuthenticated
-@param boolean isProfileOpen
 @param boolean isProfileToggleBtnVisible = true
 
 !{var navButtonsSize = "";}
@@ -32,8 +31,8 @@
                 text = navbarAttribute.logoutBtnText(),
                 size = authButtonsSize,
                 languages = navbarAttribute.languageDataList(),
-                selectedInterfaceLanguage = ,
-                selectedTranslationLanguage =
+                userInterfaceLanguage = navbarAttribute.userInterfaceLanguage(),
+                translationLanguage = navbarAttribute.translationLanguage()
             )
         @else
             @template.navbar.login-btn(
@@ -47,7 +46,7 @@
         id="profile-panel">
             @template.navbar.profile-panel(
                 navbarAttribute = navbarAttribute,
-                isProfileOpen = isProfileOpen
+                isProfileOpen = navbarAttribute.isProfileOpen()
             )
         </div>
     @endif

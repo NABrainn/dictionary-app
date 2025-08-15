@@ -13,10 +13,30 @@ public class LanguageHelper {
     private final String imageBasePath = "/images/flags";
 
     private final List<LanguageData> allLanguageData = List.of(
-            LanguageData.of(Language.NO, "Norwegian", "no", imageBasePath + "/norway.png"),
-            LanguageData.of(Language.PL, "Polish", "pl", imageBasePath + "/poland.png"),
-            LanguageData.of(Language.EN, "English", "en", imageBasePath + "/uk.png"),
-            LanguageData.of(Language.IT, "Italian", "it", imageBasePath + "/italy.png")
+            LanguageData.builder()
+                    .language(Language.NO)
+                    .fullName("Norwegian")
+                    .languageCode("no")
+                    .imgPath(imageBasePath + "/norway.png")
+                    .build(),
+            LanguageData.builder()
+                    .language(Language.EN)
+                    .fullName("English")
+                    .languageCode("en")
+                    .imgPath(imageBasePath + "/uk.png")
+                    .build(),
+            LanguageData.builder()
+                    .language(Language.IT)
+                    .fullName("Italian")
+                    .languageCode("it")
+                    .imgPath(imageBasePath + "/italy.png")
+                    .build(),
+            LanguageData.builder()
+                    .language(Language.PL)
+                    .fullName("Polish")
+                    .languageCode("pl")
+                    .imgPath(imageBasePath + "/poland.png")
+                    .build()
     );
 
     public String getFullName(Language language) {

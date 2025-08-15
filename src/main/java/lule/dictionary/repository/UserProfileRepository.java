@@ -29,6 +29,7 @@ public class UserProfileRepository {
                         p.email,
                         s.source_lang,
                         s.target_lang,
+                        s.ui_lang,
                         str.day_count,
                         str.words_added_today,
                         str.tz_offset,
@@ -49,7 +50,17 @@ public class UserProfileRepository {
 
     public Optional<UserProfile> findByUsernameOrEmail(@NonNull String username, @NonNull String email) {
         String sql = """
-                    SELECT p.username, p.password, p.email, s.source_lang, s.target_lang, str.day_count, str.words_added_today, str.tz_offset, str.updated_at
+                    SELECT
+                        p.username, 
+                        p.password, 
+                        p.email, 
+                        s.source_lang, 
+                        s.target_lang, 
+                        s.ui_lang, 
+                        str.day_count, 
+                        str.words_added_today, 
+                        str.tz_offset, 
+                        str.updated_at
                     FROM dictionary.user_profiles p
                     LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
@@ -67,13 +78,13 @@ public class UserProfileRepository {
     public Optional<UserProfile> addUserProfile(@NonNull UserProfile userProfile) {
         String sql = """
                     WITH settings AS (
-                        INSERT INTO dictionary.user_profile_settings (source_lang, target_lang)
-                        VALUES (?, ?)
-                        RETURNING settings_id, source_lang, target_lang
+                        INSERT INTO dictionary.user_profile_settings (source_lang, target_lang, ui_lang)
+                        VALUES (?, ?, ?)
+                        RETURNING settings_id, source_lang, target_lang, ui_lang
                     ),
                     streak AS (
                         INSERT INTO dictionary.streaks (day_count, words_added_today, streak_owner, tz_offset, updated_at)
-                        VALUES (0, 0, ?, ?, '2025-07-02 10:23:54+02')
+                        VALUES (0, 0, ?, ?, '2025-07-02 10:00:00+02')
                         RETURNING day_count, words_added_today, streak_owner, tz_offset, updated_at
                     ),
                     user_insert AS (
@@ -82,7 +93,7 @@ public class UserProfileRepository {
                         FROM settings s
                         RETURNING username, email, password, settings_id
                     )
-                    SELECT u.username, u.email, u.password, s.source_lang, s.target_lang, str.day_count, str.words_added_today, str.tz_offset, str.updated_at
+                    SELECT u.username, u.email, u.password, s.source_lang, s.target_lang, s.ui_lang, str.day_count, str.words_added_today, str.tz_offset, str.updated_at
                     FROM user_insert u
                     LEFT JOIN settings s ON u.settings_id = s.settings_id
                     LEFT JOIN streak str ON u.username = str.streak_owner;
@@ -91,6 +102,7 @@ public class UserProfileRepository {
             List<UserProfile> addedUser = template.query(sql, USER_PROFILE,
                     userProfile.sourceLanguage().name(),
                     userProfile.targetLanguage().name(),
+                    userProfile.userInterfaceLanguage().name(),
                     userProfile.username(),
                     0,
                     userProfile.username(),
@@ -106,7 +118,17 @@ public class UserProfileRepository {
 
     public List<UserProfile> findAll() {
         String sql = """
-                    SELECT p.username, p.email, p.password, s.source_lang, s.target_lang, str.day_count, str.words_added_today, str.tz_offset, str.updated_at
+                    SELECT
+                        p.username,
+                        p.email,
+                        p.password,
+                        s.source_lang,
+                        s.target_lang,
+                        s.ui_lang,
+                        str.day_count,
+                        str.words_added_today,
+                        str.tz_offset,
+                        str.updated_at
                     FROM dictionary.user_profiles as p
                     LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
@@ -182,6 +204,44 @@ public class UserProfileRepository {
         String sql = """
             UPDATE dictionary.user_profile_settings
             SET target_lang = ?
+            WHERE settings_id = (
+                SELECT settings_id
+                FROM dictionary.user_profiles
+                WHERE username = ?
+            )
+        """;
+        try {
+            template.update(sql,
+                    targetLanguage,
+                    owner);
+        } catch (DataAccessException e) {
+            log.error(String.valueOf(e.getCause()));
+        }
+    }
+
+    public void updateSourceLanguage(String owner, String targetLanguage) {
+        String sql = """
+            UPDATE dictionary.user_profile_settings
+            SET source_lang = ?
+            WHERE settings_id = (
+                SELECT settings_id
+                FROM dictionary.user_profiles
+                WHERE username = ?
+            )
+        """;
+        try {
+            template.update(sql,
+                    targetLanguage,
+                    owner);
+        } catch (DataAccessException e) {
+            log.error(String.valueOf(e.getCause()));
+        }
+    }
+
+    public void updateUILanguage(String owner, String targetLanguage) {
+        String sql = """
+            UPDATE dictionary.user_profile_settings
+            SET ui_lang = ?
             WHERE settings_id = (
                 SELECT settings_id
                 FROM dictionary.user_profiles

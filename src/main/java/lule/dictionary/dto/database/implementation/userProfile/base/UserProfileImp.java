@@ -27,6 +27,8 @@ public record UserProfileImp(
         Language sourceLanguage,
         @NonNull
         Language targetLanguage,
+        @NonNull
+        Language userInterfaceLanguage,
         int wordsAddedToday,
         int dailyStreak,
         String offset) implements UserProfile {
@@ -74,6 +76,7 @@ public record UserProfileImp(
                 .targetLanguage(userProfile.targetLanguage())
                 .wordsAddedToday(userProfile.wordsAddedToday())
                 .dailyStreak(userProfile.dailyStreak())
+                .userInterfaceLanguage(userProfile.userInterfaceLanguage())
                 .build();
     }
 

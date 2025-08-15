@@ -12,8 +12,7 @@
 @template.layout.base(content = @`
     @template.navbar.navbar(
         navbarAttribute = navbarAttribute,
-        isAuthenticated = baseAttribute.isAuthenticated(),
-        isProfileOpen = baseAttribute.isProfileOpen()
+        isAuthenticated = baseAttribute.isAuthenticated()
     )
     <form
     class="md:w-3/5

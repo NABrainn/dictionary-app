@@ -32,7 +32,6 @@ hx-vals='js:{
     @template.navbar.navbar(
         navbarAttribute = navbarAttribute,
         isAuthenticated = baseAttribute.isAuthenticated(),
-        isProfileOpen = false,
         isProfileToggleBtnVisible = false
     )
     <div

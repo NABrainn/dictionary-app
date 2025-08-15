@@ -23,6 +23,7 @@ public class RowMapperFactory {
                     .password(rs.getString("password"))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
                     .targetLanguage(Language.valueOf(rs.getString("target_lang")))
+                    .userInterfaceLanguage(Language.valueOf(rs.getString("ui_lang")))
                     .wordsAddedToday(rs.getInt("words_added_today"))
                     .offset(rs.getString("tz_offset"))
                     .dailyStreak(rs.getInt("day_count"))
