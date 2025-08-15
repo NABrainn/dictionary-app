@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+//TODO deverbosify the process of retrieving localization items
 @Service
 @RequiredArgsConstructor
 public class LocalizationServiceImp implements LocalizationService {

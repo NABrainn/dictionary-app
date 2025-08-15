@@ -34,11 +34,11 @@ public class VocabularyController {
                                  Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
-                .familiarityText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("familiarity"))
-                .howManyText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("how_many"))
-                .phrasesText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("phrases"))
-                .wordsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("words"))
-                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("review_translations"))
+                .familiarityText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("familiarity"))
+                .howManyText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("how_many"))
+                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("phrases"))
+                .wordsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("words"))
+                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("review_translations"))
                 .build());
         return "vocabulary-page/base-page";
     }
@@ -54,11 +54,11 @@ public class VocabularyController {
         model.addAttribute("quantity", quantity);
         model.addAttribute("isPhrase", isPhrase);
         model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
-                .familiarityText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("familiarity"))
-                .howManyText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("how_many"))
-                .phrasesText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("phrases"))
-                .wordsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("words"))
-                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("review_translations"))
+                .familiarityText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("familiarity"))
+                .howManyText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("how_many"))
+                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("phrases"))
+                .wordsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("words"))
+                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("review_translations"))
                 .build());
         return "vocabulary-page/flashcard/flashcard-config";
     }
@@ -90,11 +90,11 @@ public class VocabularyController {
         model.addAttribute("isPhrase", isPhrase);
         model.addAttribute("messages", attribute.messages());
         model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
-                .familiarityText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("familiarity"))
-                .howManyText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("how_many"))
-                .phrasesText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("phrases"))
-                .wordsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("words"))
-                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("review_translations"))
+                .familiarityText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("familiarity"))
+                .howManyText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("how_many"))
+                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("phrases"))
+                .wordsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("words"))
+                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("review_translations"))
                 .build());
         return "vocabulary-page/flashcard/flashcard-config";
     }

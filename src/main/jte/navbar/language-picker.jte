@@ -5,7 +5,7 @@
 @param List<LanguageData> languages
 @param String type
 
-<div class="relative text-left text-md animate-fade w-16">
+<div class="relative text-left text-md w-16">
         <button
         type="button"
         class="flex font-bold w-full cursor-default gap-2 items-center rounded-md bg-accent pl-1 text-left text-primary px-6

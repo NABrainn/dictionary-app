@@ -10,6 +10,7 @@ class="flex items-center gap-8 align-center text-lg text-neutral ${size}">
     hx-target="#main"
     hx-push-url="true"
     class="
+
     md:text-lg md:inline
     hidden text-md cursor-pointer underline font-bold">${lessons}</a>
     <a

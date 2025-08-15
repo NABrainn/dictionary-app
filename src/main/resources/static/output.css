@@ -34,7 +34,7 @@
     --color-accent: #B2D8CE;
     --color-neutral: #B8CFCE;
     --color-error: #C03A3A;
-    --animate-fade: fadeIn .25s ease-in-out;
+    --animate-fade: fadeIn .1s ease-in-out;
   }
 }
 @layer base {
@@ -270,9 +270,6 @@
   .mt-1\.5 {
     margin-top: calc(var(--spacing) * 1.5);
   }
-  .mt-2 {
-    margin-top: calc(var(--spacing) * 2);
-  }
   .block {
     display: block;
   }
@@ -337,23 +334,14 @@
   .w-4\/5 {
     width: calc(4/5 * 100%);
   }
-  .w-8 {
-    width: calc(var(--spacing) * 8);
-  }
   .w-9\/10 {
     width: calc(9/10 * 100%);
   }
   .w-16 {
     width: calc(var(--spacing) * 16);
   }
-  .w-20 {
-    width: calc(var(--spacing) * 20);
-  }
   .w-full {
     width: 100%;
-  }
-  .max-w-20 {
-    max-width: calc(var(--spacing) * 20);
   }
   .max-w-35 {
     max-width: calc(var(--spacing) * 35);
@@ -376,17 +364,11 @@
   .basis-1\/5 {
     flex-basis: calc(1/5 * 100%);
   }
-  .basis-1\/10 {
-    flex-basis: calc(1/10 * 100%);
-  }
   .basis-2\/5 {
     flex-basis: calc(2/5 * 100%);
   }
   .basis-3\/10 {
     flex-basis: calc(3/10 * 100%);
-  }
-  .basis-4\/5 {
-    flex-basis: calc(4/5 * 100%);
   }
   .animate-fade {
     animation: var(--animate-fade);
@@ -724,6 +706,13 @@
     &:hover {
       @media (hover: hover) {
         color: var(--color-primary);
+      }
+    }
+  }
+  .hover\:text-tertiary {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-tertiary);
       }
     }
   }

@@ -9,7 +9,7 @@
     --color-neutral: #B8CFCE;
     --color-error: #C03A3A;
 
-    --animate-fade: fadeIn .25s ease-in-out;
+    --animate-fade: fadeIn .1s ease-in-out;
     @keyframes fadeIn {
         0% {
           opacity: 0;

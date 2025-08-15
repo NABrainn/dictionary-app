@@ -4,7 +4,7 @@
 @param String wordsLearnedText
 @param String daysSingularText
 @param String daysPluralText
-<div class="flex gap-4 animate-fade">
+<div class="flex gap-4">
     <span
     class="
     md:text-lg
