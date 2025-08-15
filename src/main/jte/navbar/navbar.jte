@@ -28,11 +28,15 @@
                 @template.navbar.panel-toggle-btn()
             @endif
             @template.navbar.settings(
-                text = navbarAttribute.logoutBtnText(),
                 size = authButtonsSize,
                 languages = navbarAttribute.languageDataList(),
                 userInterfaceLanguage = navbarAttribute.userInterfaceLanguage(),
-                translationLanguage = navbarAttribute.translationLanguage()
+                translationLanguage = navbarAttribute.translationLanguage(),
+                settingsText = navbarAttribute.settingsText(),
+                languageText = navbarAttribute.languageText(),
+                uiText = navbarAttribute.uiText(),
+                translationsText = navbarAttribute.translationsText(),
+                logoutText = navbarAttribute.logoutText()
             )
         @else
             @template.navbar.login-btn(

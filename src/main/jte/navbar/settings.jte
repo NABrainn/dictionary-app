@@ -1,7 +1,12 @@
 @import lule.dictionary.dto.application.LanguageData
 @import java.util.List
 
-@param String text
+@param String settingsText
+@param String languageText
+@param String uiText
+@param String translationsText
+@param String logoutText
+
 @param String size
 @param LanguageData userInterfaceLanguage
 @param LanguageData translationLanguage
@@ -14,15 +19,15 @@
         md:text-lg md:inline
         text-md hidden text-neutral cursor-pointer font-bold relative select-none"
         onclick="htmx.find('#settings').classList.toggle('hidden')">
-            Settings
+            ${settingsText}
         </a>
         <div class="absolute top-16 right-8 flex flex-col bg-tertiary rounded p-2 flex gap-4 hidden"
              id="settings">
             <div>
-                <p class="font-bold text-md text-primary">Language:</p>
+                <p class="font-bold text-md text-primary">${languageText}:</p>
                 <div class="flex flex-col gap-2 mt-1">
                     <div class="flex justify-between gap-2 text-neutral font-bold text-md">
-                        <span>User interface:</span>
+                        <span>${uiText}:</span>
                         <div>
                             @template.navbar.language-picker(
                                 selectedLanguage = userInterfaceLanguage,
@@ -32,7 +37,7 @@
                         </div>
                     </div>
                     <div class="flex justify-between gap-2 text-neutral font-bold text-md">
-                        <span>Translations:</span>
+                        <span>${translationsText}:</span>
                         <div>
                             @template.navbar.language-picker(
                                 selectedLanguage = translationLanguage,
@@ -51,7 +56,7 @@
             hx-target="#main"
             hx-swap="innerHTML"
             hx-push-url="/auth/login">
-                ${text}
+                ${logoutText}
             </a>
             <a
             class="

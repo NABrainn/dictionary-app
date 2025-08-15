@@ -18,10 +18,14 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
                               String wordsLearnedText,
                               String daysSingularText,
                               String daysPluralText,
-                              String logoutBtnText,
                               @NonNull String loginBtnText,
                               @NonNull String lessonsBtnText,
-                              @NonNull String vocabularyBtnText) {
+                              @NonNull String vocabularyBtnText,
+                              String settingsText,
+                              String languageText,
+                              String uiText,
+                              String translationsText,
+                              String logoutText) {
 
     @Override
     public List<LanguageData> languageDataList() {
@@ -39,6 +43,36 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
     public LanguageData userInterfaceLanguage() {
         if(userInterfaceLanguage == null) throw new NullPointerException("Illegal value access: user not authenticated");
         return userInterfaceLanguage;
+    }
+
+    @Override
+    public String settingsText() {
+        if(settingsText == null) throw new NullPointerException("Illegal value access: user not authenticated");
+        return settingsText;
+    }
+
+    @Override
+    public String languageText() {
+        if(languageText == null) throw new NullPointerException("Illegal value access: user not authenticated");
+        return languageText;
+    }
+
+    @Override
+    public String uiText() {
+        if(uiText == null) throw new NullPointerException("Illegal value access: user not authenticated");
+        return uiText;
+    }
+
+    @Override
+    public String translationsText() {
+        if(translationsText == null) throw new NullPointerException("Illegal value access: user not authenticated");
+        return translationsText;
+    }
+
+    @Override
+    public String logoutText() {
+        if(logoutText == null) throw new NullPointerException("Illegal value access: user not authenticated");
+        return logoutText;
     }
 
     @Override
@@ -65,9 +99,4 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
         return daysPluralText;
     }
 
-    @Override
-    public String logoutBtnText() {
-        if(logoutBtnText == null) throw new NullPointerException("Illegal value access: user not authenticated");
-        return logoutBtnText;
-    }
 }

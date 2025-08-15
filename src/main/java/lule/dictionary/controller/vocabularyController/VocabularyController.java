@@ -3,10 +3,12 @@ package lule.dictionary.controller.vocabularyController;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.controller.vocabularyController.dto.BaseFlashcardAttribute;
+import lule.dictionary.controller.vocabularyController.dto.FlashcardConfigLocalizationAttribute;
 import lule.dictionary.controller.vocabularyController.dto.GetRandomTranslationsRequest;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.translation.TranslationService;
 import org.springframework.security.core.Authentication;
@@ -25,9 +27,19 @@ public class VocabularyController {
 
     private final TranslationService translationService;
     private final SessionHelper sessionHelper;
+    private final LocalizationService localizationService;
 
     @GetMapping({"", "/"})
-    public String vocabularyPage() {
+    public String vocabularyPage(Model model,
+                                 Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
+                .familiarityText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("familiarity"))
+                .howManyText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("how_many"))
+                .phrasesText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("phrases"))
+                .wordsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("words"))
+                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("review_translations"))
+                .build());
         return "vocabulary-page/base-page";
     }
 
@@ -35,10 +47,19 @@ public class VocabularyController {
     public String configForm(@RequestParam(name = "familiarity", required = false, defaultValue = "0") int familiarity,
                              @RequestParam(name = "quantity", required = false, defaultValue = "10") int quantity,
                              @RequestParam(name = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
-                             Model model) {
+                             Model model,
+                             Authentication authentication) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         model.addAttribute("familiarity", familiarity);
         model.addAttribute("quantity", quantity);
         model.addAttribute("isPhrase", isPhrase);
+        model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
+                .familiarityText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("familiarity"))
+                .howManyText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("how_many"))
+                .phrasesText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("phrases"))
+                .wordsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("words"))
+                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("review_translations"))
+                .build());
         return "vocabulary-page/flashcard/flashcard-config";
     }
 
@@ -68,6 +89,13 @@ public class VocabularyController {
         model.addAttribute("quantity", quantity);
         model.addAttribute("isPhrase", isPhrase);
         model.addAttribute("messages", attribute.messages());
+        model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
+                .familiarityText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("familiarity"))
+                .howManyText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("how_many"))
+                .phrasesText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("phrases"))
+                .wordsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("words"))
+                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.sourceLanguage()).get("review_translations"))
+                .build());
         return "vocabulary-page/flashcard/flashcard-config";
     }
 
