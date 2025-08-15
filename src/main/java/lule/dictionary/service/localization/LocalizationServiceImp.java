@@ -68,6 +68,29 @@ public class LocalizationServiceImp implements LocalizationService {
         };
     }
 
+    @Override
+    public Map<String, String> flashcardConfigLocalization(Language language) {
+        List<String> keys = List.of("review_translations", "familiarity", "how_many", "phrases", "words");
+        return switch (language) {
+            case NO -> constructMap(keys, List.of("Se gjennom oversettelser", "Kjennskap", "Hvor mange", "Fraser", "Ord"));
+            case IT -> constructMap(keys, List.of("Rivedi traduzioni", "Familiarità", "Quanti", "Frasi", "Parole"));
+            case PL -> constructMap(keys, List.of("Przejrzyj tłumaczenia", "Znajomość", "Ile", "Frazy", "Słowa"));
+            default -> constructMap(keys, List.of("Review translations", "Familiarity", "How many", "Phrases", "Words"));
+        };
+    }
+
+    @Override
+    public Map<String, String> settingsLocalization(Language language) {
+        List<String> keys = List.of("settings", "language", "user_interface", "translations", "log_out");
+        return switch (language) {
+            case NO -> constructMap(keys, List.of("Innstillinger", "Språk", "Brukergrensesnitt", "Oversettelser", "Logg av"));
+            case IT -> constructMap(keys, List.of("Impostazioni", "Lingua", "Interfaccia utente", "Traduzioni", "Disconnettersi"));
+            case PL -> constructMap(keys, List.of("Ustawienia", "Język", "Interfejs użytkownika", "Tłumaczenia", "Wyloguj się"));
+            default -> constructMap(keys, List.of("Settings", "Language", "User interface", "Translations", "Log out"));
+        };
+    }
+
+
     private Map<String, String> constructMap(List<String> keys, List<String> values) {
         if (keys.size() != values.size()) {
             throw new IllegalArgumentException("Lists must have equal length: size of keys: " + keys.size() + "; size of values: " + values.size());

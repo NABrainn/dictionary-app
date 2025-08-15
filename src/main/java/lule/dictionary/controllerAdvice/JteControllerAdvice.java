@@ -83,7 +83,6 @@ public class JteControllerAdvice {
                     .wordsLearnedText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("words"))
                     .daysSingularText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("days_singular"))
                     .daysPluralText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("days_plural"))
-                    .logoutBtnText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("log_out"))
                     .loginBtnText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("log_in"))
                     .lessonsBtnText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("lessons"))
                     .vocabularyBtnText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("vocabulary"))
@@ -108,6 +107,12 @@ public class JteControllerAdvice {
                             .imgPath(languageHelper.getImagePath(principal.userInterfaceLanguage()))
                             .build())
                     .isProfileOpen(sessionHelper.getOrFalse(httpSession, "isProfileOpen"))
+                    .settingsText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("settings"))
+                    .languageText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("language"))
+                    .uiText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("user_interface"))
+                    .translationsText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("translations"))
+                    .logoutText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("log_out"))
+
                     .build());
             return;
         }

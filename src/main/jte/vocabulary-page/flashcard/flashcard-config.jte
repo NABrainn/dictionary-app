@@ -1,15 +1,18 @@
+@import lule.dictionary.controller.vocabularyController.dto.FlashcardConfigLocalizationAttribute
+
 @param int familiarity = 0
 @param int quantity = 10
 @param boolean isPhrase = false
 @param java.util.Map<String, String> messages = java.util.Map.of()
+@param FlashcardConfigLocalizationAttribute flashcardConfigLocalizationAttribute
 
 <div
 id="flashcard-config-form"
 class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-between p-6">
     <div class="flex flex-col gap-10">
-        <p class="font-bold text-3xl text-primary">Review translations</p>
+        <p class="font-bold text-3xl text-primary">${flashcardConfigLocalizationAttribute.reviewTranslationsText()}</p>
         <div class="flex flex-col gap-4">
-            <span class="font-bold text-xl text-secondary">Familiarity</span>
+            <span class="font-bold text-xl text-secondary">${flashcardConfigLocalizationAttribute.familiarityText()}</span>
             <div class="flex gap-8 select-none">
                 @for(int i = 1; i <= 5; i++)
                     @if(familiarity == i)
@@ -46,7 +49,7 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
             </div>
         </div>
         <div class="flex flex-col gap-4">
-            <span class="font-bold text-xl text-secondary">How many?</span>
+            <span class="font-bold text-xl text-secondary">${flashcardConfigLocalizationAttribute.howManyText()}?</span>
             <div class="flex gap-8 select-none">
                 @if(quantity == 10)
                     <div
@@ -98,7 +101,7 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
         <div class="flex gap-8 select-none">
             @if(isPhrase)
                 <div
-                class="basis-1/2 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">Phrases</div>
+                class="basis-1/2 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${flashcardConfigLocalizationAttribute.phrasesText()}</div>
                 <div
                 class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
                 hx-get="/vocabulary/config-form/"
@@ -108,7 +111,7 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                     "familiarity": "${familiarity}",
                     "quantity": "${quantity}",
                     "isPhrase": "false"
-                }'>Words</div>
+                }'>${flashcardConfigLocalizationAttribute.wordsText()}</div>
             @else
                 <div
                 class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
@@ -119,9 +122,9 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                     "familiarity": "${familiarity}",
                     "quantity": "${quantity}",
                     "isPhrase": "true"
-                }'>Phrases</div>
+                }'>${flashcardConfigLocalizationAttribute.phrasesText()}</div>
                 <div
-                class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">Words</div>
+                class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${flashcardConfigLocalizationAttribute.wordsText()}</div>
             @endif
         </div>
     </div>

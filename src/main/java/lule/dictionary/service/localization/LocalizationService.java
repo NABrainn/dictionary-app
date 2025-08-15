@@ -10,6 +10,6 @@ public interface LocalizationService {
     Map<String, String> authLocalization (Language language);
     Map<String, String> documentFormLocalization(Language language);
     Map<String, String> translationFormLocalization(Language language);
-
-
+    Map<String, String> flashcardConfigLocalization(Language language);
+    Map<String, String> settingsLocalization(Language language);
 }
