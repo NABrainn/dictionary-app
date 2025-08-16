@@ -1,5 +1,6 @@
 package lule.dictionary.controller.document;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
 import lule.dictionary.service.localization.LocalizationService;
+import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,7 @@ public class ImportControllerImp implements ImportController {
 
     private final ImportServiceImp importService;
     private final LocalizationService localizationService;
+    private final SessionHelper sessionHelper;
 
 
     @GetMapping({"", "/"})
@@ -53,10 +56,12 @@ public class ImportControllerImp implements ImportController {
     public String importPage(@PathVariable("documentId") int importId,
                              @RequestParam(name = "page", defaultValue = "1") int page,
                              Model model,
-                             Authentication authentication) {
+                             Authentication authentication,
+                             HttpSession session) {
         try {
             DocumentAttribute documentAttribute = loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
             model.addAttribute("documentAttribute", documentAttribute);
+            model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
             return "document-page/base-page";
 
         }

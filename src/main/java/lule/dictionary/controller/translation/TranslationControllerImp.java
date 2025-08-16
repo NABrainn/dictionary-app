@@ -61,7 +61,7 @@ public class TranslationControllerImp {
                     .isPhrase(isPhrase)
                     .familiarityLevels(getFamiliarityTable())
                     .build());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/add/add-translation-form";
         }
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();

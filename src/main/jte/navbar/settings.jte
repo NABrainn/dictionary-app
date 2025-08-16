@@ -17,8 +17,10 @@
         <a
         class="
         md:text-lg md:inline
-        text-md hidden text-neutral cursor-pointer font-bold relative select-none"
-        onclick="htmx.find('#settings').classList.toggle('hidden')">
+        text-md hidden text-neutral cursor-pointer font-bold relative select-none underline"
+        onclick="
+        htmx.find('#settings').classList.toggle('hidden');
+        htmx.findAll('.dropdown-menu').forEach(dropdown => dropdown.classList.add('hidden'))">
             ${settingsText}
         </a>
         <div class="absolute top-16 right-8 flex flex-col bg-tertiary rounded p-2 flex gap-4 hidden"

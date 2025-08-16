@@ -112,7 +112,6 @@ public class JteControllerAdvice {
                     .uiText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("user_interface"))
                     .translationsText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("translations"))
                     .logoutText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("log_out"))
-
                     .build());
             return;
         }

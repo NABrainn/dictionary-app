@@ -34,7 +34,6 @@
     --color-accent: #B2D8CE;
     --color-neutral: #B8CFCE;
     --color-error: #C03A3A;
-    --animate-fade: fadeIn .1s ease-in-out;
   }
 }
 @layer base {
@@ -369,9 +368,6 @@
   }
   .basis-3\/10 {
     flex-basis: calc(3/10 * 100%);
-  }
-  .animate-fade {
-    animation: var(--animate-fade);
   }
   .animate-spin {
     animation: var(--animate-spin);
@@ -709,13 +705,6 @@
       }
     }
   }
-  .hover\:text-tertiary {
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-tertiary);
-      }
-    }
-  }
   .focus\:border-accent {
     &:focus {
       border-color: var(--color-accent);
@@ -823,14 +812,6 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
-  }
-}
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
   }
 }
 @layer properties {
