@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class ErrorMapFactory {
+public class ErrorFactory {
 
     public static Map<String, String> fromViolations(Set<? extends ConstraintViolation<?>> violations) {
         return toSortedErrorMap(violations);

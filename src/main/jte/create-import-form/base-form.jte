@@ -12,8 +12,7 @@
 @template.layout.base(content = @`
     @template.navbar.navbar(
         navbarAttribute = navbarAttribute,
-        isAuthenticated = baseAttribute.isAuthenticated()
-    )
+        isAuthenticated = baseAttribute.isAuthenticated())
     <form
     class="md:w-3/5
     w-9/10 flex flex-col gap-6 bg-tertiary mx-auto p-6 rounded"
@@ -24,12 +23,14 @@
         <input type="hidden" name="${baseAttribute._csrf().getParameterName()}" value="${baseAttribute._csrf().getToken()}">
         <div class="flex flex-col gap-2">
             <label class="text-accent font-bold text-2xl min-h-8" for="title">${documentFormAttribute.titleText()}</label>
-            <input
+            <textarea
+            maxlength="250"
             class="
-            outline-none border border-2 border-primary rounded text-neutral
+            outline-none overflow-none resize-none border border-2 border-primary rounded text-neutral h-16 leading-8
             focus:border-accent"
+            rows="2"
             name="title"
-            id="title">
+            id="title"></textarea>
             @if(result != null)
                 @if(result.hasError() && result.messages().get("title") != null)
                     <span class="text-error font-semibold text-sm">${result.messages().get("title")}</span>

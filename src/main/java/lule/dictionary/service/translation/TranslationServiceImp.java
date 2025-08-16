@@ -21,7 +21,7 @@ import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import lule.dictionary.service.translationFetching.TranslationFetchingService;
 import lule.dictionary.service.validation.ValidationService;
-import lule.dictionary.util.errors.ErrorMapFactory;
+import lule.dictionary.util.errors.ErrorFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +73,7 @@ public class TranslationServiceImp implements TranslationService {
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
                     .build();
-            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorFactory.fromViolations(e.getConstraintViolations())));
         }
     }
 
@@ -120,7 +120,7 @@ public class TranslationServiceImp implements TranslationService {
                     .build();
             return ServiceResultImp.success(translationAttribute);
         } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(ServiceResultImp.error(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+            throw new InvalidInputException(ServiceResultImp.error(ErrorFactory.fromViolations(e.getConstraintViolations())));
         }
     }
 
@@ -182,7 +182,7 @@ public class TranslationServiceImp implements TranslationService {
                     .familiarityLevels(getFamiliarityTable())
                     .isPhrase(request.isPhrase())
                     .build();
-            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorFactory.fromViolations(e.getConstraintViolations())));
         }
     }
 
@@ -205,7 +205,7 @@ public class TranslationServiceImp implements TranslationService {
             }
             throw new RuntimeException("Unknown exception");
         } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(ServiceResultImp.error(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+            throw new InvalidInputException(ServiceResultImp.error(ErrorFactory.fromViolations(e.getConstraintViolations())));
         }
     }
 

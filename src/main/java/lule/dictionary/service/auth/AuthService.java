@@ -21,7 +21,7 @@ import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.service.validation.ValidationService;
-import lule.dictionary.util.errors.ErrorMapFactory;
+import lule.dictionary.util.errors.ErrorFactory;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -55,7 +55,7 @@ public class AuthService {
 
         catch (ConstraintViolationException e) {
             log.warn("ConstraintViolationException: {}", e.getMessage());
-            return handleException(ErrorMapFactory.fromViolations(e.getConstraintViolations()));
+            return handleException(ErrorFactory.fromViolations(e.getConstraintViolations()));
         }
 
         catch (UserNotFoundException e) {
@@ -78,7 +78,7 @@ public class AuthService {
 
         catch (ConstraintViolationException e) {
             log.info(e.getMessage());
-            return handleException(ErrorMapFactory.fromViolations(e.getConstraintViolations()));
+            return handleException(ErrorFactory.fromViolations(e.getConstraintViolations()));
         }
 
         catch (UserExistsException e) {

@@ -27,6 +27,7 @@ import lule.dictionary.service.translation.dto.request.FindTranslationsByImportR
 import lule.dictionary.service.userProfile.UserProfileService;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.service.validation.ValidationService;
+import lule.dictionary.util.errors.ErrorFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.InvalidUrlException;
@@ -58,7 +59,7 @@ public class ImportServiceImp implements ImportService {
             int importId = saveImport(request, userProfile);
             return ServiceResultImp.success(importId);
         } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(e.getMessage(), ServiceResultImp.error(Map.of()));
+            throw new InvalidInputException(e.getMessage(), ServiceResultImp.error(ErrorFactory.fromViolations(e.getConstraintViolations())));
         }
     }
 
