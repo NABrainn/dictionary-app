@@ -11,6 +11,8 @@ import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
+import lule.dictionary.service.jsoup.exception.InvalidUriException;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
@@ -82,8 +84,9 @@ public class ImportControllerImp implements ImportController {
                                Model model,
                                Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        Language language = principal.userInterfaceLanguage();
         try {
-            ServiceResult<Integer> result = importService.createImport(CreateImportRequest.of(title, content, url, extractUsername(authentication)));
+            ServiceResult<Integer> result = importService.createImport(CreateDocumentRequest.of(title, content, url, extractUsername(authentication)));
             model.addAttribute("result", result);
             return "redirect:/imports/" + result.value() + "?page=1";
         } catch (UserNotFoundException e) {
@@ -94,13 +97,26 @@ public class ImportControllerImp implements ImportController {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
             model.addAttribute("result", e.getResult());
             model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
-                    .titleText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("title"))
-                    .contentText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("content"))
-                    .importByUrlBtnText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("import_by_url"))
-                    .insertManuallyBtnText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("insert_manually"))
-                    .submitBtnText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("submit"))
-                    .spaceForUrlText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("space_for_url"))
-                    .spaceForContentText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("space_for_content"))
+                    .titleText(localizationService.documentFormLocalization(language).get("title"))
+                    .contentText(localizationService.documentFormLocalization(language).get("content"))
+                    .importByUrlBtnText(localizationService.documentFormLocalization(language).get("import_by_url"))
+                    .insertManuallyBtnText(localizationService.documentFormLocalization(language).get("insert_manually"))
+                    .submitBtnText(localizationService.documentFormLocalization(language).get("submit"))
+                    .spaceForUrlText(localizationService.documentFormLocalization(language).get("space_for_url"))
+                    .spaceForContentText(localizationService.documentFormLocalization(language).get("space_for_content"))
+                    .build());
+            return "create-import-form/base-form";
+        } catch (InvalidUriException e) {
+            log.warn("Retrying view due to url issue: {}", e.getMessage());
+            model.addAttribute("result", e.getResult());
+            model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
+                    .titleText(localizationService.documentFormLocalization(language).get("title"))
+                    .contentText(localizationService.documentFormLocalization(language).get("content"))
+                    .importByUrlBtnText(localizationService.documentFormLocalization(language).get("import_by_url"))
+                    .insertManuallyBtnText(localizationService.documentFormLocalization(language).get("insert_manually"))
+                    .submitBtnText(localizationService.documentFormLocalization(language).get("submit"))
+                    .spaceForUrlText(localizationService.documentFormLocalization(language).get("space_for_url"))
+                    .spaceForContentText(localizationService.documentFormLocalization(language).get("space_for_content"))
                     .build());
             return "create-import-form/base-form";
         }

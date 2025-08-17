@@ -26,8 +26,8 @@ import lule.dictionary.service.translation.TranslationService;
 import lule.dictionary.service.translation.dto.request.FindTranslationsByImportRequest;
 import lule.dictionary.service.userProfile.UserProfileService;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
+import lule.dictionary.service.validation.ValidationServiceException;
 import lule.dictionary.service.validation.ValidationService;
-import lule.dictionary.util.errors.ErrorFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.InvalidUrlException;
@@ -52,14 +52,14 @@ public class ImportServiceImp implements ImportService {
     private final TranslationService translationService;
 
     @Transactional
-    public ServiceResult<Integer> createImport(CreateImportRequest request) throws ConstraintViolationException, UserNotFoundException{
+    public ServiceResult<Integer> createImport(CreateDocumentRequest request) throws ConstraintViolationException {
         try {
             UserProfile userProfile = getUserProfile(request);
             validate(request);
             int importId = saveImport(request, userProfile);
             return ServiceResultImp.success(importId);
-        } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(e.getMessage(), ServiceResultImp.error(ErrorFactory.fromViolations(e.getConstraintViolations())));
+        } catch (ValidationServiceException e) {
+            throw new InvalidInputException(e.getMessage(), ServiceResultImp.error(e.getErrorMessages()));
         }
     }
 
@@ -90,17 +90,17 @@ public class ImportServiceImp implements ImportService {
     private List<ImportWithTranslationData> getImportByUsernameAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
         return importRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
     }
-    private UserProfile getUserProfile(CreateImportRequest addImportRequest) throws UserNotFoundException {
+    private UserProfile getUserProfile(CreateDocumentRequest addImportRequest) throws UserNotFoundException {
         return userProfileService.getUserProfile(addImportRequest.owner());
     }
 
-    private int saveImport(CreateImportRequest request, UserProfile userProfile) {
+    private int saveImport(CreateDocumentRequest request, UserProfile userProfile) {
         if(!request.content().isEmpty())
             return insertIntoDatabase(InsertIntoDatabaseRequest.of(request, request.content(), userProfile));
         return insertIntoDatabase(InsertIntoDatabaseRequest.of(request, getDocumentContent(request.url()), userProfile));
     }
 
-    private void validate(CreateImportRequest createRequest) throws ConstraintViolationException {
+    private void validate(CreateDocumentRequest createRequest) throws ConstraintViolationException {
         validationService.validate(createRequest);
     }
 

@@ -20,8 +20,8 @@ import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
+import lule.dictionary.service.validation.ValidationServiceException;
 import lule.dictionary.service.validation.ValidationService;
-import lule.dictionary.util.errors.ErrorFactory;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -53,9 +53,9 @@ public class AuthService {
             return processLoginRequest(loginData, response, httpSession);
         }
 
-        catch (ConstraintViolationException e) {
+        catch (ValidationServiceException e) {
             log.warn("ConstraintViolationException: {}", e.getMessage());
-            return handleException(ErrorFactory.fromViolations(e.getConstraintViolations()));
+            return handleException(e.getErrorMessages());
         }
 
         catch (UserNotFoundException e) {
@@ -76,9 +76,9 @@ public class AuthService {
             return processSignupRequest(signupRequest);
         }
 
-        catch (ConstraintViolationException e) {
+        catch (ValidationServiceException e) {
             log.info(e.getMessage());
-            return handleException(ErrorFactory.fromViolations(e.getConstraintViolations()));
+            return handleException(e.getErrorMessages());
         }
 
         catch (UserExistsException e) {
@@ -93,7 +93,7 @@ public class AuthService {
         return ServiceResultImp.success(Map.of());
     }
 
-    private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response, HttpSession httpSession) throws ConstraintViolationException, UserNotFoundException {
+    private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response, HttpSession httpSession) throws ValidationServiceException, UserNotFoundException {
         validate(loginData);
         AuthenticationData authResult = authenticateUser(loginData);
         setAuthenticationContext(SessionContext.of(authResult, response, httpSession));
@@ -133,7 +133,7 @@ public class AuthService {
         userProfileService.updateTimezoneOffset(owner, offset);
     }
 
-    private void validate(AuthRequest authRequest) throws ConstraintViolationException {
+    private void validate(AuthRequest authRequest) throws ValidationServiceException {
         validationService.validate(authRequest);
     }
 

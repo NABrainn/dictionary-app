@@ -20,8 +20,8 @@ import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import lule.dictionary.service.translationFetching.TranslationFetchingService;
+import lule.dictionary.service.validation.ValidationServiceException;
 import lule.dictionary.service.validation.ValidationService;
-import lule.dictionary.util.errors.ErrorFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +63,7 @@ public class TranslationServiceImp implements TranslationService {
                     .isPhrase(request.isPhrase())
                     .build();
             return ServiceResultImp.success(translationAttribute);
-        } catch (ConstraintViolationException e) {
+        } catch (ValidationServiceException e) {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translation(null)
@@ -73,7 +73,7 @@ public class TranslationServiceImp implements TranslationService {
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
                     .build();
-            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorFactory.fromViolations(e.getConstraintViolations())));
+            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, e.getErrorMessages()));
         }
     }
 
@@ -119,8 +119,8 @@ public class TranslationServiceImp implements TranslationService {
                     .isPhrase(request.isPhrase())
                     .build();
             return ServiceResultImp.success(translationAttribute);
-        } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(ServiceResultImp.error(ErrorFactory.fromViolations(e.getConstraintViolations())));
+        } catch (ValidationServiceException e) {
+            throw new InvalidInputException(ServiceResultImp.error(e.getErrorMessages()));
         }
     }
 
@@ -158,7 +158,7 @@ public class TranslationServiceImp implements TranslationService {
                 return ServiceResultImp.success(translationAttribute);
             }
             throw new RuntimeException("Unknown exception");
-        } catch (ConstraintViolationException e) {
+        } catch (ValidationServiceException e) {
             Translation translation = TranslationImp.builder()
                     .sourceWords(request.sourceWords()
                             .stream()
@@ -182,7 +182,7 @@ public class TranslationServiceImp implements TranslationService {
                     .familiarityLevels(getFamiliarityTable())
                     .isPhrase(request.isPhrase())
                     .build();
-            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorFactory.fromViolations(e.getConstraintViolations())));
+            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, e.getErrorMessages()));
         }
     }
 
@@ -204,8 +204,8 @@ public class TranslationServiceImp implements TranslationService {
                 return ServiceResultImp.success(translationAttribute);
             }
             throw new RuntimeException("Unknown exception");
-        } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(ServiceResultImp.error(ErrorFactory.fromViolations(e.getConstraintViolations())));
+        } catch (ValidationServiceException e) {
+            throw new InvalidInputException(ServiceResultImp.error(e.getErrorMessages()));
         }
     }
 
@@ -220,9 +220,7 @@ public class TranslationServiceImp implements TranslationService {
         Pattern newLinePattern = Pattern.compile("\n+");
         Pattern nonLetterNonNumberPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");
         List<String> wordList = getContentAsWordList(request.anImport().pageContent(), Map.of("newLine", newLinePattern, "nonLetterNonNumber", nonLetterNonNumberPattern));
-        System.out.println("searching db for: " + wordList);
         Map<String, Translation> translations = extractTranslationsFromDatabase(wordList, request.owner());
-        System.out.println("db has: " + translations.values().stream().map(TranslationDetails::targetWord).toList());
         return ServiceResultImp.success(translations);
     }
 

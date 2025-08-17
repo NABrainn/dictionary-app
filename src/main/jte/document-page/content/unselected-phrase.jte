@@ -9,7 +9,8 @@
 @param int selectableId
 @param int documentId
 
-!{var familiarityEnums = familiarities.stream().map(familiarity -> switch (familiarity) {
+!{var familiarityEnums = familiarities.stream()
+    .map(familiarity -> switch (familiarity) {
         case "recognized" -> Familiarity.RECOGNIZED;
         case "familiar" -> Familiarity.FAMILIAR;
         case "known" -> Familiarity.KNOWN;
