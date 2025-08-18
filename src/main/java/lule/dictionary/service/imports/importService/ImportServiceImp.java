@@ -24,6 +24,7 @@ import lule.dictionary.service.translation.dto.request.FindTranslationsByImportR
 import lule.dictionary.service.userProfile.UserProfileService;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.service.validation.ValidationService;
+import lule.dictionary.service.validation.ValidationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.InvalidUrlException;
@@ -90,7 +91,7 @@ public class ImportServiceImp implements ImportService {
         return insertIntoDatabase(InsertIntoDatabaseRequest.of(request, getDocumentContent(request.url()), userProfile));
     }
 
-    private void validate(CreateDocumentRequest createRequest) throws ConstraintViolationException {
+    private void validate(CreateDocumentRequest createRequest) throws ValidationServiceException {
         validationService.validate(createRequest);
     }
 

@@ -11,6 +11,7 @@ import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
 import lule.dictionary.service.jsoup.exception.InvalidUriException;
 import lule.dictionary.service.language.Language;
+import lule.dictionary.service.localization.ErrorLocalization;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
@@ -30,6 +31,7 @@ public class ImportControllerImp implements ImportController {
     private final ImportServiceImp importService;
     private final LocalizationService localizationService;
     private final SessionHelper sessionHelper;
+    private final ErrorLocalization errorLocalization;
 
 
     @GetMapping({"", "/"})
@@ -93,7 +95,7 @@ public class ImportControllerImp implements ImportController {
 
         } catch (ValidationServiceException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
-            model.addAttribute("result", e.getViolation());
+            model.addAttribute("messages", errorLocalization.getMessageByViolation(e.getViolation(), principal.userInterfaceLanguage()));
             model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
                     .titleText(localizationService.documentFormLocalization(language).get("title"))
                     .contentText(localizationService.documentFormLocalization(language).get("content"))
@@ -106,6 +108,7 @@ public class ImportControllerImp implements ImportController {
             return "create-import-form/base-form";
         } catch (InvalidUriException e) {
             log.warn("Retrying view due to url issue: {}", e.getMessage());
+            model.addAttribute("messages", errorLocalization.getMessageByException(e.getClass(), principal.userInterfaceLanguage()));
             model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
                     .titleText(localizationService.documentFormLocalization(language).get("title"))
                     .contentText(localizationService.documentFormLocalization(language).get("content"))

@@ -6,15 +6,12 @@ import lule.dictionary.service.auth.dto.request.AuthRequest;
 
 public record SignupRequest(
         @NotBlank(message = "Login cannot be empty")
-        @Pattern(
-                regexp = "^[a-zA-Z]{8,50}$",
-                message = "Login must contain only letters (A–Z, a–z)"
-        )
+        @Pattern(regexp = "^[a-zA-Z]{8,50}$", message = "Login must contain only letters (A–Z, a–z)")
         String login,
 
         @NotBlank(message = "Email cannot be empty")
-        @Size(min = 8, max = 100, message = "Email must be between 8 and 50 characters")
-        @Email
+        @Size(min = 8, max = 100, message = "Email must be between 8 and 150 characters")
+        @Email(message = "Field must be a valid email")
         String email,
 
         @NotBlank(message = "Password cannot be empty")

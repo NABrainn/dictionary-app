@@ -5,7 +5,7 @@
 @param BaseAttribute baseAttribute
 @param Map<String, String> authLocalization
 @param NavbarAttribute navbarAttribute
-
+@param Map<String, String> messages
 
 @template.layout.base(authView = @`
     @template.navbar.navbar(
@@ -30,7 +30,12 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="text" name="login" id="login">
-            <%--ERROR MESSAGES--%>
+            @if(messages != null)
+                !{String login = messages.get("login");}
+                @if(login != null)
+                    <span class="font-bold text-error">${login}</span>
+                @endif
+            @endif
         </div>
         <div class="flex flex-col">
             <label class="text-accent" for="password">${authLocalization.get("password")}</label>
@@ -39,7 +44,12 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="password" name="password" id="password">
-            <%--ERROR MESSAGES--%>
+            @if(messages != null)
+                !{String password = messages.get("password");}
+                @if(password != null)
+                    <span class="font-bold text-error">${password}</span>
+                @endif
+            @endif
         </div>
         <div class="flex gap-4 items-center justify-between">
             <button

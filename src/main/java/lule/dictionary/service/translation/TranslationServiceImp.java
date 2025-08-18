@@ -14,7 +14,7 @@ import lule.dictionary.dto.application.request.ServiceRequest;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
-import lule.dictionary.service.localization.ErrorLocalization;
+import lule.dictionary.service.localization.ErrorLocalizationImp;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.exception.TranslationContraintViolationException;
@@ -38,7 +38,7 @@ public class TranslationServiceImp implements TranslationService {
     private final TranslationRepository translationRepository;
     private final TranslationFetchingService translationFetchingService;
     private final ValidationService validationService;
-    private final ErrorLocalization errorLocalization;
+    private final ErrorLocalizationImp errorLocalization;
 
     @Transactional
     public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {

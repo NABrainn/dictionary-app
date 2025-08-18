@@ -2,7 +2,7 @@ package lule.dictionary.util.errors;
 
 import jakarta.validation.ConstraintViolation;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.service.localization.ErrorLocalization;
+import lule.dictionary.service.localization.ErrorLocalizationImp;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ErrorFactory {
 
-    private final ErrorLocalization errorLocalization;
+    private final ErrorLocalizationImp errorLocalization;
 
     public Map<String, String> fromViolation(ConstraintViolation<?> violation) {
 

@@ -11,7 +11,7 @@ public record CreateDocumentRequest(@NotBlank()
                                     @Size(min = 10, max = 200)
                                     String title,
 
-                                    @NonNull
+                                    @NotNull()
                                     @Size(max = 1000000)
                                     String content,
 

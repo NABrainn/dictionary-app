@@ -1,10 +1,12 @@
 @import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.dto.application.attribute.DocumentFormAttribute
 @import lule.dictionary.dto.application.attribute.NavbarAttribute
+@import java.util.Map
 
 @param DocumentFormAttribute documentFormAttribute
 @param NavbarAttribute navbarAttribute
 @param BaseAttribute baseAttribute
+@param Map<String, String> messages
 
 
 @template.layout.base(content = @`
@@ -29,7 +31,19 @@
             rows="2"
             name="title"
             id="title"></textarea>
-            <%--ERROR MESSAGES--%>
+            @if(messages != null)
+                !{String titleError = messages.get("title");}
+                !{String urlError = messages.getOrDefault("url", "");}
+                !{String contentError = messages.getOrDefault("content", "");}
+                @if(titleError != null)
+                    <span class="font-bold text-error">${titleError}</span>
+                @elseif(!urlError.isBlank() && contentError.isBlank())
+                    <span class="font-bold text-error">${urlError}</span>
+                @else
+                    <span class="font-bold text-error">${contentError}</span>
+
+                @endif
+            @endif
         </div>
         <div class="flex flex-col gap-4">
             <span class="text-accent font-bold text-2xl">${documentFormAttribute.contentText()}</span>

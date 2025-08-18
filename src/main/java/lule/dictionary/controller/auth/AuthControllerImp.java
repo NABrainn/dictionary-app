@@ -9,6 +9,7 @@ import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.AuthService;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.service.language.Language;
+import lule.dictionary.service.localization.ErrorLocalizationImp;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
@@ -24,9 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Map;
-
-
 @Controller
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -35,6 +33,7 @@ public class AuthControllerImp implements AuthController {
 
     private final AuthService authService;
     private final LocalizationService localizationService;
+    private final ErrorLocalizationImp errorLocalization;
     private final SessionHelper sessionHelper;
 
     @GetMapping({"/login", "/login/"})
@@ -67,8 +66,9 @@ public class AuthControllerImp implements AuthController {
         }
         catch (ValidationServiceException e) {
             Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-            log.warn("ValidationServiceException: {}", e.getMessage());
-            log.warn("login authentication failure, resending page");
+            var messages = errorLocalization.getMessageByViolation(e.getViolation(), sourceLanguage);
+            log.warn("Login authentication failure, resending page: {}", e.getViolation());
+            model.addAttribute("messages", errorLocalization.getMessageByViolation(e.getViolation(), sourceLanguage));
             model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
             return "auth/login";
         }
@@ -114,6 +114,7 @@ public class AuthControllerImp implements AuthController {
         catch (ValidationServiceException e) {
             Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
             log.info(e.getMessage());
+            model.addAttribute("messages", errorLocalization.getMessageByViolation(e.getViolation(), sourceLanguage));
             model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
             return "auth/signup";
         }

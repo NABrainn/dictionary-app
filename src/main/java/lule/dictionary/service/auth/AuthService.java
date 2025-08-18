@@ -17,7 +17,6 @@ import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationData;
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
-import lule.dictionary.service.validation.ValidationServiceException;
 import lule.dictionary.service.validation.ValidationService;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
@@ -44,25 +43,25 @@ public class AuthService {
     public void login(@NonNull LoginRequest loginData,
                       @NonNull HttpServletResponse response,
                       @NonNull HttpSession httpSession) {
-        validate(loginData);
+        validationService.validate(loginData);
         AuthenticationData authResult = authenticateUser(loginData);
         setAuthenticationContext(SessionContext.of(authResult, response, httpSession));
     }
 
     @Transactional
     public void signup(@NonNull SignupRequest request) {
-        validate(request);
-        checkIfUserExists(request);
-        addUser(request);
+        validationService.validate(request);
+        userProfileService.findByUsernameOrEmail(request.login(), request.email())
+                .ifPresentOrElse(
+                        user -> {
+                            throw new UserExistsException("User with given username or email already exists");
+                        },
+                        () -> userProfileService.addUserProfile(request)
+                );
     }
-
     public void logout(@NonNull HttpServletResponse httpServletResponse) {
         clearAuthentication();
         deleteJwtCookie(httpServletResponse);
-    }
-
-    private void addUser(SignupRequest signupData) {
-        userProfileService.addUserProfile(signupData);
     }
 
 
@@ -81,10 +80,6 @@ public class AuthService {
 
     private void updateTimezoneOffset(String owner, String offset) {
         userProfileService.updateTimezoneOffset(owner, offset);
-    }
-
-    private void validate(AuthRequest authRequest) throws ValidationServiceException {
-        validationService.validate(authRequest);
     }
 
     private void clearAuthentication() {
@@ -126,11 +121,6 @@ public class AuthService {
 
     private Authentication authenticate(UserProfile userProfile) {
         return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.username(), userProfile.password()));
-    }
-
-    private void checkIfUserExists(SignupRequest signupRequest) throws UserNotFoundException {
-        if (userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email()).isPresent())
-            throw new UserExistsException("User with given username already exists");
     }
 
     private UserProfile getUserProfile(AuthRequest loginRequest) throws UserNotFoundException {
