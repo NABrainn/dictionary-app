@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.exception.application.InvalidInputException;
-import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;

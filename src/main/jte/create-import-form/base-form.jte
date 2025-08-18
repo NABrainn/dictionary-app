@@ -1,12 +1,10 @@
 @import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.dto.application.attribute.DocumentFormAttribute
 @import lule.dictionary.dto.application.attribute.NavbarAttribute
-@import lule.dictionary.dto.application.result.ServiceResultImp
 
 @param DocumentFormAttribute documentFormAttribute
 @param NavbarAttribute navbarAttribute
 @param BaseAttribute baseAttribute
-@param ServiceResultImp<?> result = null
 
 
 @template.layout.base(content = @`
@@ -31,15 +29,7 @@
             rows="2"
             name="title"
             id="title"></textarea>
-            @if(result != null)
-                @if(result.hasError() && result.messages().get("title") != null)
-                    <span class="text-error font-semibold text-sm">${result.messages().get("title")}</span>
-                @else
-                    <span class="invisible text-sm">fallback</span>
-                @endif
-            @else
-                <span class="invisible text-sm">fallback</span>
-            @endif
+            <%--ERROR MESSAGES--%>
         </div>
         <div class="flex flex-col gap-4">
             <span class="text-accent font-bold text-2xl">${documentFormAttribute.contentText()}</span>
@@ -63,7 +53,6 @@
                 hx-push-url="false">${documentFormAttribute.insertManuallyBtnText()}</button>
             </div>
             @template.create-import-form.url-form(
-                result = result,
                 spaceForUrlText = documentFormAttribute.spaceForUrlText()
             )
         </div>

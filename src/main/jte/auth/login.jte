@@ -1,10 +1,8 @@
 @import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.dto.application.attribute.NavbarAttribute
-@import lule.dictionary.dto.application.result.ServiceResultImp
 @import java.util.Map
 
-@param ServiceResultImp<?> result
-@param BaseAttribute baseAttribute 
+@param BaseAttribute baseAttribute
 @param Map<String, String> authLocalization
 @param NavbarAttribute navbarAttribute
 
@@ -32,15 +30,7 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="text" name="login" id="login">
-            @if(result != null)
-                @if(result.hasError() && result.messages().get("login") != null)
-                    <span class="text-error font-semibold text-sm">${result.messages().get("login")}</span>
-                @else
-                    <span class="invisible text-sm">fallback</span>
-                @endif
-            @else
-                <span class="invisible text-sm">fallback</span>
-            @endif
+            <%--ERROR MESSAGES--%>
         </div>
         <div class="flex flex-col">
             <label class="text-accent" for="password">${authLocalization.get("password")}</label>
@@ -49,15 +39,7 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="password" name="password" id="password">
-            @if(result != null)
-                @if(result.hasError() && result.messages().get("password") != null)
-                    <span class="text-error font-semibold text-sm">${result.messages().get("password")}</span>
-                @else
-                    <span class="invisible text-sm">fallback</span>
-                @endif
-            @else
-                <span class="invisible text-sm">fallback</span>
-            @endif
+            <%--ERROR MESSAGES--%>
         </div>
         <div class="flex gap-4 items-center justify-between">
             <button

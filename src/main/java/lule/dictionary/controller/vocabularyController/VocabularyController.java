@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lule.dictionary.controller.vocabularyController.dto.BaseFlashcardAttribute;
 import lule.dictionary.controller.vocabularyController.dto.FlashcardConfigLocalizationAttribute;
 import lule.dictionary.controller.vocabularyController.dto.GetRandomTranslationsRequest;
-import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.service.language.Language;

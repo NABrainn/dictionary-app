@@ -1,6 +1,3 @@
-@import lule.dictionary.dto.application.result.ServiceResultImp
-
-@param ServiceResultImp<?> result
 @param String spaceForUrlText
 
 <div class="flex flex-col" id="content">
@@ -16,14 +13,6 @@
         id="url"
         placeholder="${spaceForUrlText}"></textarea>
         <textfield-input></textfield-input>
-        @if(result != null)
-            @if(result.hasError() && result.messages().get("url") != null)
-                <span class="text-error font-semibold text-sm">${result.messages().get("url")}</span>
-            @else
-                <span class="invisible text-sm">fallback</span>
-            @endif
-        @else
-            <span class="invisible text-sm">fallback</span>
-        @endif
+        <%--ERROR MESSAGES--%>
     </div>
 </div>

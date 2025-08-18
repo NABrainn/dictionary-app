@@ -106,7 +106,6 @@ public class ImportControllerImp implements ImportController {
             return "create-import-form/base-form";
         } catch (InvalidUriException e) {
             log.warn("Retrying view due to url issue: {}", e.getMessage());
-            model.addAttribute("result", e.getResult());
             model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
                     .titleText(localizationService.documentFormLocalization(language).get("title"))
                     .contentText(localizationService.documentFormLocalization(language).get("content"))

@@ -18,7 +18,6 @@ import lule.dictionary.service.localization.ErrorLocalization;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.request.*;
 import lule.dictionary.service.translation.exception.TranslationContraintViolationException;
-import lule.dictionary.service.translation.exception.TranslationNotFoundException;
 import lule.dictionary.service.translation.exception.TranslationsNotFoundException;
 import lule.dictionary.service.translationFetching.TranslationFetchingService;
 import lule.dictionary.service.validation.ValidationServiceException;
@@ -79,7 +78,7 @@ public class TranslationServiceImp implements TranslationService {
     }
 
     @Transactional
-    public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request) throws TranslationNotFoundException, InvalidInputException {
+    public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request)throws InvalidInputException {
         validate(request);
         Optional<Translation> optionalTranslation = getTranslationFromDatabase(request);
         if(optionalTranslation.isPresent()) {
