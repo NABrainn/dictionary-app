@@ -1,13 +1,12 @@
 package lule.dictionary.exception.application;
 
-import lule.dictionary.dto.application.result.ServiceResult;
+import jakarta.validation.ConstraintViolation;
 
+public class InvalidInputException extends RuntimeException {
 
-public class InvalidInputException extends ServiceException {
-    public InvalidInputException(ServiceResult<?> ob) {
-        super(ob);
-    }
-    public InvalidInputException(String message, ServiceResult<?> ob) {
-        super(message, ob);
+    private final ConstraintViolation<?> violation;
+
+    public InvalidInputException(ConstraintViolation<?> violation) {
+        this.violation = violation;
     }
 }

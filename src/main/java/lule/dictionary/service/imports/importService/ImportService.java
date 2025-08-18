@@ -11,7 +11,7 @@ import lule.dictionary.service.imports.importService.dto.request.LoadDocumentCon
 import java.util.List;
 
 public interface ImportService {
-    ServiceResult<Integer> createImport(CreateDocumentRequest createRequest) throws ConstraintViolationException;
-    ServiceResult<List<ImportWithTranslationData>> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request);
-    ServiceResult<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest loadRequest);
+    int createImport(CreateDocumentRequest createRequest) throws ConstraintViolationException;
+    List<ImportWithTranslationData> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request);
+    DocumentAttribute loadDocumentContent(LoadDocumentContentRequest loadRequest);
 }

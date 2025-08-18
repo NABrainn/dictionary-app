@@ -1,5 +1,6 @@
 package lule.dictionary.service.validation;
 
+import jakarta.validation.ConstraintViolation;
 import lombok.Getter;
 
 import java.util.Map;
@@ -7,13 +8,14 @@ import java.util.Map;
 @Getter
 public class ValidationServiceException extends RuntimeException {
 
-    private final Map<String, String> errorMessages;
+    private final ConstraintViolation<?> violation;
 
-    public ValidationServiceException(String message, Map<String, String> errors) {
+    public ValidationServiceException(String message, ConstraintViolation<?> violation) {
         super(message);
-        this.errorMessages = errors;
+        this.violation = violation;
     }
-    public ValidationServiceException(Map<String, String> errors) {
-        this.errorMessages = errors;
+
+    public ValidationServiceException(ConstraintViolation<?> violation) {
+        this.violation = violation;
     }
 }

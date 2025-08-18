@@ -8,9 +8,11 @@ import lule.dictionary.controller.vocabularyController.dto.GetRandomTranslations
 import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.translation.TranslationService;
+import lule.dictionary.service.translation.exception.TranslationsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -71,32 +73,34 @@ public class VocabularyController {
                                          Model model,
                                          Authentication authentication,
                                          HttpSession session) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        ServiceResult<BaseFlashcardAttribute> attribute = translationService.getRandomTranslations(GetRandomTranslationsRequest.builder()
-                .familiarity(familiarity)
-                .quantity(quantity)
-                .isPhrase(isPhrase)
-                .id(id)
-                .owner(principal.getUsername())
-                .build());
-        session.removeAttribute("translations");
-        if(!attribute.hasError()) {
-            session.setAttribute("translations", attribute.value().translations());
-            model.addAttribute("attribute", attribute.value());
+        String username = ((CustomUserDetails) authentication.getPrincipal()).getUsername();
+        Language uiLanguage = ((CustomUserDetails) authentication.getPrincipal()).userInterfaceLanguage();
+        try {
+            BaseFlashcardAttribute attribute = translationService.getRandomTranslations(GetRandomTranslationsRequest.builder()
+                    .familiarity(familiarity)
+                    .quantity(quantity)
+                    .isPhrase(isPhrase)
+                    .id(id)
+                    .owner(username)
+                    .build());
+            session.removeAttribute("translations");
+            session.setAttribute("translations", attribute.translations());
+            model.addAttribute("attribute", attribute);
             return "vocabulary-page/flashcard/flashcard";
+
+        } catch (TranslationsNotFoundException e) {
+            model.addAttribute("familiarity", familiarity);
+            model.addAttribute("quantity", quantity);
+            model.addAttribute("isPhrase", isPhrase);
+            model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
+                    .familiarityText(localizationService.flashcardConfigLocalization(uiLanguage).get("familiarity"))
+                    .howManyText(localizationService.flashcardConfigLocalization(uiLanguage).get("how_many"))
+                    .phrasesText(localizationService.flashcardConfigLocalization(uiLanguage).get("phrases"))
+                    .wordsText(localizationService.flashcardConfigLocalization(uiLanguage).get("words"))
+                    .reviewTranslationsText(localizationService.flashcardConfigLocalization(uiLanguage).get("review_translations"))
+                    .build());
+            return "vocabulary-page/flashcard/flashcard-config";
         }
-        model.addAttribute("familiarity", familiarity);
-        model.addAttribute("quantity", quantity);
-        model.addAttribute("isPhrase", isPhrase);
-        model.addAttribute("messages", attribute.messages());
-        model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
-                .familiarityText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("familiarity"))
-                .howManyText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("how_many"))
-                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("phrases"))
-                .wordsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("words"))
-                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("review_translations"))
-                .build());
-        return "vocabulary-page/flashcard/flashcard-config";
     }
 
     @GetMapping({"/flashcard/flip", "/flashcard/flip/"})

@@ -12,7 +12,11 @@ import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
+import lule.dictionary.service.userProfile.exception.UserExistsException;
+import lule.dictionary.service.userProfile.exception.UserNotFoundException;
+import lule.dictionary.service.validation.ValidationServiceException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +24,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Map;
+
 
 @Controller
 @RequestMapping("/auth")
@@ -55,17 +62,26 @@ public class AuthControllerImp implements AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
-        ServiceResult<?> result = authService.login(LoginRequest.of(login, password), response, httpSession);
-        Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-
-        if (result.hasError()) {
+        try {
+            authService.login(LoginRequest.of(login, password), response, httpSession);
+            return "redirect:/";
+        }
+        catch (ValidationServiceException e) {
+            Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
+            log.warn("ValidationServiceException: {}", e.getMessage());
             log.warn("login authentication failure, resending page");
-            model.addAttribute("result", result);
             model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
             return "auth/login";
         }
-        redirectAttributes.addFlashAttribute("result", result);
-        return "redirect:/";
+        catch (UserNotFoundException e) {
+            log.info("UserNotFoundException exception: {}", e.getMessage());
+            model.addAttribute("login", "User does not exist");
+            return "auth/login";
+        }
+        catch (AuthenticationException e) {
+            log.info("Authentication exception: {}", e.getMessage());
+            return "auth/login";
+        }
     }
 
     @GetMapping({"/signup", "/signup/"})
@@ -92,17 +108,21 @@ public class AuthControllerImp implements AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
-        ServiceResult<?> result = authService.signup(SignupRequest.of(login, email, password));
-        Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-
-        model.addAttribute("result", result);
-        if(result.hasError()) {
-            log.warn("signup authentication failure");
+        try {
+            authService.signup(SignupRequest.of(login, email, password));
+            return "redirect:/auth/login";
+        }
+        catch (ValidationServiceException e) {
+            Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
+            log.info(e.getMessage());
             model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
             return "auth/signup";
         }
-        model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
-        return "auth/login";
+
+        catch (UserExistsException e) {
+            log.info(e.getMessage());
+            return "auth/signup";
+        }
     }
 
     @PostMapping({"/logout", "/logout/"})
@@ -111,13 +131,8 @@ public class AuthControllerImp implements AuthController {
                          Model model,
                          Authentication authentication,
                          HttpSession httpSession) {
-        ServiceResult<?> result = authService.logout(response);
-        if(result.hasError()) {
-            log.warn("logout attempt failure");
-            return "/error";
-        }
+        authService.logout(response);
         Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-        redirectAttributes.addFlashAttribute("result", result);
         redirectAttributes.addFlashAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
         return "redirect:/auth/login";
     }

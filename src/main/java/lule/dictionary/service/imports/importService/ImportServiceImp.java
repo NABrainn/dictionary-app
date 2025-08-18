@@ -9,9 +9,6 @@ import lule.dictionary.dto.database.interfaces.imports.base.Document;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.exception.application.InvalidInputException;
-import lule.dictionary.dto.application.result.ServiceResult;
-import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.Phrase;
 import lule.dictionary.service.imports.importService.dto.Selectable;
@@ -26,7 +23,6 @@ import lule.dictionary.service.translation.TranslationService;
 import lule.dictionary.service.translation.dto.request.FindTranslationsByImportRequest;
 import lule.dictionary.service.userProfile.UserProfileService;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
-import lule.dictionary.service.validation.ValidationServiceException;
 import lule.dictionary.service.validation.ValidationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,23 +48,17 @@ public class ImportServiceImp implements ImportService {
     private final TranslationService translationService;
 
     @Transactional
-    public ServiceResult<Integer> createImport(CreateDocumentRequest request) throws ConstraintViolationException {
-        try {
-            UserProfile userProfile = getUserProfile(request);
-            validate(request);
-            int importId = saveImport(request, userProfile);
-            return ServiceResultImp.success(importId);
-        } catch (ValidationServiceException e) {
-            throw new InvalidInputException(e.getMessage(), ServiceResultImp.error(e.getErrorMessages()));
-        }
+    public int createImport(CreateDocumentRequest request) throws ConstraintViolationException {
+        UserProfile userProfile = getUserProfile(request);
+        validate(request);
+        return saveImport(request, userProfile);
     }
 
-    public ServiceResult<List<ImportWithTranslationData>> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
-        List<ImportWithTranslationData> importList = getImportByUsernameAndTargetLanguage(request);
-        return ServiceResultImp.success(importList);
+    public List<ImportWithTranslationData> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
+        return getImportByUsernameAndTargetLanguage(request);
     }
 
-    public ServiceResult<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest loadRequest) {
+    public DocumentAttribute loadDocumentContent(LoadDocumentContentRequest loadRequest) {
         Document document = getImport(loadRequest);
         validatePageNumber(loadRequest.page(), getNumberOfPagesForDocument(document));
         AssembleDocumentAttributeRequest assembleRequest = AssembleDocumentAttributeRequest.builder()
@@ -80,7 +70,7 @@ public class ImportServiceImp implements ImportService {
                 .build();
         DocumentPageData documentPageData = createDocumentPageData(assembleRequest);
         PaginationData paginationData = createPaginationData(assembleRequest);
-        return ServiceResultImp.success(DocumentAttribute.of(documentPageData, paginationData));
+        return DocumentAttribute.of(documentPageData, paginationData);
     }
 
     private Document getImport(LoadDocumentContentRequest loadRequest) throws ImportNotFoundException {
@@ -155,7 +145,7 @@ public class ImportServiceImp implements ImportService {
     }
 
     private List<Translation> extractPhrases(String content, String owner) {
-        return translationService.extractPhrases(content, owner).value();
+        return translationService.extractPhrases(content, owner);
     }
 
     public String markPhrases(String content, List<Translation> phrases) {
@@ -194,7 +184,7 @@ public class ImportServiceImp implements ImportService {
     }
 
     private Map<String, Translation> getTranslationsFromDatabase(Document importWithPagination) {
-        return translationService.findTranslationsByImport(FindTranslationsByImportRequest.of(importWithPagination, importWithPagination.owner())).value();
+        return translationService.findTranslationsByImport(FindTranslationsByImportRequest.of(importWithPagination, importWithPagination.owner()));
     }
     private List<List<Selectable>> extractParagraphs(String content) {
         return Stream.of(content.split("\n+"))

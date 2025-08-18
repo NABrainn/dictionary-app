@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.application.attribute.DocumentFormAttribute;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.exception.application.InvalidInputException;
-import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
@@ -16,6 +14,7 @@ import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
+import lule.dictionary.service.validation.ValidationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,7 +60,7 @@ public class ImportControllerImp implements ImportController {
                              Authentication authentication,
                              HttpSession session) {
         try {
-            DocumentAttribute documentAttribute = loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
+            DocumentAttribute documentAttribute = importService.loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
             model.addAttribute("documentAttribute", documentAttribute);
             model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
             return "document-page/base-page";
@@ -86,16 +85,15 @@ public class ImportControllerImp implements ImportController {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         try {
-            ServiceResult<Integer> result = importService.createImport(CreateDocumentRequest.of(title, content, url, extractUsername(authentication)));
-            model.addAttribute("result", result);
-            return "redirect:/imports/" + result.value() + "?page=1";
+            int id = importService.createImport(CreateDocumentRequest.of(title, content, url, extractUsername(authentication)));
+            return "redirect:/imports/" + id + "?page=1";
         } catch (UserNotFoundException e) {
             log.info("Redirecting to login page due to user not found: {}", e.getMessage());
             return "redirect:/auth/login";
 
-        } catch (InvalidInputException e) {
+        } catch (ValidationServiceException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
-            model.addAttribute("result", e.getResult());
+            model.addAttribute("result", e.getViolation());
             model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
                     .titleText(localizationService.documentFormLocalization(language).get("title"))
                     .contentText(localizationService.documentFormLocalization(language).get("content"))
@@ -142,9 +140,5 @@ public class ImportControllerImp implements ImportController {
     private @NonNull String extractUsername(Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         return principal.getUsername();
-    }
-
-    private DocumentAttribute loadDocumentContent(LoadDocumentContentRequest loadRequest) {
-        return importService.loadDocumentContent(loadRequest).value();
     }
 }

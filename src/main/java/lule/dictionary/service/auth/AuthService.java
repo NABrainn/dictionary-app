@@ -3,7 +3,6 @@ package lule.dictionary.service.auth;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +15,6 @@ import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationData;
 import lule.dictionary.service.cookie.CookieService;
-import lule.dictionary.dto.application.result.ServiceResultImp;
-import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.service.validation.ValidationServiceException;
@@ -32,8 +29,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,69 +41,24 @@ public class AuthService {
     private final ValidationService validationService;
 
 
-    public ServiceResult<?> login(@NonNull LoginRequest loginData,
-                                  @NonNull HttpServletResponse response,
-                                  @NonNull HttpSession httpSession) {
-        try {
-            return processLoginRequest(loginData, response, httpSession);
-        }
-
-        catch (ValidationServiceException e) {
-            log.warn("ConstraintViolationException: {}", e.getMessage());
-            return handleException(e.getErrorMessages());
-        }
-
-        catch (UserNotFoundException e) {
-            log.info("UserNotFoundException exception: {}", e.getMessage());
-            return handleException(Map.of("login", "User does not exist"));
-        }
-
-        catch (AuthenticationException e) {
-            log.warn("Authentication exception: {}", e.getMessage());
-            return handleException(Map.of("password", e.getMessage()));
-
-        }
-    }
-
-    @Transactional
-    public ServiceResult<?> signup(@NonNull SignupRequest signupRequest) {
-        try {
-            return processSignupRequest(signupRequest);
-        }
-
-        catch (ValidationServiceException e) {
-            log.info(e.getMessage());
-            return handleException(e.getErrorMessages());
-        }
-
-        catch (UserExistsException e) {
-            log.info(e.getMessage());
-            return handleException(Map.of("login", e.getMessage()));
-        }
-    }
-
-    public ServiceResult<?> logout(@NonNull HttpServletResponse httpServletResponse) {
-        clearAuthentication();
-        deleteJwtCookie(httpServletResponse);
-        return ServiceResultImp.success(Map.of());
-    }
-
-    private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response, HttpSession httpSession) throws ValidationServiceException, UserNotFoundException {
+    public void login(@NonNull LoginRequest loginData,
+                      @NonNull HttpServletResponse response,
+                      @NonNull HttpSession httpSession) {
         validate(loginData);
         AuthenticationData authResult = authenticateUser(loginData);
         setAuthenticationContext(SessionContext.of(authResult, response, httpSession));
-        return ServiceResultImp.success(Map.of());
     }
 
-    private ServiceResult<?> handleException(Map<String, String> errorMessages) {
-        return ServiceResultImp.error(errorMessages);
+    @Transactional
+    public void signup(@NonNull SignupRequest request) {
+        validate(request);
+        checkIfUserExists(request);
+        addUser(request);
     }
 
-    private ServiceResult<?> processSignupRequest(SignupRequest signupData) throws ConstraintViolationException, UserExistsException {
-        validate(signupData);
-        checkIfUserExists(signupData);
-        addUser(signupData);
-        return ServiceResultImp.success(Map.of());
+    public void logout(@NonNull HttpServletResponse httpServletResponse) {
+        clearAuthentication();
+        deleteJwtCookie(httpServletResponse);
     }
 
     private void addUser(SignupRequest signupData) {

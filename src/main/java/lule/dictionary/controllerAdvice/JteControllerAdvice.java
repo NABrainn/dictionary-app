@@ -79,7 +79,7 @@ public class JteControllerAdvice {
         if(authentication != null) {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
             model.addAttribute("navbarAttribute", NavbarAttribute.builder()
-                    .wordsLearned(translationService.getWordsLearnedCount(principal).value())
+                    .wordsLearned(translationService.getWordsLearnedCount(principal))
                     .wordsLearnedText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("words"))
                     .daysSingularText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("days_singular"))
                     .daysPluralText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("days_plural"))
