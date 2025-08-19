@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
-import java.util.Optional;
+import java.util.List;
+
+import static java.util.stream.Collectors.*;
 
 @Service
 @RequiredArgsConstructor
@@ -16,15 +18,16 @@ public class ValidationServiceImp implements ValidationService {
 
     @Override
     public <T> void validate(T ob) throws ValidationServiceException {
-        Optional<ConstraintViolation<T>> violation = getFirstViolation(ob);
-        if(violation.isPresent()) {
-            throw new ValidationServiceException(violation.get().getPropertyPath() + " " + violation.get().getMessage(), violation.get());
-        }
-    }
-
-    private <T> Optional<ConstraintViolation<T>> getFirstViolation(T ob) {
-        return validator.validate(ob).stream()
-                .sorted(Comparator.comparing(violation -> violation.getMessage().length()))
-                .findFirst();
+        validator.validate(ob).stream()
+                .sorted(Comparator.comparingInt(violation -> violation.getMessage().length()))
+                .collect(groupingBy(ConstraintViolation::getPropertyPath))
+                .values().stream()
+                .filter(group -> !group.isEmpty())
+                .findFirst()
+                .orElseGet(List::of).stream()
+                .findFirst()
+                .ifPresent(violation -> {
+                    throw new ValidationServiceException( violation.getPropertyPath() + " " + violation.getMessage(), violation);
+                });
     }
 }
