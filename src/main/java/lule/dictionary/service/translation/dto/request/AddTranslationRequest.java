@@ -16,8 +16,7 @@ public record AddTranslationRequest(int documentId,
                                     @NonNull
                                     List<
                                     @NotBlank(message = "Source word cannot be blank")
-                                    @Size(max = 200, message = "Source word cannot be longer than 200 characters")
-                                    String> sourceWords,
+                                    @Size(max = 200, message = "Source word cannot be longer than 200 characters") String> sourceWords,
                                     @NotBlank
                                     String targetWord,
                                     Language sourceLanguage,

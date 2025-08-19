@@ -3,7 +3,6 @@ package lule.dictionary.service.auth;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,12 +15,9 @@ import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
 import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
 import lule.dictionary.service.auth.dto.authenticationResult.AuthenticationData;
 import lule.dictionary.service.cookie.CookieService;
-import lule.dictionary.dto.application.result.ServiceResultImp;
-import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.service.userProfile.exception.UserExistsException;
 import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.service.validation.ValidationService;
-import lule.dictionary.util.errors.ErrorMapFactory;
 import lule.dictionary.service.jwt.JwtService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,8 +27,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -46,73 +40,28 @@ public class AuthService {
     private final ValidationService validationService;
 
 
-    public ServiceResult<?> login(@NonNull LoginRequest loginData,
-                                  @NonNull HttpServletResponse response,
-                                  @NonNull HttpSession httpSession) {
-        try {
-            return processLoginRequest(loginData, response, httpSession);
-        }
-
-        catch (ConstraintViolationException e) {
-            log.warn("ConstraintViolationException: {}", e.getMessage());
-            return handleException(ErrorMapFactory.fromViolations(e.getConstraintViolations()));
-        }
-
-        catch (UserNotFoundException e) {
-            log.info("UserNotFoundException exception: {}", e.getMessage());
-            return handleException(Map.of("login", "User does not exist"));
-        }
-
-        catch (AuthenticationException e) {
-            log.warn("Authentication exception: {}", e.getMessage());
-            return handleException(Map.of("password", e.getMessage()));
-
-        }
+    public void login(@NonNull LoginRequest loginData,
+                      @NonNull HttpServletResponse response,
+                      @NonNull HttpSession httpSession) {
+        validationService.validate(loginData);
+        AuthenticationData authResult = authenticateUser(loginData);
+        setAuthenticationContext(SessionContext.of(authResult, response, httpSession));
     }
 
     @Transactional
-    public ServiceResult<?> signup(@NonNull SignupRequest signupRequest) {
-        try {
-            return processSignupRequest(signupRequest);
-        }
-
-        catch (ConstraintViolationException e) {
-            log.info(e.getMessage());
-            return handleException(ErrorMapFactory.fromViolations(e.getConstraintViolations()));
-        }
-
-        catch (UserExistsException e) {
-            log.info(e.getMessage());
-            return handleException(Map.of("login", e.getMessage()));
-        }
+    public void signup(@NonNull SignupRequest request) {
+        validationService.validate(request);
+        userProfileService.findByUsernameOrEmail(request.login(), request.email())
+                .ifPresentOrElse(
+                        user -> {
+                            throw new UserExistsException("User with given username or email already exists");
+                        },
+                        () -> userProfileService.addUserProfile(request)
+                );
     }
-
-    public ServiceResult<?> logout(@NonNull HttpServletResponse httpServletResponse) {
+    public void logout(@NonNull HttpServletResponse httpServletResponse) {
         clearAuthentication();
         deleteJwtCookie(httpServletResponse);
-        return ServiceResultImp.success(Map.of());
-    }
-
-    private ServiceResult<?> processLoginRequest(LoginRequest loginData, HttpServletResponse response, HttpSession httpSession) throws ConstraintViolationException, UserNotFoundException {
-        validate(loginData);
-        AuthenticationData authResult = authenticateUser(loginData);
-        setAuthenticationContext(SessionContext.of(authResult, response, httpSession));
-        return ServiceResultImp.success(Map.of());
-    }
-
-    private ServiceResult<?> handleException(Map<String, String> errorMessages) {
-        return ServiceResultImp.error(errorMessages);
-    }
-
-    private ServiceResult<?> processSignupRequest(SignupRequest signupData) throws ConstraintViolationException, UserExistsException {
-        validate(signupData);
-        checkIfUserExists(signupData);
-        addUser(signupData);
-        return ServiceResultImp.success(Map.of());
-    }
-
-    private void addUser(SignupRequest signupData) {
-        userProfileService.addUserProfile(signupData);
     }
 
 
@@ -131,10 +80,6 @@ public class AuthService {
 
     private void updateTimezoneOffset(String owner, String offset) {
         userProfileService.updateTimezoneOffset(owner, offset);
-    }
-
-    private void validate(AuthRequest authRequest) throws ConstraintViolationException {
-        validationService.validate(authRequest);
     }
 
     private void clearAuthentication() {
@@ -176,11 +121,6 @@ public class AuthService {
 
     private Authentication authenticate(UserProfile userProfile) {
         return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.username(), userProfile.password()));
-    }
-
-    private void checkIfUserExists(SignupRequest signupRequest) throws UserNotFoundException {
-        if (userProfileService.findByUsernameOrEmail(signupRequest.login(), signupRequest.email()).isPresent())
-            throw new UserExistsException("User with given username already exists");
     }
 
     private UserProfile getUserProfile(AuthRequest loginRequest) throws UserNotFoundException {

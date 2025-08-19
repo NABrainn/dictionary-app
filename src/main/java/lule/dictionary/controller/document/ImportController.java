@@ -1,5 +1,6 @@
 package lule.dictionary.controller.document;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +17,14 @@ public interface ImportController {
     String importPage(@PathVariable("documentId") int importId,
                       @RequestParam(name = "page", defaultValue = "1") int page,
                       Model model,
-                      Authentication authentication);
+                      Authentication authentication,
+                      HttpSession session);
 
     @PostMapping({"/new", "/new/"})
     String createImport(@RequestParam("title") String title,
                         @RequestParam("pageContent") String content,
                         @RequestParam("url") String url,
+                        @RequestParam("strategy") String strategy,
                         Model model,
                         Authentication authentication);
 

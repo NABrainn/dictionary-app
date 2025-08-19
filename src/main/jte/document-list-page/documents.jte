@@ -18,7 +18,7 @@
     @if(baseAttribute.isAuthenticated())
         <div
         class="md:w-3/5
-        w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral animate-fade">
+        w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral">
                 @if(documentsAttribute.isEmpty())
                     <div class="flex justify-center">
                         <span class="text-neutral font-bold">${documentsLocalizationAttribute.noDocumentsText()}

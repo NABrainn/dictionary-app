@@ -1,13 +1,11 @@
 @import lule.dictionary.dto.application.BaseAttribute
 @import lule.dictionary.dto.application.attribute.NavbarAttribute
-@import lule.dictionary.dto.application.result.ServiceResultImp
 @import java.util.Map
 
-@param ServiceResultImp<?> result
-@param BaseAttribute baseAttribute 
+@param BaseAttribute baseAttribute
 @param Map<String, String> authLocalization
 @param NavbarAttribute navbarAttribute
-
+@param Map<String, String> messages
 
 @template.layout.base(authView = @`
     @template.navbar.navbar(
@@ -32,14 +30,11 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="text" name="login" id="login">
-            @if(result != null)
-                @if(result.hasError() && result.messages().get("login") != null)
-                    <span class="text-error font-semibold text-sm">${result.messages().get("login")}</span>
-                @else
-                    <span class="invisible text-sm">fallback</span>
+            @if(messages != null)
+                !{String login = messages.get("login");}
+                @if(login != null)
+                    <span class="font-bold text-error">${login}</span>
                 @endif
-            @else
-                <span class="invisible text-sm">fallback</span>
             @endif
         </div>
         <div class="flex flex-col">
@@ -49,14 +44,11 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="password" name="password" id="password">
-            @if(result != null)
-                @if(result.hasError() && result.messages().get("password") != null)
-                    <span class="text-error font-semibold text-sm">${result.messages().get("password")}</span>
-                @else
-                    <span class="invisible text-sm">fallback</span>
+            @if(messages != null)
+                !{String password = messages.get("password");}
+                @if(password != null)
+                    <span class="font-bold text-error">${password}</span>
                 @endif
-            @else
-                <span class="invisible text-sm">fallback</span>
             @endif
         </div>
         <div class="flex gap-4 items-center justify-between">

@@ -1,5 +1,6 @@
 package lule.dictionary.service.jsoup;
 
+import lule.dictionary.service.jsoup.exception.InvalidUriException;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -25,7 +26,7 @@ public class JsoupService {
         try {
             return connect(url).get();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new InvalidUriException("Invalid or empty URL");
         }
     }
 

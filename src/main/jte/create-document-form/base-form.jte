@@ -1,19 +1,20 @@
 @import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.dto.application.attribute.DocumentFormAttribute
+@import lule.dictionary.service.imports.dto.ContentSubmission
+@import lule.dictionary.service.imports.dto.DocumentFormAttribute
 @import lule.dictionary.dto.application.attribute.NavbarAttribute
-@import lule.dictionary.dto.application.result.ServiceResultImp
+@import lule.dictionary.service.imports.dto.UrlSubmission
+@import java.util.Map
 
 @param DocumentFormAttribute documentFormAttribute
 @param NavbarAttribute navbarAttribute
 @param BaseAttribute baseAttribute
-@param ServiceResultImp<?> result = null
+@param Map<String, String> messages
 
 
 @template.layout.base(content = @`
     @template.navbar.navbar(
         navbarAttribute = navbarAttribute,
-        isAuthenticated = baseAttribute.isAuthenticated()
-    )
+        isAuthenticated = baseAttribute.isAuthenticated())
     <form
     class="md:w-3/5
     w-9/10 flex flex-col gap-6 bg-tertiary mx-auto p-6 rounded"
@@ -24,20 +25,16 @@
         <input type="hidden" name="${baseAttribute._csrf().getParameterName()}" value="${baseAttribute._csrf().getToken()}">
         <div class="flex flex-col gap-2">
             <label class="text-accent font-bold text-2xl min-h-8" for="title">${documentFormAttribute.titleText()}</label>
-            <input
+            <textarea
+            maxlength="250"
             class="
-            outline-none border border-2 border-primary rounded text-neutral
+            outline-none overflow-none resize-none border border-2 border-primary rounded text-neutral h-16 leading-8
             focus:border-accent"
+            rows="2"
             name="title"
-            id="title">
-            @if(result != null)
-                @if(result.hasError() && result.messages().get("title") != null)
-                    <span class="text-error font-semibold text-sm">${result.messages().get("title")}</span>
-                @else
-                    <span class="invisible text-sm">fallback</span>
-                @endif
-            @else
-                <span class="invisible text-sm">fallback</span>
+            id="title"></textarea>
+            @if(messages.get("title") != null)
+                <span class="text-error font-bold">${messages.get("title")}</span>
             @endif
         </div>
         <div class="flex flex-col gap-4">
@@ -61,10 +58,21 @@
                 hx-swap="outerHTML"
                 hx-push-url="false">${documentFormAttribute.insertManuallyBtnText()}</button>
             </div>
-            @template.create-import-form.url-form(
-                result = result,
-                spaceForUrlText = documentFormAttribute.spaceForUrlText()
-            )
+            !{String message = switch(documentFormAttribute.submissionStrategy()) {
+                case ContentSubmission content -> messages.getOrDefault("content", "");
+                case UrlSubmission url when messages.get("invalidUriMessage") != null -> messages.get("invalidUriMessage");
+                case UrlSubmission url when messages.get("url") != null -> messages.get("url");
+                default -> "";
+            };}
+            @if(documentFormAttribute.submissionStrategy() instanceof ContentSubmission content)
+                @template.create-document-form.content-form(
+                    spaceForContentText = content.spaceForContentText(),
+                    message = message)
+            @elseif(documentFormAttribute.submissionStrategy() instanceof UrlSubmission url)
+                    @template.create-document-form.url-form(
+                    spaceForUrlText = url.spaceForUrlText(),
+                    message = message)
+            @endif
         </div>
         <div>
             <button
@@ -72,29 +80,5 @@
             class="text-left px-2 py-1 bg-accent text-primary rounded cursor-pointer">${documentFormAttribute.submitBtnText()}</button>
         </div>
     </form>
-    <script>
-        if (!customElements.get('button-toggler')) {
-            class ButtonToggler extends HTMLElement {
-                constructor() {
-                    super();
-                    this.initListeners();
-                }
-
-                initListeners() {
-                    document.getElementById('url').addEventListener('click', (e) => {
-                        document.getElementById('url').classList.add('bg-primary');
-                        document.getElementById('insert').classList.remove('bg-primary');
-                    });
-
-                    document.getElementById('insert').addEventListener('click', (e) => {
-                        document.getElementById('url').classList.remove('bg-primary');
-                        document.getElementById('insert').classList.add('bg-primary');
-                    });
-                }
-            }
-            customElements.define('button-toggler', ButtonToggler);
-        }
-    </script>
-    <button-toggler></button-toggler>
 `,
 baseAttribute = baseAttribute)

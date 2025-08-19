@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
 import lule.dictionary.configuration.security.filter.osLanguage.SystemLanguageFilter;
 import lule.dictionary.configuration.security.filter.timezone.TimezoneFilter;
-import lule.dictionary.dto.application.result.ServiceResult;
-import lule.dictionary.dto.application.result.ServiceResultImp;
 import lule.dictionary.service.cookie.CookieService;
 import lule.dictionary.service.userProfile.UserProfileService;
 import org.springframework.context.annotation.Bean;

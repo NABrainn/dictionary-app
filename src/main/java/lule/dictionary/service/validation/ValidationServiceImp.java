@@ -1,12 +1,14 @@
 package lule.dictionary.service.validation;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
+
+import static java.util.stream.Collectors.*;
 
 @Service
 @RequiredArgsConstructor
@@ -14,20 +16,18 @@ public class ValidationServiceImp implements ValidationService {
 
     private final Validator validator;
 
-    public <T> Set<ConstraintViolation<T>> getConstraintViolations(T ob) {
-        return validator.validate(ob);
-    }
-
-    public <T> void checkIfViolated(Set<ConstraintViolation<T>> constraints) {
-        if(!constraints.isEmpty()) {
-            throw new ConstraintViolationException(constraints);
-        }
-    }
-
     @Override
-    public <T> T validate(T ob) throws ConstraintViolationException {
-        Set<ConstraintViolation<T>> constraintViolations = getConstraintViolations(ob);
-        checkIfViolated(constraintViolations);
-        return ob;
+    public <T> void validate(T ob) throws ValidationServiceException {
+        validator.validate(ob).stream()
+                .sorted(Comparator.comparingInt(violation -> violation.getMessage().length()))
+                .collect(groupingBy(ConstraintViolation::getPropertyPath))
+                .values().stream()
+                .filter(group -> !group.isEmpty())
+                .findFirst()
+                .orElseGet(List::of).stream()
+                .findFirst()
+                .ifPresent(violation -> {
+                    throw new ValidationServiceException( violation.getPropertyPath() + " " + violation.getMessage(), violation);
+                });
     }
 }

@@ -1,9 +1,12 @@
 package lule.dictionary.service.imports.importService.dto.request;
 
-import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
+import lombok.Builder;
+import lombok.NonNull;
+import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 
-public record InsertIntoDatabaseRequest(CreateImportRequest request, String content, UserProfile userProfile) {
-    public static InsertIntoDatabaseRequest of(CreateImportRequest createImportRequest, String content, UserProfile userProfile) {
-        return new InsertIntoDatabaseRequest(createImportRequest, content, userProfile);
-    }
+@Builder
+public record InsertIntoDatabaseRequest(@NonNull String title,
+                                        @NonNull String url,
+                                        @NonNull String content,
+                                        @NonNull CustomUserDetails userDetails) {
 }

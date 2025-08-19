@@ -41,6 +41,6 @@ public class LessonController {
         return "document-list-page/documents";
     }
     private List<ImportWithTranslationData> getImports(CustomUserDetails principal) {
-        return importService.findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage())).value();
+        return importService.findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage()));
     }
 }

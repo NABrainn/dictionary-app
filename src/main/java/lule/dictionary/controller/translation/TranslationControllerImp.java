@@ -5,14 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
-import lule.dictionary.exception.application.InvalidInputException;
-import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.translation.TranslationServiceImp;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.request.*;
+import lule.dictionary.service.translation.exception.TranslationContraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -61,7 +60,7 @@ public class TranslationControllerImp {
                     .isPhrase(isPhrase)
                     .familiarityLevels(getFamiliarityTable())
                     .build());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.sourceLanguage()));
+            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/add/add-translation-form";
         }
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
@@ -74,8 +73,8 @@ public class TranslationControllerImp {
                 .owner(principal.getUsername())
                 .isPhrase(isPhrase)
                 .build();
-        ServiceResult<TranslationAttribute> result = translationService.findByTargetWord(request);
-        model.addAttribute("translationAttribute", result.value());
+        TranslationAttribute attribute = translationService.findByTargetWord(request);
+        model.addAttribute("translationAttribute", attribute);
         model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
         return "document-page/content/translation/update/update-translation-form";
     }
@@ -130,11 +129,11 @@ public class TranslationControllerImp {
                     .owner(principal.getUsername())
                     .isPhrase(isPhrase)
                     .build();
-            ServiceResult<TranslationAttribute> result = createTranslation(request);
-            model.addAttribute("translationAttribute", result.value());
+            TranslationAttribute result = translationService.createTranslation(request);
+            model.addAttribute("translationAttribute", result);
             model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/update/update-translation-form";
-        } catch (InvalidInputException e) {
+        } catch (TranslationContraintViolationException e) {
             String exceptionMessage = "Failed to add translation due to invalid input.";
             log.info(exceptionMessage);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exceptionMessage);
@@ -160,8 +159,8 @@ public class TranslationControllerImp {
                 .owner(principal.getUsername())
                 .isPhrase(isPhrase)
                 .build();
-        ServiceResult<TranslationAttribute> result = translationService.updateFamiliarity(request);
-        model.addAttribute("translationAttribute", result.value());
+        TranslationAttribute result = translationService.updateFamiliarity(request);
+        model.addAttribute("translationAttribute", result);
         model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
         return "document-page/content/translation/update/update-translation-form";
     }
@@ -186,14 +185,13 @@ public class TranslationControllerImp {
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
                     .build();
-            ServiceResult<TranslationAttribute> result = translationService.updateSourceWords(request);
-            model.addAttribute("translationAttribute", result.value());
+            TranslationAttribute attribute = translationService.updateSourceWords(request);
+            model.addAttribute("translationAttribute", attribute);
             model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-            model.addAttribute("hasError", result.hasError());
             return "document-page/content/translation/update/update-translation-form";
-        } catch (InvalidInputException e) {
-            log.warn("Invalid input: returning back");
-            model.addAttribute("translationAttribute", e.getResult().value());
+        } catch (TranslationContraintViolationException e) {
+            log.warn(e.getMessage());
+            model.addAttribute("translationAttribute", e.getTranslationAttribute());
             model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/update/update-translation-form";
         }
@@ -206,28 +204,19 @@ public class TranslationControllerImp {
                                    @RequestParam("targetWord") String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId,
                                    @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        try {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            DeleteSourceWordRequest request = DeleteSourceWordRequest.builder()
-                    .sourceWord(sourceWord)
-                    .targetWord(targetWord)
-                    .owner(principal.getUsername())
-                    .selectedWordId(selectedWordId)
-                    .isPhrase(isPhrase)
-                    .build();
-            ServiceResult<TranslationAttribute> result = translationService.deleteSourceWord(request);
-            model.addAttribute("translationAttribute", result.value());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-            return "document-page/content/translation/update/update-translation-form";
-        } catch (InvalidInputException e) {
-            log.info("Invalid input, sending source-words-list template");
-            model.addAttribute("translationAttribute", e.getResult().value());
-            return "document-page/content/translation/update/update-translation-form";
-        }
-    }
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        DeleteSourceWordRequest request = DeleteSourceWordRequest.builder()
+                .sourceWord(sourceWord)
+                .targetWord(targetWord)
+                .owner(principal.getUsername())
+                .selectedWordId(selectedWordId)
+                .isPhrase(isPhrase)
+                .build();
+        TranslationAttribute result = translationService.deleteSourceWord(request);
+        model.addAttribute("translationAttribute", result);
+        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+        return "document-page/content/translation/update/update-translation-form";
 
-    private ServiceResult<TranslationAttribute> createTranslation(AddTranslationRequest request) {
-        return translationService.createTranslation(request);
     }
 
     private int getFamiliarityAsDigit(Familiarity familiarity) {

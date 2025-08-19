@@ -11,17 +11,17 @@ import lule.dictionary.dto.database.interfaces.translation.TranslationDetails;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
 import lule.dictionary.exception.application.InvalidInputException;
 import lule.dictionary.dto.application.request.ServiceRequest;
-import lule.dictionary.dto.application.result.ServiceResultImp;
-import lule.dictionary.dto.application.result.ServiceResult;
 import lule.dictionary.dto.database.interfaces.translation.Translation;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.repository.TranslationRepository;
+import lule.dictionary.service.localization.ErrorLocalizationImp;
 import lule.dictionary.service.translation.dto.attribute.TranslationAttribute;
 import lule.dictionary.service.translation.dto.request.*;
-import lule.dictionary.service.translation.exception.TranslationNotFoundException;
+import lule.dictionary.service.translation.exception.TranslationContraintViolationException;
+import lule.dictionary.service.translation.exception.TranslationsNotFoundException;
 import lule.dictionary.service.translationFetching.TranslationFetchingService;
+import lule.dictionary.service.validation.ValidationServiceException;
 import lule.dictionary.service.validation.ValidationService;
-import lule.dictionary.util.errors.ErrorMapFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,9 +38,10 @@ public class TranslationServiceImp implements TranslationService {
     private final TranslationRepository translationRepository;
     private final TranslationFetchingService translationFetchingService;
     private final ValidationService validationService;
+    private final ErrorLocalizationImp errorLocalization;
 
     @Transactional
-    public ServiceResult<TranslationAttribute> createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
+    public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
         try {
             validate(request);
             Translation translation = TranslationImp.builder()
@@ -53,7 +54,7 @@ public class TranslationServiceImp implements TranslationService {
                     .isPhrase(request.isPhrase())
                     .build();
             int translationId = insertIntoDatabase(translation, request);
-            TranslationAttribute translationAttribute = TranslationAttribute.builder()
+            return TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translationId(translationId)
                     .translation(translation)
@@ -62,8 +63,7 @@ public class TranslationServiceImp implements TranslationService {
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
                     .build();
-            return ServiceResultImp.success(translationAttribute);
-        } catch (ConstraintViolationException e) {
+        } catch (ValidationServiceException e) {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translation(null)
@@ -73,43 +73,17 @@ public class TranslationServiceImp implements TranslationService {
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
                     .build();
-            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+            throw new TranslationContraintViolationException(translationAttribute, e.getViolation());
         }
     }
 
     @Transactional
-    public ServiceResult<TranslationAttribute> findByTargetWord(@NonNull FindByTargetWordRequest request) throws TranslationNotFoundException, InvalidInputException {
-        try {
-            validate(request);
-            Optional<Translation> optionalTranslation = getTranslationFromDatabase(request);
-            if(optionalTranslation.isPresent()) {
-                Translation translation = optionalTranslation.get();
-                TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                        .selectedWordId(request.selectedWordId())
-                        .translation(translation)
-                        .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
-                        .familiarityLevels(getFamiliarityTable())
-                        .translationId(-1)
-                        .documentId(request.documentId())
-                        .isPhrase(request.isPhrase())
-                        .build();
-                return ServiceResultImp.success(translationAttribute);
-            }
-            List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
-
-            Translation translation = TranslationImp.builder()
-                    .sourceWords(mergeSourceWordLists(
-                            sourceWordsFromDatabase,
-                            translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord())
-                    ).stream().limit(3).toList())
-                    .targetWord(request.targetWord())
-                    .familiarity(Familiarity.UNKNOWN)
-                    .sourceLanguage(request.sourceLanguage())
-                    .targetLanguage(request.targetLanguage())
-                    .owner(request.owner())
-                    .isPhrase(request.isPhrase())
-                    .build();
-            TranslationAttribute translationAttribute = TranslationAttribute.builder()
+    public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request)throws InvalidInputException {
+        validate(request);
+        Optional<Translation> optionalTranslation = getTranslationFromDatabase(request);
+        if(optionalTranslation.isPresent()) {
+            Translation translation = optionalTranslation.get();
+            return TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translation(translation)
                     .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
@@ -118,17 +92,38 @@ public class TranslationServiceImp implements TranslationService {
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
                     .build();
-            return ServiceResultImp.success(translationAttribute);
-        } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(ServiceResultImp.error(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
         }
+        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
+
+        Translation translation = TranslationImp.builder()
+                .sourceWords(mergeSourceWordLists(
+                        sourceWordsFromDatabase,
+                        translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord())
+                ).stream().limit(3).toList())
+                .targetWord(request.targetWord())
+                .familiarity(Familiarity.UNKNOWN)
+                .sourceLanguage(request.sourceLanguage())
+                .targetLanguage(request.targetLanguage())
+                .owner(request.owner())
+                .isPhrase(request.isPhrase())
+                .build();
+        return TranslationAttribute.builder()
+                .selectedWordId(request.selectedWordId())
+                .translation(translation)
+                .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
+                .familiarityLevels(getFamiliarityTable())
+                .translationId(-1)
+                .documentId(request.documentId())
+                .isPhrase(request.isPhrase())
+                .build();
+
     }
 
     @Transactional
-    public ServiceResult<TranslationAttribute> updateFamiliarity(UpdateTranslationFamiliarityRequest request) {
+    public TranslationAttribute updateFamiliarity(UpdateTranslationFamiliarityRequest request) {
         Translation translation = translationRepository.updateFamiliarity(request)
                 .orElseThrow(() -> new RuntimeException("Failed to update familiarity for " + request.targetWord()));
-        TranslationAttribute translationAttribute = TranslationAttribute.builder()
+        return TranslationAttribute.builder()
                 .selectedWordId(request.selectedWordId())
                 .translation(translation)
                 .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
@@ -137,16 +132,15 @@ public class TranslationServiceImp implements TranslationService {
                 .documentId(-1)
                 .isPhrase(request.isPhrase())
                 .build();
-        return ServiceResultImp.success(translationAttribute);
     }
 
     @Transactional
-    public ServiceResult<TranslationAttribute> updateSourceWords(UpdateSourceWordsRequest request) throws InvalidInputException {
+    public TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request) throws InvalidInputException {
         try {
             validate(request);
             Optional<Translation> optionalTranslation = executeDatabaseUpdate(request);
             if(optionalTranslation.isPresent()) {
-                TranslationAttribute translationAttribute = TranslationAttribute.builder()
+                return TranslationAttribute.builder()
                         .documentId(-1)
                         .selectedWordId(request.selectedWordId())
                         .translationId(-1)
@@ -155,10 +149,9 @@ public class TranslationServiceImp implements TranslationService {
                         .familiarityLevels(getFamiliarityTable())
                         .isPhrase(request.isPhrase())
                         .build();
-                return ServiceResultImp.success(translationAttribute);
             }
             throw new RuntimeException("Unknown exception");
-        } catch (ConstraintViolationException e) {
+        } catch (ValidationServiceException e) {
             Translation translation = TranslationImp.builder()
                     .sourceWords(request.sourceWords()
                             .stream()
@@ -182,59 +175,49 @@ public class TranslationServiceImp implements TranslationService {
                     .familiarityLevels(getFamiliarityTable())
                     .isPhrase(request.isPhrase())
                     .build();
-            throw new InvalidInputException(ServiceResultImp.error(translationAttribute, ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+            throw new TranslationContraintViolationException(translationAttribute, e.getViolation());
         }
     }
 
     @Transactional
-    public ServiceResult<TranslationAttribute> deleteSourceWord(DeleteSourceWordRequest request) {
-        try {
-            validate(request);
-            Optional<Translation> optionalTranslation = translationRepository.deleteSourceWord(request);
-            if(optionalTranslation.isPresent()) {
-                TranslationAttribute translationAttribute = TranslationAttribute.builder()
-                        .documentId(-1)
-                        .selectedWordId(request.selectedWordId())
-                        .translationId(-1)
-                        .translation(optionalTranslation.get())
-                        .currentFamiliarity(getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
-                        .familiarityLevels(getFamiliarityTable())
-                        .isPhrase(request.isPhrase())
-                        .build();
-                return ServiceResultImp.success(translationAttribute);
-            }
-            throw new RuntimeException("Unknown exception");
-        } catch (ConstraintViolationException e) {
-            throw new InvalidInputException(ServiceResultImp.error(ErrorMapFactory.fromViolations(e.getConstraintViolations())));
+    public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request) {
+        validate(request);
+        Optional<Translation> optionalTranslation = translationRepository.deleteSourceWord(request);
+        if(optionalTranslation.isPresent()) {
+            return TranslationAttribute.builder()
+                    .documentId(-1)
+                    .selectedWordId(request.selectedWordId())
+                    .translationId(-1)
+                    .translation(optionalTranslation.get())
+                    .currentFamiliarity(getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
+                    .familiarityLevels(getFamiliarityTable())
+                    .isPhrase(request.isPhrase())
+                    .build();
         }
+        throw new RuntimeException("Unknown exception");
     }
 
     @Override
-    public ServiceResult<Integer> getWordsLearnedCount(CustomUserDetails principal) {
-        return ServiceResultImp.success(translationRepository.getWordsLearnedCount(principal.getUsername(), principal.targetLanguage()));
+    public int getWordsLearnedCount(CustomUserDetails principal) {
+        return translationRepository.getWordsLearnedCount(principal.getUsername(), principal.targetLanguage());
     }
 
 
     @Override
-    public ServiceResult<Map<String, Translation>> findTranslationsByImport(FindTranslationsByImportRequest request) {
+    public Map<String, Translation> findTranslationsByImport(FindTranslationsByImportRequest request) {
         Pattern newLinePattern = Pattern.compile("\n+");
         Pattern nonLetterNonNumberPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");
         List<String> wordList = getContentAsWordList(request.anImport().pageContent(), Map.of("newLine", newLinePattern, "nonLetterNonNumber", nonLetterNonNumberPattern));
-        System.out.println("searching db for: " + wordList);
-        Map<String, Translation> translations = extractTranslationsFromDatabase(wordList, request.owner());
-        System.out.println("db has: " + translations.values().stream().map(TranslationDetails::targetWord).toList());
-        return ServiceResultImp.success(translations);
+        return extractTranslationsFromDatabase(wordList, request.owner());
     }
 
     @Override
-    public ServiceResult<List<Translation>> extractPhrases(String content, String owner) {
-        List<Translation> phrases = translationRepository.extractPhrases(content, owner);
-        return ServiceResultImp.success(phrases);
+    public List<Translation> extractPhrases(String content, String owner) {
+        return translationRepository.extractPhrases(content, owner);
     }
 
     @Override
     public List<String> translate(TranslateRequest request) {
-
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
         return mergeSourceWordLists(
                 sourceWordsFromDatabase,
@@ -243,19 +226,19 @@ public class TranslationServiceImp implements TranslationService {
     }
 
     @Override
-    public ServiceResult<BaseFlashcardAttribute> getRandomTranslations(GetRandomTranslationsRequest request) {
+    public BaseFlashcardAttribute getRandomTranslations(GetRandomTranslationsRequest request) throws TranslationsNotFoundException {
         List<Translation> translations = translationRepository.getRandomTranslations(request.isPhrase(), request.owner(), request.quantity(), request.familiarity());
         if(!translations.isEmpty()) {
-            return ServiceResultImp.success(BaseFlashcardAttribute.builder()
+            return BaseFlashcardAttribute.builder()
                     .id(request.id())
                     .size(translations.size())
                     .familiarity(request.familiarity())
                     .quantity(request.quantity())
                     .isPhrase(request.isPhrase())
                     .translations(translations)
-                    .build());
+                    .build();
         }
-        return ServiceResultImp.error(Map.of("emptyList", "No translations found to review"));
+        throw new TranslationsNotFoundException("No translations found to review");
 
     }
 

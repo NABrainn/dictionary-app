@@ -17,7 +17,7 @@
     <nav
     class="
     md:p-4 md:py-2
-    gap-2 px-1.5 flex bg-secondary justify-between items-center min-h-18">
+    gap-2 px-1.5 flex bg-secondary justify-between items-center min-h-18 select-none">
         @template.navbar.nav-buttons(
             lessons = navbarAttribute.lessonsBtnText(),
             vocabulary = navbarAttribute.vocabularyBtnText(),
@@ -36,13 +36,11 @@
                 languageText = navbarAttribute.languageText(),
                 uiText = navbarAttribute.uiText(),
                 translationsText = navbarAttribute.translationsText(),
-                logoutText = navbarAttribute.logoutText()
-            )
+                logoutText = navbarAttribute.logoutText())
         @else
             @template.navbar.login-btn(
                 text = navbarAttribute.loginBtnText(),
-                size = authButtonsSize
-            )
+                size = authButtonsSize)
         @endif
     </nav>
     @if(isAuthenticated)
@@ -50,8 +48,7 @@
         id="profile-panel">
             @template.navbar.profile-panel(
                 navbarAttribute = navbarAttribute,
-                isProfileOpen = navbarAttribute.isProfileOpen()
-            )
+                isProfileOpen = navbarAttribute.isProfileOpen())
         </div>
     @endif
 </div>

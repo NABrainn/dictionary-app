@@ -5,7 +5,7 @@
 @param List<LanguageData> languages
 @param String type
 
-<div class="relative text-left text-md animate-fade w-16">
+<div class="relative text-left text-md w-16">
         <button
         type="button"
         class="flex font-bold w-full cursor-default gap-2 items-center rounded-md bg-accent pl-1 text-left text-primary px-6
@@ -14,7 +14,11 @@
         aria-expanded="true"
         aria-labelledby="listbox-label"
         id="dropdown-btn"
-        onclick="htmx.find('#dropdown-menu-${type}').classList.toggle('hidden')">
+        onclick="
+        [...htmx.findAll('.dropdown-menu')]
+            .filter(dropdown => dropdown.id !== 'dropdown-menu-${type}')
+            .forEach(dropdown => dropdown.classList.add('hidden'))
+        htmx.find('#dropdown-menu-${type}').classList.toggle('hidden')">
             <img
             class="size-5"
             src="${selectedLanguage.imgPath()}" alt="image showcasing flag of selected language">
@@ -24,7 +28,7 @@
             text-md">${selectedLanguage.languageCode().toUpperCase()}</span>
         </button>
 
-        <div id="dropdown-menu-${type}" class="hidden mt-1.5 left-0 absolute bg-accent w-full text-left text-primary rounded-md z-10 py-2 gap-2">
+        <div id="dropdown-menu-${type}" class="dropdown-menu hidden mt-1.5 left-0 absolute bg-accent w-full text-left text-primary rounded-md z-10 py-2 gap-2">
             <div class="flex flex-col gap-1">
                 @for(var language : languages)
                     @if(!language.languageCode().equals(selectedLanguage.languageCode()))

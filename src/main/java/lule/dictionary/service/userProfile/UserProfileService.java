@@ -103,8 +103,8 @@ public class UserProfileService implements UserDetailsService {
         ));
     }
 
-    public void updateUILanguage(String username, Language language) {
-        userProfileRepository.updateUILanguage(username, language.name());
+    public void updateUILanguage(String username, Language uiLanguage) {
+        userProfileRepository.updateUILanguage(username, uiLanguage.name());
         CustomUserDetails userDetails = (CustomUserDetails) loadUserByUsername(username);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
                 userDetails,

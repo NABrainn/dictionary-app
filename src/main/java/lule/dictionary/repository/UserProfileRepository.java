@@ -238,7 +238,7 @@ public class UserProfileRepository {
         }
     }
 
-    public void updateUILanguage(String owner, String targetLanguage) {
+    public void updateUILanguage(String owner, String uiLanguage) {
         String sql = """
             UPDATE dictionary.user_profile_settings
             SET ui_lang = ?
@@ -250,7 +250,7 @@ public class UserProfileRepository {
         """;
         try {
             template.update(sql,
-                    targetLanguage,
+                    uiLanguage,
                     owner);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));

@@ -19,8 +19,4 @@
         translationAttribute = translationAttribute
         )
     </div>
-    @template.document-page.content.translation.ai-btn(
-        text = translationLocalization.get("ai_translation"),
-        targetWord = translationAttribute.translation().targetWord()
-    )
 </div>
