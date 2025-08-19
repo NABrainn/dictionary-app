@@ -58,26 +58,20 @@
                 hx-swap="outerHTML"
                 hx-push-url="false">${documentFormAttribute.insertManuallyBtnText()}</button>
             </div>
+            !{String message = switch(documentFormAttribute.submissionStrategy()) {
+                case ContentSubmission content -> messages.getOrDefault("content", "");
+                case UrlSubmission url when messages.get("invalidUriMessage") != null -> messages.get("invalidUriMessage");
+                case UrlSubmission url when messages.get("url") != null -> messages.get("url");
+                default -> "";
+            };}
             @if(documentFormAttribute.submissionStrategy() instanceof ContentSubmission content)
                 @template.create-document-form.content-form(
                     spaceForContentText = content.spaceForContentText(),
-                    message = messages.getOrDefault("content", ""))
+                    message = message)
             @elseif(documentFormAttribute.submissionStrategy() instanceof UrlSubmission url)
-                !{String urlErrorMessage = messages.get("url");}
-                !{String uriErrorMessage = messages.get("invalidUriMessage");}
-                @if(urlErrorMessage != null)
                     @template.create-document-form.url-form(
                     spaceForUrlText = url.spaceForUrlText(),
-                    message = urlErrorMessage)
-                @elseif(uriErrorMessage != null)
-                    @template.create-document-form.url-form(
-                    spaceForUrlText = url.spaceForUrlText(),
-                    message = uriErrorMessage)
-                @else
-                    @template.create-document-form.url-form(
-                    spaceForUrlText = url.spaceForUrlText())
-                @endif
-
+                    message = message)
             @endif
         </div>
         <div>
