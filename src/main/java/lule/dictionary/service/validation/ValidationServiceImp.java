@@ -1,10 +1,8 @@
 package lule.dictionary.service.validation;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.util.errors.ErrorFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -15,14 +13,12 @@ import java.util.Optional;
 public class ValidationServiceImp implements ValidationService {
 
     private final Validator validator;
-    private final ErrorFactory errorFactory;
 
     @Override
-    public <T> void validate(T ob) throws ConstraintViolationException {
+    public <T> void validate(T ob) throws ValidationServiceException {
         Optional<ConstraintViolation<T>> violation = getFirstViolation(ob);
         if(violation.isPresent()) {
-            System.out.println(violation.get().getConstraintDescriptor().getAnnotation().annotationType().getSimpleName());
-            throw new ValidationServiceException(violation.get());
+            throw new ValidationServiceException(violation.get().getPropertyPath() + " " + violation.get().getMessage(), violation.get());
         }
     }
 

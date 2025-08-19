@@ -24,6 +24,7 @@ public interface ImportController {
     String createImport(@RequestParam("title") String title,
                         @RequestParam("pageContent") String content,
                         @RequestParam("url") String url,
+                        @RequestParam("strategy") String strategy,
                         Model model,
                         Authentication authentication);
 

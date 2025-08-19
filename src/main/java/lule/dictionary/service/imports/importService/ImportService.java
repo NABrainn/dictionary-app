@@ -7,10 +7,11 @@ import lule.dictionary.service.imports.importService.dto.request.DocumentAttribu
 import lule.dictionary.service.imports.importService.dto.request.FindByOwnerAndTargetLanguageRequest;
 import lule.dictionary.service.imports.importService.dto.request.LoadDocumentContentRequest;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ImportService {
-    int createImport(CreateDocumentRequest createRequest) throws ConstraintViolationException;
+    int createImport(CreateDocumentRequest createRequest) throws ConstraintViolationException, IOException;
     List<ImportWithTranslationData> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request);
     DocumentAttribute loadDocumentContent(LoadDocumentContentRequest loadRequest);
 }

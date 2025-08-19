@@ -8,15 +8,14 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lule.dictionary.service.auth.dto.request.imp.LoginRequest;
 import lule.dictionary.service.auth.dto.request.imp.SignupRequest;
-import lule.dictionary.service.imports.importService.dto.request.CreateDocumentRequest;
-import lule.dictionary.service.jsoup.exception.InvalidUriException;
+import lule.dictionary.service.imports.dto.ContentSubmission;
+import lule.dictionary.service.imports.dto.UrlSubmission;
 import lule.dictionary.service.language.Language;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.stereotype.Service;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -37,54 +36,73 @@ public class ErrorLocalizationImp implements ErrorLocalization {
         this.constrainViolationMessages = new HashMap<>();
         initLoginRequestMessages();
         initSignupRequestMessages();
-        initCreateDocumentRequestMessages();
+        initUrlSubmissionMessages();
+        initContentSubmissionMessages();
     }
 
-    private void initCreateDocumentRequestMessages() throws NoSuchFieldException {
-        Class<?> clazz = CreateDocumentRequest.class;
+    private void initContentSubmissionMessages() throws NoSuchFieldException {
+        Class<?> clazz = UrlSubmission.class;
 
         Map<String, String> englishMessages = Map.of(
                 createConstraintViolationKey(clazz, "title", NotBlank.class, Language.EN), "Title cannot be blank",
                 createConstraintViolationKey(clazz, "title", Size.class, Language.EN), "Title must be between 10 and 200 characters",
-                createConstraintViolationKey(clazz, "content", NotNull.class, Language.EN), "Content cannot be null",
-                createConstraintViolationKey(clazz, "content", Size.class, Language.EN), "Content must be 1000000 characters or less",
                 createConstraintViolationKey(clazz, "url", NotNull.class, Language.EN), "URL cannot be null",
                 createConstraintViolationKey(clazz, "url", Size.class, Language.EN), "URL must be 200 characters or less",
-                createConstraintViolationKey(clazz, "url", URL.class, Language.EN), "URL must be a valid HTTPS URL",
-                createConstraintViolationKey(clazz, "owner", NotBlank.class, Language.EN), "Owner cannot be blank");
+                createConstraintViolationKey(clazz, "url", URL.class, Language.EN), "URL must be a valid HTTPS URL");
 
         Map<String, String> norwegianMessages = Map.of(
                 createConstraintViolationKey(clazz, "title", NotBlank.class, Language.NO), "Tittelen kan ikke være tom",
                 createConstraintViolationKey(clazz, "title", Size.class, Language.NO), "Tittelen må være mellom 10 og 200 tegn",
-                createConstraintViolationKey(clazz, "content", NotNull.class, Language.NO), "Innholdet kan ikke være null",
-                createConstraintViolationKey(clazz, "content", Size.class, Language.NO), "Innholdet må være 1000000 tegn eller mindre",
                 createConstraintViolationKey(clazz, "url", NotNull.class, Language.NO), "URL kan ikke være null",
-                createConstraintViolationKey(clazz, "url", Size.class, Language.NO), "URL må være 200 tegn eller mindre",
-                createConstraintViolationKey(clazz, "url", URL.class, Language.NO), "URL må være en gyldig HTTPS URL",
-                createConstraintViolationKey(clazz, "owner", NotBlank.class, Language.NO), "Eier kan ikke være tom"
-        );
+                createConstraintViolationKey(clazz, "url", Size.class, Language.NO), "URL må være 200 tegn eller færre",
+                createConstraintViolationKey(clazz, "url", URL.class, Language.NO), "URL må være en gyldig HTTPS-URL");
 
         Map<String, String> italianMessages = Map.of(
                 createConstraintViolationKey(clazz, "title", NotBlank.class, Language.IT), "Il titolo non può essere vuoto",
                 createConstraintViolationKey(clazz, "title", Size.class, Language.IT), "Il titolo deve essere compreso tra 10 e 200 caratteri",
-                createConstraintViolationKey(clazz, "content", NotNull.class, Language.IT), "Il contenuto non può essere nullo",
-                createConstraintViolationKey(clazz, "content", Size.class, Language.IT), "Il contenuto deve essere di 1000000 caratteri o meno",
                 createConstraintViolationKey(clazz, "url", NotNull.class, Language.IT), "L'URL non può essere nullo",
                 createConstraintViolationKey(clazz, "url", Size.class, Language.IT), "L'URL deve essere di 200 caratteri o meno",
-                createConstraintViolationKey(clazz, "url", URL.class, Language.IT), "L'URL deve essere un URL HTTPS valido",
-                createConstraintViolationKey(clazz, "owner", NotBlank.class, Language.IT), "Il proprietario non può essere vuoto"
-        );
+                createConstraintViolationKey(clazz, "url", URL.class, Language.IT), "L'URL deve essere un URL HTTPS valido");
 
         Map<String, String> polishMessages = Map.of(
                 createConstraintViolationKey(clazz, "title", NotBlank.class, Language.PL), "Tytuł nie może być pusty",
                 createConstraintViolationKey(clazz, "title", Size.class, Language.PL), "Tytuł musi mieć od 10 do 200 znaków",
-                createConstraintViolationKey(clazz, "content", NotNull.class, Language.PL), "Treść nie może być null",
-                createConstraintViolationKey(clazz, "content", Size.class, Language.PL), "Treść musi mieć 1000000 znaków lub mniej",
-                createConstraintViolationKey(clazz, "url", NotNull.class, Language.PL), "URL nie może analizować null",
+                createConstraintViolationKey(clazz, "url", NotNull.class, Language.PL), "URL nie może być null",
                 createConstraintViolationKey(clazz, "url", Size.class, Language.PL), "URL musi mieć 200 znaków lub mniej",
-                createConstraintViolationKey(clazz, "url", URL.class, Language.PL), "URL musi być poprawnym adresem HTTPS",
-                createConstraintViolationKey(clazz, "owner", NotBlank.class, Language.PL), "Właściciel nie może być pusty"
-        );
+                createConstraintViolationKey(clazz, "url", URL.class, Language.PL), "URL musi być poprawnym adresem HTTPS");
+
+        this.constrainViolationMessages.putAll(englishMessages);
+        this.constrainViolationMessages.putAll(norwegianMessages);
+        this.constrainViolationMessages.putAll(italianMessages);
+        this.constrainViolationMessages.putAll(polishMessages);
+    }
+
+    private void initUrlSubmissionMessages() throws NoSuchFieldException {
+        Class<?> clazz = ContentSubmission.class;
+
+        Map<String, String> englishMessages = Map.of(
+                createConstraintViolationKey(clazz, "title", NotBlank.class, Language.EN), "Title cannot be blank",
+                createConstraintViolationKey(clazz, "title", Size.class, Language.EN), "Title must be between 10 and 200 characters",
+                createConstraintViolationKey(clazz, "content", NotBlank.class, Language.EN), "Content cannot be empty",
+                createConstraintViolationKey(clazz, "content", Size.class, Language.EN), "Content must be 1000000 characters or less");
+
+        Map<String, String> norwegianMessages = Map.of(
+                createConstraintViolationKey(clazz, "title", NotBlank.class, Language.NO), "Tittelen kan ikke være tom",
+                createConstraintViolationKey(clazz, "title", Size.class, Language.NO), "Tittelen må være mellom 10 og 200 tegn",
+                createConstraintViolationKey(clazz, "content", NotBlank.class, Language.NO), "Innholdet kan ikke være tomt",
+                createConstraintViolationKey(clazz, "content", Size.class, Language.NO), "Innholdet må være 1000000 tegn eller færre");
+
+        Map<String, String> italianMessages = Map.of(
+                createConstraintViolationKey(clazz, "title", NotBlank.class, Language.IT), "Il titolo non può essere vuoto",
+                createConstraintViolationKey(clazz, "title", Size.class, Language.IT), "Il titolo deve essere compreso tra 10 e 200 caratteri",
+                createConstraintViolationKey(clazz, "content", NotBlank.class, Language.IT), "Il contenuto non può essere vuoto",
+                createConstraintViolationKey(clazz, "content", Size.class, Language.IT), "Il contenuto deve essere di 1000000 caratteri o meno");
+
+        Map<String, String> polishMessages = Map.of(
+                createConstraintViolationKey(clazz, "title", NotBlank.class, Language.PL), "Tytuł nie może być pusty",
+                createConstraintViolationKey(clazz, "title", Size.class, Language.PL), "Tytuł musi mieć od 10 do 200 znaków",
+                createConstraintViolationKey(clazz, "content", NotBlank.class, Language.PL), "Treść nie może być pusta",
+                createConstraintViolationKey(clazz, "content", Size.class, Language.PL), "Treść musi mieć 1000000 znaków lub mniej");
 
         this.constrainViolationMessages.putAll(englishMessages);
         this.constrainViolationMessages.putAll(norwegianMessages);

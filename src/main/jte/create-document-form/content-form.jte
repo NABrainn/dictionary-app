@@ -1,7 +1,9 @@
 @param String spaceForContentText
+@param String message = ""
 
 <div class="flex flex-col" id="content">
     <input type="hidden" name="url">
+    <input type="hidden" name="strategy" value="content_submit">
     <div class="w-full">
         <label for="area"></label>
         <textarea
@@ -12,7 +14,9 @@
         name="content"
         id="area"
         placeholder="${spaceForContentText}"></textarea>
-        <%--ERROR MESSAGES--%>
+        @if(!message.isBlank())
+            <span class="text-error font-bold">${message}</span>
+        @endif
     </div>
 </div>
 

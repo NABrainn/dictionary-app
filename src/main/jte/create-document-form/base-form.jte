@@ -1,6 +1,8 @@
 @import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.dto.application.attribute.DocumentFormAttribute
+@import lule.dictionary.service.imports.dto.ContentSubmission
+@import lule.dictionary.service.imports.dto.DocumentFormAttribute
 @import lule.dictionary.dto.application.attribute.NavbarAttribute
+@import lule.dictionary.service.imports.dto.UrlSubmission
 @import java.util.Map
 
 @param DocumentFormAttribute documentFormAttribute
@@ -31,18 +33,8 @@
             rows="2"
             name="title"
             id="title"></textarea>
-            @if(messages != null)
-                !{String titleError = messages.get("title");}
-                !{String urlError = messages.getOrDefault("url", "");}
-                !{String contentError = messages.getOrDefault("content", "");}
-                @if(titleError != null)
-                    <span class="font-bold text-error">${titleError}</span>
-                @elseif(!urlError.isBlank() && contentError.isBlank())
-                    <span class="font-bold text-error">${urlError}</span>
-                @else
-                    <span class="font-bold text-error">${contentError}</span>
-
-                @endif
+            @if(messages.get("title") != null)
+                <span class="text-error font-bold">${messages.get("title")}</span>
             @endif
         </div>
         <div class="flex flex-col gap-4">
@@ -66,9 +58,27 @@
                 hx-swap="outerHTML"
                 hx-push-url="false">${documentFormAttribute.insertManuallyBtnText()}</button>
             </div>
-            @template.create-import-form.url-form(
-                spaceForUrlText = documentFormAttribute.spaceForUrlText()
-            )
+            @if(documentFormAttribute.submissionStrategy() instanceof ContentSubmission content)
+                @template.create-document-form.content-form(
+                    spaceForContentText = content.spaceForContentText(),
+                    message = messages.getOrDefault("content", ""))
+            @elseif(documentFormAttribute.submissionStrategy() instanceof UrlSubmission url)
+                !{String urlErrorMessage = messages.get("url");}
+                !{String uriErrorMessage = messages.get("invalidUriMessage");}
+                @if(urlErrorMessage != null)
+                    @template.create-document-form.url-form(
+                    spaceForUrlText = url.spaceForUrlText(),
+                    message = urlErrorMessage)
+                @elseif(uriErrorMessage != null)
+                    @template.create-document-form.url-form(
+                    spaceForUrlText = url.spaceForUrlText(),
+                    message = uriErrorMessage)
+                @else
+                    @template.create-document-form.url-form(
+                    spaceForUrlText = url.spaceForUrlText())
+                @endif
+
+            @endif
         </div>
         <div>
             <button
@@ -76,29 +86,5 @@
             class="text-left px-2 py-1 bg-accent text-primary rounded cursor-pointer">${documentFormAttribute.submitBtnText()}</button>
         </div>
     </form>
-    <script>
-        if (!customElements.get('button-toggler')) {
-            class ButtonToggler extends HTMLElement {
-                constructor() {
-                    super();
-                    this.initListeners();
-                }
-
-                initListeners() {
-                    document.getElementById('url').addEventListener('click', (e) => {
-                        document.getElementById('url').classList.add('bg-primary');
-                        document.getElementById('insert').classList.remove('bg-primary');
-                    });
-
-                    document.getElementById('insert').addEventListener('click', (e) => {
-                        document.getElementById('url').classList.remove('bg-primary');
-                        document.getElementById('insert').classList.add('bg-primary');
-                    });
-                }
-            }
-            customElements.define('button-toggler', ButtonToggler);
-        }
-    </script>
-    <button-toggler></button-toggler>
 `,
 baseAttribute = baseAttribute)

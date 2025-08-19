@@ -5,6 +5,7 @@ import lule.dictionary.service.jsoup.JsoupService;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 @Slf4j
@@ -17,7 +18,7 @@ public class JsoupServiceTest {
     }
 
     @Test
-    void shouldImportDocument() {
+    void shouldImportDocument() throws IOException {
         Document document = jsoupService.importDocument("https://www.nrk.no/sport/audun-gronvold-er-dod-1.17494151");
         log.info("whole text, separated: {}", formatDocumentContent(document));
     }

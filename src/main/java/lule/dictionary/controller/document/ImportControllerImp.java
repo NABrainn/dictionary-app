@@ -1,11 +1,13 @@
 package lule.dictionary.controller.document;
 
 import jakarta.servlet.http.HttpSession;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.dto.application.attribute.DocumentFormAttribute;
+import lule.dictionary.service.imports.dto.ContentSubmission;
+import lule.dictionary.service.imports.dto.DocumentFormAttribute;
 import lule.dictionary.dto.database.interfaces.userProfile.CustomUserDetails;
+import lule.dictionary.service.imports.dto.SubmissionStrategy;
+import lule.dictionary.service.imports.dto.UrlSubmission;
 import lule.dictionary.service.imports.exception.ImportNotFoundException;
 import lule.dictionary.service.imports.importService.dto.request.*;
 import lule.dictionary.service.imports.importService.ImportServiceImp;
@@ -14,13 +16,14 @@ import lule.dictionary.service.language.Language;
 import lule.dictionary.service.localization.ErrorLocalization;
 import lule.dictionary.service.localization.LocalizationService;
 import lule.dictionary.service.sessionHelper.SessionHelper;
-import lule.dictionary.service.userProfile.exception.UserNotFoundException;
 import lule.dictionary.service.validation.ValidationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.InvalidUrlException;
+
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -43,16 +46,17 @@ public class ImportControllerImp implements ImportController {
     public String createImportForm(Model model,
                                    Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        Language uiLanguage = principal.userInterfaceLanguage();
+        model.addAttribute("messages", Map.of());
         model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
-                .titleText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("title"))
-                .contentText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("content"))
-                .importByUrlBtnText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("import_by_url"))
-                .insertManuallyBtnText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("insert_manually"))
-                .submitBtnText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("submit"))
-                .spaceForUrlText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("space_for_url"))
-                .spaceForContentText(localizationService.documentFormLocalization(principal.userInterfaceLanguage()).get("space_for_content"))
+                .titleText(localizationService.documentFormLocalization(uiLanguage).get("title"))
+                .contentText(localizationService.documentFormLocalization(uiLanguage).get("content"))
+                .importByUrlBtnText(localizationService.documentFormLocalization(uiLanguage).get("import_by_url"))
+                .insertManuallyBtnText(localizationService.documentFormLocalization(uiLanguage).get("insert_manually"))
+                .submitBtnText(localizationService.documentFormLocalization(uiLanguage).get("submit"))
+                .submissionStrategy(UrlSubmission.of("", "", localizationService.documentFormLocalization(uiLanguage).get("space_for_url")))
                 .build());
-        return "create-import-form/base-form";
+        return "create-document-form/base-form";
     }
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
@@ -82,16 +86,18 @@ public class ImportControllerImp implements ImportController {
     public String createImport(@RequestParam("title") String title,
                                @RequestParam("content") String content,
                                @RequestParam("url") String url,
+                               @RequestParam("strategy") String strategy,
                                Model model,
                                Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
+        SubmissionStrategy submissionStrategy =
+                strategy.equals("url_submit") ?
+                UrlSubmission.of(title, url, localizationService.documentFormLocalization(language).get("space_for_url")) :
+                ContentSubmission.of(title, content, localizationService.documentFormLocalization(language).get("space_for_content"));
         try {
-            int id = importService.createImport(CreateDocumentRequest.of(title, content, url, extractUsername(authentication)));
+            int id = importService.createImport(CreateDocumentRequest.of(submissionStrategy, principal));
             return "redirect:/imports/" + id + "?page=1";
-        } catch (UserNotFoundException e) {
-            log.info("Redirecting to login page due to user not found: {}", e.getMessage());
-            return "redirect:/auth/login";
 
         } catch (ValidationServiceException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
@@ -102,23 +108,21 @@ public class ImportControllerImp implements ImportController {
                     .importByUrlBtnText(localizationService.documentFormLocalization(language).get("import_by_url"))
                     .insertManuallyBtnText(localizationService.documentFormLocalization(language).get("insert_manually"))
                     .submitBtnText(localizationService.documentFormLocalization(language).get("submit"))
-                    .spaceForUrlText(localizationService.documentFormLocalization(language).get("space_for_url"))
-                    .spaceForContentText(localizationService.documentFormLocalization(language).get("space_for_content"))
+                    .submissionStrategy(submissionStrategy)
                     .build());
-            return "create-import-form/base-form";
+            return "create-document-form/base-form";
         } catch (InvalidUriException e) {
             log.warn("Retrying view due to url issue: {}", e.getMessage());
-            model.addAttribute("messages", errorLocalization.getMessageByException(e.getClass(), principal.userInterfaceLanguage()));
+            model.addAttribute("messages", Map.of("invalidUriMessage", e.getLocalizedMessages().get(principal.userInterfaceLanguage())));
             model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
                     .titleText(localizationService.documentFormLocalization(language).get("title"))
                     .contentText(localizationService.documentFormLocalization(language).get("content"))
                     .importByUrlBtnText(localizationService.documentFormLocalization(language).get("import_by_url"))
                     .insertManuallyBtnText(localizationService.documentFormLocalization(language).get("insert_manually"))
                     .submitBtnText(localizationService.documentFormLocalization(language).get("submit"))
-                    .spaceForUrlText(localizationService.documentFormLocalization(language).get("space_for_url"))
-                    .spaceForContentText(localizationService.documentFormLocalization(language).get("space_for_content"))
+                    .submissionStrategy(submissionStrategy)
                     .build());
-            return "create-import-form/base-form";
+            return "create-document-form/base-form";
         }
     }
 
@@ -126,21 +130,17 @@ public class ImportControllerImp implements ImportController {
     public String urlForm(Model model,
                           Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        model.addAttribute("spaceForUrlText", localizationService.documentFormLocalization(principal.sourceLanguage()).get("space_for_url"));
-        return "create-import-form/url-form";
+        Language language = principal.userInterfaceLanguage();
+        model.addAttribute("spaceForUrlText", localizationService.documentFormLocalization(language).get("space_for_url"));
+        return "create-document-form/url-form";
     }
 
     @GetMapping({"/textarea-form", "/textarea-form/"})
     public String contentForm(Model model,
                               Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        model.addAttribute("spaceForContentText", localizationService.documentFormLocalization(principal.sourceLanguage()).get("space_for_content"));
-        return "create-import-form/content-form";
-    }
-
-
-    private @NonNull String extractUsername(Authentication authentication) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        return principal.getUsername();
+        Language language = principal.userInterfaceLanguage();
+        model.addAttribute("spaceForContentText", localizationService.documentFormLocalization(language).get("space_for_content"));
+        return "create-document-form/content-form";
     }
 }
