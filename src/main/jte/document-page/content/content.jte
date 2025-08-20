@@ -36,7 +36,7 @@ hx-vals='js:{
     )
     <div
     class="
-    w-full px-2 min-h-165
+    w-full px-2 min-h-175
     md:w-3/5 mx-auto text-wrap">
         @if(documentAttribute.paginationData().currentPageNumber() == 1)
             <span
