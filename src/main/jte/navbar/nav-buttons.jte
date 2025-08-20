@@ -3,7 +3,7 @@
 @param String size
 
 <div
-class="flex items-center gap-8 align-center text-lg text-neutral ${size}">
+class="flex items-center gap-12 align-center text-lg text-neutral ${size}">
     <a
     hx-get="/lessons"
     hx-swap="innerHTML"
@@ -13,7 +13,7 @@ class="flex items-center gap-8 align-center text-lg text-neutral ${size}">
 
     md:text-lg md:inline
     hidden text-md cursor-pointer underline font-bold">
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-2">
             <svg
             class="
             cursor-pointer fill-accent" width="24px" height="24px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">

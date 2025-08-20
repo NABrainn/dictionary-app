@@ -1,15 +1,6 @@
 @param int selectedWordId
 @raw
 <script class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
-    if (!customElements.get('import-page-utils')) {
-        
-
-        class ImportPageUtils extends HTMLElement {
-
-        }
-        customElements.define('import-page-utils', ImportPageUtils);
-    }
-
     if (!customElements.get('import-page')) {
         class ImportPage extends HTMLElement {
 

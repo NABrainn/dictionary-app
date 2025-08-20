@@ -26,9 +26,10 @@
         <div class="flex flex-col gap-2">
             <label class="text-accent font-bold text-2xl min-h-8" for="title">${documentFormAttribute.titleText()}</label>
             <textarea
-            maxlength="250"
+            is="static-textarea"
+            maxlength="175"
             class="
-            outline-none overflow-none resize-none border border-2 border-primary rounded text-neutral h-16 leading-8
+            outline-none overflow-hidden resize-none border border-2 border-primary rounded text-neutral h-16 leading-8
             focus:border-accent"
             rows="2"
             name="title"
@@ -67,11 +68,13 @@
             @if(documentFormAttribute.submissionStrategy() instanceof ContentSubmission content)
                 @template.create-document-form.content-form(
                     spaceForContentText = content.spaceForContentText(),
-                    message = message)
+                    message = message
+                )
             @elseif(documentFormAttribute.submissionStrategy() instanceof UrlSubmission url)
-                    @template.create-document-form.url-form(
+                @template.create-document-form.url-form(
                     spaceForUrlText = url.spaceForUrlText(),
-                    message = message)
+                    message = message
+                )
             @endif
         </div>
         <div>
