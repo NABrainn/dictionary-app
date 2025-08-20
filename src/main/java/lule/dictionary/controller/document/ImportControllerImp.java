@@ -43,18 +43,22 @@ public class ImportControllerImp implements ImportController {
     }
 
     @GetMapping({"/new", "/new/"})
-    public String createImportForm(Model model,
+    public String createImportForm(@RequestParam(name = "strategy", defaultValue = "url_submit") String strategy,
+                                   Model model,
                                    Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        Language uiLanguage = principal.userInterfaceLanguage();
+        Language language = principal.userInterfaceLanguage();
+        SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
+                        UrlSubmission.of("", "", localizationService.documentFormLocalization(language).get("space_for_url")) :
+                        ContentSubmission.of("", "", localizationService.documentFormLocalization(language).get("space_for_content"));
         model.addAttribute("messages", Map.of());
         model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
-                .titleText(localizationService.documentFormLocalization(uiLanguage).get("title"))
-                .contentText(localizationService.documentFormLocalization(uiLanguage).get("content"))
-                .importByUrlBtnText(localizationService.documentFormLocalization(uiLanguage).get("import_by_url"))
-                .insertManuallyBtnText(localizationService.documentFormLocalization(uiLanguage).get("insert_manually"))
-                .submitBtnText(localizationService.documentFormLocalization(uiLanguage).get("submit"))
-                .submissionStrategy(UrlSubmission.of("", "", localizationService.documentFormLocalization(uiLanguage).get("space_for_url")))
+                .titleText(localizationService.documentFormLocalization(language).get("title"))
+                .contentText(localizationService.documentFormLocalization(language).get("content"))
+                .importByUrlBtnText(localizationService.documentFormLocalization(language).get("import_by_url"))
+                .insertManuallyBtnText(localizationService.documentFormLocalization(language).get("insert_manually"))
+                .submitBtnText(localizationService.documentFormLocalization(language).get("submit"))
+                .submissionStrategy(submissionStrategy)
                 .build());
         return "create-document-form/base-form";
     }
@@ -91,8 +95,7 @@ public class ImportControllerImp implements ImportController {
                                Authentication authentication) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
-        SubmissionStrategy submissionStrategy =
-                strategy.equals("url_submit") ?
+        SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
                 UrlSubmission.of(title, url, localizationService.documentFormLocalization(language).get("space_for_url")) :
                 ContentSubmission.of(title, content, localizationService.documentFormLocalization(language).get("space_for_content"));
         try {

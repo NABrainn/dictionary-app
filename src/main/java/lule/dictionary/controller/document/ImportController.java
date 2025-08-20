@@ -10,7 +10,8 @@ public interface ImportController {
     String importListPage();
 
     @GetMapping({"/new", "/new/"})
-    String createImportForm(Model model,
+    String createImportForm(@RequestParam("strategy") String strategy,
+                            Model model,
                             Authentication authentication);
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
