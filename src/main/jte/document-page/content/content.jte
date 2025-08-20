@@ -18,7 +18,7 @@
 <form
 id="page-content"
 data-document-id="${documentAttribute.importData().documentId()}"
-class="flex flex-col gap-8  text-wrap"
+class="flex flex-col gap-8 text-wrap"
 hx-get="/translations/phrase"
 hx-trigger="selectphrase from:document"
 hx-target=".selected-phrase"
@@ -36,15 +36,15 @@ hx-vals='js:{
     )
     <div
     class="
-    w-full px-2 min-h-175
-    md:w-3/5 mx-auto text-wrap">
+    w-full px-2
+    md:w-3/5 mx-auto text-wrap min-h-165">
         @if(documentAttribute.paginationData().currentPageNumber() == 1)
             <span
             class="
             md:text-4xl
             text-xl text-neutral font-bold ">${documentAttribute.importData().title()}</span>
         @endif
-        <div class="leading-10">
+        <div class="leading-9">
             !{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
             @for(var paragraphEntry :  ForSupport.of(content.paragraphs()))
 
@@ -236,7 +236,7 @@ hx-vals='js:{
     <div
     class="
     md:max-w-2/5 md:gap-4
-    max-w-full flex justify-center gap-2  mx-auto items-center basis-3/10">
+    max-w-full flex justify-center gap-2  mx-auto items-center">
         @template.document-page.content.paginator(
             id = documentAttribute.importData().documentId(),
             currentPage = documentAttribute.paginationData().currentPageNumber(),

@@ -499,41 +499,10 @@
                 
                 if(!phraseNodes.every(node => node?.classList.contains('selectable')))
                     return this.#destroySelector('all phrase parent nodes must be selectable')
+                const colors = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-neutral'];
 
-                const paragraph = this.#getParagraph(phraseNodes)
-                if(!paragraph) 
-                    return this.#destroySelector('paragraph cant be empty')
-
-                //hacky
-
-                if(htmx.find('.selected-phrase')) {
-                    this.#removeUnusedSelections().then(() => {
-                        this.#wrapWords(paragraph, phraseNodes)                
-                        this.#emitEvent()
-                        this.#destroySelector()
-                    })
-                    this.#data = {
-                    targetWords: phraseText,
-                    selectableId: phraseNodes.at(0).dataset.id,
-                    familiarities: [...phraseNodes]
-                                    .map(node => [...node.classList]
-                                        .filter(cls => this.#familiarities.includes(cls)))
-                                    .map(list => !list.length ? ['unknown'] : list)
-                    }
-                }
-                else {
-                    this.#data = {
-                        targetWords: phraseText,
-                        selectableId: phraseNodes.at(0).dataset.id,
-                        familiarities: [...phraseNodes]
-                                        .map(node => [...node.classList]
-                                            .filter(cls => this.#familiarities.includes(cls)))
-                                        .map(list => !list.length ? ['unknown'] : list)
-                    }
-                    this.#wrapWords(paragraph, phraseNodes)                
-                    this.#emitEvent()
-                    this.#destroySelector()
-                }
+                this.#wrapWords(phraseNodes)
+                this.#destroySelector()
             }
 
             set data(data) {
@@ -544,16 +513,27 @@
                 return this.#data ?? new Error('Data not initialized');
             }
 
-            #wrapWords(paragraph, phraseNodes) {
-                const phraseContainer = this.#createPhraseContainer()
-                paragraph.insertBefore(phraseContainer, phraseNodes.at(0))
-                phraseNodes.forEach(node => node.remove())
-                phraseNodes.forEach((node, id) => {
-                    phraseContainer.appendChild(node)
-                    if(id < phraseNodes.length - 1) {
-                        phraseContainer.appendChild(document.createTextNode("\u00A0"))
-                    }
+            #wrapWords(phraseNodes) {
+                const phrase = this.#replaceNodes(phraseNodes)
+                const phraseWordNodes = phraseNodes
+                    .map(node => [...node.children])
+                    .map(children => children.at(1))
+                const colorsToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-neutral'];
+                const colorsToAdd = ['bg-tertiary', 'text-accent']
+                phraseWordNodes.forEach(wordNode => {
+                    wordNode.classList.remove(...colorsToRemove)
+                    wordNode.classList.add(...colorsToAdd)
                 })
+            }
+
+            #replaceNodes(phraseNodes) {
+                const phrase = document.createElement('div')
+                const phraseElements = phraseNodes
+                    .map(node => [...node.children])
+                phrase.append(...phraseElements)
+                console.log(phrase)
+                phraseNodes.forEach(node => node.remove())
+                
             }
 
             #emitEvent() {
@@ -562,9 +542,9 @@
             }
 
             #destroySelector(message) {
-                // if(message) {
-                //    console.err or('destroying selector: ' + message)
-                // }
+                if(message) {
+                   console.error('destroying selector: ' + message)
+                }
                 window.getSelection().removeAllRanges()
                 return
             }
@@ -611,11 +591,11 @@
             }
 
             #getAnchorId() {
-                return parseInt(window.getSelection()?.anchorNode?.parentElement?.parentElement.id.substring(11))
+                return parseInt(window.getSelection()?.anchorNode?.parentElement?.parentElement?.id.substring(11))
             }
 
             #getFocusId() {
-                return parseInt(window.getSelection()?.focusNode?.parentElement?.parentElement.id.substring(11))
+                return parseInt(window.getSelection()?.focusNode?.parentElement?.parentElement?.id.substring(11))
             }
 
         }
