@@ -35,16 +35,20 @@ hx-vals='js:{
         isProfileToggleBtnVisible = false
     )
     <div
+    id="content-container"
     class="
     w-full px-2
     md:w-3/5 mx-auto text-wrap min-h-165">
         @if(documentAttribute.paginationData().currentPageNumber() == 1)
             <span
+            id="content-title"
             class="
             md:text-4xl
             text-xl text-neutral font-bold ">${documentAttribute.importData().title()}</span>
         @endif
-        <div class="leading-9">
+        <div
+        id="content-main"
+        class="leading-9">
             !{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
             @for(var paragraphEntry :  ForSupport.of(content.paragraphs()))
 
@@ -247,4 +251,19 @@ hx-vals='js:{
             firstPageOfRow = documentAttribute.paginationData().firstPageOfRowNumber()
         )
     </div>
+    <script>
+        @raw
+        //removes all whitespace text nodes from each page
+        const whitespaceNodes = [...htmx.find('#page-content').children]
+            .filter(node => node.id === 'content-container')
+            .flatMap(container => [...container.childNodes])
+            .filter(content => content.id === 'content-main')
+            .flatMap(main => [...main.childNodes])
+            .flatMap(paragraph => [...paragraph.childNodes])
+            .filter(node => node.nodeType === Node.TEXT_NODE)
+            .filter(node => /^\s*$/.test(node.textContent));
+
+        whitespaceNodes.forEach(whitespace => whitespace.remove())
+        @endraw
+    </script>
 </form>
