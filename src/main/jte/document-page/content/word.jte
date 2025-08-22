@@ -31,7 +31,7 @@ class="selectable-state-${processedWord}">
 @if(isSelectable)
     <div
     class="
-    ${familiarityString} inline-block relative cursor-pointer rounded whitespace-nowrap text-lg word selectable word-${wordId} word value-${processedWord}"
+    ${familiarityString} border border-2 rounded-none border-transparent inline-block relative cursor-pointer rounded whitespace-nowrap text-lg word selectable word-${wordId} word value-${processedWord}"
     id="selectable-${wordId}"
     data-id="${wordId}"
     hx-get="/translations/find"
@@ -54,7 +54,8 @@ class="selectable-state-${processedWord}">
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
         <span
-        class=" selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
+        class="selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
+        data-familiarity="${familiarityString}"
         id="word-span-${wordId}">${word}</span>
     </div>
 @else

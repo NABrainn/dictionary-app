@@ -1,6 +1,12 @@
 @param int selectedWordId
 @raw
-<script class="top-8 top-6 top-10 right-4 bottom-12 bottom-10">
+<script class="
+top-8 top-6 top-10 right-4 bottom-12 bottom-10 
+border-b-secondary border-l-secondary border-t-secondary border-r-secondary border-l-transparent border-r-transparent border
+border-l-2 border-r-2 border-t-2 border-b-2
+px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
+    //ABOVE styles used here solely for tailwind live reload server to pick up
+
     if (!customElements.get('import-page')) {
         class ImportPage extends HTMLElement {
 
@@ -499,9 +505,8 @@
                 
                 if(!phraseNodes.every(node => node?.classList.contains('selectable')))
                     return this.#destroySelector('all phrase parent nodes must be selectable')
-                const colors = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-neutral'];
-
-                this.#wrapWords(phraseNodes)
+                this.#unwrapLastSelection()
+                this.#wrapCurrentSelection(phraseNodes)
                 this.#destroySelector()
             }
 
@@ -513,27 +518,124 @@
                 return this.#data ?? new Error('Data not initialized');
             }
 
-            #wrapWords(phraseNodes) {
-                const phrase = this.#replaceNodes(phraseNodes)
-                const phraseWordNodes = phraseNodes
-                    .map(node => [...node.children])
-                    .map(children => children.at(1))
-                const colorsToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-neutral'];
-                const colorsToAdd = ['bg-tertiary', 'text-accent']
-                phraseWordNodes.forEach(wordNode => {
-                    wordNode.classList.remove(...colorsToRemove)
-                    wordNode.classList.add(...colorsToAdd)
+            #wrapCurrentSelection(phraseNodes) {                
+                const outerNodes = phraseNodes.filter((_, index) => index === 0 || index === phraseNodes.length - 1)
+                const innerNodes = phraseNodes.slice(1, -1)
+                this.#selectOuterNodes(outerNodes)
+                this.#selectInnerNodes(innerNodes)
+                this.#markOuterNodes(outerNodes)
+                this.#markInnerNodes(innerNodes)
+                const spans = this.#getSpans(phraseNodes)
+                this.#highlightSpans(spans)
+            }
+            #selectOuterNodes(outerNodes) {
+                outerNodes?.forEach((node, index) => {
+                    node.classList.remove(...['border', 'border-2', 'border-transparent'])
+                    if(index === 0) {
+                        node.classList.add(...[
+                            'border-b-secondary', 'border-l-secondary', 'border-t-secondary',
+                            'border-b-2', 'border-l-2', 'border-t-2', 'bg-tertiary', 'pr-0.5'
+                        ])
+                    }
+                    else {
+                        node.classList.add(...[
+                            'border-b-secondary', 'border-r-secondary', 'border-t-secondary',
+                            'border-b-2', 'border-r-2', 'border-t-2', 'bg-tertiary', 'pl-0.5'
+                        ])
+                    }
+                }) 
+            }
+            #selectInnerNodes(innerNodes) {
+                innerNodes?.forEach(node => {
+                    node.classList.remove(...['border', 'border-2', 'border-transparent'])
+                    node.classList.add(...[
+                        'border-b-secondary', 'border-t-secondary',
+                        'border-b-2', 'border-t-2', 'bg-tertiary', 'px-0.5'
+                    ]) 
+                })
+            }
+            #markOuterNodes(outerNodes) {
+                outerNodes?.forEach(node => {
+                    if (node && node.classList) {
+                        node.classList.add('new-phrase-part');
+                    }
+                });
+            }
+            #markInnerNodes(innerNodes) {
+                innerNodes?.forEach(node => {
+                    if (node && node.classList) {
+                        node.classList.add('new-phrase-part');
+                    }
+                });
+            }
+            #getSpans(phraseNodes) {
+                return phraseNodes
+                    ?.flatMap(node => [...node.children])
+                    .filter(node => node instanceof HTMLSpanElement)
+            }
+            #highlightSpans(spans) {
+                spans?.forEach(node => {
+                    node.classList.remove(...['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'])
+                    node.classList.add(...['text-accent'])
                 })
             }
 
-            #replaceNodes(phraseNodes) {
-                const phrase = document.createElement('div')
-                const phraseElements = phraseNodes
-                    .map(node => [...node.children])
-                phrase.append(...phraseElements)
-                console.log(phrase)
-                phraseNodes.forEach(node => node.remove())
-                
+            #unwrapLastSelection() {
+                const selectedNodes = this.#getSelectedNodes()
+                this.#removeSelection(selectedNodes)
+                this.#restoreHighlights(selectedNodes)
+                this.#unmarkSelection(selectedNodes)
+            }
+
+            #removeSelection(selectedNodes) {                
+                selectedNodes?.forEach((node, index) => {
+                    node.classList.remove(...[
+                        'border-b-secondary', 'border-l-secondary', 'border-t-secondary',
+                        'border-b-2', 'border-l-2', 'border-t-2', 'bg-tertiary', 'pr-0.5',
+                        'border-b-secondary', 'border-r-secondary', 'border-t-secondary',
+                        'border-b-2', 'border-r-2', 'border-t-2', 'bg-tertiary', 'pl-0.5',
+                        'border-b-secondary', 'border-t-secondary',
+                        'border-b-2', 'border-t-2', 'bg-tertiary', 'px-0.5',
+                    ])
+                    node.classList.add(...['border', 'border-2', 'border-transparent'])
+                })         
+            }
+
+            #restoreHighlights(selectedNodes) {
+                const spanFamiliarities = selectedNodes
+                    ?.flatMap(node => [...node.children])
+                    .filter(node => node instanceof HTMLSpanElement)
+                spanFamiliarities.forEach(node => {
+                    const colors = this.#getColorsFromFamiliarity(node.dataset.familiarity)
+                    node.classList.add(...colors)
+                })
+            }
+
+            #getSelectedNodes() {
+                return [...htmx.findAll('.new-phrase-part')]
+            }
+
+            #getColorsFromFamiliarity(familiarity) {
+                switch(familiarity) {
+                    case 'unknown':
+                        return ['bg-accent', 'text-primary']
+
+                    case 'recognized':
+                        return ['bg-accent/80', 'text-primary']
+
+                    case 'familiar':
+                        return ['bg-accent/60', 'text-primary']
+
+                    case 'known':
+                        return ['bg-primary', 'text-neutral']
+
+                    default:
+                        return ['bg-primary', 'text-neutral']
+                }
+            }
+
+            #unmarkSelection(selectedNodes) {
+                selectedNodes?.forEach(node => node.classList.remove('new-phrase-part'))
             }
 
             #emitEvent() {
