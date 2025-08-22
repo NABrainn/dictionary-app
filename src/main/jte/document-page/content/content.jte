@@ -19,14 +19,16 @@
 id="page-content"
 data-document-id="${documentAttribute.importData().documentId()}"
 class="flex flex-col gap-8 text-wrap"
-hx-get="/translations/phrase"
 hx-trigger="selectphrase from:document"
-hx-target=".selected-phrase"
-hx-swap="outerHTML"
+hx-get="/translations/find"
+hx-target=".phrase-translation-form-container"
+hx-swap="innerHTML"
 hx-vals='js:{
-    targetWords: htmx.find("phrase-selector").data.targetWords,
-    selectableId: htmx.find("phrase-selector").data.selectableId,
-    familiarities: htmx.find("phrase-selector").data.familiarities
+        documentId: ${documentId},
+        targetWord: htmx.find("phrase-selector").selectedPhraseData?.value,
+        selectedWordId: htmx.find("phrase-selector").selectedPhraseData?.id,
+        isPhrase: true,
+        isFound: false
 }'>
     <input type="hidden" name="documentId" value="${documentId}">
     @template.navbar.navbar(

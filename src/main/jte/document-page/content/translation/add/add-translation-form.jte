@@ -16,7 +16,7 @@ id="translation-form">
         text-sm text-red-400 font-bold cursor-pointer"
         onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
-    <span class="font-bold text-lg text-accent">${processedWord}</span>
+    <span class="font-bold text-lg text-accent text-wrap">${processedWord}</span>
     <div id="translation-manager">
         @template.document-page.content.translation.add.translation-manager(
             translationAttribute = translationAttribute,

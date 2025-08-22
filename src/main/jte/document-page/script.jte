@@ -480,13 +480,15 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
     }
     if (!customElements.get('phrase-selector')) {
         class PhraseSelector extends HTMLElement {
-            #data = {}
+            selectedPhraseData = {
+                value: '',
+                id: 0,
+            }
             #familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
             constructor() {
                 super()
                 this.#initializeListener()
             }
-
             #selectPhrase() {
                 const phraseNodes = this.#getPhraseNodes();
                 if(!phraseNodes) 
@@ -505,29 +507,59 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 
                 if(!phraseNodes.every(node => node?.classList.contains('selectable')))
                     return this.#destroySelector('all phrase parent nodes must be selectable')
+                this.#closeAllTranslationForms()
                 this.#unwrapLastSelection()
                 this.#wrapCurrentSelection(phraseNodes)
+                this.#emitEvent()
                 this.#destroySelector()
             }
-
-            set data(data) {
-                this.#data = data;
+            #unwrapLastSelection() {
+                const selectedNodes = this.#getSelectedNodes()
+                this.#removeSelection(selectedNodes)
+                this.#restoreHighlights(selectedNodes)
+                this.#unmarkSelection(selectedNodes)
+                this.#unmarkformContainer(selectedNodes)
+                this.selectedPhraseData = {}
             }
-
-            get data() {
-                return this.#data ?? new Error('Data not initialized');
-            }
-
             #wrapCurrentSelection(phraseNodes) {                
                 const outerNodes = phraseNodes.filter((_, index) => index === 0 || index === phraseNodes.length - 1)
                 const innerNodes = phraseNodes.slice(1, -1)
                 this.#selectOuterNodes(outerNodes)
                 this.#selectInnerNodes(innerNodes)
-                this.#markOuterNodes(outerNodes)
-                this.#markInnerNodes(innerNodes)
+                this.#markSelection(phraseNodes)
+                this.#markformContainer(phraseNodes)
                 const spans = this.#getSpans(phraseNodes)
-                this.#highlightSpans(spans)
+                this.#highlightSpans(spans)                
+                this.selectedPhraseData = {
+                    value: spans.map(span => span.innerText.toLowerCase()).join(" "),
+                    id: 0
+                }
             }
+            #markformContainer(phraseNodes) {
+                const phraseNodesChildren = phraseNodes
+                    .at(0)
+                    ?.children
+                if(phraseNodesChildren) {
+                    const formContainer = [...phraseNodesChildren].at(0)
+                    formContainer?.classList?.add('phrase-translation-form-container')
+                }
+            }
+            #unmarkformContainer(phraseNodes) {
+                const phraseNodesChildren = phraseNodes
+                    .at(0)
+                    ?.children
+                if(phraseNodesChildren) {
+                    const formContainer = [...phraseNodesChildren].at(0)
+                    formContainer?.classList?.remove('phrase-translation-form-container')
+                }
+            }
+
+            #closeAllTranslationForms() {
+                document.querySelectorAll('[id^="translation-form-"]').forEach(form => {
+                    form.innerHTML = '';
+                });
+            }
+
             #selectOuterNodes(outerNodes) {
                 outerNodes?.forEach((node, index) => {
                     node.classList.remove(...['border', 'border-2', 'border-transparent'])
@@ -554,17 +586,10 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     ]) 
                 })
             }
-            #markOuterNodes(outerNodes) {
-                outerNodes?.forEach(node => {
+            #markSelection(phraseNodes) {
+                phraseNodes?.forEach(node => {
                     if (node && node.classList) {
-                        node.classList.add('new-phrase-part');
-                    }
-                });
-            }
-            #markInnerNodes(innerNodes) {
-                innerNodes?.forEach(node => {
-                    if (node && node.classList) {
-                        node.classList.add('new-phrase-part');
+                        node.classList.add('new-phrase-part', 'pointer-events-none');
                     }
                 });
             }
@@ -580,13 +605,6 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 })
             }
 
-            #unwrapLastSelection() {
-                const selectedNodes = this.#getSelectedNodes()
-                this.#removeSelection(selectedNodes)
-                this.#restoreHighlights(selectedNodes)
-                this.#unmarkSelection(selectedNodes)
-            }
-
             #removeSelection(selectedNodes) {                
                 selectedNodes?.forEach((node, index) => {
                     node.classList.remove(...[
@@ -595,12 +613,11 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                         'border-b-secondary', 'border-r-secondary', 'border-t-secondary',
                         'border-b-2', 'border-r-2', 'border-t-2', 'bg-tertiary', 'pl-0.5',
                         'border-b-secondary', 'border-t-secondary',
-                        'border-b-2', 'border-t-2', 'bg-tertiary', 'px-0.5',
+                        'border-b-2', 'border-t-2', 'bg-tertiary', 'px-0.5'
                     ])
                     node.classList.add(...['border', 'border-2', 'border-transparent'])
                 })         
             }
-
             #restoreHighlights(selectedNodes) {
                 const spanFamiliarities = selectedNodes
                     ?.flatMap(node => [...node.children])
@@ -610,11 +627,9 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     node.classList.add(...colors)
                 })
             }
-
             #getSelectedNodes() {
                 return [...htmx.findAll('.new-phrase-part')]
             }
-
             #getColorsFromFamiliarity(familiarity) {
                 switch(familiarity) {
                     case 'unknown':
@@ -635,14 +650,12 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
 
             #unmarkSelection(selectedNodes) {
-                selectedNodes?.forEach(node => node.classList.remove('new-phrase-part'))
+                selectedNodes?.forEach(node => node.classList.remove('new-phrase-part', 'pointer-events-none'))
             }
-
             #emitEvent() {
                 const event = new Event('selectphrase')
                 document.dispatchEvent(event)
             }
-
             #destroySelector(message) {
                 if(message) {
                    console.error('destroying selector: ' + message)
