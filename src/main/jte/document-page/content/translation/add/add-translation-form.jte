@@ -8,7 +8,7 @@
 !{var processedWord = translationAttribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
 <div
 onclick="event.stopPropagation()"
-class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45"
+class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45 pointer-events-auto"
 id="translation-form">
     <div class="flex justify-end">
         <span

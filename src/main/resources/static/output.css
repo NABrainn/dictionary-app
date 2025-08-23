@@ -181,6 +181,9 @@
   }
 }
 @layer utilities {
+  .pointer-events-auto {
+    pointer-events: auto;
+  }
   .pointer-events-none {
     pointer-events: none;
   }
@@ -303,9 +306,6 @@
   .h-16 {
     height: calc(var(--spacing) * 16);
   }
-  .h-full {
-    height: 100%;
-  }
   .min-h-8 {
     min-height: calc(var(--spacing) * 8);
   }
@@ -324,27 +324,6 @@
   .min-h-165 {
     min-height: calc(var(--spacing) * 165);
   }
-  .min-h-170 {
-    min-height: calc(var(--spacing) * 170);
-  }
-  .min-h-175 {
-    min-height: calc(var(--spacing) * 175);
-  }
-  .min-h-180 {
-    min-height: calc(var(--spacing) * 180);
-  }
-  .min-h-200 {
-    min-height: calc(var(--spacing) * 200);
-  }
-  .min-h-225 {
-    min-height: calc(var(--spacing) * 225);
-  }
-  .min-h-full {
-    min-height: 100%;
-  }
-  .min-h-screen {
-    min-height: 100vh;
-  }
   .w-1\/4 {
     width: calc(1/4 * 100%);
   }
@@ -356,6 +335,9 @@
   }
   .w-16 {
     width: calc(var(--spacing) * 16);
+  }
+  .w-\[2px\] {
+    width: 2px;
   }
   .w-full {
     width: 100%;
@@ -369,6 +351,9 @@
   .max-w-full {
     max-width: 100%;
   }
+  .min-w-\[2px\] {
+    min-width: 2px;
+  }
   .grow-1 {
     flex-grow: 1;
   }
@@ -381,20 +366,8 @@
   .basis-1\/5 {
     flex-basis: calc(1/5 * 100%);
   }
-  .basis-1\/10 {
-    flex-basis: calc(1/10 * 100%);
-  }
   .basis-2\/5 {
     flex-basis: calc(2/5 * 100%);
-  }
-  .basis-3\/10 {
-    flex-basis: calc(3/10 * 100%);
-  }
-  .basis-7\/10 {
-    flex-basis: calc(7/10 * 100%);
-  }
-  .basis-9\/10 {
-    flex-basis: calc(9/10 * 100%);
   }
   .cursor-default {
     cursor: default;
@@ -413,9 +386,6 @@
   }
   .items-center {
     align-items: center;
-  }
-  .justify-around {
-    justify-content: space-around;
   }
   .justify-between {
     justify-content: space-between;
@@ -470,6 +440,9 @@
   .rounded-md {
     border-radius: var(--radius-md);
   }
+  .rounded-none {
+    border-radius: 0;
+  }
   .rounded-xl {
     border-radius: var(--radius-xl);
   }
@@ -493,13 +466,29 @@
     border-style: var(--tw-border-style);
     border-width: 3px;
   }
+  .border-t-2 {
+    border-top-style: var(--tw-border-style);
+    border-top-width: 2px;
+  }
   .border-r-1 {
     border-right-style: var(--tw-border-style);
     border-right-width: 1px;
   }
+  .border-r-2 {
+    border-right-style: var(--tw-border-style);
+    border-right-width: 2px;
+  }
+  .border-b-2 {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 2px;
+  }
   .border-l-1 {
     border-left-style: var(--tw-border-style);
     border-left-width: 1px;
+  }
+  .border-l-2 {
+    border-left-style: var(--tw-border-style);
+    border-left-width: 2px;
   }
   .border-error {
     border-color: var(--color-error);
@@ -509,6 +498,27 @@
   }
   .border-secondary {
     border-color: var(--color-secondary);
+  }
+  .border-transparent {
+    border-color: transparent;
+  }
+  .border-t-secondary {
+    border-top-color: var(--color-secondary);
+  }
+  .border-r-secondary {
+    border-right-color: var(--color-secondary);
+  }
+  .border-r-transparent {
+    border-right-color: transparent;
+  }
+  .border-b-secondary {
+    border-bottom-color: var(--color-secondary);
+  }
+  .border-l-secondary {
+    border-left-color: var(--color-secondary);
+  }
+  .border-l-transparent {
+    border-left-color: transparent;
   }
   .bg-accent {
     background-color: var(--color-accent);
@@ -561,6 +571,9 @@
   .p-8 {
     padding: calc(var(--spacing) * 8);
   }
+  .px-0\.5 {
+    padding-inline: calc(var(--spacing) * 0.5);
+  }
   .px-1\.5 {
     padding-inline: calc(var(--spacing) * 1.5);
   }
@@ -585,8 +598,14 @@
   .py-10 {
     padding-block: calc(var(--spacing) * 10);
   }
+  .pr-0\.5 {
+    padding-right: calc(var(--spacing) * 0.5);
+  }
   .pb-4 {
     padding-bottom: calc(var(--spacing) * 4);
+  }
+  .pl-0\.5 {
+    padding-left: calc(var(--spacing) * 0.5);
   }
   .pl-1 {
     padding-left: calc(var(--spacing) * 1);
@@ -624,10 +643,6 @@
   .leading-9 {
     --tw-leading: calc(var(--spacing) * 9);
     line-height: calc(var(--spacing) * 9);
-  }
-  .leading-10 {
-    --tw-leading: calc(var(--spacing) * 10);
-    line-height: calc(var(--spacing) * 10);
   }
   .font-bold {
     --tw-font-weight: var(--font-weight-bold);

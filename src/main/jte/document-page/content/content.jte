@@ -21,7 +21,7 @@ data-document-id="${documentAttribute.importData().documentId()}"
 class="flex flex-col gap-8 text-wrap"
 hx-trigger="selectphrase from:document"
 hx-get="/translations/find"
-hx-target=".phrase-translation-form-container"
+hx-target="#selected-phrase"
 hx-swap="innerHTML"
 hx-vals='js:{
         documentId: ${documentId},
@@ -256,7 +256,7 @@ hx-vals='js:{
     <script>
         @raw
         //removes all whitespace text nodes from each page
-        const whitespaceNodes = [...htmx.find('#page-content').children]
+        window.whitespaceNodes = [...htmx.find('#page-content').children]
             .filter(node => node.id === 'content-container')
             .flatMap(container => [...container.childNodes])
             .filter(content => content.id === 'content-main')
@@ -265,7 +265,7 @@ hx-vals='js:{
             .filter(node => node.nodeType === Node.TEXT_NODE)
             .filter(node => /^\s*$/.test(node.textContent));
 
-        whitespaceNodes.forEach(whitespace => whitespace.remove())
+        window.whitespaceNodes.forEach(whitespace => whitespace.remove())
         @endraw
     </script>
 </form>
