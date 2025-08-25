@@ -46,7 +46,8 @@ id="translation-form">
             hx-on::before-request="
             htmx.findAll('.selectable-state-${translationAttribute.translation().targetWord().replace(" ", "-")}').forEach(input => input.dataset.isFound = true)
             htmx.find('selectable-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')
-            ">
+            "
+            hx-on::after-request="htmx.find('phrase-selector').findPhrasesByValue('${processedWord}')">
                 <span class="cursor-pointer">${level.getKey()}: </span>
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">

@@ -48,7 +48,7 @@
     !{containerTextColor = "text-neutral";}
 @endif
 <div
-class="${familiarity} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${containerTextColor} ${containerBgColor} selectable value-${processedWord.replace(" ", "-")}"
+class="phrase ${familiarity} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${containerTextColor} ${containerBgColor} selectable value-${processedWord.replace(" ", "-")}"
 id="selectable-${selectableId}"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"

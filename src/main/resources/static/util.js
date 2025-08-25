@@ -7,7 +7,7 @@ window.util = {
      * }} config 
      * @returns 
      */
-    wrap: (config) => {
+    wrap: (config) => {        
         const toWrapCloned = config.content
             .map(node => node.cloneNode(true))
         const wrapperCloned = config.wrapper.cloneNode(true)
@@ -34,7 +34,7 @@ window.util = {
             config.before.parentElement.insertBefore(config.insert, config.before)
             return config.insert
         }
-        console.error('Element to insert before is not located in the DOM: ', config.before)
+        console.error('Element to insert before must have a parent element: ', config.before)
     },
     /**
      * 
@@ -68,4 +68,6 @@ window.util = {
         }
         console.error('Element cannot be unwrapper: ', wrapper)
     }
+
+    //TODO add text search API
 }

@@ -174,7 +174,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 if(value !== undefined) {
                     if(value >= 0) {
                         return "right-" + value;
-                    }destroySelector
+                    }
                     return "-right-" + Math.abs(value)
                 }
             }
@@ -489,14 +489,75 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 super()
                 this.#initializeListener()
             }
-            unmarkPhrase() {
-                const container = this.#getSelectedPhrase()
-                container?.classList.remove('selected-phrase')
+            findAllPhrases(phrase) {
+                const searchedPhrase = phrase
+                    .toLowerCase()
+                    .replace(/[^\p{L}\p{N}\s]/gu, '')
+                    .split(' ');
+
+                const selectableSpanNodes = [...htmx.findAll('.selectable-text')]
+                const spanNodesWithPhrase = this.#getNodesWithPhrase(selectableSpanNodes, searchedPhrase)
+                const nodeIndices = this.#getNodeIndices(spanNodesWithPhrase, searchedPhrase)
+                const containerNodes = selectableSpanNodes
+                    .filter((span, id) => nodeIndices.some(idArr => idArr.includes(id)))
+                    .map(span => span.parentElement)
+                    .filter(parent => !parent.parentElement.classList.contains('selected-phrase'))
+                    .reduce((result, item, index) => {
+                        const n = searchedPhrase.length
+                        if (index % n === 0) {
+                            result.push([]);
+                        }
+                        result[Math.floor(index / n)].push(item);
+                        return result;
+                    }, [])  
+                                               
+                containerNodes.forEach(fragment => {
+                    fragment.forEach(div => div.classList.remove('border', 'border-2'))
+                    util.wrap({
+                        content: fragment,
+                        wrapper: util.define({
+                            type: 'div',
+                            classList: ['inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary', 'bg-tertiary']
+                        })
+                    })
+                })
+                    
+            }
+            #getNodesWithPhrase(spanNodes, searchedPhrase) {
+                let markedSpanNodes = spanNodes.map(span => span.innerText.toLowerCase())
+                for(const word of searchedPhrase) {
+                    markedSpanNodes = markedSpanNodes.map((text, id) => text === word ? {id, text} : text)
+                }
+                return markedSpanNodes
+                    .filter(text => text instanceof Object)
+            }
+            #getNodeIndices(phraseFragments, searchedPhrase) {
+                const phrasesFound = []
+                let buffer = [];
+                let pointer = 0;
+                for(const fragment of phraseFragments) {
+                    if(fragment.text !== searchedPhrase.at(pointer)) {
+                        buffer = []
+                        pointer = 0
+                    }
+                    buffer.push(fragment)
+                    pointer++
+                    if(buffer.map(word => word.text).join(' ') === searchedPhrase.join(' ')) {                                                
+                        const indices = buffer.map(fragment => fragment.id)
+                        phrasesFound.push(indices)
+                        buffer = []
+                        pointer = 0
+                    }
+                }
+                return phrasesFound
             }
             #selectPhrase() {
                 const phraseNodes = this.#getPhraseNodes();
                 if(!phraseNodes) 
                     return this.#destroySelector('phrase child nodes cant be undefined')
+
+                if(phraseNodes.length < 2) 
+                    return this.#destroySelector('selection too short')
 
                 if(phraseNodes.length > 5) 
                     return this.#destroySelector('selection too long')
@@ -508,12 +569,12 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 if(!phraseText) 
                     return this.#destroySelector('selection is empty')
 
-                
                 if(!phraseNodes.every(node => node?.classList.contains('selectable')))
-                    return this.#destroySelector('all phrase parent nodes must be selectable')                
+                    return this.#destroySelector('all phrase parent nodes must be selectable')                              
                 this.#closeAllTranslationForms()
                 this.#unwrapLastSelection()
                 this.#wrapCurrentSelection(phraseNodes)
+                this.findAllPhrases(phraseText)  
                 this.#emitEvent()
                 this.#destroySelector()
             }
@@ -667,9 +728,9 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 document.dispatchEvent(event)
             }
             #destroySelector(message) {
-                if(message) {
-                   console.error('destroying selector: ' + message)
-                }
+                // if(message) {
+                //    error('destroying selector: ' + message)
+                // }
                 window.getSelection().removeAllRanges()
                 return
             }

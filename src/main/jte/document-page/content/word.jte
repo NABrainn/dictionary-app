@@ -54,7 +54,7 @@ class="selectable-state-${processedWord}">
         hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
         </div>
         <span
-        class="selectable-${processedWord} ${bgColor} ${textColor} rounded selectable"
+        class="selectable-${processedWord} ${bgColor} ${textColor} rounded selectable selectable-text"
         data-familiarity="${familiarityString}"
         id="word-span-${wordId}">${word}</span>
     </div>
