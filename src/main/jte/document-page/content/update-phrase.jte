@@ -50,6 +50,7 @@
 <div
 class="phrase ${familiarity} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${containerTextColor} ${containerBgColor} selectable value-${processedWord.replace(" ", "-")}"
 id="selectable-${selectableId}"
+data-is-phrase="true"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
@@ -68,6 +69,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
     class="
     cursor-default z-2 absolute inline left-2 top-10"
     id="translation-form-container-${selectableId}"
+    data-is-translation-form-container="true"
     hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})">
     </div>
     @for(var phraseEntry : ForSupport.of(phrase.targetWords()))

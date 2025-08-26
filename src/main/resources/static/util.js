@@ -56,6 +56,64 @@ window.util = {
     },
     /**
      * 
+     * @param {Element} element 
+     */
+    removeInnerHTML: (element) => {
+        if(!element) throw new Error('Element is undefined')
+        element.innerHTML = ''
+    },
+    /**
+     * 
+     * @param {{
+     *    key: string,
+     *    value: string
+     * }} data 
+     * @returns {Node}
+     */
+    findByData: (data) => {
+        return htmx.find(`[data-${data.key}="${data.value}"]`)
+    },
+    /**
+     * 
+     * @param {{
+     *    key: string,
+     *    value: string
+     * }} data 
+     * @returns {Node[]}
+     */
+    findAllByData: (data) => {
+        return htmx.findAll(`[data-${data.key}="${data.value}"]`)
+    },
+    /**
+     * 
+     * @param {{
+     *    node: Node,
+     *    toRemove: string[],
+     *    toAdd: string[]
+     * }} config 
+     */
+    replaceClasses: (config) => {
+        if (!config) throw new Error('Passed parameter is undefined');
+        if (!config.node || !('classList' in config.node)) {
+            throw new Error('Passed node is not a valid DOM element: ', config.node);
+        }
+        
+        if(Array.isArray(config.toRemove)) {
+            config.node.classList.remove(...config.toRemove)
+        }
+        else {
+            config.node.classList.remove(config.toRemove)
+        }
+
+        if(Array.isArray(config.toAdd)) {
+            config.node.classList.add(...config.toAdd)
+        }
+        else {
+            config.node.classList.add(config.toAdd)
+        }
+    },
+    /**
+     * 
      * @param {Element} wrapper 
      * @returns {Element[]}
      */
