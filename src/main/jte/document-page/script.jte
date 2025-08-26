@@ -498,6 +498,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 const selectableSpanNodes = [...htmx.findAll('.selectable-text')]
                 const spanNodesWithPhrase = this.#getNodesWithPhrase(selectableSpanNodes, searchedPhrase)
                 const nodeIndices = this.#getNodeIndices(spanNodesWithPhrase, searchedPhrase)
+                
                 const containerNodes = selectableSpanNodes
                     .filter((span, id) => nodeIndices.some(idArr => idArr.includes(id)))
                     .map(span => span.parentElement)
@@ -523,16 +524,18 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 })
                     
             }
-            #getNodesWithPhrase(spanNodes, searchedPhrase) {
-                let markedSpanNodes = spanNodes.map(span => span.innerText.toLowerCase())
-                for(const word of searchedPhrase) {
-                    markedSpanNodes = markedSpanNodes.map((text, id) => text === word ? {id, text} : text)
-                }
-                return markedSpanNodes
-                    .filter(text => text instanceof Object)
+            #getNodesWithPhrase(spanNodes, searchWords) {                
+                const matchedNodes = spanNodes
+                    .map((span, index) => ({
+                        id: index,
+                        text: span.innerText.toLowerCase()
+                    }))
+                    .filter(node => searchWords.includes(node.text));
+                
+                return matchedNodes;
             }
             #getNodeIndices(phraseFragments, searchedPhrase) {
-                const phrasesFound = []
+                const phraseIndices = []
                 let buffer = [];
                 let pointer = 0;
                 for(const fragment of phraseFragments) {
@@ -540,16 +543,23 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                         buffer = []
                         pointer = 0
                     }
+                    const lastInBuffer = buffer.at(buffer.length - 1)
+                    if(lastInBuffer) {
+                        if(fragment.id - lastInBuffer.id !== 1) {
+                            buffer = []
+                            pointer = 0
+                        }
+                    }
                     buffer.push(fragment)
                     pointer++
                     if(buffer.map(word => word.text).join(' ') === searchedPhrase.join(' ')) {                                                
                         const indices = buffer.map(fragment => fragment.id)
-                        phrasesFound.push(indices)
+                        phraseIndices.push(indices)
                         buffer = []
                         pointer = 0
                     }
                 }
-                return phrasesFound
+                return phraseIndices
             }
             #selectPhrase() {
                 const phraseNodes = this.#getPhraseNodes();
