@@ -56,7 +56,7 @@ hx-vals='js:{
 
                 !{var paragraph = paragraphEntry.get(); var paragraphId = paragraphEntry.getIndex();}
                 <div
-                class="paragraph-${paragraphId}"
+                class="paragraph-${paragraphId} paragraph"
                 data-paragraph-id="${paragraphId}">
                 @for(var selectableEntry : ForSupport.of(paragraphEntry.get()))
 

@@ -13,11 +13,7 @@ window.util = {
         const wrapperCloned = config.wrapper.cloneNode(true)
         wrapperCloned.append(...toWrapCloned)
         const firstElement = config.content.at(0)        
-        if(!firstElement.parentElement){
-            console.error('One of wrapped elements is not located in the DOM: ', firstElement)
-            return
-        }
-        firstElement?.parentElement.insertBefore(wrapperCloned, firstElement)
+        firstElement?.parentElement.insertBefore(wrapperCloned, firstElement) ?? console.error('One of wrapped elements is not located in the DOM: ', firstElement)
         config.content.forEach(node => node.remove())
         return wrapperCloned
     },
@@ -67,7 +63,56 @@ window.util = {
             return children
         }
         console.error('Element cannot be unwrapper: ', wrapper)
-    }
+    },
 
-    //TODO add text search API
+    /**
+     * 
+     * @param {{
+     *    nodes: Node[],
+     *    innerText: string
+     * }} config 
+     * @returns {Node[][]}
+     */
+    findAllByInnerText: (config) => {        
+        const searchWords = config.innerText
+            .toLowerCase()
+            .replace(/[^\p{L}\p{N}\s]/gu, '')
+            .split(' ');
+        const phraseWordNodes = config.nodes
+            .map((node, index) => ({
+                id: index,
+                text: node.innerText.toLowerCase(),
+                node: node
+            }))
+            .filter(node => searchWords.includes(node.text));
+        
+        const phraseNodes = []
+        let buffer = [];
+        let pointer = 0;
+        for(const node of phraseWordNodes) {
+            //check if elements are subsequent
+            const lastInBuffer = buffer.at(buffer.length - 1)
+            if(lastInBuffer) {
+                if(node.id - lastInBuffer.id !== 1) {
+                    buffer = []
+                    pointer = 0
+                }
+            }
+            //check if subsequent elements match searched phrase
+            if(node.text !== searchWords.at(pointer)) {
+                buffer = []
+                pointer = 0
+            }
+            buffer.push(node)
+            pointer++
+            //check if buffer is filled up
+            if(buffer.map(word => word.text).join(' ') === searchWords.join(' ')) {                                                
+                phraseNodes.push(buffer)
+                buffer = []
+                pointer = 0
+            }
+        }
+        return phraseNodes
+            .map(arr => arr.map(item => item.node))
+    }
 }

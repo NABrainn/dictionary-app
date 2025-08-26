@@ -490,32 +490,19 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 this.#initializeListener()
             }
             findAllPhrases(phrase) {
-                const searchedPhrase = phrase
-                    .toLowerCase()
-                    .replace(/[^\p{L}\p{N}\s]/gu, '')
-                    .split(' ');
 
                 const selectableSpanNodes = [...htmx.findAll('.selectable-text')]
-                const spanNodesWithPhrase = this.#getNodesWithPhrase(selectableSpanNodes, searchedPhrase)
-                const nodeIndices = this.#getNodeIndices(spanNodesWithPhrase, searchedPhrase)
-                
-                const containerNodes = selectableSpanNodes
-                    .filter((span, id) => nodeIndices.some(idArr => idArr.includes(id)))
-                    .map(span => span.parentElement)
-                    .filter(parent => !parent.parentElement.classList.contains('selected-phrase'))
-                    .reduce((result, item, index) => {
-                        const n = searchedPhrase.length
-                        if (index % n === 0) {
-                            result.push([]);
-                        }
-                        result[Math.floor(index / n)].push(item);
-                        return result;
-                    }, [])  
+                const phrases = util.findAllByInnerText({
+                    innerText: phrase,
+                    nodes: selectableSpanNodes
+                })
+                .map(arr => arr.map(span => span.parentElement).filter(phrase => phrase.parentElement.classList.contains('paragraph')))
+                .filter(arr => arr.length)                
                                                
-                containerNodes.forEach(fragment => {
-                    fragment.forEach(div => div.classList.remove('border', 'border-2'))
+                phrases.forEach(phrase => {
+                    phrase.forEach(div => div.classList.remove('border', 'border-2'))
                     util.wrap({
-                        content: fragment,
+                        content: phrase,
                         wrapper: util.define({
                             type: 'div',
                             classList: ['inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary', 'bg-tertiary']
@@ -523,43 +510,6 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     })
                 })
                     
-            }
-            #getNodesWithPhrase(spanNodes, searchWords) {                
-                const matchedNodes = spanNodes
-                    .map((span, index) => ({
-                        id: index,
-                        text: span.innerText.toLowerCase()
-                    }))
-                    .filter(node => searchWords.includes(node.text));
-                
-                return matchedNodes;
-            }
-            #getNodeIndices(phraseFragments, searchedPhrase) {
-                const phraseIndices = []
-                let buffer = [];
-                let pointer = 0;
-                for(const fragment of phraseFragments) {
-                    if(fragment.text !== searchedPhrase.at(pointer)) {
-                        buffer = []
-                        pointer = 0
-                    }
-                    const lastInBuffer = buffer.at(buffer.length - 1)
-                    if(lastInBuffer) {
-                        if(fragment.id - lastInBuffer.id !== 1) {
-                            buffer = []
-                            pointer = 0
-                        }
-                    }
-                    buffer.push(fragment)
-                    pointer++
-                    if(buffer.map(word => word.text).join(' ') === searchedPhrase.join(' ')) {                                                
-                        const indices = buffer.map(fragment => fragment.id)
-                        phraseIndices.push(indices)
-                        buffer = []
-                        pointer = 0
-                    }
-                }
-                return phraseIndices
             }
             #selectPhrase() {
                 const phraseNodes = this.#getPhraseNodes();
