@@ -21,7 +21,7 @@ data-document-id="${documentAttribute.importData().documentId()}"
 class="flex flex-col gap-8 text-wrap"
 hx-trigger="selectphrase from:document"
 hx-get="/translations/find"
-hx-target="#selected-phrase"
+hx-target="#selected-phrase-form"
 hx-swap="innerHTML"
 hx-vals='js:{
         documentId: ${documentId},

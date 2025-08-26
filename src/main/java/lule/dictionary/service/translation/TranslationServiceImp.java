@@ -218,7 +218,7 @@ public class TranslationServiceImp implements TranslationService {
 
     @Override
     public List<String> translate(TranslateRequest request) {
-        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
+        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase(), 3);
         return mergeSourceWordLists(
                 sourceWordsFromDatabase,
                 translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord())

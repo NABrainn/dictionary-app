@@ -499,6 +499,9 @@
   .border-secondary {
     border-color: var(--color-secondary);
   }
+  .border-tertiary {
+    border-color: var(--color-tertiary);
+  }
   .border-transparent {
     border-color: transparent;
   }

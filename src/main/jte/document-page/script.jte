@@ -295,7 +295,9 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
 
             #updateFamiliarities(targetWord, familiarity) {
                 const familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
-                const selectables = htmx.findAll(`.value-${targetWord}`)                
+                const selectables = [...htmx.findAll(`.value-${targetWord}`)]
+                    .filter(selectable => selectable.classList.contains('selectable'))      
+                    .filter(selectable => !selectable.parentElement.classList.contains('selected-phrase'))       
                 selectables.forEach(selectable => {
                     selectable.classList.remove(...familiarities)
                     selectable.classList.add(familiarity)
@@ -489,27 +491,44 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 super()
                 this.#initializeListener()
             }
-            findAllPhrases(phrase) {
-
+            updatePhrasesUI(phrase, familiarity) {
                 const selectableSpanNodes = [...htmx.findAll('.selectable-text')]
                 const phrases = util.findAllByInnerText({
                     innerText: phrase,
                     nodes: selectableSpanNodes
                 })
-                .map(arr => arr.map(span => span.parentElement).filter(phrase => phrase.parentElement.classList.contains('paragraph')))
-                .filter(arr => arr.length)                
-                                               
-                phrases.forEach(phrase => {
-                    phrase.forEach(div => div.classList.remove('border', 'border-2'))
-                    util.wrap({
-                        content: phrase,
-                        wrapper: util.define({
-                            type: 'div',
-                            classList: ['inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary', 'bg-tertiary']
+                .map(arr => arr.map(span => span.parentElement))     
+                //update non-selected phrases                   
+                phrases
+                    .filter(phrase => phrase?.parentElement?.classList.contains('paragraph'))
+                    .filter(arr => arr.length)
+                    .forEach(phrase => {
+                        phrase.forEach(div => {
+                            div.classList.remove('border', 'border-2')
+                            const children = [...div.children]
+                            children
+                                .filter(child => child instanceof HTMLSpanElement)
+                                .forEach(span => {
+                                    const colorsToRemove = [
+                                        'bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'pointer-events-none'
+                                    ]
+                                    const colorsToAdd = this.#getColorsFromFamiliarity(familiarity);
+                                    span.classList.remove(...colorsToRemove)
+                                    span.classList.add(...colorsToAdd)
+                                })
+                        })
+                        util.wrap({
+                            content: phrase,
+                            wrapper: util.define({
+                                type: 'div',
+                                classList: [
+                                    'inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-tertiary', 
+                                    ...this.#getColorsFromFamiliarity(familiarity)
+                                ]
+                            })
                         })
                     })
-                })
-                    
+
             }
             #selectPhrase() {
                 const phraseNodes = this.#getPhraseNodes();
@@ -531,19 +550,60 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
 
                 if(!phraseNodes.every(node => node?.classList.contains('selectable')))
                     return this.#destroySelector('all phrase parent nodes must be selectable')                              
-                this.#closeAllTranslationForms()
+                
                 this.#unwrapLastSelection()
+                this.#closeAllTranslationForms()
                 this.#wrapCurrentSelection(phraseNodes)
-                this.findAllPhrases(phraseText)  
                 this.#emitEvent()
                 this.#destroySelector()
             }
             #unwrapLastSelection() {
                 const container = this.#getSelectedPhrase()
+                
                 if(container) {
-                    const phraseNodes = this.#unwrap(container)
-                    this.#unstylePhraseNodes(phraseNodes)                    
+                    const familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored'];
+                    const matchedClass = familiarities.find(cls => container.classList.contains(cls));
+                    if(!matchedClass) {
+                        const phraseNodes = this.#unwrap(container)
+                        this.#unstylePhraseNodes(phraseNodes)  
+                    } 
+                    else {
+                        container.classList.remove('bg-tertiary', 'selected-phrase')
+                        const children = [...container.children]
+
+                        const selectedPhraseForm = children
+                            .filter(child => child.id === 'selected-phrase-form')
+                        selectedPhraseForm
+                            .forEach(child => child.id = `translation-form-container-${this.selectedPhraseData.id}`) 
+
+                        const selectedPhraseNodes = children
+                            .filter(child => child.id !== 'selected-phrase-form')
+                            .flatMap(child => [...child.children])
+                            .filter(grandchild => grandchild instanceof HTMLSpanElement)
+                        selectedPhraseNodes
+                            .forEach(child => {
+                                child.classList.remove('bg-accent')
+                                child.classList.add(...this.#getColorsFromFamiliarity(child.dataset.familiarity))
+                            })
+                        
+
+                    }
+                    
                 }
+            }
+            #unstylePhraseNodes(phraseNodes) {
+                const stylesToRemove = ['border', 'border-2', 'border-transparent']
+                phraseNodes.forEach(node => node.classList.add(...stylesToRemove))
+                const spans = [...phraseNodes]
+                    .flatMap(child => [...child.children])
+                    .filter(grandchild => grandchild instanceof HTMLSpanElement)
+                spans.forEach(span => {
+                    const colorsFromFamiliarity = this.#getColorsFromFamiliarity(span.dataset.familiarity)
+                    const spanStylesToAdd = [...colorsFromFamiliarity]
+                    const spanStylesToRemove = ['bg-tertiary', 'text-accent']
+                    span.classList.add(...spanStylesToAdd)
+                    span.classList.remove(...spanStylesToRemove)
+                }) 
             }
             #wrapCurrentSelection(phraseNodes) {  
                 const form = this.#insertForm({
@@ -556,7 +616,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     this.#markSelection(phrase) 
                     this.#styleNodes(phrase)
                     this.#styleSpans(phrase)
-                    this.selectedPhraseData = this.#retrieveData(phraseNodes)
+                    this.selectedPhraseData = this.#retrieveData(phraseNodes)                    
                 }
             }
             #retrieveData(phraseNodes) {
@@ -583,7 +643,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 return util.define({
                     type: 'div',
                     classList: ['cursor-default', 'z-2', 'absolute', 'inline', 'left-2', 'top-10'],
-                    id: 'selected-phrase'
+                    id: 'selected-phrase-form'
                 })
             }
             #insertForm(config) {
@@ -618,28 +678,12 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 children.at(0).remove()
                 return children.slice(1);
             }
-            #unstylePhraseNodes(phraseNodes) {
-                phraseNodes.forEach(node => {
-                    const stylesToRemove = ['border', 'border-2', 'border-transparent']
-                    node.classList.add(...stylesToRemove)
-                })
-                const spans = [...phraseNodes]
-                    .flatMap(child => [...child.children])
-                    .filter(grandchild => grandchild instanceof HTMLSpanElement)
-                spans.forEach(span => {
-                    const colorsFromFamiliarity = this.#getColorsFromFamiliarity(span.dataset.familiarity)
-                    const spanStylesToAdd = [...colorsFromFamiliarity]
-                    const spanStylesToRemove = ['bg-tertiary', 'text-accent']
-                    span.classList.add(...spanStylesToAdd)
-                    span.classList.remove(...spanStylesToRemove)
-                }) 
-            }
             #getTranslationFormId(phraseNodes) {
                 return parseInt(phraseNodes
                     .at(0)
                     ?.dataset.id)
             }
-            #closeAllTranslationForms() {
+            #closeAllTranslationForms() {                
                 [...htmx.findAll('div')]
                     .filter(element => element.id.includes('translation-form-container-'))
                     .forEach(form => form.innerHTML = '')

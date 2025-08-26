@@ -13,7 +13,10 @@ window.util = {
         const wrapperCloned = config.wrapper.cloneNode(true)
         wrapperCloned.append(...toWrapCloned)
         const firstElement = config.content.at(0)        
-        firstElement?.parentElement.insertBefore(wrapperCloned, firstElement) ?? console.error('One of wrapped elements is not located in the DOM: ', firstElement)
+        if(!firstElement) {
+            throw new Error('One of wrapped elements is not located in the DOM')
+        }
+        firstElement.parentElement.insertBefore(wrapperCloned, firstElement)
         config.content.forEach(node => node.remove())
         return wrapperCloned
     },

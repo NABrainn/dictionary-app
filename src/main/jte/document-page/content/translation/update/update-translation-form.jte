@@ -13,7 +13,7 @@ id="translation-form">
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
     </div>
-    <span class="font-bold text-lg text-accent">${translationAttribute.translation().targetWord()}</span>
+    <span class="font-bold text-lg text-accent text-wrap">${translationAttribute.translation().targetWord()}</span>
     <div id="translation-manager">
         @template.document-page.content.translation.update.translation-manager(
             translationAttribute = translationAttribute,
