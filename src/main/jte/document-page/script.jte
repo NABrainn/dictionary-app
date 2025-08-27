@@ -7,8 +7,8 @@ border-l-2 border-r-2 border-t-2 border-b-2
 px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
     //ABOVE styles used here solely for tailwind live reload server to pick up
 
-    if (!customElements.get('import-page')) {
-        class ImportPage extends HTMLElement {
+    if (!customElements.get('form-position-adjuster')) {
+        class FormPositionAdjuster extends HTMLElement {
 
             static observedAttributes = ['selected-word-id'];
 
@@ -35,12 +35,6 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 const form = this.#getTranslationForm();
                 this.#handleOverflow(form);
                 this.#updateFormData();
-            }
-
-            #closeAllTranslationForms() {
-                [...htmx.findAll('div')]
-                    .filter(element => element.id.includes('translation-form-container-'))
-                    .forEach(form => form.innerHTML = '')
             }
 
             #updateFormData() {
@@ -218,11 +212,11 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
         }
 
-        customElements.define('import-page', ImportPage);
+        customElements.define('form-position-adjuster', FormPositionAdjuster);
     }
     //TODO make this a word highlighter, phrase highlighter will select and highlight phrases in isolation
-    if (!customElements.get('selectable-highlighter')) {
-        class SelectableHighlighter extends HTMLElement {
+    if (!customElements.get('word-highlighter')) {
+        class WordHighlighter extends HTMLElement {
 
             static observedAttributes = ['selected-word-id'];
             familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
@@ -236,31 +230,38 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
 
             attributeChangedCallback(name, oldValue, newValue) {
-                if (name === 'selected-word-id' && oldValue !== newValue) {
+                if (name === 'selected-word-id') {
                     const formContainers = util.findAllByData({
                         key: 'is-translation-form-container',
                         value: 'true'
                     })
                     this.#closeAllTranslationForms(formContainers)                    
-                    this.#fadeLastSelectedWord()
+                    this.#removeAllSelections()
                     this.#highlightSelectedWord()
+                }
+            }
+            async #removeAllSelections() {
+                this.fadeLastSelectedWord();
+                
+                await customElements.whenDefined('phrase-selector');
+                
+                const phraseSelector = htmx.find('phrase-selector');
+                if (phraseSelector) {
+                    phraseSelector.unwrapLastSelection();
                 }
             }
             #closeAllTranslationForms(forms) {
                 forms.forEach(form => util.removeInnerHTML(form))
             }
-            #fadeLastSelectedWord() {
+            fadeLastSelectedWord() {
                 const lastSelectedWord = this.#getSelectedWord();                                                                                    
                 if(lastSelectedWord) {
                     if(this.#isWord(lastSelectedWord)) {
-                        const familiarity = this.#getFamiliarity(lastSelectedWord)
-                        const colorsToRemove = ['bg-tertiary', 'text-neutral']
-                        
-                        const colorsToAdd = this.#getColorsFromFamiliarity(familiarity)
+                        const familiarity = lastSelectedWord.dataset.familiarity
                         this.#updateColors({
                             node: lastSelectedWord,
-                            toRemove: colorsToRemove,
-                            toAdd: colorsToAdd
+                            toRemove: ['bg-tertiary', 'text-neutral'],
+                            toAdd: this.#getColorsFromFamiliarity(familiarity)
                         })                        
                         this.#removeWordSelection(lastSelectedWord);
                     }
@@ -290,12 +291,10 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     .filter(span => span.dataset.value === targetWord)                    
                 nonSelectedWords.forEach(selectable => {                    
                     if(this.#isWord(selectable)) {
-                        const colorsToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary']
-                        const colorsToAdd = this.#getColorsFromFamiliarity(familiarity)             
                         this.#updateColors({
                             node: selectable,
-                            toRemove: colorsToRemove,
-                            toAdd: colorsToAdd
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                            toAdd: this.#getColorsFromFamiliarity(familiarity)   
                         })
                     }
                 })
@@ -320,11 +319,6 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
 
             #isSelected(selectable) {
                 return selectable.dataset.isSelectedWord === 'true'
-            }
-
-            #getFamiliarity(element) {
-                const familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']                                
-                return familiarities.find(familiarity => familiarity === element.dataset.familiarity)
             }
 
             #colorSelectedWord(word) {
@@ -365,14 +359,14 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
 
             #isWord(selectable) {
-                return selectable.dataset.selectableType === 'word';
+                return selectable.dataset.type === 'word';
             }
 
             #updateId(id) {
                 this.setAttribute('selected-word-id', id);
             }
         }
-        customElements.define('selectable-highlighter', SelectableHighlighter);
+        customElements.define('word-highlighter', WordHighlighter);
     }
     if (!customElements.get('phrase-selector')) {
         class PhraseSelector extends HTMLElement {
@@ -380,123 +374,47 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 value: '',
                 id: 0,
             }
-            #familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored']
             constructor() {
                 super()
                 this.#initializeListener()
             }
-            updatePhrasesUI(phrase, familiarity) {
-                const selectableSpanNodes = [...htmx.findAll('.selectable-text')]
-                const phrases = util.findAllByInnerText({
-                    innerText: phrase,
-                    nodes: selectableSpanNodes
-                })
-                .map(arr => arr.map(span => span.parentElement))     
-                //update non-selected phrases                   
-                phrases
-                    .filter(phrase => phrase?.parentElement?.classList.contains('paragraph'))
-                    .filter(arr => arr.length)
-                    .forEach(phrase => {
-                        phrase.forEach(div => {
-                            div.classList.remove('border', 'border-2')
-                            const children = [...div.children]
-                            children
-                                .filter(child => child instanceof HTMLSpanElement)
-                                .forEach(span => {
-                                    const colorsToRemove = [
-                                        'bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'pointer-events-none'
-                                    ]
-                                    const colorsToAdd = this.#getColorsFromFamiliarity(familiarity);
-                                    span.classList.remove(...colorsToRemove)
-                                    span.classList.add(...colorsToAdd)
-                                })
-                        })
-                        util.wrap({
-                            content: phrase,
-                            wrapper: util.define({
-                                type: 'div',
-                                classList: [
-                                    'inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-tertiary', 
-                                    ...this.#getColorsFromFamiliarity(familiarity)
-                                ]
-                            })
-                        })
-                    })
 
-            }
             #selectPhrase() {
-                const phraseNodes = this.#getPhraseNodes();
-                if(!phraseNodes) 
-                    return this.#destroySelector('phrase child nodes cant be undefined')
+                const phraseNodes = this.#getPhraseNodes();                
+                const result = util.catchErr(() => this.#validate(phraseNodes))     
 
-                if(phraseNodes.length < 2) 
-                    return this.#destroySelector('selection too short')
-
-                if(phraseNodes.length > 5) 
-                    return this.#destroySelector('selection too long')
-
-                if(phraseNodes.some(node => node?.dataset.isWordSelected === 'true'))
-                    return this.#destroySelector('cannot create phrase from selected word')
-
-                const phraseText = this.#getPhraseText(phraseNodes)
-                if(!phraseText) 
-                    return this.#destroySelector('selection is empty')
-
-                if(!phraseNodes.every(node => node?.classList.contains('selectable')))
-                    return this.#destroySelector('all phrase parent nodes must be selectable')                              
-                
-                this.#unwrapLastSelection()
-                this.#closeAllTranslationForms()
-                this.#wrapCurrentSelection(phraseNodes)
-                this.#emitEvent()
-                this.#destroySelector()
-            }
-            #unwrapLastSelection() {
-                const container = this.#getSelectedPhrase()
-                
-                if(container) {
-                    const familiarities = ['unknown', 'recognized', 'familiar', 'known', 'ignored'];
-                    const matchedClass = familiarities.find(cls => container.classList.contains(cls));
-                    if(!matchedClass) {
-                        const phraseNodes = this.#unwrap(container)
-                        this.#unstylePhraseNodes(phraseNodes)  
-                    } 
-                    else {
-                        container.classList.remove('bg-tertiary', 'selected-phrase')
-                        const children = [...container.children]
-
-                        const selectedPhraseForm = children
-                            .filter(child => child.id === 'selected-phrase-form')
-                        selectedPhraseForm
-                            .forEach(child => child.id = `translation-form-container-${this.selectedPhraseData.id}`) 
-
-                        const selectedPhraseNodes = children
-                            .filter(child => child.id !== 'selected-phrase-form')
-                            .flatMap(child => [...child.children])
-                            .filter(grandchild => grandchild instanceof HTMLSpanElement)
-                        selectedPhraseNodes
-                            .forEach(child => {
-                                child.classList.remove('bg-accent')
-                                child.classList.add(...this.#getColorsFromFamiliarity(child.dataset.familiarity))
-                            })
-                        
-
-                    }
-                    
+                if(result.ok) {                                        
+                    this.#removeAllSelections()
+                    const formContainers = util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
+                    this.#closeAllTranslationForms(formContainers)
+                    this.#wrapCurrentSelection(phraseNodes)
+                    this.#emitEvent()
+                    this.#destroySelection()
                 }
             }
-            #unstylePhraseNodes(phraseNodes) {
-                const stylesToRemove = ['border', 'border-2', 'border-transparent']
-                phraseNodes.forEach(node => node.classList.add(...stylesToRemove))
-                const spans = [...phraseNodes]
+            #removeAllSelections() {
+                this.unwrapLastSelection()
+                htmx.find('word-highlighter').fadeLastSelectedWord()
+            }
+            unwrapLastSelection() {
+                const container = this.#getSelectedPhrase()
+                if(container) {
+                    const phraseNodes = this.#unwrap(container)
+                    this.#unstyleNodes(phraseNodes)                      
+                }
+            }
+            #unstyleNodes(phraseNodes) {
+                phraseNodes.forEach(node => node.classList.add('border', 'border-2', 'border-transparent'))
+
+                const spans = phraseNodes
                     .flatMap(child => [...child.children])
                     .filter(grandchild => grandchild instanceof HTMLSpanElement)
                 spans.forEach(span => {
-                    const colorsFromFamiliarity = this.#getColorsFromFamiliarity(span.dataset.familiarity)
-                    const spanStylesToAdd = [...colorsFromFamiliarity]
-                    const spanStylesToRemove = ['bg-tertiary', 'text-accent']
-                    span.classList.add(...spanStylesToAdd)
-                    span.classList.remove(...spanStylesToRemove)
+                    util.replaceClasses({
+                        node: span,
+                        toRemove: ['bg-tertiary', 'text-accent'],
+                        toAdd: this.#getColorsFromFamiliarity(span.dataset.familiarity)
+                    })
                 }) 
             }
             #wrapCurrentSelection(phraseNodes) {  
@@ -505,39 +423,54 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     before: phraseNodes.at(0)
                 })
                 const container = this.#createContainer(phraseNodes)
-                const phrase = this.#wrapNodes([form, ...phraseNodes], container)
-                if(phrase) {
-                    this.#markSelection(phrase) 
-                    this.#styleNodes(phrase)
-                    this.#styleSpans(phrase)
-                    this.selectedPhraseData = this.#retrieveData(phraseNodes)                    
+                const wrapped = util.wrap({ wrapper: container, content: [form, ...phraseNodes] })
+                if(wrapped) {
+                    wrapped.content.forEach(node => htmx.process(node))
+                    const wrappedPhraseNodes = wrapped.content.filter(node => node.id !== 'selected-phrase-form')
+                    this.#styleNodes(wrappedPhraseNodes)
+                    this.selectedPhraseData = this.#retrieveData(wrappedPhraseNodes)     
                 }
             }
-            #retrieveData(phraseNodes) {
-                const value = this.#getSpans(phraseNodes)
+            #retrieveData(phraseNodes) {                
+                const value = phraseNodes
+                    .flatMap(node => [...node.children])
+                    .filter(child => child instanceof HTMLSpanElement)
                     .map(span => span.innerText)
                     .join(' ')
-                    
-                const id = [...phraseNodes]
-                    .at(0)
-                    ?.dataset.id
-                    ?? 0
-                return {
-                    value,
-                    id
-                }
+                const id = [...phraseNodes].at(0)?.dataset.id ?? 0
+
+                return { value, id }
             }
-            #wrapNodes(content, wrapper) {
-                return util.wrap({
-                    wrapper: wrapper,
-                    content: content
-                })
+            #validate(phraseNodes) {  
+                if(!phraseNodes) {
+                    this.#destroySelection()
+                    throw new Error('phrase nodes cant be undefined')
+                }                              
+                if(!phraseNodes.length) {
+                    this.#destroySelection()
+                    throw new Error('phrase nodes cant be empty')
+                }
+                if(phraseNodes.length > 5) {
+                    this.#destroySelection()
+                    throw new Error('selection too long')
+                }
+                if(phraseNodes.some(node => node?.dataset.isWordSelected === 'true')) {
+                    this.#destroySelection()
+                    throw new Error('cannot create phrase from selected word')
+                }
+                if(!phraseNodes.every(node => node?.dataset.isWordSelectable === 'true')) {
+                    this.#destroySelection()
+                    throw new Error('all phrase parent nodes must be selectable')
+                }
             }
             #createForm() {
                 return util.define({
                     type: 'div',
                     classList: ['cursor-default', 'z-2', 'absolute', 'inline', 'left-2', 'top-10'],
-                    id: 'selected-phrase-form'
+                    id: 'selected-phrase-form',
+                    data: [
+                        { key: 'is-translation-form-container', value: 'true' }
+                    ]
                 })
             }
             #insertForm(config) {
@@ -549,22 +482,23 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             #createContainer() {
                 return util.define({
                     type: 'div',
-                    classList: ['inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary', 'bg-tertiary']
+                    classList: [
+                        'inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary', 'bg-tertiary'
+                    ],
+                    id: 'selected-phrase'
                 })
             }
-            #styleNodes(phrase) {
-                const phraseContent = [...phrase.children]
-                phraseContent.forEach(node => node.classList.remove('border', 'border-2'))
-            }
-            #styleSpans(container) {
-                const spanStylesToAdd = ['bg-tertiary', 'text-accent']
-                const spanStylesToRemove = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary']
-                const spans = [...container.children]
-                    .flatMap(child => [...child.children])
-                    .filter(grandchild => grandchild instanceof HTMLSpanElement)
-                spans.forEach(span => {
-                    span.classList.add(...spanStylesToAdd)
-                    span.classList.remove(...spanStylesToRemove)
+            #styleNodes(phraseNodes) {
+                phraseNodes.forEach(node => {
+                    node.classList.remove('border', 'border-2', 'border-transparent')
+
+                    const spans = Array.from(node.children)
+                        .filter(child => child instanceof HTMLSpanElement)
+                    spans.forEach(span => util.replaceClasses({
+                        node: span,
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: ['bg-tertiary', 'text-accent']
+                    }))
                 })
             }
             #unwrap(container) {
@@ -577,31 +511,11 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     .at(0)
                     ?.dataset.id)
             }
-            #closeAllTranslationForms() {                
-                [...htmx.findAll('div')]
-                    .filter(element => element.id.includes('translation-form-container-'))
-                    .forEach(form => form.innerHTML = '')
+            #closeAllTranslationForms(forms) {
+                forms.forEach(form => util.removeInnerHTML(form))
             }
-            #markSelection(container) {
-                container.classList.add('selected-phrase')
-            }
-            #unmarkSelection(container) {
-                container.classList.remove('selected-phrase')
-            }
-            #getSpans(phraseNodes) {
-                return phraseNodes
-                    ?.flatMap(node => [...node.children])
-                    .filter(node => node instanceof HTMLSpanElement)
-            }
-            #highlightSpans(spans) {
-                spans?.forEach(node => {
-                    node.classList.remove(...['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'])
-                    node.classList.add(...['text-accent'])
-                })
-            }
-
             #getSelectedPhrase() {
-                return htmx.find('.selected-phrase')
+                return htmx.find('#selected-phrase')
             }
             #getColorsFromFamiliarity(familiarity) {
                 switch(familiarity) {
@@ -625,12 +539,8 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 const event = new Event('selectphrase')
                 document.dispatchEvent(event)
             }
-            #destroySelector(message) {
-                // if(message) {
-                //    error('destroying selector: ' + message)
-                // }
+            #destroySelection() {
                 window.getSelection().removeAllRanges()
-                return
             }
 
             #initializeListener() {
@@ -651,12 +561,12 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
 
             #getPhraseNodes() {
-                if(this.#getAnchorId() === this.#getFocusId()) return
-                const phraseNodes = []
-                for(let i = this.#getAnchorId(); i <= this.#getFocusId(); i++) {
-                    phraseNodes.push(htmx.find('.word-' + i))
-                }
-                return phraseNodes.filter(node => node !== null);
+                if(this.#getAnchorId() === this.#getFocusId()) return                
+                return Array.from(
+                    { length: this.#getFocusId() - this.#getAnchorId() + 1 },
+                    (_, i) => htmx.find(`#word-${i + this.#getAnchorId()}`)
+                )
+                .filter(node => node !== null)
             }
 
             #getPhraseText(phraseNodes) {
@@ -665,12 +575,12 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                             .map(node => node.innerText).join(" ")
             }
 
-            #getAnchorId() {
-                return parseInt(window.getSelection()?.anchorNode?.parentElement?.parentElement?.id.substring(11))
+            #getAnchorId() {                
+                return parseInt(window.getSelection()?.anchorNode?.parentElement?.parentElement?.dataset?.id)
             }
 
             #getFocusId() {
-                return parseInt(window.getSelection()?.focusNode?.parentElement?.parentElement?.id.substring(11))
+                return parseInt(window.getSelection()?.focusNode?.parentElement?.parentElement?.dataset?.id)
             }
 
         }
@@ -678,9 +588,8 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
     }
 @endraw
 </script>
-<import-page-utils></import-page-utils>
-<import-page selected-word-id="${selectedWordId}"></import-page>
-<selectable-highlighter target-selectable-id="${selectedWordId}"></selectable-highlighter>
+<form-position-adjuster selected-word-id="0"></form-position-adjuster>
+<word-highlighter selected-word-id="0"></word-highlighter>
 <phrase-selector></phrase-selector>
 
 

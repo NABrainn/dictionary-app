@@ -37,8 +37,9 @@ class="selectable-state-${processedWord}">
     data-familiarity="${familiarityString}"
     data-is-word-selectable="true"
     data-is-word-selected="false"
-    data-selectable-type="word"
+    data-type="word"
     data-value="${processedWord}"
+    data-id="${wordId}"
 
     hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
@@ -51,23 +52,24 @@ class="selectable-state-${processedWord}">
         isFound: htmx.find("#selectable-input-${wordId}").dataset.isFound ?? false
     }'
     hx-trigger="click"
-    hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${wordId})">
+    hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${wordId})">
         <div
         onclick="event.stopPropagation()"
         class="
         cursor-default z-2 absolute inline left-2 top-10"
         id="translation-form-container-${wordId}"
+
         data-is-translation-form-container="true"
-        hx-on::after-swap="htmx.find('import-page').updatePositions(${wordId})">
+        hx-on::after-swap="htmx.find('form-position-adjuster').updatePositions(${wordId})">
         </div>
         <span
         class="${bgColor} ${textColor} rounded"
         id="word-span-${wordId}"
+
         data-familiarity="${familiarityString}"
-        data-type="word-span"
         data-is-word-selected="false"
         data-value="${processedWord}"
-        data-selectable-type="word">${word}</span>
+        data-type="word">${word}</span>
     </div>
 @else
     <div

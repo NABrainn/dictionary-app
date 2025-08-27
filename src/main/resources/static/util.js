@@ -8,8 +8,7 @@ window.util = {
      * @returns 
      */
     wrap: (config) => {        
-        const toWrapCloned = config.content
-            .map(node => node.cloneNode(true))
+        const toWrapCloned = config.content.map(node => node.cloneNode(true))
         const wrapperCloned = config.wrapper.cloneNode(true)
         wrapperCloned.append(...toWrapCloned)
         const firstElement = config.content.at(0)        
@@ -18,7 +17,7 @@ window.util = {
         }
         firstElement.parentElement.insertBefore(wrapperCloned, firstElement)
         config.content.forEach(node => node.remove())
-        return wrapperCloned
+        return { wrapper: wrapperCloned, content: toWrapCloned}
     },
     /**
      * 
@@ -29,11 +28,12 @@ window.util = {
      * @returns 
      */
     insertBefore: (config) => {
-        if(config.before.parentElement) {
-            config.before.parentElement.insertBefore(config.insert, config.before)
-            return config.insert
+        if(config) {
+            if(config.before && config.insert) {
+                config.before.parentElement.insertBefore(config.insert, config.before)
+                return config.insert
+            }
         }
-        console.error('Element to insert before must have a parent element: ', config.before)
     },
     /**
      * 
@@ -51,6 +51,12 @@ window.util = {
         }
         if(config.id) {
             elementRef.id = config.id
+        }
+        if (config.data && config.data.length) {
+            config.data.forEach(entry => {
+                const camelCaseKey = entry.key.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+                elementRef.dataset[camelCaseKey] = entry.value;
+            });
         }
         return elementRef
     },
@@ -175,5 +181,15 @@ window.util = {
         }
         return phraseNodes
             .map(arr => arr.map(item => item.node))
+    },
+
+    
+    catchErr(callback) {
+        try {
+            const val = callback();
+            return { ok: true, value: val };
+        } catch (e) {
+            return { ok: false, err: e };
+        }
     }
 }

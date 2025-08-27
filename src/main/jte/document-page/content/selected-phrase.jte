@@ -37,16 +37,16 @@ hx-vals='js:{
         isFound: htmx.find("#phrase-input-${selectableId}").dataset.isFound
     }'
 hx-trigger="click"
-hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${selectableId})">
+hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${selectableId})">
     <div
     onclick="event.stopPropagation()"
     class="
     cursor-default z-2 absolute inline left-2 top-10 select-phrase-form-container"
     id="translation-form-container-${selectableId}"
     hx-on::before-swap="
-    htmx.find('selectable-highlighter').closeLastTranslationForm();
+    htmx.find('word-highlighter').closeLastTranslationForm();
     "
-    hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})"
+    hx-on::after-swap="htmx.find('form-position-adjuster').updatePositions(${selectableId})"
     hx-get="/translations/find"
     hx-target="this"
     hx-swap="innerHTML"

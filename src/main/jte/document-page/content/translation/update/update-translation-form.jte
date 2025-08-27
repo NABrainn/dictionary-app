@@ -48,7 +48,7 @@ id="translation-form">
             hx-swap="innerHTML"
             hx-on::before-request="
             htmx.findAll('.selectable-state-${translationAttribute.translation().targetWord().replace(" ", "-")}').forEach(input => input.dataset.isFound = true);
-            htmx.find('selectable-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}');
+            htmx.find('word-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}');
             "
             >
                 <span>${level.getKey()}: </span>

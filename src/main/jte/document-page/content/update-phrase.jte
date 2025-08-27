@@ -62,7 +62,7 @@ hx-vals='{
     "isFound": "true"
 }'
 hx-trigger="click"
-hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${selectableId})">
+hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${selectableId})">
 
     <div
     onclick="event.stopPropagation()"
@@ -70,7 +70,7 @@ hx-on::before-request="htmx.find('selectable-highlighter').updateSelectableId(${
     cursor-default z-2 absolute inline left-2 top-10"
     id="translation-form-container-${selectableId}"
     data-is-translation-form-container="true"
-    hx-on::after-swap="htmx.find('import-page').updatePositions(${selectableId})">
+    hx-on::after-swap="htmx.find('form-position-adjuster').updatePositions(${selectableId})">
     </div>
     @for(var phraseEntry : ForSupport.of(phrase.targetWords()))
         !{var wordId = 0;}
