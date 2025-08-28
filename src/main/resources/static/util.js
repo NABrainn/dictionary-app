@@ -7,8 +7,15 @@ window.util = {
      * }} config 
      * @returns 
      */
-    wrap: (config) => {        
+    wrap: (config) => {     
+        if(!config) 
+            throw new Error('config object cannot be undefined')   
+        if(!config.content) 
+            throw new Error('config property "content" cannot be undefined')
+        if(!config.wrapper) 
+            throw new Error('config property "wrapper" cannot be undefined')
         const toWrapCloned = config.content.map(node => node.cloneNode(true))
+        toWrapCloned.forEach(node => { node.dataset.isWrapped = 'true' })
         const wrapperCloned = config.wrapper.cloneNode(true)
         wrapperCloned.append(...toWrapCloned)
         const firstElement = config.content.at(0)        
@@ -125,33 +132,47 @@ window.util = {
      */
     unwrap: (wrapper) => {
         const children = [...wrapper.children]
-        if(wrapper.children) {
-            wrapper.replaceWith(...wrapper.children);
+        if(children) {
+            children.forEach(child => { child.dataset.isWrapped = 'false' })
+            wrapper.replaceWith(...children);
             return children
         }
-        console.error('Element cannot be unwrapper: ', wrapper)
+        console.error('Element cannot be unwrapped: ', wrapper)
     },
 
     /**
      * 
      * @param {{
      *    nodes: Node[],
-     *    innerText: string
+     *    text: string
      * }} config 
      * @returns {Node[][]}
      */
-    findAllByInnerText: (config) => {        
-        const searchWords = config.innerText
+    findAllByText: (config) => {       
+        if(!config) {
+            throw new Error('Config cannot be undefined')
+        } 
+        if(!config.text) {
+            throw new Error('Text config cannot be undefined')
+        }
+        if(!config.nodes) {
+            throw new Error('Nodes config cannot be undefined')
+        }
+        
+        const searchWords = config.text
             .toLowerCase()
             .replace(/[^\p{L}\p{N}\s]/gu, '')
-            .split(' ');
+            .split(' ');            
         const phraseWordNodes = config.nodes
             .map((node, index) => ({
                 id: index,
-                text: node.innerText.toLowerCase(),
+                text: node
+                    ?.innerText
+                    ?.replace(/[^\p{L}\p{N}\s]/gu, '')
+                    ?.toLowerCase() ?? '',
                 node: node
             }))
-            .filter(node => searchWords.includes(node.text));
+            .filter(node => searchWords.includes(node.text));        
         
         const phraseNodes = []
         let buffer = [];
@@ -179,6 +200,7 @@ window.util = {
                 pointer = 0
             }
         }
+        
         return phraseNodes
             .map(arr => arr.map(item => item.node))
     },

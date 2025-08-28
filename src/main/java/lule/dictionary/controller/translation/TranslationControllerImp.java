@@ -134,9 +134,8 @@ public class TranslationControllerImp {
             model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/update/update-translation-form";
         } catch (TranslationContraintViolationException e) {
-            String exceptionMessage = "Failed to add translation due to invalid input.";
-            log.info(exceptionMessage);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exceptionMessage);
+            log.info(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 

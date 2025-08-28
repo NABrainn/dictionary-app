@@ -34,12 +34,14 @@ class="selectable-state-${processedWord}">
     border border-2 rounded-none border-transparent inline-block relative cursor-pointer rounded whitespace-nowrap text-lg"
     id="word-${wordId}"
 
+    data-is-wrapped="false"
     data-familiarity="${familiarityString}"
     data-is-word-selectable="true"
     data-is-word-selected="false"
     data-type="word"
     data-value="${processedWord}"
     data-id="${wordId}"
+    data-is-selectable="true"
 
     hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
@@ -52,7 +54,9 @@ class="selectable-state-${processedWord}">
         isFound: htmx.find("#selectable-input-${wordId}").dataset.isFound ?? false
     }'
     hx-trigger="click"
-    hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${wordId})">
+    hx-on::before-request="
+    htmx.find('phrase-highlighter').highlightSavedPhrases();
+    htmx.find('word-highlighter').updateSelectableId(${wordId})">
         <div
         onclick="event.stopPropagation()"
         class="
@@ -69,7 +73,9 @@ class="selectable-state-${processedWord}">
         data-familiarity="${familiarityString}"
         data-is-word-selected="false"
         data-value="${processedWord}"
-        data-type="word">${word}</span>
+        data-type="word"
+        data-subtype="word-span"
+        data-is-word-text="true">${word}</span>
     </div>
 @else
     <div

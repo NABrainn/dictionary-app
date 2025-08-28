@@ -6,6 +6,7 @@
 @param Map<String, String> translationLocalization
 
 !{var processedWord = translationAttribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
+!{String hxTarget = translationAttribute.isPhrase() ? "#selected-phrase-form" : "#translation-form-container-" + translationAttribute.selectedWordId();}
 <div
 onclick="event.stopPropagation()"
 class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45 pointer-events-auto"
@@ -44,10 +45,12 @@ id="translation-form">
             }'
             hx-swap="innerHTML"
             hx-on::before-request="
-            htmx.findAll('.selectable-state-${translationAttribute.translation().targetWord().replace(" ", "-")}').forEach(input => input.dataset.isFound = true)
-            htmx.find('word-highlighter').highlightSelectables('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')
-            "
-            hx-on::after-request="htmx.find('phrase-selector').updatePhrasesUI('${processedWord}', '${level.getValue().name()}')">
+            htmx.findAll('.selectable-state-${processedWord.replace(" ", "-")}').forEach(input => input.dataset.isFound = true)
+            htmx.find('word-highlighter').highlightWords('${processedWord}', '${level.getValue().name().toLowerCase()}');
+            const highlighter = htmx.find('phrase-highlighter');
+            highlighter.highlightPhrases('${processedWord}', '${level.getValue().name()}');
+            highlighter.markPhrasesAsSaved();
+            ">
                 <span class="cursor-pointer">${level.getKey()}: </span>
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">

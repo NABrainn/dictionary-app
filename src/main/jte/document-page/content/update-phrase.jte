@@ -48,9 +48,14 @@
     !{containerTextColor = "text-neutral";}
 @endif
 <div
-class="phrase ${familiarity} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${containerTextColor} ${containerBgColor} selectable value-${processedWord.replace(" ", "-")}"
+class="${familiarity} inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${containerTextColor} ${containerBgColor}"
 id="selectable-${selectableId}"
+
+data-type="phrase"
 data-is-phrase="true"
+data-is-selectable="true"
+data-familiarity="${familiarity}"
+
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
@@ -69,6 +74,7 @@ hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${select
     class="
     cursor-default z-2 absolute inline left-2 top-10"
     id="translation-form-container-${selectableId}"
+
     data-is-translation-form-container="true"
     hx-on::after-swap="htmx.find('form-position-adjuster').updatePositions(${selectableId})">
     </div>
