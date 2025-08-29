@@ -43,6 +43,7 @@ public class TranslationServiceImp implements TranslationService {
     @Transactional
     public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
         try {
+            System.out.println(request);
             validate(request);
             Translation translation = TranslationImp.builder()
                     .sourceWords(request.sourceWords())

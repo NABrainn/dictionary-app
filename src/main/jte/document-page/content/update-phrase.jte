@@ -53,6 +53,7 @@ id="selectable-${selectableId}"
 
 data-type="phrase"
 data-is-phrase="true"
+data-is-phrase-saved="true"
 data-is-selectable="true"
 data-familiarity="${familiarity}"
 
@@ -67,7 +68,10 @@ hx-vals='{
     "isFound": "true"
 }'
 hx-trigger="click"
-hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${selectableId})">
+hx-on::before-request="
+htmx.find('phrase-selector').handlePhraseClick(${selectableId});
+htmx.find('phrase-highlighter').highlightPhrases('${processedWord}', '${familiarity}');
+">
 
     <div
     onclick="event.stopPropagation()"
@@ -99,7 +103,8 @@ hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${select
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false
+                        isSelectable = false,
+                        isWrapped = true
                     )
                 @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
                     @template.document-page.content.word(
@@ -108,7 +113,8 @@ hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${select
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false
+                        isSelectable = false,
+                    isWrapped = true
                     )
                 @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
                     @template.document-page.content.word(
@@ -117,7 +123,8 @@ hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${select
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false
+                        isSelectable = false,
+                    isWrapped = true
                     )
                 @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
                     @template.document-page.content.word(
@@ -126,7 +133,8 @@ hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${select
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false
+                        isSelectable = false,
+                    isWrapped = true
                     )
                 @else
                     @template.document-page.content.word(
@@ -135,7 +143,8 @@ hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${select
                         documentId = documentId,
                         word = word,
                         familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false
+                        isSelectable = false,
+                    isWrapped = true
                     )
                 @endif
             @else
@@ -144,7 +153,8 @@ hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${select
                     processedWord = cleanWord,
                     documentId = documentId,
                     word = word,
-                    isSelectable = false
+                    isSelectable = false,
+                isWrapped = true
                 )
             @endif
 
@@ -155,7 +165,8 @@ hx-on::before-request="htmx.find('word-highlighter').updateSelectableId(${select
                 documentId = documentId,
                 word = word,
                 textColor = containerTextColor,
-                isSelectable = false
+                isSelectable = false,
+            isWrapped = true
             )
         @endif
     @endfor

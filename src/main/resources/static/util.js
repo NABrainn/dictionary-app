@@ -213,5 +213,48 @@ window.util = {
         } catch (e) {
             return { ok: false, err: e };
         }
+    },
+
+    /**
+     * 
+     * @param {{ 
+     * element: Element, 
+     * method: { key: string, value: string }, 
+     * target: string, 
+     * swap: string, 
+     * trigger: string, 
+     * vals: any 
+     * }} config 
+     * @returns 
+     */
+    setHxAttributes(config) {
+        if(!config.element) {
+            return
+        }
+        if(!config.method) {
+            return
+        }
+        if(!config.method.key || !config.method.value) {
+            return
+        }
+        config.element.setAttribute(config.method.key, config.method.value)
+
+        if(config.target) {
+            config.element.setAttribute("hx-target", config.target)
+        }
+        if(config.swap) {
+            config.element.setAttribute("hx-swap", config.swap)
+        }
+        if(config.trigger) {
+            config.element.setAttribute("hx-trigger", config.trigger)
+        }
+        if (config.vals) {
+            const valsString = typeof config.vals === 'object' ? JSON.stringify(config.vals) : config.vals;
+            config.element.setAttribute("hx-vals", valsString);
+        }
+        if(config.beforeRequest) {
+            config.element.setAttribute("hx-on::before-request", config.beforeRequest.toString())
+        }
+        htmx.process(config.element)
     }
 }

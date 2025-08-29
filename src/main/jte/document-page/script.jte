@@ -1,4 +1,5 @@
 @param int selectedWordId
+@param int documentId
 @raw
 <script class="
 top-8 top-6 top-10 right-4 bottom-12 bottom-10 
@@ -87,7 +88,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                         top: 8,
                         right: 4
                     });
-                    console.log('overflow: NE');
+                    // console.log('overflow: NE');
                 }
             }
             #handleNorthWestOverflow(form) {
@@ -283,12 +284,16 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
             async #removeAllSelections() {
                 this.fadeLastSelectedWord();
-                
                 await customElements.whenDefined('phrase-selector');
-                
                 const phraseSelector = htmx.find('phrase-selector');
                 if (phraseSelector) {
-                    phraseSelector.unwrapLastSelection();
+                    phraseSelector.fadeLastSelectedPhrase()
+                    phraseSelector.unwrapUnsavedSelections();
+                }
+                await customElements.whenDefined('phrase-highlighter');
+                const phraseHighlighter = htmx.find('phrase-highlighter')
+                if(phraseHighlighter) {                    
+                    phraseHighlighter.highlightAllSavedPhrases()
                 }
             }
             #closeAllTranslationForms(forms) {
@@ -303,7 +308,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                             node: lastSelectedWord,
                             toRemove: ['bg-tertiary', 'text-neutral'],
                             toAdd: this.#getColorsFromFamiliarity(familiarity)
-                        })                        
+                        })          
                         this.#removeWordSelection(lastSelectedWord);
                     }
                 }
@@ -320,17 +325,14 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
 
             highlightWords(targetWord, familiarity) {
-                const selectableWords = [
-                    ...util.findAllByData({
-                        key: 'subtype',
-                        value: 'word-span'
-                    })             
-                ]                
-                
-                this.#updateFamiliarities(selectableWords, familiarity)    
-                const nonSelectedWords = selectableWords
+                const nonSelectedWords = [...util.findAllByData({ key: 'subtype', value: 'word-span' })]
                     .filter(selectable => selectable.dataset.isWordSelected === 'false')
-                    .filter(span => span.dataset.value === targetWord)                    
+                    .filter(span => span.dataset.value === targetWord)              
+                const selectedWords = [...util.findAllByData({ key: 'subtype', value: 'word-span' })]
+                    .filter(selectable => selectable.dataset.isWordSelected === 'true')
+                    .filter(span => span.dataset.value === targetWord)                
+                
+                this.#updateFamiliarities([...nonSelectedWords, ...selectedWords], familiarity)                                           
                 nonSelectedWords.forEach(selectable => {                    
                     if(this.#isWord(selectable)) {
                         this.#updateColors({
@@ -341,10 +343,8 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     }
                 })
             }
-            #updateFamiliarities(selectableWords, familiarity) {                
-                selectableWords.forEach(selectable => {
-                    selectable.dataset.familiarity = familiarity
-                })    
+            #updateFamiliarities(selectables, familiarity) {                
+                selectables.forEach(selectable => { selectable.dataset.familiarity = familiarity })    
             }
             #getSelectedWord() {       
                 return util.findByData({
@@ -416,26 +416,84 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 if(!this.#isPhrase(phrase)) {
                     return
                 }
-                this.highlightSavedPhrases()
-                this.#highlightNewPhrases(phrase, familiarity)
+                this.highlightAllSavedPhrases()
+                this.highlightNewPhrases(phrase, familiarity)
             }
-            highlightSavedPhrases() {
-                const savedPhrases = util.findAllByData({ key: 'is-phrase-saved', value: 'true' });                
-                savedPhrases.forEach(phrase => {
+
+            highlightNonSelectedSavedPhrases() {
+                const savedPhrases = util.findAllByData({ key: 'is-phrase-saved', value: 'true' });                          
+                Array.from(savedPhrases)
+                .filter(phrase => phrase.dataset.isPhraseSelected === 'false')
+                .forEach(phrase => {
                     if(phrase.id === 'selected-phrase') {
-                        phrase.id = ''
+                        phrase.id = 'selectable-' + phrase.firstElementChild.id.slice(27)
+                        phrase.firstElementChild.dataset.isSelectedForm = 'false'
+
                     }
                     util.replaceClasses({
                         node: phrase,
                         toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'bg-tertiary'],
                         toAdd: [...this.#getColorsFromFamiliarity(phrase.dataset.familiarity)]
-                    })
-                    this.#updateContentStyles([...phrase.children], phrase.dataset.familiarity)
+                    })                    
+                    Array.from(phrase.children)
+                    .filter(node => node.id.toString().includes('word-'))
+                    .forEach(node => {
+                        util.replaceClasses({
+                            node: node,
+                            toRemove: ['border', 'border-2', 'border-transparent'],
+                            toAdd: ['pointer-events-none']
+                        })                    
+                        Array.from(node.children)
+                            .filter(child => child instanceof HTMLSpanElement)
+                            .forEach(span => {
+                                util.replaceClasses({
+                                    node: span,
+                                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-neutral', 'bg-tertiary'],
+                                    toAdd: [...this.#getTextColor(phrase.dataset.familiarity)]
+                                })
+                            })
+                    })   
+                })
+            }
+            highlightAllSavedPhrases() {
+                const savedPhrases = util.findAllByData({ key: 'is-phrase-saved', value: 'true' });                                              
+                Array.from(savedPhrases)
+                .forEach(phrase => {
+                    if(phrase.id === 'selected-phrase') {
+                        phrase.id = 'selectable-' + phrase.firstElementChild.id.slice(27)
+                        phrase.firstElementChild.dataset.isSelectedForm = 'false'
 
+                    }
+                    util.replaceClasses({
+                        node: phrase,
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'bg-tertiary'],
+                        toAdd: [...this.#getColorsFromFamiliarity(phrase.dataset.familiarity)]
+                    })                    
+                    Array.from(phrase.children)
+                    .filter(node => node.id.toString().includes('word-'))
+                    .forEach(node => {
+                        util.replaceClasses({
+                            node: node,
+                            toRemove: ['border', 'border-2', 'border-transparent'],
+                            toAdd: ['pointer-events-none']
+                        })                    
+                        Array.from(node.children)
+                            .filter(child => child instanceof HTMLSpanElement)
+                            .forEach(span => {
+                                util.replaceClasses({
+                                    node: span,
+                                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-neutral', 'bg-tertiary'],
+                                    toAdd: [...this.#getTextColor(phrase.dataset.familiarity)]
+                                })
+                            })
+                    })   
                 })
                 
             }
-            #highlightNewPhrases(phrase,  familiarity) {
+            highlightNewPhrases(phrase,  familiarity) {
+                if(!this.#isPhrase(phrase)) {
+                    return
+                } 
                 const selectables = Array.from(util.findAllByData({ key: 'is-selectable', value: 'true' }))
                     .flatMap(selectable => {
                         if(selectable.dataset.type === 'word') {
@@ -443,19 +501,24 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                         }
                         return selectable
                     })
+                    
                 const result = util.catchErr(() => util.findAllByText({
                     text: phrase,
                     nodes: selectables
                 }))
                 if(result.ok) {
+                    if(!result.length) {
+                        return
+                    }                    
                     const phraseNodeArr = result.value
                         .map(spans => spans.map(span => span.parentElement))
-
+                                            
                     const selectedPhraseNodes = phraseNodeArr
                         .filter(divs => divs.every(div => div.dataset.isWrapped === 'true'))
                         .at(0)
-                    this.#updateWrapperFamiliarity(selectedPhraseNodes.at(0).parentElement, familiarity)
-                    this.#updateContentFamiliarity(selectedPhraseNodes, familiarity)
+                        
+                    this.#updateWrapperFamiliarity(selectedPhraseNodes.at(0).parentElement, familiarity.toLowerCase())
+                    this.#updateContentFamiliarity(selectedPhraseNodes, familiarity.toLowerCase())
 
                     const nonSelectedPhraseNodeArr = phraseNodeArr
                         .filter(divs => divs.some(div => div.dataset.isWrapped === 'false'))      
@@ -467,8 +530,8 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                         const result = util.catchErr(() => util.wrap({ wrapper: this.#createWrapper(familiarity), content: [form, ...arr] }))
                         if(result.ok) {
                             const wrapped = result.value
-                            this.#updateWrapperFamiliarity(wrapped.wrapper, familiarity)
-                            this.#updateContentFamiliarity(wrapped.content, familiarity)
+                            this.#updateWrapperFamiliarity(wrapped.wrapper, familiarity.toLowerCase())
+                            this.#updateContentFamiliarity(wrapped.content, familiarity.toLowerCase())
                             this.#updateContentStyles(wrapped.content, familiarity)
                         }
                         else {
@@ -484,12 +547,59 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             #isPhrase(phrase) {
                 return phrase.split(" ").length > 1
             }
-            markPhrasesAsSaved() {
+            markPhrasesAsSaved(familiarity, sourceWords) {
                 const nonSavedPhrases = Array.from(util.findAllByData({ key: 'is-phrase-saved', value: 'false' }))                
-                nonSavedPhrases.forEach(phrase => { 
-                    phrase.dataset.isPhraseSaved = 'true' 
-                    const firstNodeId = [...[...phrase.children].at(1).children].at(0).id
-                    Array.from(phrase.children).at(0).id = firstNodeId                    
+                nonSavedPhrases.forEach(phrase => {                     
+                    const formContainer = phrase.firstElementChild
+                    const nestedFormContainer = phrase.firstElementChild.nextSibling.firstElementChild
+                    if(nestedFormContainer) {
+                        const formId = nestedFormContainer.id
+                        const phraseId = nestedFormContainer.id.slice(27)
+                        const targetWord = Array.from(phrase.children)
+                            .filter(child => child.dataset.type === 'word')
+                            .flatMap(word => [...word.children])
+                            .filter(text => text instanceof HTMLSpanElement)
+                            .map(span => span.innerText)
+                            .join(" ")
+                        nestedFormContainer.remove()  
+                        this.#updatePhraseHxAttributes(phrase, formId, phraseId, targetWord, sourceWords, familiarity)                      
+                        this.#updatePhraseData(phrase, familiarity)
+                        this.#updateFormContainerId(formContainer, formId)
+                        this.#updateFormContainerStyles(formContainer)                           
+                    }
+                })
+            }
+            #updateFormContainerId(form, id) {
+                form.id = id  
+            }
+            #updateFormContainerStyles(form) {
+                form.classList.remove("pointer-events-none");
+            }
+            #updatePhraseData(phrase, familiarity) {
+                phrase.dataset.isPhraseSaved = 'true' 
+                phrase.dataset.familiarity = familiarity
+            }
+            @endraw
+            #updatePhraseHxAttributes(phrase, formId, phraseId, targetWord, sourceWords, familiarity) {                                
+                util.setHxAttributes({
+                    element: phrase,
+                    method: { key: 'hx-get', value: '/translations/find' },
+                    target: '#' + formId,
+                    swap: 'innerHTML',
+                    trigger: 'click',
+                    vals: {
+                        documentId: "${documentId}",
+                        targetWord: targetWord
+                            .toLowerCase()
+                            .replaceAll(/[^\p{L}\d\s]/gu, ''),
+                        sourceWords: sourceWords
+                            .split("|"),
+                        selectedWordId: phraseId.toString(),
+                        isFound: "true",
+                        isPhrase: "true"
+                    },
+    @raw
+                    beforeRequest: `htmx.find('phrase-selector').handlePhraseClick(${phraseId});`
                 })
             }
             #updateWrapperFamiliarity(wrapper, familiarity) {
@@ -561,6 +671,24 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                         return ['bg-primary', 'text-neutral']
                 }
             }
+            #getTextColor(familiarity) {
+                switch(familiarity) {
+                    case 'unknown':
+                        return ['text-primary']
+
+                    case 'recognized':
+                        return ['text-primary']
+
+                    case 'familiar':
+                        return ['text-primary']
+
+                    case 'known':
+                        return ['text-neutral']
+
+                    default:
+                        return ['text-neutral']
+                }
+            }
         }
         customElements.define('phrase-highlighter', PhraseHighlighter);
     }
@@ -574,7 +702,39 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 super()
                 this.#initializeListener()
             }
+            handlePhraseClick(id) {
+                const formContainers = util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
+                this.#closeAllTranslationForms(formContainers)
+                htmx.find('word-highlighter').fadeLastSelectedWord()
+                this.fadeLastSelectedPhrase()
+                this.#highlightCurrentSelection(id)
+            }
 
+            fadeLastSelectedPhrase() {
+                const phraseToFade = util.findByData({ key: 'is-phrase-selected', value: 'true' })
+                if(phraseToFade) {
+                    util.replaceClasses({
+                        node: phraseToFade,
+                        toRemove: ['bg-tertiary', 'text-accent'],
+                        toAdd: this.#getColorsFromFamiliarity(phraseToFade.dataset.familiarity)
+                    })
+                    phraseToFade.dataset.isPhraseSelected = 'false'
+
+                }
+            }
+            #highlightCurrentSelection(id) {
+                const phrase = htmx.find('#selectable-' + id)
+                if(!phrase) {
+                    return
+                }            
+                phrase.dataset.isPhraseSelected = 'true'
+                
+                util.replaceClasses({
+                    node: phrase,
+                    toRemove: ['bg-tertiary', 'text-accent', 'bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                    toAdd: ['bg-tertiary', 'text-accent']
+                })
+            }
             #selectPhrase(phraseHighlighter) {
                 const phraseNodes = this.#getPhraseNodes();     
                 const result = util.catchErr(() => this.#validate(phraseNodes))     
@@ -593,20 +753,24 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 }
             }
             #removeAllSelections(wordHighlighter) {
-                this.unwrapLastSelection()
+                this.unwrapUnsavedSelections()
                 wordHighlighter.fadeLastSelectedWord()
             }
-            unwrapLastSelection() {
+            unwrapUnsavedSelections() {
                 const phraseWrappers = this.#getHighlightedPhrases()                                
                 if(phraseWrappers) {
                     phraseWrappers.forEach(wrapper => {
                         if(!wrapper) {                            
                             return
                         }
+                        if(wrapper.firstElementChild) {
+                            wrapper.firstElementChild.dataset.isSelectedForm = 'false'
+                        }
+                        
                         if(wrapper.dataset.isPhraseSaved === 'false') {
                             if(!wrapper.children.length) {
                                 return
-                            }
+                            }                            
                             const phraseNodes = this.#unwrap(wrapper)      
                             phraseNodes.forEach(node => htmx.process(node))                                                 
                             this.#unstyleNodes(phraseNodes) 
@@ -655,7 +819,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     .flatMap(node => [...node.children])
                     .filter(child => child instanceof HTMLSpanElement)
                     .map(span => span.innerText)
-                    .join(' ')
+                    .join(' ')                    
                 const id = phraseNodes.at(0)?.dataset.id ?? 0                                                
                 return { value, id }
             }
@@ -687,7 +851,9 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     classList: ['cursor-default', 'z-2', 'absolute', 'inline', 'left-2', 'top-10'],
                     id: id,
                     data: [
-                        { key: 'is-selected-form', value: 'true' }
+                        { key: 'is-selected-form', value: 'true' },
+                        { key: 'is-translation-form-container', value: 'true' },
+                        { key: 'id', value: id }
                     ]
                 })
             }
@@ -705,7 +871,8 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     ],
                     id: 'selected-phrase',
                     data: [
-                        { key: 'is-phrase-saved', value: 'false' }
+                        { key: 'is-phrase-saved', value: 'false' },
+                        { key: 'is-phrase-selected', value: 'true' }
                     ]
                 })
             }

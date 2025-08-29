@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 @Controller
 @RequiredArgsConstructor
@@ -121,8 +122,11 @@ public class TranslationControllerImp {
             AddTranslationRequest request = AddTranslationRequest.builder()
                     .documentId(documentId)
                     .selectedWordId(selectedWordId)
-                    .sourceWords(sourceWords)
-                    .targetWord(targetWord)
+                    .sourceWords(sourceWords.stream()
+                            .map(sw -> compileNonSpecialChars().matcher(sw).replaceAll(""))
+                            .filter(sw -> !sw.isBlank())
+                            .toList())
+                    .targetWord(compileNonSpecialChars().matcher(targetWord).replaceAll(""))
                     .sourceLanguage(sourceLanguage)
                     .targetLanguage(targetLanguage)
                     .familiarity(familiarity)
@@ -216,6 +220,10 @@ public class TranslationControllerImp {
         model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
         return "document-page/content/translation/update/update-translation-form";
 
+    }
+
+    private Pattern compileNonSpecialChars() {
+        return Pattern.compile("[^\\p{L}0-9 ]");
     }
 
     private int getFamiliarityAsDigit(Familiarity familiarity) {

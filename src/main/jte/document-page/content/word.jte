@@ -10,6 +10,7 @@
 @param boolean isPhraseWord = false
 @param Familiarity familiarity = null
 @param boolean isFound = false
+@param boolean isWrapped = false
 
 !{var phraseWord = "";}
 @if(isPhraseWord)
@@ -27,14 +28,13 @@ id="selectable-input-${wordId}"
 type="hidden"
 data-is-found="${isFound}"
 class="selectable-state-${processedWord}">
-
 @if(isSelectable)
     <div
     class="
     border border-2 rounded-none border-transparent inline-block relative cursor-pointer rounded whitespace-nowrap text-lg"
     id="word-${wordId}"
 
-    data-is-wrapped="false"
+    data-is-wrapped="${isWrapped}"
     data-familiarity="${familiarityString}"
     data-is-word-selectable="true"
     data-is-word-selected="false"
@@ -55,7 +55,6 @@ class="selectable-state-${processedWord}">
     }'
     hx-trigger="click"
     hx-on::before-request="
-    htmx.find('phrase-highlighter').highlightSavedPhrases();
     htmx.find('word-highlighter').updateSelectableId(${wordId})">
         <div
         onclick="event.stopPropagation()"
