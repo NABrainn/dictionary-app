@@ -17,20 +17,19 @@
 
 <form
 id="page-content"
-data-document-id="${documentAttribute.importData().documentId()}"
 class="flex flex-col gap-8 text-wrap"
-hx-trigger="selectphrase from:document"
-hx-get="/translations/find"
-hx-target="[data-is-selected-form='true']"
-hx-swap="innerHTML"
+
+data-document-id="${documentAttribute.importData().documentId()}"
+hx-trigger="createphrase from:document"
+hx-get="/translations/create-phrase"
+hx-target="#new-phrase"
+hx-swap="outerHTML"
 hx-vals='js:{
-        documentId: ${documentId},
-        targetWord: htmx.find("phrase-selector").selectedPhraseData?.value,
-        selectedWordId: htmx.find("phrase-selector").selectedPhraseData?.id,
-        isPhrase: true,
-        isFound: false
+    selectableId: data.get(htmx.find("#new-phrase"), "id"),
+    phraseText: data.get(htmx.find("#new-phrase"), "value"),
+    documentId: ${documentId},
+    phraseLength: data.get(htmx.find("#new-phrase"), "length")
 }'>
-    <input type="hidden" name="documentId" value="${documentId}">
     @template.navbar.navbar(
         navbarAttribute = navbarAttribute,
         isAuthenticated = baseAttribute.isAuthenticated(),
@@ -40,7 +39,74 @@ hx-vals='js:{
     id="content-container"
     class="
     w-full px-2
-    md:w-3/5 mx-auto text-wrap min-h-165">
+    md:w-3/5 mx-auto text-wrap min-h-165"
+
+    hx-on:mouseup="
+    const familiarityColors = new Map([
+        ['unknown', ['bg-accent', 'text-primary']],
+        ['recognized', ['bg-accent/80', 'text-primary']],
+        ['familiar', ['bg-accent/60', 'text-primary']],
+        ['known', ['bg-primary', 'text-neutral']],
+        ['ignored', ['bg-primary', 'text-neutral']]
+    ])
+
+    const focusId = parseInt(window.getSelection()?.focusNode?.parentElement?.parentElement?.dataset?.id);
+    const anchorId = parseInt(window.getSelection()?.anchorNode?.parentElement?.parentElement?.dataset?.id);
+    if(focusId === anchorId) {
+        return
+    }
+    const phraseNodes =  Array.from(
+        { length: focusId - anchorId + 1 },
+        (_, i) => htmx.find('#word-' + (i + anchorId))
+    )
+    const result = util.catchErr(() => {
+        if(!phraseNodes) {
+            throw new Error('phrase nodes cant be undefined')
+        }
+        if(!phraseNodes.length) {
+            throw new Error('phrase nodes cant be empty')
+        }
+        if(phraseNodes.length > 5) {
+            throw new Error('selection too long')
+        }
+        if(phraseNodes.some(node => data.get(node, 'is-selected') === 'true')) {
+            throw new Error('cannot create phrase from selected word')
+        }
+        if(!phraseNodes.every(node => data.get(node, 'is-selectable') === 'true')) {
+            throw new Error('all phrase parent nodes must be selectable')
+        }
+    })
+    if(result.err) {
+        console.error(result.err)
+        return window.getSelection().removeAllRanges()
+    }
+    util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
+    .forEach(formContainer => util.removeInnerHTML(formContainer))
+
+    const phraseText = phraseNodes
+    .flatMap(node => [...node.children])
+    .filter(child => child instanceof HTMLSpanElement)
+    .map(span => span.innerText)
+    .join(' ')
+    const phraseId = data.get(phraseNodes.at(0), 'id')
+    const wrappedPhrase = util.wrap({
+        wrapper: util.define('div', {
+            classList: ['inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary'],
+            data: [
+                { key: 'id', value: phraseId },
+                { key: 'value', value: phraseText },
+                { key: 'is-phrase', value: 'true' },
+                { key: 'is-saved', value: 'false' },
+                { key: 'is-selected', value: 'true' },
+                { key: 'length', value: phraseNodes.length }
+            ],
+            id: 'new-phrase'
+        }),
+        content: phraseNodes
+    })
+    wrappedPhrase.content.forEach(node => node.classList.remove('border', 'border-2', 'border-transparent'))
+    document.dispatchEvent(new Event('createphrase'))
+    ">
         @if(documentAttribute.paginationData().currentPageNumber() == 1)
             <span
             id="content-title"

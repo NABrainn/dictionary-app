@@ -4,8 +4,6 @@
 @param TranslationAttribute translationAttribute
 @param Map<String, String> translationLocalization
 
-!{String hxTarget = translationAttribute.isPhrase() ? "#selected-phrase-form" : "#translation-form-container-" + translationAttribute.selectedWordId();}
-
 <div
 onclick="event.stopPropagation()"
 class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45 animate-fade"
@@ -48,9 +46,65 @@ id="translation-form">
             }'
             hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
             hx-swap="innerHTML"
-            hx-on::before-request="
-            htmx.findAll('.selectable-state-${translationAttribute.translation().targetWord().replace(" ", "-")}').forEach(input => input.dataset.isFound = true);
-            htmx.find('word-highlighter').highlightWords('${translationAttribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}');
+            hx-on::after-request="
+            const familiarityColors = new Map([
+                ['unknown', ['bg-accent', 'text-primary']],
+                ['recognized', ['bg-accent/80', 'text-primary']],
+                ['familiar', ['bg-accent/60', 'text-primary']],
+                ['known', ['bg-primary', 'text-neutral']],
+                ['ignored', ['bg-primary', 'text-neutral']]
+            ])
+
+            if('${translationAttribute.translation().targetWord()}'.split(' ').length > 1) {
+                util.findAllByData({ key: 'is-phrase', value: 'true' })
+                .filter(phrase => data.get(phrase, 'value') === '${translationAttribute.translation().targetWord()}')
+                .filter(phrase => data.get(phrase, 'is-saved') === 'false')
+                .forEach(savedPhrase => {
+                    data.set(savedPhrase, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
+                    if(data.get(savedPhrase, 'is-selected') === 'true') {
+                        util.replaceClasses(savedPhrase, {
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                            toAdd: ['bg-tertiary', 'text-accent']
+                        })
+                        Array.from(savedPhrase.children)
+                        .filter(child => data.get(child, 'is-word') === 'true')
+                        .flatMap(word => word.firstElementChild)
+                        .forEach(span => {
+                            util.replaceClasses(span, {
+                                toRemove: ['text-accent', 'text-primary'],
+                                toAdd: ['text-accent']
+                            })
+                        })
+                    }
+                    else {
+                        util.replaceClasses(savedPhrase, {
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                            toAdd: familiarityColors.get('${level.getValue().name().toLowerCase()}')
+                        })
+                    }
+                })
+            }
+            else {
+                util.findAllByData({ key: 'is-word', value: 'true' })
+                .filter(word => data.get(word, 'value') === '${translationAttribute.translation().targetWord()}')
+                .forEach(word => {
+                    data.set(word, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
+                    if(data.get(word, 'is-selected') === 'true') {
+                        const selectedSpan = word.firstElementChild.nextElementSibling
+                        util.replaceClasses(selectedSpan, {
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                            toAdd: ['bg-tertiary', 'text-accent']
+                        })
+                    }
+                    else {
+                        const selectedSpan = word.firstElementChild.nextElementSibling
+                        util.replaceClasses(selectedSpan, {
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                            toAdd: familiarityColors.get('${level.getValue().name().toLowerCase()}')
+                        })
+                    }
+                })
+            }
             ">
                 <span>${level.getKey()}: </span>
                 <input

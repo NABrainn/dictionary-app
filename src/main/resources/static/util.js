@@ -43,16 +43,15 @@ window.util = {
         }
     },
     /**
-     * 
+     * @param {string} type
      * @param {{
-     *      type: string,
      *      classList: string[],
      *      id: number
      * }} config 
      * @returns 
      */
-    define: (config) => {
-        const elementRef = document.createElement(config.type)
+    define: (type, config) => {
+        const elementRef = document.createElement(type)
         if(config.classList) {
             elementRef.classList.add(...config.classList)
         }
@@ -95,34 +94,33 @@ window.util = {
      * @returns {Node[]}
      */
     findAllByData: (data) => {
-        return htmx.findAll(`[data-${data.key}="${data.value}"]`)
+        return Array.from(htmx.findAll(`[data-${data.key}="${data.value}"]`))
     },
     /**
-     * 
+     * @param {Node} node
      * @param {{
-     *    node: Node,
      *    toRemove: string[],
      *    toAdd: string[]
      * }} config 
      */
-    replaceClasses: (config) => {
+    replaceClasses: (node, config) => {
         if (!config) throw new Error('Passed parameter is undefined');
-        if (!config.node || !('classList' in config.node)) {
-            throw new Error('Passed node is not a valid DOM element: ', config.node);
+        if (!node || !('classList' in node)) {
+            throw new Error('Passed node is not a valid DOM element: ', node);
         }
         
         if(Array.isArray(config.toRemove)) {
-            config.node.classList.remove(...config.toRemove)
+            node.classList.remove(...config.toRemove)
         }
         else {
-            config.node.classList.remove(config.toRemove)
+            node.classList.remove(config.toRemove)
         }
 
         if(Array.isArray(config.toAdd)) {
-            config.node.classList.add(...config.toAdd)
+            node.classList.add(...config.toAdd)
         }
         else {
-            config.node.classList.add(config.toAdd)
+            node.classList.add(config.toAdd)
         }
     },
     /**
@@ -159,10 +157,7 @@ window.util = {
             throw new Error('Nodes config cannot be undefined')
         }
         
-        const searchWords = config.text
-            .toLowerCase()
-            .replace(/[^\p{L}\p{N}\s]/gu, '')
-            .split(' ');            
+        const searchWords = config.text.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, '').split(' ');            
         const phraseWordNodes = config.nodes
             .map((node, index) => ({
                 id: index,
@@ -205,7 +200,17 @@ window.util = {
             .map(arr => arr.map(item => item.node))
     },
 
-    
+    /**
+     * 
+     * @param {() => any} callback 
+     * @returns {{ 
+     *    ok: boolean, 
+     *    value: any 
+     * } | { 
+     *    ok: boolean, 
+     *    err: string 
+     * }}
+     */
     catchErr(callback) {
         try {
             const val = callback();
@@ -256,5 +261,45 @@ window.util = {
             config.element.setAttribute("hx-on::before-request", config.beforeRequest.toString())
         }
         htmx.process(config.element)
+    }
+}
+
+window.data = {
+    /**
+     * 
+     * @param {Element} element 
+     * @param {{ key: string, value: string }} pair 
+     */
+    set: (element, pair) => {
+        if(!element) {
+            throw new Error('failed to set data, element is undefined')
+        }
+        if(!pair) {
+            throw new Error('failed to set data, key-value pair is undefined')
+        }
+        if(!pair.key) {
+            throw new Error('failed to set data, key is undefined')
+        }
+        if(!pair.value) {
+            throw new Error('failed to set data, value is undefined')
+        }
+        const camelCaseKey = pair.key.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+        element.dataset[camelCaseKey] = pair.value
+    },
+    /**
+     * 
+     * @param {Element} element 
+     * @param {string} key 
+     * @returns {string | undefined}
+     */
+    get: (element, key) => {
+        if(!element) {
+            return undefined;
+        }
+        if(!key) {
+            return undefined
+        }
+        const camelCaseKey = key.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+        return element.dataset[camelCaseKey] ?? undefined
     }
 }

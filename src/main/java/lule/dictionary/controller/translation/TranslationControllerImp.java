@@ -80,30 +80,18 @@ public class TranslationControllerImp {
         return "document-page/content/translation/update/update-translation-form";
     }
 
-    @GetMapping({"/unselect-phrase", "/unselect-phrase/"})
-    public String unselectPhrase(@RequestParam("targetWords") String targetWords,
-                                 @RequestParam("selectableId") int selectableId,
-                                 @RequestParam("documentId") int documentId,
-                                 @RequestParam("familiarities") List<String> familiarities,
-                                 Model model) {
-        model.addAttribute("targetWords", targetWords);
+    @GetMapping({"/create-phrase", "/create-phrase/"})
+    public String createPhrase(Model model,
+                               Authentication authentication,
+                               @RequestParam("selectableId") int selectableId,
+                               @RequestParam("phraseText") String phraseText,
+                               @RequestParam("documentId") int documentId,
+                               @RequestParam("phraseLength") int phraseLength) {
         model.addAttribute("selectableId", selectableId);
+        model.addAttribute("phraseText", phraseText);
         model.addAttribute("documentId", documentId);
-        model.addAttribute("familiarities", familiarities);
-        return "document-page/content/unselected-phrase";
-    }
-
-    @GetMapping({"/phrase", "/phrase/"})
-    public String newPhrase(@RequestParam("targetWords") String targetWords,
-                            @RequestParam("selectableId") int selectableId,
-                            @RequestParam("documentId") int documentId,
-                            @RequestParam("familiarities") List<String> familiarities,
-                            Model model) {
-        model.addAttribute("targetWords", targetWords);
-        model.addAttribute("selectableId", selectableId);
-        model.addAttribute("documentId", documentId);
-        model.addAttribute("familiarities", familiarities);
-        return "document-page/content/selected-phrase";
+        model.addAttribute("phraseLength", phraseLength);
+        return "document-page/content/new-phrase";
     }
 
     @PostMapping({"/new", "/new/"})

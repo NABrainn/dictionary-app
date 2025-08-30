@@ -325,10 +325,10 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
 
             highlightWords(targetWord, familiarity) {
-                const nonSelectedWords = [...util.findAllByData({ key: 'subtype', value: 'word-span' })]
+                const nonSelectedWords = util.findAllByData({ key: 'subtype', value: 'word-span' })
                     .filter(selectable => selectable.dataset.isWordSelected === 'false')
                     .filter(span => span.dataset.value === targetWord)              
-                const selectedWords = [...util.findAllByData({ key: 'subtype', value: 'word-span' })]
+                const selectedWords = util.findAllByData({ key: 'subtype', value: 'word-span' })
                     .filter(selectable => selectable.dataset.isWordSelected === 'true')
                     .filter(span => span.dataset.value === targetWord)                
                 
@@ -422,7 +422,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
 
             highlightNonSelectedSavedPhrases() {
                 const savedPhrases = util.findAllByData({ key: 'is-phrase-saved', value: 'true' });                          
-                Array.from(savedPhrases)
+                savedPhrases
                 .filter(phrase => phrase.dataset.isPhraseSelected === 'false')
                 .forEach(phrase => {
                     if(phrase.id === 'selected-phrase') {
@@ -457,7 +457,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
             highlightAllSavedPhrases() {
                 const savedPhrases = util.findAllByData({ key: 'is-phrase-saved', value: 'true' });                                              
-                Array.from(savedPhrases)
+                savedPhrases
                 .forEach(phrase => {
                     if(phrase.id === 'selected-phrase') {
                         phrase.id = 'selectable-' + phrase.firstElementChild.id.slice(27)
@@ -494,7 +494,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 if(!this.#isPhrase(phrase)) {
                     return
                 } 
-                const selectables = Array.from(util.findAllByData({ key: 'is-selectable', value: 'true' }))
+                const selectables = util.findAllByData({ key: 'is-selectable', value: 'true' })
                     .flatMap(selectable => {
                         if(selectable.dataset.type === 'word') {
                             return [...selectable.children].filter(child => child instanceof HTMLSpanElement)
@@ -548,7 +548,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 return phrase.split(" ").length > 1
             }
             markPhrasesAsSaved(familiarity, sourceWords) {
-                const nonSavedPhrases = Array.from(util.findAllByData({ key: 'is-phrase-saved', value: 'false' }))                
+                const nonSavedPhrases = util.findAllByData({ key: 'is-phrase-saved', value: 'false' })             
                 nonSavedPhrases.forEach(phrase => {                     
                     const formContainer = phrase.firstElementChild
                     const nestedFormContainer = phrase.firstElementChild.nextSibling.firstElementChild
@@ -795,9 +795,6 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                     })   
                 })
             }
-            removeFormDuplicateId(phraseNodes) {
-
-            }
             #wrapCurrentSelection(phraseNodes) {
                 const form = this.#insertForm({
                     insert: this.#createForm(`translation-form-container-${phraseNodes?.at(0)?.dataset?.id}` ?? 0),
@@ -908,7 +905,7 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             }
             #getHighlightedPhrases() {
                 const selectedPhrase = htmx.find('#selected-phrase')
-                const highlightedPhrases =  util.findAllByData({ key: 'is-phrase-saved', value: 'false' })
+                const highlightedPhrases =  util.findAllByData({ key: 'is-saved', value: 'false' })
                 return [selectedPhrase, ...highlightedPhrases]
             }
             #getColorsFromFamiliarity(familiarity) {
