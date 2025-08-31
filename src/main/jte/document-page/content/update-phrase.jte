@@ -157,75 +157,25 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
                                                 .toLowerCase();}
         @if(!cleanWord.isEmpty())
             @if(translations.get(cleanWord) != null)
-                @if(translations.get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                    @template.document-page.content.word(
-                        wordId = wordId,
-                        processedWord = cleanWord,
-                        documentId = documentId,
-                        word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false,
-                        isWrapped = true,
-                        phraseFamiliarity = phrase.familiarity()
-                    )
-                @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                    @template.document-page.content.word(
-                        wordId = wordId,
-                        processedWord = cleanWord,
-                        documentId = documentId,
-                        word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false,
-                        isWrapped = true,
-                    phraseFamiliarity = phrase.familiarity()
-
-                    )
-                @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                    @template.document-page.content.word(
-                        wordId = wordId,
-                        processedWord = cleanWord,
-                        documentId = documentId,
-                        word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false,
-                        isWrapped = true,
-                    phraseFamiliarity = phrase.familiarity()
-                    )
-                @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
-                    @template.document-page.content.word(
-                        wordId = wordId,
-                        processedWord = cleanWord,
-                        documentId = documentId,
-                        word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false,
-                        isWrapped = true,
-                    phraseFamiliarity = phrase.familiarity()
-                    )
-                @else
-                    @template.document-page.content.word(
-                        wordId = wordId,
-                        processedWord = cleanWord,
-                        documentId = documentId,
-                        word = word,
-                        familiarity = translations.get(cleanWord).familiarity(),
-                        isSelectable = false,
-                        isWrapped = true,
-                    phraseFamiliarity = phrase.familiarity()
-                    )
-                @endif
+                @template.document-page.content.word(
+                wordId = wordId,
+                processedWord = cleanWord,
+                documentId = documentId,
+                word = word,
+                familiarity = translations.get(cleanWord).familiarity(),
+                isSelectable = false,
+                isWrapped = true,
+                phraseFamiliarity = phrase.familiarity())
             @else
                 @template.document-page.content.word(
-                    wordId = wordId,
-                    processedWord = cleanWord,
-                    documentId = documentId,
-                    word = word,
-                    isSelectable = false,
-                    isWrapped = true,
-                phraseFamiliarity = phrase.familiarity()
-                )
+                wordId = wordId,
+                processedWord = cleanWord,
+                documentId = documentId,
+                word = word,
+                isSelectable = false,
+                isWrapped = true,
+                phraseFamiliarity = phrase.familiarity())
             @endif
-
         @else
             @template.document-page.content.word(
                 wordId = wordId,

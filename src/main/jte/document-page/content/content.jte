@@ -3,7 +3,6 @@
 @import lule.dictionary.service.imports.importService.dto.Word
 @import lule.dictionary.service.imports.importService.dto.Phrase
 @import lule.dictionary.service.imports.importService.dto.request.DocumentAttribute
-@import lule.dictionary.enumeration.Familiarity
 @import gg.jte.support.ForSupport
 @import java.util.regex.Pattern
 
@@ -118,86 +117,48 @@ hx-vals='js:{
         id="content-main"
         class="leading-9">!{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
             @for(var paragraphEntry :  ForSupport.of(content.paragraphs()))
-
                 !{var paragraph = paragraphEntry.get(); var paragraphId = paragraphEntry.getIndex();}
-                <div
-                class="paragraph-${paragraphId} paragraph"
-                data-paragraph-id="${paragraphId}">@for(var selectableEntry : ForSupport.of(paragraphEntry.get()))
-
-                    !{var selectable = selectableEntry.get();}
-                    !{var selectableId = selectableEntry.getIndex();}
-                    @if(selectable instanceof Word)
+                <div class="paragraph-${paragraphId} paragraph" data-paragraph-id="${paragraphId}">
+                    @for(var selectableEntry : ForSupport.of(paragraphEntry.get()))!{var selectable = selectableEntry.get();}
+                        !{var selectableId = selectableEntry.getIndex();}@if(selectable instanceof Word)
                         !{var wordId = content.startIndices().get(paragraphId) + selectableId;}
                         !{var word = ((Word) selectable).value();}
-                        !{var cleanWord = cleanWordPattern.matcher(word)
-                                                .replaceAll("")
+                        !{var cleanWord = cleanWordPattern.matcher(word).replaceAll("")
                                                 .replace("-", "")
                                                 .toLowerCase();}
                         @if(!cleanWord.isEmpty())
                             @if(translations.get(cleanWord) != null)
-                                @if(documentAttribute.importData().selectedWordId() == wordId)
-                                    !{String selectedBgColor = switch(translations.get(cleanWord).familiarity()){
-                                        case UNKNOWN -> "bg-tertiary bg-accent";
-                                        case RECOGNIZED -> "bg-tertiary bg-accent/80";
-                                        case FAMILIAR -> "bg-tertiary bg-accent/60";
-                                        case KNOWN -> "bg-tertiary bg-primary";
-                                        default -> "bg-tertiary bg-primary";
-                                    };}
-                                    @template.document-page.content.word(
-                                    wordId = wordId,
-                                    processedWord = cleanWord,
-                                    documentId = documentId,
-                                    word = word,
-                                    bgColor = selectedBgColor,
-                                    textColor = "text-neutral",
-                                    familiarity = translations.get(cleanWord).familiarity(),
-                                    isFound = true)
-                                @else
-                                    !{String unselectedBgColor = switch(translations.get(cleanWord).familiarity()){
-                                        case UNKNOWN -> "bg-accent";
-                                        case RECOGNIZED -> "bg-accent/80";
-                                        case FAMILIAR -> "bg-accent/60";
-                                        case KNOWN -> "bg-primary";
-                                        default -> "bg-primary";
-                                    };}
-                                    !{String unselectedTextColor = switch(translations.get(cleanWord).familiarity()){
-                                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
-                                        default -> "text-neutral";
-                                    };}
-                                    @template.document-page.content.word(
-                                    wordId = wordId,
-                                    processedWord = cleanWord,
-                                    documentId = documentId,
-                                    word = word,
-                                    bgColor = unselectedBgColor,
-                                    textColor = unselectedTextColor,
-                                    familiarity = translations.get(cleanWord).familiarity(),
-                                    isFound = true)
-                                @endif
+                                !{String unselectedBgColor = switch(translations.get(cleanWord).familiarity()){
+                                    case UNKNOWN -> "bg-accent";
+                                    case RECOGNIZED -> "bg-accent/80";
+                                    case FAMILIAR -> "bg-accent/60";
+                                    case KNOWN -> "bg-primary";
+                                    default -> "bg-primary";
+                                };}
+                                !{String unselectedTextColor = switch(translations.get(cleanWord).familiarity()){
+                                    case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                                    default -> "text-neutral";
+                                };}
+                                @template.document-page.content.word(
+                                wordId = wordId,
+                                processedWord = cleanWord,
+                                documentId = documentId,
+                                word = word,
+                                bgColor = unselectedBgColor,
+                                textColor = unselectedTextColor,
+                                familiarity = translations.get(cleanWord).familiarity(),
+                                isFound = true)
                             @else
-                                @if(documentAttribute.importData().selectedWordId() == wordId)
-                                    @template.document-page.content.word(
-                                        wordId = wordId,
-                                        processedWord = cleanWord,
-                                        documentId = documentId,
-                                        word = word,
-                                        bgColor = "bg-tertiary",
-                                        textColor = "text-neutral"
-                                    )
-                                @else
-                                    @template.document-page.content.word(
-                                        wordId = wordId,
-                                        processedWord = cleanWord,
-                                        documentId = documentId,
-                                        word = word,
-                                        bgColor = "bg-accent",
-                                        textColor = "text-primary"
-                                    )
-                                @endif
+                                @template.document-page.content.word(
+                                    wordId = wordId,
+                                    processedWord = cleanWord,
+                                    documentId = documentId,
+                                    word = word,
+                                    bgColor = "bg-accent",
+                                    textColor = "text-primary"
+                                )
                             @endif
-
                         @else
-
                             @template.document-page.content.word(
                                 wordId = wordId,
                                 processedWord = cleanWord,
@@ -211,13 +172,13 @@ hx-vals='js:{
                     @else
                         !{var phrase = ((Phrase) selectable);}
                         @template.document-page.content.update-phrase(
-                            phrase = phrase,
-                            cleanWordPattern = cleanWordPattern,
-                            paragraphId = paragraphId,
-                            selectableId = content.startIndices().get(paragraphId) + selectableId,
-                            documentId = documentId,
-                            startIndices = content.startIndices(),
-                            translations = translations
+                        phrase = phrase,
+                        cleanWordPattern = cleanWordPattern,
+                        paragraphId = paragraphId,
+                        selectableId = content.startIndices().get(paragraphId) + selectableId,
+                        documentId = documentId,
+                        startIndices = content.startIndices(),
+                        translations = translations
                         )
                     @endif
                 @endfor
