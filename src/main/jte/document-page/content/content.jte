@@ -115,10 +115,12 @@ hx-vals='js:{
         @endif
         <div
         id="content-main"
-        class="leading-9">!{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
+        class="leading-9 flex flex-col">!{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
             @for(var paragraphEntry :  ForSupport.of(content.paragraphs()))
                 !{var paragraph = paragraphEntry.get(); var paragraphId = paragraphEntry.getIndex();}
-                <div class="paragraph-${paragraphId} paragraph" data-paragraph-id="${paragraphId}">
+                <div
+                class="paragraph-${paragraphId} inline-flex flex-wrap"
+                data-paragraph-id="${paragraphId}">
                     @for(var selectableEntry : ForSupport.of(paragraphEntry.get()))!{var selectable = selectableEntry.get();}
                         !{var selectableId = selectableEntry.getIndex();}@if(selectable instanceof Word)
                         !{var wordId = content.startIndices().get(paragraphId) + selectableId;}

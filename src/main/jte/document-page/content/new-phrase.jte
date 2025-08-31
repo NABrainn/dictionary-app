@@ -6,9 +6,9 @@
 !{var cleanWordPattern = java.util.regex.Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
 !{String[] unprocessedPhraseText = phraseText.split(" ");}
 !{String[] processedPhraseText = cleanWordPattern
-.matcher(phraseText)
-.replaceAll("")
-.split(" ");}
+    .matcher(phraseText)
+    .replaceAll("")
+    .split(" ");}
 
 <div
 class="pointer-events-none inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary bg-tertiary text-accent"
@@ -111,8 +111,8 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
         @template.document-page.content.word(
         wordId = wordId,
         documentId = documentId,
-        word = processedPhraseText[phraseWordId],
-        processedWord = unprocessedPhraseText[phraseWordId],
+        word = unprocessedPhraseText[phraseWordId],
+        processedWord = processedPhraseText[phraseWordId],
         isWrapped = true)
     @endfor
 </div>
