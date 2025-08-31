@@ -232,7 +232,7 @@ window.util = {
      * }} config 
      * @returns 
      */
-    setHxAttributes(config) {
+    setHx(config) {
         if(!config.element) {
             return
         }

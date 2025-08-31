@@ -49,14 +49,14 @@ public class TranslationControllerImp {
                     .selectedWordId(selectedWordId)
                     .translationId(-1)
                     .translation(TranslationImp.builder()
-                            .sourceWords(sourceWords)
-                            .targetWord(targetWord)
-                            .familiarity(Familiarity.UNKNOWN)
-                            .sourceLanguage(principal.sourceLanguage())
-                            .targetLanguage(principal.targetLanguage())
-                            .owner(principal.getUsername())
-                            .isPhrase(isPhrase)
-                            .build())
+                        .sourceWords(sourceWords)
+                        .targetWord(targetWord)
+                        .familiarity(Familiarity.UNKNOWN)
+                        .sourceLanguage(principal.sourceLanguage())
+                        .targetLanguage(principal.targetLanguage())
+                        .owner(principal.getUsername())
+                        .isPhrase(isPhrase)
+                        .build())
                     .currentFamiliarity(getFamiliarityAsDigit(Familiarity.UNKNOWN))
                     .isPhrase(isPhrase)
                     .familiarityLevels(getFamiliarityTable())
@@ -86,11 +86,35 @@ public class TranslationControllerImp {
                                @RequestParam("selectableId") int selectableId,
                                @RequestParam("phraseText") String phraseText,
                                @RequestParam("documentId") int documentId,
-                               @RequestParam("phraseLength") int phraseLength) {
+                               @RequestParam("phraseLength") int phraseLength,
+                               @RequestParam("familiarities") List<String> familiarities,
+                               @RequestParam("isSavedList") List<String> isSavedList) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        List<String> sourceWords = translationService.translate(TranslateRequest.of(phraseText, principal.sourceLanguage(), principal.targetLanguage()));
         model.addAttribute("selectableId", selectableId);
         model.addAttribute("phraseText", phraseText);
         model.addAttribute("documentId", documentId);
         model.addAttribute("phraseLength", phraseLength);
+        model.addAttribute("familiarities", familiarities);
+        model.addAttribute("isSavedList", isSavedList);
+        model.addAttribute("translationAttribute", TranslationAttribute.builder()
+                .documentId(documentId)
+                .selectedWordId(selectableId)
+                .translationId(-1)
+                .translation(TranslationImp.builder()
+                    .sourceWords(sourceWords)
+                    .targetWord(phraseText)
+                    .familiarity(Familiarity.UNKNOWN)
+                    .sourceLanguage(principal.sourceLanguage())
+                    .targetLanguage(principal.targetLanguage())
+                    .owner(principal.getUsername())
+                    .isPhrase(true)
+                    .build())
+                .currentFamiliarity(getFamiliarityAsDigit(Familiarity.UNKNOWN))
+                .isPhrase(true)
+                .familiarityLevels(getFamiliarityTable())
+                .build());
+        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
         return "document-page/content/new-phrase";
     }
 

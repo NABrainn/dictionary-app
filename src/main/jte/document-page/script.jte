@@ -984,9 +984,6 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
 @endraw
 </script>
 <form-position-adjuster selected-word-id="0"></form-position-adjuster>
-<word-highlighter selected-word-id="0"></word-highlighter>
-<phrase-highlighter></phrase-highlighter>
-<phrase-selector></phrase-selector>
 
 
 

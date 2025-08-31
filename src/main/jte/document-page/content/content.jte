@@ -27,13 +27,14 @@ hx-vals='js:{
     selectableId: data.get(htmx.find("#new-phrase"), "id"),
     phraseText: data.get(htmx.find("#new-phrase"), "value"),
     documentId: ${documentId},
-    phraseLength: data.get(htmx.find("#new-phrase"), "length")
+    phraseLength: data.get(htmx.find("#new-phrase"), "length"),
+    familiarities: util.findAllByData({ key: "is-wrapped", value: "true" }).map(word => data.get(word, "familiarity")),
+    isSavedList: util.findAllByData({ key: "is-wrapped", value: "true" }).map(word => data.get(word, "is-saved") ?? "false"),
 }'>
     @template.navbar.navbar(
-        navbarAttribute = navbarAttribute,
-        isAuthenticated = baseAttribute.isAuthenticated(),
-        isProfileToggleBtnVisible = false
-    )
+    navbarAttribute = navbarAttribute,
+    isAuthenticated = baseAttribute.isAuthenticated(),
+    isProfileToggleBtnVisible = false)
     <div
     id="content-container"
     class="
@@ -48,7 +49,6 @@ hx-vals='js:{
         ['known', ['bg-primary', 'text-neutral']],
         ['ignored', ['bg-primary', 'text-neutral']]
     ])
-
     const focusId = parseInt(window.getSelection()?.focusNode?.parentElement?.parentElement?.dataset?.id);
     const anchorId = parseInt(window.getSelection()?.anchorNode?.parentElement?.parentElement?.dataset?.id);
     if(focusId === anchorId) {
@@ -71,14 +71,71 @@ hx-vals='js:{
         if(phraseNodes.some(node => data.get(node, 'is-selected') === 'true')) {
             throw new Error('cannot create phrase from selected word')
         }
+        if(phraseNodes.some(node => data.get(node, 'is-wrapped') === 'true')) {
+            throw new Error('cannot create phrase from wrapped word')
+        }
         if(!phraseNodes.every(node => data.get(node, 'is-selectable') === 'true')) {
             throw new Error('all phrase parent nodes must be selectable')
         }
     })
     if(result.err) {
-        console.error(result.err)
         return window.getSelection().removeAllRanges()
     }
+    //cleanup selected word
+    util.findAllByData({ key: 'is-word', value: 'true' })
+    .filter(word => data.get(word, 'is-selected') === 'true')
+    .flatMap(selectedWord => [...selectedWord.children])
+    .filter(child => child instanceof HTMLSpanElement)
+    .forEach(selectedSpan => {
+        data.set(selectedSpan.parentElement, { key: 'is-selected', value: 'false' })
+        util.replaceClasses(selectedSpan, {
+            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
+            toAdd: familiarityColors.get(data.get(selectedSpan.parentElement, 'familiarity'))
+        })
+    })
+    //cleanup selected phrase
+    util.findAllByData({ key: 'is-phrase', value: 'true' })
+    .filter(node => data.get(node, 'is-selected') === 'true')
+    .forEach(selectedPhrase => {
+        data.set(selectedPhrase, { key: 'is-selected', value: 'false' })
+
+        if(data.get(selectedPhrase, 'is-saved') === 'true') {
+            util.replaceClasses(selectedPhrase, {
+                toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
+                toAdd: [...familiarityColors.get(data.get(selectedPhrase, 'familiarity'))]
+            })
+            const words = Array.from(selectedPhrase.children)
+            .filter(child => data.get(child, 'is-word') === 'true')
+            words.forEach(word => word.classList.add('pointer-events-none'))
+
+            const spans = words
+            .flatMap(word => [...word.children])
+            .filter(word => word instanceof HTMLSpanElement)
+            spans.forEach(span => {
+                util.replaceClasses(span, {
+                    toRemove: ['text-accent', 'text-primary'],
+                    toAdd: [familiarityColors.get(data.get(selectedPhrase, 'familiarity')).at(1)]
+                })
+            })
+        }
+        else {
+            selectedPhrase.firstElementChild.remove()
+            const phraseNodes = util.unwrap(selectedPhrase).filter(node => data.get(node, 'is-word'))
+            phraseNodes.forEach(node => {
+                htmx.process(node)
+                util.replaceClasses(node, {
+                    toRemove: ['pointer-events-none'],
+                    toAdd: ['border', 'border-2', 'border-transparent']
+                })
+                const span = [...node.children].filter(child => child instanceof HTMLSpanElement).at(0)
+                util.replaceClasses(span, {
+                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary', 'bg-tertiary'],
+                    toAdd: familiarityColors.get(data.get(node, 'familiarity'))
+                })
+            })
+        }
+    })
+
     util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
     .forEach(formContainer => util.removeInnerHTML(formContainer))
 
@@ -104,6 +161,9 @@ hx-vals='js:{
         content: phraseNodes
     })
     wrappedPhrase.content.forEach(node => node.classList.remove('border', 'border-2', 'border-transparent'))
+    util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
+    .forEach(formContainer => util.removeInnerHTML(formContainer))
+
     document.dispatchEvent(new Event('createphrase'))
     ">
         @if(documentAttribute.paginationData().currentPageNumber() == 1)

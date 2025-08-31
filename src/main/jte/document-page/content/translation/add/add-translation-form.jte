@@ -2,7 +2,6 @@
 @import java.util.Map
 
 @param TranslationAttribute translationAttribute
-@param String targetWord
 @param Map<String, String> translationLocalization
 
 !{var processedWord = translationAttribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
@@ -29,6 +28,7 @@ id="translation-form">
             <form
             class="flex gap-1 cursor-pointer font-bold text-neutral hover:text-primary"
             id="translation-form-${translationAttribute.selectedWordId()}"
+            hx-trigger="click"
             hx-post="/translations/new"
             hx-vals='{
                 "targetWord": "${processedWord}",
@@ -39,12 +39,12 @@ id="translation-form">
                 "selectedWordId": "${translationAttribute.selectedWordId()}",
                 "isPhrase": "${translationAttribute.isPhrase()}"
             }'
-            hx-target="#translation-form-container-${translationAttribute.selectedWordId()}"
+            hx-target="closest #translation-form-container-${translationAttribute.selectedWordId()}"
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()
             }'
             hx-swap="innerHTML"
-            hx-on::after-request="
+            hx-on::before-request="
             const familiarityColors = new Map([
                 ['unknown', ['bg-accent', 'text-primary']],
                 ['recognized', ['bg-accent/80', 'text-primary']],
@@ -52,38 +52,93 @@ id="translation-form">
                 ['known', ['bg-primary', 'text-neutral']],
                 ['ignored', ['bg-primary', 'text-neutral']]
             ])
-            if('${translationAttribute.translation().targetWord()}'.split(' ').length > 1) {
+            if('${processedWord}'.split(' ').length > 1) {
                 util.findAllByData({ key: 'is-phrase', value: 'true' })
-                .filter(phrase => data.get(phrase, 'value') === '${translationAttribute.translation().targetWord()}')
-                .filter(phrase => data.get(phrase, 'is-saved') === 'true')
-                .forEach(savedPhrase => {
-                    data.set(savedPhrase, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
-                    if(data.get(savedPhrase, 'is-selected') === 'true') {
-                        util.replaceClasses(savedPhrase, {
-                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
-                            toAdd: ['bg-tertiary', 'text-accent']
+                .filter(phrase => data.get(phrase, 'is-saved') === 'false')
+                .filter(phrase => data.get(phrase, 'is-selected') === 'true')
+                .forEach(selectedPhrase => {
+                    data.set(selectedPhrase, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
+                    data.set(selectedPhrase, { key: 'is-saved', value: 'true' })
+                    util.replaceClasses(selectedPhrase, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: ['bg-tertiary', 'text-accent']
+                    })
+                    const words = Array.from(selectedPhrase.children)
+                    .filter(child => data.get(child, 'is-word') === 'true')
+                    words.forEach(word => word.classList.add('pointer-events-none'))
+
+                    const spans = words.flatMap(word => word.firstElementChild)
+                    spans.forEach(span => {
+                        util.replaceClasses(span, {
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'text-primary'],
+                            toAdd: ['text-accent']
                         })
-                        Array.from(savedPhrase.children)
-                        .filter(child => data.get(child, 'is-word') === 'true')
-                        .flatMap(word => word.firstElementChild)
-                        .forEach(span => {
-                            util.replaceClasses(span, {
-                                toRemove: ['text-accent', 'text-primary'],
-                                toAdd: ['text-accent']
-                            })
+                    })
+                })
+
+                //highlight phrases matched by text
+                const matchedPhraseNodes = util.findAllByText({ text: '${processedWord}', nodes: util.findAllByData({ key: 'is-word-span', value: 'true' }) })
+                .map(spanNodeList => spanNodeList.map(spanNode => spanNode.parentElement))
+                matchedPhraseNodes
+                .forEach(phraseNodeList => {
+                    const wrapped = util.wrap({
+                        wrapper: util.define('div', {
+                            classList: ['inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary'],
+                            data: [
+                                { key: 'id', value: data.get(phraseNodeList.at(0), 'id') },
+                                { key: 'value', value: '${processedWord}' },
+                                { key: 'is-phrase', value: 'true' },
+                                { key: 'is-saved', value: 'false' },
+                                { key: 'is-selected', value: 'false' },
+                                { key: 'length', value: '${processedWord}'.split(' ').length }
+                            ],
+                        }),
+                        content: phraseNodeList
+                    })
+                    util.setHx({
+                        element: wrapped.wrapper,
+                        method: { key: 'hx-get', value: '/translations/find' },
+                        target: 'closest #translation-form-container-' + data.get(phraseNodeList.at(0), 'id'),
+                        swap: 'innerHTML',
+                        trigger: 'click',
+                        vals: {
+                            documentId: data.get(phraseNodeList.at(1), 'document-id'),
+                            targetWord: '${processedWord}',
+                            selectedWordId: data.get(phraseNodeList.at(1), 'id'),
+                            isPhrase: true,
+                            isFound: true
+                        }
+                    })
+                    util.insertBefore({
+                        insert: util.define('div', {
+                            classList: ['cursor-default', 'z-2', 'absolute', 'inline', 'left-2', 'top-10'],
+                            id: '#translation-form-container-' + data.get(phraseNodeList.at(0), 'id'),
+                        }),
+                        before: wrapped.content.at(0)
+                    })
+                    util.replaceClasses(wrapped.wrapper, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: ['bg-tertiary', 'text-accent']
+                    })
+                    wrapped.content.forEach(phraseNode => {
+                        util.replaceClasses(phraseNode, {
+                            toRemove: ['border', 'border-2', 'border-transparent'],
+                            toAdd: ['pointer-events-none', 'text-accent']
                         })
-                    }
-                    else {
-                        util.replaceClasses(savedPhrase, {
-                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
-                            toAdd: familiarityColors.get('${level.getValue().name().toLowerCase()}')
-                        })
-                    }
+
+                        const spans = [...phraseNode.children]
+                        .filter(child => child instanceof HTMLSpanElement)
+
+                        spans.forEach(span => util.replaceClasses(span, {
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
+                            toAdd: ['text-accent']
+                        }))
+                    })
                 })
             }
             else {
                 util.findAllByData({ key: 'is-word', value: 'true' })
-                .filter(word => data.get(word, 'value') === '${translationAttribute.translation().targetWord()}')
+                .filter(word => data.get(word, 'value') === '${processedWord}')
                 .forEach(word => {
                     data.set(word, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
                     if(data.get(word, 'is-selected') === 'true') {
@@ -101,8 +156,7 @@ id="translation-form">
                         })
                     }
                 })
-            }
-            ">
+            }">
                 <span class="cursor-pointer">${level.getKey()}: </span>
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">
