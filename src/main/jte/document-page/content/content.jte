@@ -116,15 +116,13 @@ hx-vals='js:{
         @endif
         <div
         id="content-main"
-        class="leading-9">
-            !{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
+        class="leading-9">!{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
             @for(var paragraphEntry :  ForSupport.of(content.paragraphs()))
 
                 !{var paragraph = paragraphEntry.get(); var paragraphId = paragraphEntry.getIndex();}
                 <div
                 class="paragraph-${paragraphId} paragraph"
-                data-paragraph-id="${paragraphId}">
-                @for(var selectableEntry : ForSupport.of(paragraphEntry.get()))
+                data-paragraph-id="${paragraphId}">@for(var selectableEntry : ForSupport.of(paragraphEntry.get()))
 
                     !{var selectable = selectableEntry.get();}
                     !{var selectableId = selectableEntry.getIndex();}
@@ -138,121 +136,43 @@ hx-vals='js:{
                         @if(!cleanWord.isEmpty())
                             @if(translations.get(cleanWord) != null)
                                 @if(documentAttribute.importData().selectedWordId() == wordId)
-                                    @if(translations.get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-tertiary bg-accent",
-                                            textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                            isFound = true
-                                        )
-                                    @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-tertiary bg-accent/80",
-                                            textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                        isFound = true
-                                        )
-
-                                    @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-tertiary bg-accent/60",
-                                            textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                        isFound = true
-                                        )
-                                    @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-tertiary bg-primary",
-                                            textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                        isFound = true
-                                        )
-                                    @else
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-tertiary bg-primary",
-                                            textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                        isFound = true
-                                        )
-                                    @endif
+                                    !{String selectedBgColor = switch(translations.get(cleanWord).familiarity()){
+                                        case UNKNOWN -> "bg-tertiary bg-accent";
+                                        case RECOGNIZED -> "bg-tertiary bg-accent/80";
+                                        case FAMILIAR -> "bg-tertiary bg-accent/60";
+                                        case KNOWN -> "bg-tertiary bg-primary";
+                                        default -> "bg-tertiary bg-primary";
+                                    };}
+                                    @template.document-page.content.word(
+                                    wordId = wordId,
+                                    processedWord = cleanWord,
+                                    documentId = documentId,
+                                    word = word,
+                                    bgColor = selectedBgColor,
+                                    textColor = "text-neutral",
+                                    familiarity = translations.get(cleanWord).familiarity(),
+                                    isFound = true)
                                 @else
-                                    @if(translations.get(cleanWord).familiarity() == Familiarity.UNKNOWN)
-
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-accent",
-                                            textColor = "text-primary",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                        isFound = true
-                                        )
-                                    @elseif(translations.get(cleanWord).familiarity() == Familiarity.RECOGNIZED)
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-accent/80",
-                                            textColor = "text-primary",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                        isFound = true
-                                        )
-                                    @elseif(translations.get(cleanWord).familiarity() == Familiarity.FAMILIAR)
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-accent/60",
-                                            textColor = "text-primary",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                        isFound = true
-                                        )
-                                    @elseif(translations.get(cleanWord).familiarity() == Familiarity.KNOWN)
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-primary",
-                                            textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                        isFound = true
-                                        )
-                                    @else
-                                        @template.document-page.content.word(
-                                            wordId = wordId,
-                                            processedWord = cleanWord,
-                                            documentId = documentId,
-                                            word = word,
-                                            bgColor = "bg-primary",
-                                            textColor = "text-neutral",
-                                            familiarity = translations.get(cleanWord).familiarity(),
-                                        isFound = true
-                                        )
-                                    @endif
+                                    !{String unselectedBgColor = switch(translations.get(cleanWord).familiarity()){
+                                        case UNKNOWN -> "bg-accent";
+                                        case RECOGNIZED -> "bg-accent/80";
+                                        case FAMILIAR -> "bg-accent/60";
+                                        case KNOWN -> "bg-primary";
+                                        default -> "bg-primary";
+                                    };}
+                                    !{String unselectedTextColor = switch(translations.get(cleanWord).familiarity()){
+                                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                                        default -> "text-neutral";
+                                    };}
+                                    @template.document-page.content.word(
+                                    wordId = wordId,
+                                    processedWord = cleanWord,
+                                    documentId = documentId,
+                                    word = word,
+                                    bgColor = unselectedBgColor,
+                                    textColor = unselectedTextColor,
+                                    familiarity = translations.get(cleanWord).familiarity(),
+                                    isFound = true)
                                 @endif
                             @else
                                 @if(documentAttribute.importData().selectedWordId() == wordId)
@@ -319,19 +239,4 @@ hx-vals='js:{
             firstPageOfRow = documentAttribute.paginationData().firstPageOfRowNumber()
         )
     </div>
-    <script>
-        @raw
-        //removes all whitespace text nodes from each page
-        window.whitespaceNodes = [...htmx.find('#page-content').children]
-            .filter(node => node.id === 'content-container')
-            .flatMap(container => [...container.childNodes])
-            .filter(content => content.id === 'content-main')
-            .flatMap(main => [...main.childNodes])
-            .flatMap(paragraph => [...paragraph.childNodes])
-            .filter(node => node.nodeType === Node.TEXT_NODE)
-            .filter(node => /^\s*$/.test(node.textContent));
-
-        window.whitespaceNodes.forEach(whitespace => whitespace.remove())
-        @endraw
-    </script>
 </form>
