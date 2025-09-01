@@ -29,6 +29,10 @@ public class TranslationFetchingService {
     }
 
     public List<String> fetchTranslationsAsync(Language sourceLanguage, Language targetLanguage, String targetWord) {
+        if(sourceLanguage.equals(targetLanguage)) {
+            log.info("Source and target languages are equal, returning input: {}", targetWord);
+            return List.of(targetWord);
+        }
         List<TranslationFetcher> sources = List.of(googleService, lingvanexService);
 
         List<CompletableFuture<List<String>>> futures = sources.stream()

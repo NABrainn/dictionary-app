@@ -35,6 +35,7 @@ id="translation-form">
             id="translation-form-${translationAttribute.selectedWordId()}"
             hx-trigger="click"
             hx-put="/translations/familiarity/update"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase"
             hx-vals='
             {
                 "targetWord": "${translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}",

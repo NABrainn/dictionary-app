@@ -63,6 +63,7 @@ data-is-selected="false"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
+hx-params="documentId,targetWord,selectedWordId,isPhrase,isFound"
 hx-vals='{
     "documentId": "${documentId}",
     "targetWord": "${processedWord}",

@@ -23,13 +23,14 @@ hx-trigger="createphrase from:document"
 hx-get="/translations/create-phrase"
 hx-target="#new-phrase"
 hx-swap="outerHTML"
+hx-params="selectableId,phraseText,documentId,phraseLength,familiarities,isSavedList"
 hx-vals='js:{
     selectableId: data.get(htmx.find("#new-phrase"), "id"),
     phraseText: data.get(htmx.find("#new-phrase"), "value"),
     documentId: ${documentId},
     phraseLength: data.get(htmx.find("#new-phrase"), "length"),
-    familiarities: util.findAllByData({ key: "is-wrapped", value: "true" }).map(word => data.get(word, "familiarity")),
-    isSavedList: util.findAllByData({ key: "is-wrapped", value: "true" }).map(word => data.get(word, "is-saved") ?? "false"),
+    familiarities: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "familiarity")),
+    isSavedList: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "is-saved") ?? "false"),
 }'>
     @template.navbar.navbar(
     navbarAttribute = navbarAttribute,

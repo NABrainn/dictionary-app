@@ -19,6 +19,7 @@
                 hx-delete="/translations/sourceWords/delete?sourceWord=${word}"
                 hx-target="#translation-form-container-${selectedWordId}"
                 hx-swap="innerHTML"
+                hx-params="sourceWord,selectedWordId"
                 hx-vals='{
                     "selectedWordId": "${selectedWordId}"
                 }'>

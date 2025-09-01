@@ -95,12 +95,14 @@ public class TranslationServiceImp implements TranslationService {
                     .build();
         }
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
-
+        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord());
+        System.out.println(sourceWordsFromService);
         Translation translation = TranslationImp.builder()
-                .sourceWords(mergeSourceWordLists(
-                        sourceWordsFromDatabase,
-                        translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord())
-                ).stream().limit(3).toList())
+                .sourceWords(Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
+                        .filter(word -> !word.isBlank())
+                        .distinct()
+                        .limit(3)
+                        .toList())
                 .targetWord(request.targetWord())
                 .familiarity(Familiarity.UNKNOWN)
                 .sourceLanguage(request.sourceLanguage())
@@ -220,10 +222,12 @@ public class TranslationServiceImp implements TranslationService {
     @Override
     public List<String> translate(TranslateRequest request) {
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase(), 3);
-        return mergeSourceWordLists(
-                sourceWordsFromDatabase,
-                translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord())
-        );
+        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord());
+        return Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
+                .filter(word -> !word.isBlank())
+                .distinct()
+                .limit(3)
+                .toList();
     }
 
     @Override
@@ -275,13 +279,6 @@ public class TranslationServiceImp implements TranslationService {
 
     private Pattern compileNonSpecialChars() {
         return Pattern.compile("^[\\p{L}0-9 ]+$");
-    }
-
-    private List<String> mergeSourceWordLists(List<String> sourceWordsFromDatabase, List<String> sourceWordsFromDict) {
-        return Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromDict.stream())
-                .filter(word -> !word.isBlank())
-                .distinct()
-                .toList();
     }
 
     private int insertIntoDatabase(Translation translation,  AddTranslationRequest request) {

@@ -30,6 +30,7 @@ id="translation-form">
             id="translation-form-${translationAttribute.selectedWordId()}"
             hx-trigger="click"
             hx-post="/translations/new"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,sourceWords,documentId"
             hx-vals='{
                 "targetWord": "${processedWord}",
                 "familiarity": "${level.getValue().name()}",
@@ -39,6 +40,7 @@ id="translation-form">
                 "selectedWordId": "${translationAttribute.selectedWordId()}",
                 "isPhrase": "${translationAttribute.isPhrase()}"
             }'
+            hx-disinherit="*"
             hx-target="closest #translation-form-container-${translationAttribute.selectedWordId()}"
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()
@@ -239,6 +241,7 @@ id="translation-form">
                 .filter(word => data.get(word, 'value') === '${processedWord}')
                 .forEach(word => {
                     data.set(word, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
+                    data.set(word, { key: 'is-saved', value: 'true' })
                     if(data.get(word, 'is-selected') === 'true') {
                         const selectedSpan = word.firstElementChild.nextElementSibling
                         util.replaceClasses(selectedSpan, {

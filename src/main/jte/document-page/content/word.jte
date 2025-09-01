@@ -48,12 +48,13 @@ data-is-found="${isFound}">
     hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
+    hx-params="documentId,targetWord,selectedWordId,isPhrase,isFound"
     hx-vals='js:{
         documentId: ${documentId},
         targetWord: "${processedWord}",
         selectedWordId: ${wordId},
         isPhrase: false,
-        isFound: htmx.find("#selectable-input-${wordId}").dataset.isFound ?? false
+        isFound: data.get(htmx.find("#word-${wordId}"), "is-saved")
     }'
     hx-trigger="click"
     hx-on:click="
