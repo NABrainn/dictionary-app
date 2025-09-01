@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 @Controller
 @RequiredArgsConstructor
@@ -48,14 +49,14 @@ public class TranslationControllerImp {
                     .selectedWordId(selectedWordId)
                     .translationId(-1)
                     .translation(TranslationImp.builder()
-                            .sourceWords(sourceWords)
-                            .targetWord(targetWord)
-                            .familiarity(Familiarity.UNKNOWN)
-                            .sourceLanguage(principal.sourceLanguage())
-                            .targetLanguage(principal.targetLanguage())
-                            .owner(principal.getUsername())
-                            .isPhrase(isPhrase)
-                            .build())
+                        .sourceWords(sourceWords)
+                        .targetWord(targetWord)
+                        .familiarity(Familiarity.UNKNOWN)
+                        .sourceLanguage(principal.sourceLanguage())
+                        .targetLanguage(principal.targetLanguage())
+                        .owner(principal.getUsername())
+                        .isPhrase(isPhrase)
+                        .build())
                     .currentFamiliarity(getFamiliarityAsDigit(Familiarity.UNKNOWN))
                     .isPhrase(isPhrase)
                     .familiarityLevels(getFamiliarityTable())
@@ -79,30 +80,42 @@ public class TranslationControllerImp {
         return "document-page/content/translation/update/update-translation-form";
     }
 
-    @GetMapping({"/unselect-phrase", "/unselect-phrase/"})
-    public String unselectPhrase(@RequestParam("targetWords") String targetWords,
-                                 @RequestParam("selectableId") int selectableId,
-                                 @RequestParam("documentId") int documentId,
-                                 @RequestParam("familiarities") List<String> familiarities,
-                                 Model model) {
-        model.addAttribute("targetWords", targetWords);
+    @GetMapping({"/create-phrase", "/create-phrase/"})
+    public String createPhrase(Model model,
+                               Authentication authentication,
+                               @RequestParam("selectableId") int selectableId,
+                               @RequestParam("phraseText") String phraseText,
+                               @RequestParam("documentId") int documentId,
+                               @RequestParam("phraseLength") int phraseLength,
+                               @RequestParam("familiarities") List<String> familiarities,
+                               @RequestParam("isSavedList") List<String> isSavedList) {
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        List<String> sourceWords = translationService.translate(TranslateRequest.of(phraseText, principal.sourceLanguage(), principal.targetLanguage()));
         model.addAttribute("selectableId", selectableId);
+        model.addAttribute("phraseText", phraseText);
         model.addAttribute("documentId", documentId);
+        model.addAttribute("phraseLength", phraseLength);
         model.addAttribute("familiarities", familiarities);
-        return "document-page/content/unselected-phrase";
-    }
-
-    @GetMapping({"/phrase", "/phrase/"})
-    public String newPhrase(@RequestParam("targetWords") String targetWords,
-                            @RequestParam("selectableId") int selectableId,
-                            @RequestParam("documentId") int documentId,
-                            @RequestParam("familiarities") List<String> familiarities,
-                            Model model) {
-        model.addAttribute("targetWords", targetWords);
-        model.addAttribute("selectableId", selectableId);
-        model.addAttribute("documentId", documentId);
-        model.addAttribute("familiarities", familiarities);
-        return "document-page/content/selected-phrase";
+        model.addAttribute("isSavedList", isSavedList);
+        model.addAttribute("translationAttribute", TranslationAttribute.builder()
+                .documentId(documentId)
+                .selectedWordId(selectableId)
+                .translationId(-1)
+                .translation(TranslationImp.builder()
+                    .sourceWords(sourceWords)
+                    .targetWord(phraseText)
+                    .familiarity(Familiarity.UNKNOWN)
+                    .sourceLanguage(principal.sourceLanguage())
+                    .targetLanguage(principal.targetLanguage())
+                    .owner(principal.getUsername())
+                    .isPhrase(true)
+                    .build())
+                .currentFamiliarity(getFamiliarityAsDigit(Familiarity.UNKNOWN))
+                .isPhrase(true)
+                .familiarityLevels(getFamiliarityTable())
+                .build());
+        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+        return "document-page/content/new-phrase";
     }
 
     @PostMapping({"/new", "/new/"})
@@ -121,8 +134,11 @@ public class TranslationControllerImp {
             AddTranslationRequest request = AddTranslationRequest.builder()
                     .documentId(documentId)
                     .selectedWordId(selectedWordId)
-                    .sourceWords(sourceWords)
-                    .targetWord(targetWord)
+                    .sourceWords(sourceWords.stream()
+                            .map(sw -> compileNonSpecialChars().matcher(sw).replaceAll(""))
+                            .filter(sw -> !sw.isBlank())
+                            .toList())
+                    .targetWord(compileNonSpecialChars().matcher(targetWord).replaceAll(""))
                     .sourceLanguage(sourceLanguage)
                     .targetLanguage(targetLanguage)
                     .familiarity(familiarity)
@@ -134,9 +150,8 @@ public class TranslationControllerImp {
             model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/update/update-translation-form";
         } catch (TranslationContraintViolationException e) {
-            String exceptionMessage = "Failed to add translation due to invalid input.";
-            log.info(exceptionMessage);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exceptionMessage);
+            log.info(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
@@ -217,6 +232,10 @@ public class TranslationControllerImp {
         model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
         return "document-page/content/translation/update/update-translation-form";
 
+    }
+
+    private Pattern compileNonSpecialChars() {
+        return Pattern.compile("[^\\p{L}0-9 ]");
     }
 
     private int getFamiliarityAsDigit(Familiarity familiarity) {

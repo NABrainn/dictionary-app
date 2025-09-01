@@ -1,77 +1,66 @@
-@import gg.jte.support.ForSupport
-@import lule.dictionary.dto.database.interfaces.translation.Translation
 @import lule.dictionary.enumeration.Familiarity
-@import lule.dictionary.service.imports.importService.dto.Phrase
+@import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
 @import java.util.List
 @import java.util.Map
-@import java.util.regex.Pattern
 
-@param Phrase phrase
-@param Pattern cleanWordPattern
-@param int paragraphId
 @param int selectableId
 @param int documentId
-@param List<Integer> startIndices
-@param Map<String, Translation> translations
+@param int phraseLength
+@param List<String> familiarities
+@param List<String> isSavedList
+@param TranslationAttribute translationAttribute
+@param Map<String, String> translationLocalization
 
-!{var processedWord = String.join(" ", phrase.targetWords().stream()
-                                                .map(word -> cleanWordPattern.matcher(word)
-                                                        .replaceAll("")
-                                                        .replace("-", " ")
-                                                        .toLowerCase())
-                                                .toList());}
+!{var cleanWordPattern = java.util.regex.Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
+!{String[] unprocessedPhraseText = translationAttribute.translation().targetWord().split(" ");}
+!{String[] processedPhraseText = cleanWordPattern
+    .matcher(translationAttribute.translation().targetWord())
+    .replaceAll("")
+    .toLowerCase()
+    .split(" ");}
+!{List<Familiarity> phraseWordFamiliarityList = familiarities.stream()
+    .map(String::toUpperCase)
+    .map(familiarity -> switch (familiarity) {
+        case "UNKNOWN" -> Familiarity.UNKNOWN;
+        case "RECOGNIZED" -> Familiarity.RECOGNIZED;
+        case "FAMILIAR" -> Familiarity.FAMILIAR;
+        case "KNOWN" -> Familiarity.KNOWN;
+        default -> Familiarity.IGNORED;
+    })
+    .toList();}
+!{List<Boolean> phraseWordIsSavedList = isSavedList.stream()
+    .map(bool -> switch (bool) {
+        case "true" -> Boolean.TRUE;
+        case "false" -> Boolean.FALSE;
+        default -> throw new RuntimeException("not implemented");
+    })
+    .toList();}
 
-!{var containerBgColor = "";}
-!{var containerTextColor = "";}
-!{var familiarity = "";}
-
-@if(phrase.familiarity() != null)
-    @if(phrase.familiarity() == Familiarity.UNKNOWN)
-        !{containerBgColor = "bg-accent";}
-        !{containerTextColor = "text-primary";}
-    @elseif(phrase.familiarity() == Familiarity.RECOGNIZED)
-        !{containerBgColor = "bg-accent/80";}
-        !{containerTextColor = "text-primary";}
-    @elseif(phrase.familiarity() == Familiarity.FAMILIAR)
-        !{containerBgColor = "bg-accent/60";}
-        !{containerTextColor = "text-primary";}
-    @elseif(phrase.familiarity() == Familiarity.KNOWN)
-        !{containerBgColor = "bg-primary";}
-        !{containerTextColor = "text-neutral";}
-    @else
-        !{containerBgColor = "bg-primary";}
-        !{containerTextColor = "text-neutral";}
-    @endif
-    !{familiarity = phrase.familiarity().name().toLowerCase();}
-@else
-    !{containerBgColor = "bg-primary";}
-    !{containerTextColor = "text-neutral";}
-@endif
 <div
-class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${containerTextColor} ${containerBgColor}"
+class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary bg-tertiary text-accent"
 id="phrase-${selectableId}"
 
 data-id="${selectableId}"
-data-value="${processedWord}"
-data-familiarity="${familiarity}"
+data-value="${String.join(" ", processedPhraseText)}"
+data-familiarity="unknown"
 
 data-is-phrase="true"
-data-is-saved="true"
+data-is-saved="false"
 data-is-selectable="true"
-data-is-selected="false"
+data-is-selected="true"
 
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
 hx-vals='{
     "documentId": "${documentId}",
-    "targetWord": "${processedWord}",
+    "targetWord": "${String.join(" ", processedPhraseText)}",
     "selectedWordId": "${selectableId}",
     "isPhrase": "true",
     "isFound": "true"
 }'
 hx-trigger="click"
-hx-on:click="
+hx-on::before-request="
 const familiarityColors = new Map([
     ['unknown', ['bg-accent', 'text-primary']],
     ['recognized', ['bg-accent/80', 'text-primary']],
@@ -148,14 +137,13 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
         toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
         toAdd: ['bg-tertiary', 'text-accent']
     })
-
     Array.from(node.children)
     .filter(child => data.get(child, 'is-word') === 'true')
     .flatMap(word => [...word.children])
     .filter(child => child instanceof HTMLSpanElement)
     .forEach(span => {
         util.replaceClasses(span, {
-            toRemove: ['text-primary', 'text-accent'],
+            toRemove: ['text-primary'],
             toAdd: ['text-accent']
         })
     })
@@ -164,56 +152,23 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
     <div
     onclick="event.stopPropagation()"
     class="
-    cursor-default z-2 absolute inline left-2 top-10"
+    cursor-default z-2 absolute inline left-2 top-10 animate-fade"
     id="translation-form-container-${selectableId}"
 
     data-id="${selectableId}"
-    data-is-translation-form-container="true"
-    hx-on::after-swap="htmx.find('form-position-adjuster').updatePositions(${selectableId})">
+    data-is-translation-form-container="true">
+        @template.document-page.content.translation.add.add-translation-form(
+        translationAttribute = translationAttribute,
+        translationLocalization = translationLocalization)
     </div>
-    @for(var phraseEntry : ForSupport.of(phrase.targetWords()))
-        !{var wordId = 0;}
-        @if(phrase.targetWords().size() == 1)
-            !{wordId = startIndices.get(paragraphId) + (phraseEntry.getIndex());}
-        @else
-            !{wordId = startIndices.get(paragraphId) + (phraseEntry.getIndex() - 1);}
-        @endif
-        !{var word = phraseEntry.get();}
-        !{var cleanWord = cleanWordPattern.matcher(word)
-                                                .replaceAll("")
-                                                .replace("-", " ")
-                                                .toLowerCase();}
-        @if(!cleanWord.isEmpty())
-            @if(translations.get(cleanWord) != null)
-                @template.document-page.content.word(
-                wordId = wordId,
-                processedWord = cleanWord,
-                documentId = documentId,
-                word = word,
-                familiarity = translations.get(cleanWord).familiarity(),
-                isSelectable = false,
-                isWrapped = true,
-                phraseFamiliarity = phrase.familiarity())
-            @else
-                @template.document-page.content.word(
-                wordId = wordId,
-                processedWord = cleanWord,
-                documentId = documentId,
-                word = word,
-                isSelectable = true,
-                isWrapped = true,
-                phraseFamiliarity = phrase.familiarity())
-            @endif
-        @else
-            @template.document-page.content.word(
-            wordId = wordId,
-            processedWord = cleanWord,
-            documentId = documentId,
-            word = word,
-            textColor = containerTextColor,
-            isSelectable = false,
-            isWrapped = true,
-            phraseFamiliarity = phrase.familiarity())
-        @endif
+    @for(int wordId = selectableId, phraseWordId = 0; wordId < selectableId + phraseLength; wordId++, phraseWordId++)
+        @template.document-page.content.word(
+        wordId = wordId,
+        documentId = documentId,
+        word = unprocessedPhraseText[phraseWordId],
+        processedWord = processedPhraseText[phraseWordId],
+        familiarity = phraseWordFamiliarityList.get(phraseWordId),
+        isFound = phraseWordIsSavedList.get(phraseWordId),
+        isWrapped = true)
     @endfor
 </div>

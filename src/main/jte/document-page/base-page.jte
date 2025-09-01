@@ -33,7 +33,8 @@
 
     )
     @template.document-page.script(
-    selectedWordId = documentAttribute.importData().selectedWordId())
+    selectedWordId = documentAttribute.importData().selectedWordId(),
+    documentId = documentAttribute.importData().documentId())
 `,
 baseAttribute = baseAttribute
 )

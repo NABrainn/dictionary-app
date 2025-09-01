@@ -42,7 +42,7 @@ public class TranslationFetchingService {
                 .toList();
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .orTimeout(1500, TimeUnit.MILLISECONDS)
+                .orTimeout(500, TimeUnit.MILLISECONDS)
                 .exceptionally(ex -> null)
                 .join();
 
