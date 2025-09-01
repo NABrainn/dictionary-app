@@ -63,7 +63,9 @@ id="translation-form">
                 .filter(phrase => data.get(phrase, 'value') === '${processedWord}')
                 .filter(phrase => data.get(phrase, 'is-saved') === 'true')
                 .forEach(savedPhrase => {
+                    console.log(savedPhrase)
                     data.set(savedPhrase, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
+
                     if(data.get(savedPhrase, 'is-selected') === 'true') {
                         util.replaceClasses(savedPhrase, {
                             toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
@@ -71,7 +73,8 @@ id="translation-form">
                         })
                         Array.from(savedPhrase.children)
                         .filter(child => data.get(child, 'is-word') === 'true')
-                        .flatMap(word => word.firstElementChild)
+                        .flatMap(word => [...word.children])
+                        .filter(child => child instanceof HTMLSpanElement)
                         .forEach(span => {
                             util.replaceClasses(span, {
                                 toRemove: ['text-accent', 'text-primary'],
@@ -86,7 +89,8 @@ id="translation-form">
                         })
                         Array.from(savedPhrase.children)
                         .filter(child => data.get(child, 'is-word') === 'true')
-                        .flatMap(word => word.firstElementChild)
+                        .flatMap(word => [...word.children])
+                        .filter(child => child instanceof HTMLSpanElement)
                         .forEach(span => {
                             util.replaceClasses(span, {
                                 toRemove: ['text-accent', 'text-primary'],

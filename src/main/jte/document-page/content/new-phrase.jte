@@ -16,6 +16,7 @@
 !{String[] processedPhraseText = cleanWordPattern
     .matcher(translationAttribute.translation().targetWord())
     .replaceAll("")
+    .toLowerCase()
     .split(" ");}
 !{List<Familiarity> phraseWordFamiliarityList = familiarities.stream()
     .map(String::toUpperCase)

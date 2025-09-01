@@ -18,11 +18,16 @@
     !{familiarityString = familiarity.name().toLowerCase();}
 @endif
 !{String borderStyles = isWrapped ? "pointer-events-none" : "border border-2  border-transparent";}
+!{String isWrappedData = isWrapped  ? "true" : "false";}
+!{String isSavedData = isFound  ? "true" : "false";}
+
+
 <input
 id="selectable-input-${wordId}"
 type="hidden"
 
 data-is-found="${isFound}">
+
 @if(isSelectable)
     <div
     class="
@@ -37,8 +42,8 @@ data-is-found="${isFound}">
     data-is-selectable="true"
     data-is-selected="false"
     data-is-word="true"
-    data-is-saved="${isFound}"
-    data-is-wrapped="${isWrapped}"
+    data-is-saved="${isSavedData}"
+    data-is-wrapped="${isWrappedData}"
 
     hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
@@ -81,6 +86,7 @@ data-is-found="${isFound}">
     .forEach(selectedPhrase => {
         data.set(selectedPhrase, { key: 'is-selected', value: 'false' })
         if(data.get(selectedPhrase, 'is-saved') === 'true') {
+            console.log('click: cleaning up selected phrase: ', selectedPhrase)
             util.replaceClasses(selectedPhrase, {
                 toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
                 toAdd: [...familiarityColors.get(data.get(selectedPhrase, 'familiarity'))]
@@ -92,12 +98,15 @@ data-is-found="${isFound}">
             const spans = words
             .flatMap(word => [...word.children])
             .filter(word => word instanceof HTMLSpanElement)
+            console.log(Array.from(selectedPhrase.children))
+            console.log(Array.from(selectedPhrase.children).map(child => child.dataset))
             spans.forEach(span => {
                 util.replaceClasses(span, {
                     toRemove: ['text-accent', 'text-primary'],
                     toAdd: [familiarityColors.get(data.get(selectedPhrase, 'familiarity')).at(1)]
                 })
             })
+
         }
         else {
             selectedPhrase.firstElementChild.remove()
