@@ -257,8 +257,8 @@ window.util = {
             const valsString = typeof config.vals === 'object' ? JSON.stringify(config.vals) : config.vals;
             config.element.setAttribute("hx-vals", valsString);
         }
-        if(config.beforeRequest) {
-            config.element.setAttribute("hx-on::before-request", config.beforeRequest.toString())
+        if(config.params) {
+            config.element.setAttribute("hx-params", config.params)
         }
         htmx.process(config.element)
     }
