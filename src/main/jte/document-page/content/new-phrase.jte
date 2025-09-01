@@ -152,7 +152,7 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
     <div
     onclick="event.stopPropagation()"
     class="
-    cursor-default z-2 absolute inline left-2 top-10 animate-fade"
+    cursor-default z-2 absolute inline left-2 top-10"
     id="translation-form-container-${selectableId}"
 
     data-id="${selectableId}"

@@ -160,13 +160,18 @@ hx-vals='js:{
         }),
         content: phraseNodes
     })
-
+    htmx.on('htmx:afterSwap', (e) => {
+        const adjuster = htmx.find('form-position-adjuster')
+        adjuster.updateFormPosition(e.target.firstElementChild)
+    })
+    htmx.on('htmx:load', (e) => {
+        const adjuster = htmx.find('form-position-adjuster')
+        adjuster.updateFormPosition(e.target.firstElementChild)
+    })
     htmx.on('htmx:afterSettle', (e) => {
         const adjuster = htmx.find('form-position-adjuster')
         adjuster.updateFormPosition(e.target.firstElementChild)
     })
-
-
 
     wrappedPhrase.content.forEach(node => node.classList.remove('border', 'border-2', 'border-transparent'))
     util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
