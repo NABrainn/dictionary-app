@@ -63,7 +63,6 @@ id="translation-form">
                 .filter(phrase => data.get(phrase, 'value') === '${processedWord}')
                 .filter(phrase => data.get(phrase, 'is-saved') === 'true')
                 .forEach(savedPhrase => {
-                    console.log(savedPhrase)
                     data.set(savedPhrase, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
 
                     if(data.get(savedPhrase, 'is-selected') === 'true') {

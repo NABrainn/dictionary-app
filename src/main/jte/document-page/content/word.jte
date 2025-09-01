@@ -86,7 +86,6 @@ data-is-found="${isFound}">
     .forEach(selectedPhrase => {
         data.set(selectedPhrase, { key: 'is-selected', value: 'false' })
         if(data.get(selectedPhrase, 'is-saved') === 'true') {
-            console.log('click: cleaning up selected phrase: ', selectedPhrase)
             util.replaceClasses(selectedPhrase, {
                 toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
                 toAdd: [...familiarityColors.get(data.get(selectedPhrase, 'familiarity'))]
@@ -98,8 +97,6 @@ data-is-found="${isFound}">
             const spans = words
             .flatMap(word => [...word.children])
             .filter(word => word instanceof HTMLSpanElement)
-            console.log(Array.from(selectedPhrase.children))
-            console.log(Array.from(selectedPhrase.children).map(child => child.dataset))
             spans.forEach(span => {
                 util.replaceClasses(span, {
                     toRemove: ['text-accent', 'text-primary'],

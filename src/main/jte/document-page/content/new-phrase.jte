@@ -152,14 +152,11 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
     <div
     onclick="event.stopPropagation()"
     class="
-    cursor-default z-2 absolute inline left-2 top-10"
+    cursor-default z-2 absolute inline left-2 top-10 animate-fade"
     id="translation-form-container-${selectableId}"
 
     data-id="${selectableId}"
-    data-is-translation-form-container="true"
-    hx-on::after-swap="
-    htmx.find('form-position-adjuster').updatePositions(${selectableId})
-    ">
+    data-is-translation-form-container="true">
         @template.document-page.content.translation.add.add-translation-form(
         translationAttribute = translationAttribute,
         translationLocalization = translationLocalization)
