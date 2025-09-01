@@ -25,7 +25,7 @@ hx-swap="innerHTML">
             <input
             id="input-source-word"
             class="
-            outline-none border border-2 border-error rounded text-neutral text-md max-w-35
+            outline-none border border-2 border-error rounded text-neutral text-md
             focus:border-accent"
             type="text"
             placeholder="${placeholderText}"
@@ -38,7 +38,7 @@ hx-swap="innerHTML">
             <input
             id="input-source-word"
             class="
-            outline-none border border-2 border-primary rounded text-neutral text-md max-w-35
+            outline-none border border-2 border-primary rounded text-neutral text-md
             focus:border-accent"
             type="text"
             placeholder="${placeholderText}"

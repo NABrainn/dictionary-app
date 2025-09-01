@@ -49,6 +49,7 @@ data-is-saved="false"
 data-is-selectable="true"
 data-is-selected="true"
 
+hx-params="documentId,targetWord,selectedWordId,isPhrase,isFound"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"

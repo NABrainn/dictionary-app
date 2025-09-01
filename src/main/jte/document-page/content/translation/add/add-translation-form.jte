@@ -8,7 +8,7 @@
 
 <div
 onclick="event.stopPropagation()"
-class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45 pointer-events-auto animate-fade"
+class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded pointer-events-auto animate-fade"
 id="translation-form">
     <div class="flex justify-end">
         <span
@@ -136,6 +136,7 @@ id="translation-form">
                         target: '#translation-form-container-' + data.get(phraseNodeList.at(0), 'id'),
                         swap: 'innerHTML',
                         trigger: 'click',
+                        params: 'documentId,targetWord,selectedWordId,isPhrase,isFound',
                         vals: {
                             documentId: data.get(phraseNodeList.at(0), 'document-id'),
                             targetWord: '${processedWord}',
