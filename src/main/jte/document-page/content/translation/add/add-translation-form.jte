@@ -16,7 +16,9 @@ id="translation-form">
         <span
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer"
-        onclick="htmx.find('.form').outerHTML = ''">❌</span>
+        hx-on:click="
+        util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
+        .forEach(formContainer => util.removeInnerHTML(formContainer))">❌</span>
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${processedWord}</span>
     <div id="translation-manager">
@@ -151,6 +153,7 @@ id="translation-form">
                             isFound: true
                         }
                     })
+
                     htmx.on(wrapped.wrapper, 'click', () => {
                         const familiarityColors = new Map([
                             ['unknown', ['bg-accent', 'text-primary']],

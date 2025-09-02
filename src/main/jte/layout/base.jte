@@ -5,8 +5,6 @@
 @param Content content = null
 @param BaseAttribute baseAttribute
 
-
-
 <html lang="en">
     <script>
     <%--

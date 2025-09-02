@@ -1,11 +1,3 @@
-@param int selectedWordId
-@param int documentId
-@raw
-<script class="
-top-8 top-6 top-10 right-4 bottom-12 bottom-10 -right-16 top-4 top-16 bottom-16 bottom-8 left-2 right-2 -left-16 -left-48
-border-b-secondary border-l-secondary border-t-secondary border-r-secondary border-l-transparent border-r-transparent border
-border-l-2 border-r-2 border-t-2 border-b-2
-px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
     //ABOVE styles used here solely for tailwind live reload server to pick up
 
     if (!customElements.get('form-position-adjuster')) {
@@ -28,8 +20,8 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
             log() {
                 this.debug = true
             }
-            updatePositions(id) {                
-                const form = this.#getTranslationForm(id);         
+            updatePositions(id) {
+                const form = this.#getTranslationForm(id);
                 this.#handleOverflow(form);
             }
             updateFormPosition(form) {
@@ -208,10 +200,10 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
                 return form.getBoundingClientRect().right > window.innerWidth;
             }
 
-            #isOverflowBottom(form) {   
+            #isOverflowBottom(form) {
                 if(!form) {
                     return
-                }           
+                }
                 return form.getBoundingClientRect().bottom > window.innerHeight;
             }
 
@@ -304,10 +296,76 @@ px-0.5 pl-0.5 pr-0.5 w-[2px] min-w-[2px]">
 
         customElements.define('form-position-adjuster', FormPositionAdjuster);
     }
-@endraw
-</script>
-<form-position-adjuster selected-word-id="0"></form-position-adjuster>
+    window.documentPage = window.documentPage || {
+        closeAllTranslationForms: () => util.findAllByData({ key: 'is-translation-form-container', value: 'true' }).forEach(formContainer => util.removeInnerHTML(formContainer)),
+        cleanupSelectedWord: () => {
+            const familiarityColors = new Map([
+                ['unknown', ['bg-accent', 'text-primary']],
+                ['recognized', ['bg-accent/80', 'text-primary']],
+                ['familiar', ['bg-accent/60', 'text-primary']],
+                ['known', ['bg-primary', 'text-neutral']],
+                ['ignored', ['bg-primary', 'text-neutral']]
+            ])   
+            util.findAllByData({ key: 'is-word', value: 'true' })
+            .filter(word => data.get(word, 'is-selected') === 'true')
+            .flatMap(selectedWord => [...selectedWord.children])
+            .filter(child => child instanceof HTMLSpanElement)
+            .forEach(selectedSpan => {
+                data.set(selectedSpan.parentElement, { key: 'is-selected', value: 'false' })
+                util.replaceClasses(selectedSpan, {
+                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
+                    toAdd: familiarityColors.get(data.get(selectedSpan.parentElement, 'familiarity'))
+                })
+            })
+        },
+        cleanupSelectedPhrase: () => {    
+            const familiarityColors = new Map([
+                ['unknown', ['bg-accent', 'text-primary']],
+                ['recognized', ['bg-accent/80', 'text-primary']],
+                ['familiar', ['bg-accent/60', 'text-primary']],
+                ['known', ['bg-primary', 'text-neutral']],
+                ['ignored', ['bg-primary', 'text-neutral']]
+            ])           
+            util.findAllByData({ key: 'is-phrase', value: 'true' })
+            .filter(node => data.get(node, 'is-selected') === 'true')
+            .forEach(selectedPhrase => {
+                data.set(selectedPhrase, { key: 'is-selected', value: 'false' })
 
+                if(data.get(selectedPhrase, 'is-saved') === 'true') {
+                    util.replaceClasses(selectedPhrase, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
+                        toAdd: [...familiarityColors.get(data.get(selectedPhrase, 'familiarity'))]
+                    })
+                    const words = Array.from(selectedPhrase.children)
+                    .filter(child => data.get(child, 'is-word') === 'true')
+                    words.forEach(word => word.classList.add('pointer-events-none'))
 
-
-
+                    const spans = words
+                    .flatMap(word => [...word.children])
+                    .filter(word => word instanceof HTMLSpanElement)
+                    spans.forEach(span => {
+                        util.replaceClasses(span, {
+                            toRemove: ['text-accent', 'text-primary'],
+                            toAdd: [familiarityColors.get(data.get(selectedPhrase, 'familiarity')).at(1)]
+                        })
+                    })
+                }
+                else {
+                    selectedPhrase.firstElementChild.remove()
+                    const phraseNodes = util.unwrap(selectedPhrase).filter(node => data.get(node, 'is-word'))
+                    phraseNodes.forEach(node => {
+                        htmx.process(node)
+                        util.replaceClasses(node, {
+                            toRemove: ['pointer-events-none'],
+                            toAdd: ['border', 'border-2', 'border-transparent']
+                        })
+                        const span = [...node.children].filter(child => child instanceof HTMLSpanElement).at(0)
+                        util.replaceClasses(span, {
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary', 'bg-tertiary'],
+                            toAdd: familiarityColors.get(data.get(node, 'familiarity'))
+                        })
+                    })
+                }
+            })
+        }
+    }

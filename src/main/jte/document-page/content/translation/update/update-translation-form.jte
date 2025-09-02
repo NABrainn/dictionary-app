@@ -15,7 +15,10 @@ id="translation-form">
     <div class="flex justify-end">
         <span
         class="md:text-md
-        text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
+        text-sm text-red-400 font-bold cursor-pointer"
+        hx-on:click="
+        util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
+        .forEach(formContainer => util.removeInnerHTML(formContainer))">❌</span>
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${translationAttribute.translation().targetWord()}</span>
     <div id="translation-manager">
