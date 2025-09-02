@@ -173,12 +173,6 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
     hx-on::after-swap="htmx.find('form-position-adjuster').updatePositions(${selectableId})">
     </div>
     @for(var phraseEntry : ForSupport.of(phrase.targetWords()))
-        !{var wordId = 0;}
-        @if(phrase.targetWords().size() == 1)
-            !{wordId = startIndices.get(paragraphId) + (phraseEntry.getIndex());}
-        @else
-            !{wordId = startIndices.get(paragraphId) + (phraseEntry.getIndex() - 1);}
-        @endif
         !{var word = phraseEntry.get();}
         !{var cleanWord = cleanWordPattern.matcher(word)
                                                 .replaceAll("")
@@ -187,7 +181,7 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
         @if(!cleanWord.isEmpty())
             @if(translations.get(cleanWord) != null)
                 @template.document-page.content.word(
-                wordId = wordId,
+                wordId = -1,
                 processedWord = cleanWord,
                 documentId = documentId,
                 word = word,
@@ -197,7 +191,7 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
                 phraseFamiliarity = phrase.familiarity())
             @else
                 @template.document-page.content.word(
-                wordId = wordId,
+                wordId = -1,
                 processedWord = cleanWord,
                 documentId = documentId,
                 word = word,
@@ -207,7 +201,7 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
             @endif
         @else
             @template.document-page.content.word(
-            wordId = wordId,
+            wordId = -1,
             processedWord = cleanWord,
             documentId = documentId,
             word = word,

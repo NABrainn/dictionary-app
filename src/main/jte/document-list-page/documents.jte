@@ -37,7 +37,11 @@
                         @for(var item : documentsAttribute)
                             <div
                             class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer"
-                            hx-get="/imports/${item.id()}?page=1"
+                            hx-get="/imports/${item.id()}"
+                            hx-params="page"
+                            hx-vals='{
+                                "page": "1"
+                            }'
                             hx-target="#main"
                             hx-swap="innerHTML"
                             hx-push-url="/imports/${item.id()}">

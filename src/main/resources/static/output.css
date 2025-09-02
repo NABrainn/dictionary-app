@@ -206,6 +206,9 @@
   .sticky {
     position: sticky;
   }
+  .top-4 {
+    top: calc(var(--spacing) * 4);
+  }
   .top-6 {
     top: calc(var(--spacing) * 6);
   }
@@ -217,6 +220,12 @@
   }
   .top-16 {
     top: calc(var(--spacing) * 16);
+  }
+  .-right-16 {
+    right: calc(var(--spacing) * -16);
+  }
+  .right-2 {
+    right: calc(var(--spacing) * 2);
   }
   .right-4 {
     right: calc(var(--spacing) * 4);
@@ -233,6 +242,15 @@
   .bottom-12 {
     bottom: calc(var(--spacing) * 12);
   }
+  .bottom-16 {
+    bottom: calc(var(--spacing) * 16);
+  }
+  .-left-16 {
+    left: calc(var(--spacing) * -16);
+  }
+  .-left-48 {
+    left: calc(var(--spacing) * -48);
+  }
   .left-0 {
     left: calc(var(--spacing) * 0);
   }
@@ -245,23 +263,8 @@
   .z-10 {
     z-index: 10;
   }
-  .container {
-    width: 100%;
-    @media (width >= 40rem) {
-      max-width: 40rem;
-    }
-    @media (width >= 48rem) {
-      max-width: 48rem;
-    }
-    @media (width >= 64rem) {
-      max-width: 64rem;
-    }
-    @media (width >= 80rem) {
-      max-width: 80rem;
-    }
-    @media (width >= 96rem) {
-      max-width: 96rem;
-    }
+  .z-420 {
+    z-index: 420;
   }
   .mx-auto {
     margin-inline: auto;
@@ -343,12 +346,6 @@
   .w-full {
     width: 100%;
   }
-  .max-w-35 {
-    max-width: calc(var(--spacing) * 35);
-  }
-  .max-w-45 {
-    max-width: calc(var(--spacing) * 45);
-  }
   .max-w-full {
     max-width: 100%;
   }
@@ -388,11 +385,17 @@
   .flex-col {
     flex-direction: column;
   }
+  .flex-row {
+    flex-direction: row;
+  }
   .flex-wrap {
     flex-wrap: wrap;
   }
   .items-center {
     align-items: center;
+  }
+  .justify-around {
+    justify-content: space-around;
   }
   .justify-between {
     justify-content: space-between;
@@ -402,12 +405,6 @@
   }
   .justify-end {
     justify-content: flex-end;
-  }
-  .gap-0\.25 {
-    gap: calc(var(--spacing) * 0.25);
-  }
-  .gap-0\.75 {
-    gap: calc(var(--spacing) * 0.75);
   }
   .gap-1 {
     gap: calc(var(--spacing) * 1);
@@ -468,10 +465,6 @@
   .border-2 {
     border-style: var(--tw-border-style);
     border-width: 2px;
-  }
-  .border-3 {
-    border-style: var(--tw-border-style);
-    border-width: 3px;
   }
   .border-t-2 {
     border-top-style: var(--tw-border-style);
@@ -659,17 +652,8 @@
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
   }
-  .text-balance {
-    text-wrap: balance;
-  }
-  .text-pretty {
-    text-wrap: pretty;
-  }
   .text-wrap {
     text-wrap: wrap;
-  }
-  .break-all {
-    word-break: break-all;
   }
   .whitespace-nowrap {
     white-space: nowrap;
@@ -765,6 +749,11 @@
       visibility: hidden;
     }
   }
+  .md\:flex {
+    @media (width >= 48rem) {
+      display: flex;
+    }
+  }
   .md\:hidden {
     @media (width >= 48rem) {
       display: none;
@@ -779,6 +768,12 @@
     @media (width >= 48rem) {
       width: calc(var(--spacing) * 10);
       height: calc(var(--spacing) * 10);
+    }
+  }
+  .md\:size-auto {
+    @media (width >= 48rem) {
+      width: auto;
+      height: auto;
     }
   }
   .md\:min-h-110 {
@@ -806,9 +801,39 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
+  .md\:flex-col {
+    @media (width >= 48rem) {
+      flex-direction: column;
+    }
+  }
+  .md\:justify-start {
+    @media (width >= 48rem) {
+      justify-content: flex-start;
+    }
+  }
+  .md\:gap-0\.25 {
+    @media (width >= 48rem) {
+      gap: calc(var(--spacing) * 0.25);
+    }
+  }
+  .md\:gap-0\.75 {
+    @media (width >= 48rem) {
+      gap: calc(var(--spacing) * 0.75);
+    }
+  }
+  .md\:gap-1 {
+    @media (width >= 48rem) {
+      gap: calc(var(--spacing) * 1);
+    }
+  }
   .md\:gap-4 {
     @media (width >= 48rem) {
       gap: calc(var(--spacing) * 4);
+    }
+  }
+  .md\:bg-tertiary {
+    @media (width >= 48rem) {
+      background-color: var(--color-tertiary);
     }
   }
   .md\:p-4 {
@@ -837,6 +862,16 @@
     @media (width >= 48rem) {
       font-size: var(--text-xl);
       line-height: var(--tw-leading, var(--text-xl--line-height));
+    }
+  }
+  .md\:text-accent {
+    @media (width >= 48rem) {
+      color: var(--color-accent);
+    }
+  }
+  .md\:text-primary {
+    @media (width >= 48rem) {
+      color: var(--color-primary);
     }
   }
 }

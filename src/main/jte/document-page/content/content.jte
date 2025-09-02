@@ -254,8 +254,7 @@ hx-vals='js:{
                         selectableId = content.startIndices().get(paragraphId) + selectableId,
                         documentId = documentId,
                         startIndices = content.startIndices(),
-                        translations = translations
-                        )
+                        translations = translations)
                     @endif
                 @endfor
                 </div>

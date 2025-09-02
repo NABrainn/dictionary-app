@@ -12,7 +12,7 @@
 @param LanguageData translationLanguage
 @param List<LanguageData> languages
 
-<div class="flex justify-end items-center justify-center ${size}">
+<div class="flex justify-end items-center z-420 justify-center ${size}">
     <div>
         <a
         class="

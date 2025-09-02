@@ -8,7 +8,9 @@
 
 <div
 onclick="event.stopPropagation()"
-class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded pointer-events-auto animate-fade"
+class="
+mg:gap-0.75
+bg-tertiary flex flex-col gap-4 p-3 rounded pointer-events-auto animate-fade"
 id="translation-form">
     <div class="flex justify-end">
         <span
@@ -23,10 +25,14 @@ id="translation-form">
             translationLocalization = translationLocalization
         )
     </div>
-    <div class="flex flex-col gap-0.25">
+    <div class="
+    md:flex md:flex-col md:gap-0.25
+    flex flex-row justify-around">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             <form
-            class="flex gap-1 cursor-pointer font-bold text-neutral hover:text-primary"
+            class="
+            md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
+            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8  justify-center items-center"
             id="translation-form-${translationAttribute.selectedWordId()}"
             hx-trigger="click"
             hx-post="/translations/new"
@@ -259,13 +265,13 @@ id="translation-form">
                     }
                 })
             }">
-                <span class="cursor-pointer">${level.getKey()}: </span>
                 @for(var word : translationAttribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">
                 @endfor
-
+                <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                 <input
-                class=" cursor-pointer"
+                class="md:inline
+                hidden cursor-pointer"
                 value="${translationLocalization.get(level.getValue().name().toLowerCase())}"
                 type="submit">
             </form>

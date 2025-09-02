@@ -124,8 +124,14 @@ data-is-found="${isFound}">
         }
     })
     //handle selection
+    console.log(    util.findAllByData({ key: 'is-word', value: 'true' })
+    .filter(word => data.get(word, 'is-selected') === 'false')
+    .filter(word => data.get(word, 'is-selectable') === 'true')
+    .filter(word => data.get(word, 'id') === '${wordId}')
+    .flatMap(word => word.firstElementChild.nextElementSibling))
     util.findAllByData({ key: 'is-word', value: 'true' })
     .filter(word => data.get(word, 'is-selected') === 'false')
+    .filter(word => data.get(word, 'is-selectable') === 'true')
     .filter(word => data.get(word, 'id') === '${wordId}')
     .flatMap(word => word.firstElementChild.nextElementSibling)
     .forEach(span => {
