@@ -20,10 +20,10 @@
         class="md:w-3/5
         w-9/10 flex flex-col gap-6 bg-tertiary mx-auto p-6 rounded mt-16"
         hx-post="/imports/new"
+        hx-params="title,url,content,strategy"
         hx-target="#main"
         hx-swap="innerHTML"
         hx-push-url="true">
-            <input type="hidden" name="${baseAttribute._csrf().getParameterName()}" value="${baseAttribute._csrf().getToken()}">
             <div class="flex flex-col gap-2">
                 <label class="text-accent font-bold text-2xl min-h-8" for="title">${documentFormAttribute.titleText()}</label>
                 <textarea
@@ -53,6 +53,7 @@
                         type="button"
                         id="url"
                         hx-get="/imports/new/"
+                        hx-params="strategy"
                         hx-vals='{
                             "strategy": "url_submit"
                         }'
@@ -66,6 +67,7 @@
                         type="button"
                         id="insert"
                         hx-get="/imports/new/"
+                        hx-params="strategy"
                         hx-vals='{
                             "strategy": "content_submit"
                         }'
@@ -78,6 +80,7 @@
                         type="button"
                         id="url"
                         hx-get="/imports/new/"
+                        hx-params="strategy"
                         hx-vals='{
                             "strategy": "url_submit"
                         }'
@@ -91,6 +94,7 @@
                         type="button"
                         id="insert"
                         hx-get="/imports/new/"
+                        hx-params="strategy"
                         hx-vals='{
                             "strategy": "content_submit"
                         }'

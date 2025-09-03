@@ -8,12 +8,15 @@
 
 <div
 onclick="event.stopPropagation()"
-class="translation-form-${translationAttribute.selectedWordId()} bg-tertiary flex flex-col gap-0.75 p-3 rounded form max-w-45 animate-fade"
+class="
+md:gap-0.75
+gap-4 bg-tertiary flex flex-col p-3 rounded animate-fade"
 id="translation-form">
     <div class="flex justify-end">
         <span
         class="md:text-md
-        text-sm text-red-400 font-bold cursor-pointer" onclick="htmx.find('.form').outerHTML = ''">❌</span>
+        text-sm text-red-400 font-bold cursor-pointer"
+        hx-on:click="documentPage.closeAllTranslationForms()">❌</span>
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${translationAttribute.translation().targetWord()}</span>
     <div id="translation-manager">
@@ -22,19 +25,30 @@ id="translation-form">
             translationLocalization = translationLocalization
         )
     </div>
-    <div class="flex flex-col gap-0.25">
+    <div class="
+    md:flex md:flex-col md:gap-0.25
+    flex flex-row justify-around">
         @for(var level : translationAttribute.familiarityLevels().entrySet())
             @if(level.getKey() == translationAttribute.currentFamiliarity())
-                <div class="font-bold text-primary flex gap-1">
-                    <span>${level.getKey()}: </span>
-                    <span>${translationLocalization.get(level.getValue().name().toLowerCase())}</span>
+                <div class="
+                flex flex-row md:bg-tertiary md:text-primary md:size-auto md:justify-start
+                font-bold bg-primary text-accent gap-1  size-8 rounded justify-center items-center">
+                    <span class="
+                    md:inline
+                    block">${level.getKey()}<span class="md:inline hidden">: </span></span>
+                    <span class="
+                    md:inline
+                    hidden">${translationLocalization.get(level.getValue().name().toLowerCase())}</span>
                 </div>
             @else
             <form
-            class="hover:text-primary font-bold text-neutral flex gap-1"
+            class="
+            md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
+            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8  justify-center items-center"
             id="translation-form-${translationAttribute.selectedWordId()}"
             hx-trigger="click"
             hx-put="/translations/familiarity/update"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase"
             hx-vals='
             {
                 "targetWord": "${translationAttribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}",
@@ -121,9 +135,11 @@ id="translation-form">
                 })
             }
             ">
-                <span>${level.getKey()}: </span>
+                <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                 <input
-                class=" cursor-pointer"
+                class="
+                md:inline
+                hidden cursor-pointer"
                 value="${translationLocalization.get(level.getValue().name().toLowerCase())}"
                 type="submit">
             </form>

@@ -12,6 +12,7 @@
 @if(currentPage > 1)
     <div
     class="text-2xl cursor-pointer select-none"
+    hx-params="page"
     hx-get="/imports/${importId}?page=${currentPage - 1}"
     hx-target="#main"
     hx-swap="outerHTML"
@@ -19,6 +20,7 @@
 @else
     <div
     class="text-2xl cursor-pointer select-none invisible"
+    hx-params="page"
     hx-get="/imports/${importId}?page=${currentPage + 1}"
     hx-target="#main"
     hx-swap="outerHTML"
@@ -27,6 +29,7 @@
 @for(var row : ForSupport.of(rows.get(currentRow)))
     @if(currentPage == row.get())
         <form
+        hx-params="page"
         hx-get="/imports/${id}?page=${row.get()}"
         hx-target="#main"
         hx-swap="outerHTML"
@@ -37,6 +40,7 @@
         </form>
     @else
         <form
+        hx-params="page"
         hx-get="/imports/${id}?page=${row.get()}"
         hx-target="#main"
         hx-swap="outerHTML"
@@ -51,6 +55,7 @@
 @if(currentPage != pages)
     <div
     class="text-2xl cursor-pointer select-none"
+    hx-params="page"
     hx-get="/imports/${importId}?page=${currentPage + 1}"
     hx-target="#main"
     hx-swap="outerHTML"
@@ -58,6 +63,7 @@
 @else
     <div
     class="text-2xl cursor-pointer select-none invisible"
+    hx-params="page"
     hx-get="/imports/${importId}?page=${currentPage + 1}"
     hx-target="#main"
     hx-swap="outerHTML"

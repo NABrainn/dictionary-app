@@ -49,6 +49,7 @@ data-is-saved="false"
 data-is-selectable="true"
 data-is-selected="true"
 
+hx-params="documentId,targetWord,selectedWordId,isPhrase,isFound"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
@@ -152,7 +153,7 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
     <div
     onclick="event.stopPropagation()"
     class="
-    cursor-default z-2 absolute inline left-2 top-10 animate-fade"
+    cursor-default z-2 absolute inline left-2 top-10"
     id="translation-form-container-${selectableId}"
 
     data-id="${selectableId}"

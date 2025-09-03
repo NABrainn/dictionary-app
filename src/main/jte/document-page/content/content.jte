@@ -23,13 +23,14 @@ hx-trigger="createphrase from:document"
 hx-get="/translations/create-phrase"
 hx-target="#new-phrase"
 hx-swap="outerHTML"
+hx-params="selectableId,phraseText,documentId,phraseLength,familiarities,isSavedList"
 hx-vals='js:{
     selectableId: data.get(htmx.find("#new-phrase"), "id"),
     phraseText: data.get(htmx.find("#new-phrase"), "value"),
     documentId: ${documentId},
     phraseLength: data.get(htmx.find("#new-phrase"), "length"),
-    familiarities: util.findAllByData({ key: "is-wrapped", value: "true" }).map(word => data.get(word, "familiarity")),
-    isSavedList: util.findAllByData({ key: "is-wrapped", value: "true" }).map(word => data.get(word, "is-saved") ?? "false"),
+    familiarities: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "familiarity")),
+    isSavedList: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "is-saved") ?? "false"),
 }'>
     @template.navbar.navbar(
     navbarAttribute = navbarAttribute,
@@ -81,63 +82,10 @@ hx-vals='js:{
     if(result.err) {
         return window.getSelection().removeAllRanges()
     }
-    //cleanup selected word
-    util.findAllByData({ key: 'is-word', value: 'true' })
-    .filter(word => data.get(word, 'is-selected') === 'true')
-    .flatMap(selectedWord => [...selectedWord.children])
-    .filter(child => child instanceof HTMLSpanElement)
-    .forEach(selectedSpan => {
-        data.set(selectedSpan.parentElement, { key: 'is-selected', value: 'false' })
-        util.replaceClasses(selectedSpan, {
-            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
-            toAdd: familiarityColors.get(data.get(selectedSpan.parentElement, 'familiarity'))
-        })
-    })
-    //cleanup selected phrase
-    util.findAllByData({ key: 'is-phrase', value: 'true' })
-    .filter(node => data.get(node, 'is-selected') === 'true')
-    .forEach(selectedPhrase => {
-        data.set(selectedPhrase, { key: 'is-selected', value: 'false' })
 
-        if(data.get(selectedPhrase, 'is-saved') === 'true') {
-            util.replaceClasses(selectedPhrase, {
-                toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
-                toAdd: [...familiarityColors.get(data.get(selectedPhrase, 'familiarity'))]
-            })
-            const words = Array.from(selectedPhrase.children)
-            .filter(child => data.get(child, 'is-word') === 'true')
-            words.forEach(word => word.classList.add('pointer-events-none'))
-
-            const spans = words
-            .flatMap(word => [...word.children])
-            .filter(word => word instanceof HTMLSpanElement)
-            spans.forEach(span => {
-                util.replaceClasses(span, {
-                    toRemove: ['text-accent', 'text-primary'],
-                    toAdd: [familiarityColors.get(data.get(selectedPhrase, 'familiarity')).at(1)]
-                })
-            })
-        }
-        else {
-            selectedPhrase.firstElementChild.remove()
-            const phraseNodes = util.unwrap(selectedPhrase).filter(node => data.get(node, 'is-word'))
-            phraseNodes.forEach(node => {
-                htmx.process(node)
-                util.replaceClasses(node, {
-                    toRemove: ['pointer-events-none'],
-                    toAdd: ['border', 'border-2', 'border-transparent']
-                })
-                const span = [...node.children].filter(child => child instanceof HTMLSpanElement).at(0)
-                util.replaceClasses(span, {
-                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary', 'bg-tertiary'],
-                    toAdd: familiarityColors.get(data.get(node, 'familiarity'))
-                })
-            })
-        }
-    })
-
-    util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
-    .forEach(formContainer => util.removeInnerHTML(formContainer))
+    documentPage.closeAllTranslationForms()
+    documentPage.cleanupSelectedWord()
+    documentPage.cleanupSelectedPhrase()
 
     const phraseText = phraseNodes
     .flatMap(node => [...node.children])
@@ -160,13 +108,15 @@ hx-vals='js:{
         }),
         content: phraseNodes
     })
-
-    htmx.on('htmx:afterSettle', (e) => {
-        const adjuster = htmx.find('form-position-adjuster')
-        adjuster.updateFormPosition(e.target.firstElementChild)
+    htmx.on('htmx:afterSwap', (e) => {
+        formAdjuster.updateFormPosition(e.target.firstElementChild)
     })
-
-
+    htmx.on('htmx:load', (e) => {
+        formAdjuster.updateFormPosition(e.target.firstElementChild)
+    })
+    htmx.on('htmx:afterSettle', (e) => {
+        formAdjuster.updateFormPosition(e.target.firstElementChild)
+    })
 
     wrappedPhrase.content.forEach(node => node.classList.remove('border', 'border-2', 'border-transparent'))
     util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
@@ -248,8 +198,7 @@ hx-vals='js:{
                         selectableId = content.startIndices().get(paragraphId) + selectableId,
                         documentId = documentId,
                         startIndices = content.startIndices(),
-                        translations = translations
-                        )
+                        translations = translations)
                     @endif
                 @endfor
                 </div>

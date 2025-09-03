@@ -24,6 +24,7 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                         hx-get="/vocabulary/config-form/"
                         hx-target="#flashcard-config-form"
                         hx-swap="outerHTML"
+                        hx-params="familiarity,quantity,isPhrase"
                         hx-vals='{
                             "familiarity": "${i}",
                             "quantity": "${quantity}",
@@ -40,6 +41,7 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                     hx-get="/vocabulary/config-form/"
                     hx-target="#flashcard-config-form"
                     hx-swap="outerHTML"
+                    hx-params="familiarity,quantity,isPhrase"
                     hx-vals='{
                         "familiarity": "0",
                         "quantity": "${quantity}",

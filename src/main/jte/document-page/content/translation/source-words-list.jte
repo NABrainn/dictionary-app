@@ -13,14 +13,16 @@
             name="sourceWords"
             type="hidden"
             value="${word}">
-            <span class="text-accent">${word}</span>
+            <span class="text-accent text-wrap">${word}</span>
             @if(isUpdateForm)
                 <form
-                hx-delete="/translations/sourceWords/delete?sourceWord=${word}"
+                hx-delete="/translations/sourceWords/delete"
                 hx-target="#translation-form-container-${selectedWordId}"
                 hx-swap="innerHTML"
+                hx-params="sourceWord,selectedWordId"
                 hx-vals='{
-                    "selectedWordId": "${selectedWordId}"
+                    "selectedWordId": "${selectedWordId}",
+                    sourceWord="${word}"
                 }'>
                     <button
                     class="cursor-pointer"

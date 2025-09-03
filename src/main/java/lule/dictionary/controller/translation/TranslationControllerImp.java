@@ -91,6 +91,7 @@ public class TranslationControllerImp {
                                @RequestParam("isSavedList") List<String> isSavedList) {
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
         List<String> sourceWords = translationService.translate(TranslateRequest.of(phraseText, principal.sourceLanguage(), principal.targetLanguage()));
+        System.out.println(sourceWords);
         model.addAttribute("selectableId", selectableId);
         model.addAttribute("phraseText", phraseText);
         model.addAttribute("documentId", documentId);

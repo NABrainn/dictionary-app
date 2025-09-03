@@ -6,6 +6,7 @@
 
 <form
 class="flex flex-col gap-2"
+hx-params="selectedWordId,targetWord,familiarity,sourceWords"
 hx-vals='{
     "targetWord": "${translationAttribute.translation().targetWord()}",
     "familiarity": "${translationAttribute.translation().familiarity()}",
@@ -25,7 +26,7 @@ hx-swap="innerHTML">
             <input
             id="input-source-word"
             class="
-            outline-none border border-2 border-error rounded text-neutral text-md max-w-35
+            outline-none border border-2 border-error rounded text-neutral text-md grow-1
             focus:border-accent"
             type="text"
             placeholder="${placeholderText}"
@@ -38,7 +39,7 @@ hx-swap="innerHTML">
             <input
             id="input-source-word"
             class="
-            outline-none border border-2 border-primary rounded text-neutral text-md max-w-35
+            outline-none border border-2 border-primary rounded text-neutral text-md grow-1
             focus:border-accent"
             type="text"
             placeholder="${placeholderText}"
