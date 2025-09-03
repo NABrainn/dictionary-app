@@ -79,13 +79,13 @@ data-is-found="${isFound}">
         <div
         onclick="event.stopPropagation()"
         class="
-        cursor-default z-2 absolute inline left-2 top-10"
+        cursor-default z-2 absolute inline"
         id="translation-form-container-${wordId}"
 
         data-id="${wordId}"
         data-is-translation-form-container="true"
 
-        hx-on::after-swap="htmx.find('form-position-adjuster').updatePositions(${wordId})">
+        hx-on::after-swap="formAdjuster.updatePositions(${wordId})">
         </div>
         <span
         class="${bgColor} ${textColor} rounded"

@@ -16,16 +16,13 @@ id="translation-form">
         <span
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer"
-        hx-on:click="
-        util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
-        .forEach(formContainer => util.removeInnerHTML(formContainer))">❌</span>
+        hx-on:click="documentPage.closeAllTranslationForms()">❌</span>
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${processedWord}</span>
     <div id="translation-manager">
         @template.document-page.content.translation.add.translation-manager(
-            translationAttribute = translationAttribute,
-            translationLocalization = translationLocalization
-        )
+        translationAttribute = translationAttribute,
+        translationLocalization = translationLocalization)
     </div>
     <div class="
     md:flex md:flex-col md:gap-0.25
