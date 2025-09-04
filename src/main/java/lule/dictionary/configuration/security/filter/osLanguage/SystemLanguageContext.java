@@ -1,6 +1,6 @@
 package lule.dictionary.configuration.security.filter.osLanguage;
 
-import lule.dictionary.service.language.Language;
+import lule.dictionary.language.service.Language;
 
 public class SystemLanguageContext {
     private static final ThreadLocal<Language> systemLanguageHolder = new ThreadLocal<>();

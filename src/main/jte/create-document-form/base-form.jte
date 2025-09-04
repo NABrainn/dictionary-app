@@ -1,8 +1,8 @@
-@import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.service.imports.dto.ContentSubmission
-@import lule.dictionary.service.imports.dto.DocumentFormAttribute
-@import lule.dictionary.dto.application.attribute.NavbarAttribute
-@import lule.dictionary.service.imports.dto.UrlSubmission
+@import lule.dictionary.controllerAdvice.BaseAttribute
+@import lule.dictionary.documents.service.dto.strategy.ContentSubmission
+@import lule.dictionary.documents.service.dto.DocumentFormAttribute
+@import lule.dictionary.controllerAdvice.NavbarAttribute
+@import lule.dictionary.documents.service.dto.strategy.UrlSubmission
 @import java.util.Map
 
 @param DocumentFormAttribute documentFormAttribute

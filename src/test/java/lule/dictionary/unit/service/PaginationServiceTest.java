@@ -1,6 +1,6 @@
 package lule.dictionary.unit.service;
 
-import lule.dictionary.service.pagination.PaginationService;
+import lule.dictionary.pagination.service.PaginationService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

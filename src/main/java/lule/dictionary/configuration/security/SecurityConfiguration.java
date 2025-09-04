@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
 import lule.dictionary.configuration.security.filter.osLanguage.SystemLanguageFilter;
 import lule.dictionary.configuration.security.filter.timezone.TimezoneFilter;
-import lule.dictionary.service.cookie.CookieService;
-import lule.dictionary.service.userProfile.UserProfileService;
+import lule.dictionary.cookie.service.CookieService;
+import lule.dictionary.userProfiles.service.UserProfileService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,8 +24,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.*;
-
-import java.util.Map;
 
 
 @EnableWebSecurity

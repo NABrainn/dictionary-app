@@ -1,16 +1,15 @@
 package lule.dictionary.repository.factory;
 
-import lule.dictionary.dto.database.implementation.imports.ImportWithTranslationDataImp;
-import lule.dictionary.dto.database.implementation.imports.base.ImportImp;
-import lule.dictionary.dto.database.implementation.imports.ImportWithPaginationImp;
-import lule.dictionary.dto.database.implementation.translation.base.TranslationImp;
-import lule.dictionary.dto.database.implementation.userProfile.base.UserProfileImp;
-import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData;
-import lule.dictionary.dto.database.interfaces.imports.base.Document;
-import lule.dictionary.dto.database.interfaces.translation.Translation;
-import lule.dictionary.dto.database.interfaces.userProfile.base.UserProfile;
+import lule.dictionary.documents.data.DocumentWithTranslationDataImp;
+import lule.dictionary.documents.data.DocumentImp;
+import lule.dictionary.translations.data.TranslationImp;
+import lule.dictionary.userProfiles.data.UserProfileImp;
+import lule.dictionary.documents.data.DocumentWithTranslationData;
+import lule.dictionary.documents.data.Document;
+import lule.dictionary.translations.data.Translation;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.service.language.Language;
+import lule.dictionary.language.service.Language;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.Arrays;
@@ -50,8 +49,8 @@ public class RowMapperFactory {
                 .owner(rs.getString("translation_owner"))
                 .isPhrase(rs.getBoolean("is_phrase"))
                 .build());
-    public static final RowMapper<ImportWithTranslationData> IMPORT_WITH_TRANSLATION_DATA = ((rs, rowNum) ->
-            ImportWithTranslationDataImp.builder()
+    public static final RowMapper<DocumentWithTranslationData> IMPORT_WITH_TRANSLATION_DATA = ((rs, rowNum) ->
+            DocumentWithTranslationDataImp.builder()
                     .title(rs.getString("title"))
                     .url(rs.getString("url"))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
@@ -64,7 +63,7 @@ public class RowMapperFactory {
                     .translationCount(rs.getInt("translation_count"))
                     .build());
     public static final RowMapper<Document> IMPORT = ((rs, rowNum) ->
-            ImportImp.builder()
+            DocumentImp.builder()
                     .title(rs.getString("title"))
                     .url(rs.getString("url"))
                     .sourceLanguage(Language.valueOf(rs.getString("source_lang")))

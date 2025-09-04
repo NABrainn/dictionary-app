@@ -1,4 +1,4 @@
-@import lule.dictionary.service.translation.dto.attribute.TranslationAttribute
+@import lule.dictionary.translations.service.dto.attribute.TranslationAttribute
 @import java.util.Map
 
 @param TranslationAttribute translationAttribute

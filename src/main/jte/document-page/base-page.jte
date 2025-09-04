@@ -1,6 +1,6 @@
-@import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.dto.application.attribute.NavbarAttribute
-@import lule.dictionary.service.imports.importService.dto.request.DocumentAttribute
+@import lule.dictionary.controllerAdvice.BaseAttribute
+@import lule.dictionary.controllerAdvice.NavbarAttribute
+@import lule.dictionary.documents.service.dto.request.DocumentAttribute
 
 @param NavbarAttribute navbarAttribute
 @param DocumentAttribute documentAttribute
@@ -9,11 +9,8 @@
 <script>
 class FormAdjuster {
 
-    debug = true
+    debug = false
 
-    log() {
-        this.debug = true
-    }
     updatePositions(id) {
         const form = this.#getTranslationForm(id);
         this.#handleOverflow(form);
@@ -26,28 +23,26 @@ class FormAdjuster {
     }
     #handleOverflow(form) {
         this.#updateCords(form, {
-            top: 30,
+            top: 32,
             // bottom: 0,
-            // left: 0,
+            left: 8,
         })
         let eOverflow, neOverflow, nwOverflow, seOverflow, swOverflow, sOverflow, wOverflow;
-        // do {
-        //     neOverflow = this.#handleNorthEastOverflow(form);
-        //     nwOverflow = this.#handleNorthWestOverflow(form);
-        //     seOverflow = this.#handleSouthEastOverflow(form);
-        //     swOverflow = this.#handleSouthWestOverflow(form);
-        //     sOverflow = this.#handleSouthOverflow(form);
-        // } while ([neOverflow, nwOverflow, seOverflow, swOverflow, sOverflow, eOverflow].some(result => result === true));
-
-        for(let i = 0; i < 30; i++) {
+        do {
             neOverflow = this.#handleNorthEastOverflow(form);
             nwOverflow = this.#handleNorthWestOverflow(form);
             seOverflow = this.#handleSouthEastOverflow(form);
             swOverflow = this.#handleSouthWestOverflow(form);
             sOverflow = this.#handleSouthOverflow(form);
-            // wOverflow = this.#handleWestOverflow(form)
-            // eOverflow = this.#handleEastOverflow(form)
-        }
+        } while ([neOverflow, nwOverflow, seOverflow, swOverflow, sOverflow, eOverflow].some(result => result === true));
+
+        // for(let i = 0; i < 30; i++) {
+        //     neOverflow = this.#handleNorthEastOverflow(form);
+        //     nwOverflow = this.#handleNorthWestOverflow(form);
+        //     seOverflow = this.#handleSouthEastOverflow(form);
+        //     swOverflow = this.#handleSouthWestOverflow(form);
+        //     sOverflow = this.#handleSouthOverflow(form);
+        // }
     }
     #handleNorthEastOverflow(form) {
         if(!form) {
@@ -55,7 +50,7 @@ class FormAdjuster {
         }
         if (this.#isOverflowRight(form) && !this.#isOverflowBottom(form)) {
             this.#updateCords(form, {
-                top: 30,
+                top: 32,
                 // bottom: 0,
                 // left: 0,
                 right: 8
@@ -74,7 +69,7 @@ class FormAdjuster {
         }
         if (this.#isOverflowLeft(form) && !this.#isOverflowBottom(form)) {
             this.#updateCords(form, {
-                top: 30,
+                top: 32,
                 // bottom: 0,
                 // left: 0,
                 right: 8
@@ -93,7 +88,7 @@ class FormAdjuster {
         if (this.#isOverflowRight(form) && this.#isOverflowBottom(form)) {
             this.#updateCords(form, {
                 // top: 0,
-                bottom: 30,
+                bottom: 32,
                 // left: 20,
                 right: 10
             })
@@ -111,7 +106,7 @@ class FormAdjuster {
         if (this.#isOverflowLeft(form) && this.#isOverflowBottom(form)) {
             this.#updateCords(form, {
                 // top: 30,
-                bottom: 30,
+                bottom: 32,
                 // left: 0,
                 right: -44
             })
@@ -129,8 +124,8 @@ class FormAdjuster {
         if (this.#isOverflowBottom(form)) {
             this.#updateCords(form, {
                 // top: 0,
-                bottom: 30,
-                // left: 0,
+                bottom: 32,
+                left: 8,
                 // right: -120
             })
             if(this.debug) {
