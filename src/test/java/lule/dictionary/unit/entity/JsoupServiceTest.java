@@ -1,7 +1,7 @@
 package lule.dictionary.unit.entity;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.service.jsoup.JsoupService;
+import lule.dictionary.jsoup.service.JsoupService;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-@import lule.dictionary.controller.vocabularyController.dto.BaseFlashcardAttribute
+@import lule.dictionary.vocabulary.controller.dto.BaseFlashcardAttribute
 @import java.util.List
 
 @param BaseFlashcardAttribute attribute

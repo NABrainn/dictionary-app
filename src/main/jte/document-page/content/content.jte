@@ -1,8 +1,8 @@
-@import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.dto.application.attribute.NavbarAttribute
-@import lule.dictionary.service.imports.importService.dto.Word
-@import lule.dictionary.service.imports.importService.dto.Phrase
-@import lule.dictionary.service.imports.importService.dto.request.DocumentAttribute
+@import lule.dictionary.controllerAdvice.BaseAttribute
+@import lule.dictionary.controllerAdvice.NavbarAttribute
+@import lule.dictionary.documents.service.dto.selectable.Word
+@import lule.dictionary.documents.service.dto.selectable.Phrase
+@import lule.dictionary.documents.service.dto.request.DocumentAttribute
 @import gg.jte.support.ForSupport
 @import java.util.regex.Pattern
 
