@@ -31,7 +31,7 @@ public class DocumentRepository {
                 RETURNING imports_id
                 """;
         try {
-            List<Integer> importsId = template.query(sql, rowMapperStore.documentIdMapper(),
+            List<Integer> documentId = template.query(sql, rowMapperStore.getDocumentIdMapper(),
                     document.title(),
                     document.pageContent(),
                     document.url(),
@@ -40,8 +40,8 @@ public class DocumentRepository {
                     document.owner(),
                     document.totalContentLength());
 
-            if(importsId.stream().findFirst().isPresent())
-                return OptionalInt.of(importsId.stream().findFirst().get());
+            if(documentId.stream().findFirst().isPresent())
+                return OptionalInt.of(documentId.stream().findFirst().get());
             return OptionalInt.empty();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -69,7 +69,7 @@ public class DocumentRepository {
                 WHERE imports.imports_id=?
                 """;
         try {
-            List<Document> found = template.query(sql, rowMapperStore.documentMapper(),
+            List<Document> found = template.query(sql, rowMapperStore.getDocumentMapper(),
                     page, id);
             return found.stream().findFirst();
         } catch (DataAccessException e) {
@@ -135,7 +135,7 @@ public class DocumentRepository {
                 GROUP BY cw.imports_id, cw.title, cw.url, cw.source_lang, cw.target_lang, cw.import_owner, cw.word_array;
             """;
         try {
-            return template.query(sql, rowMapperStore.documentWithTranslationDataMapper(),
+            return template.query(sql, rowMapperStore.getDocumentWithTranslationDataMapper(),
                     owner,
                     targetLanguage.name(),
                     owner,

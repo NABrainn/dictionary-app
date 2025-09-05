@@ -41,7 +41,7 @@ public class UserProfileRepository {
                     WHERE p.username=?;
                 """;
         try {
-            List<UserProfile> result = template.query(sql, rowMapperStore.userProfileMapper(), username);
+            List<UserProfile> result = template.query(sql, rowMapperStore.getUserProfileMapper(), username);
             return result.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -68,7 +68,7 @@ public class UserProfileRepository {
                     WHERE p.username=? OR p.email=?;
                 """;
         try {
-            List<UserProfile> result = template.query(sql, rowMapperStore.userProfileMapper(), username, email);
+            List<UserProfile> result = template.query(sql, rowMapperStore.getUserProfileMapper(), username, email);
             return result.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -100,7 +100,7 @@ public class UserProfileRepository {
                     LEFT JOIN streak str ON u.username = str.streak_owner;
                 """;
         try {
-            List<UserProfile> addedUser = template.query(sql, rowMapperStore.userProfileMapper(),
+            List<UserProfile> addedUser = template.query(sql, rowMapperStore.getUserProfileMapper(),
                     userProfile.sourceLanguage().name(),
                     userProfile.targetLanguage().name(),
                     userProfile.userInterfaceLanguage().name(),
@@ -135,7 +135,7 @@ public class UserProfileRepository {
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
                 """;
         try {
-            return template.query(sql, rowMapperStore.userProfileMapper());
+            return template.query(sql, rowMapperStore.getUserProfileMapper());
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
