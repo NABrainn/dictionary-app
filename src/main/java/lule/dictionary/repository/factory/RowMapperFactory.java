@@ -1,7 +1,7 @@
 package lule.dictionary.repository.factory;
 
-import lule.dictionary.userProfiles.data.UserProfileImp;
 import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.userProfiles.data.UserProfileImp;
 import lule.dictionary.language.service.Language;
 import org.springframework.jdbc.core.RowMapper;
 

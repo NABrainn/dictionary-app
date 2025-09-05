@@ -8,7 +8,7 @@ import lule.dictionary.translations.controller.vocabulary.dto.BaseFlashcardAttri
 import lule.dictionary.translations.controller.vocabulary.dto.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.TranslationImp;
 import lule.dictionary.translations.data.request.*;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.translations.service.exception.InvalidInputException;
 import lule.dictionary.shared.ServiceRequest;
 import lule.dictionary.translations.data.Translation;
@@ -200,7 +200,7 @@ public class TranslationServiceImp implements TranslationService {
     }
 
     @Override
-    public int getWordsLearnedCount(CustomUserDetails principal) {
+    public int getWordsLearnedCount(UserProfile principal) {
         return translationRepository.getWordsLearnedCount(principal.getUsername(), principal.targetLanguage());
     }
 

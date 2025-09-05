@@ -1,8 +1,13 @@
 package lule.dictionary.userProfiles.data;
 
-public interface UserProfile extends CustomUserDetails {
-    String username();
+import lule.dictionary.language.service.Language;
+import org.springframework.security.core.userdetails.UserDetails;
+
+public interface UserProfile extends UserDetails {
     String email();
-    String password();
+    Language sourceLanguage();
+    Language targetLanguage();
+    Language userInterfaceLanguage();
+    int dailyStreak();
     int wordsAddedToday();
 }

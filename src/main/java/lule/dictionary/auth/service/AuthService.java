@@ -7,12 +7,12 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.userProfiles.data.UserProfileImp;
 import lule.dictionary.auth.data.request.AuthRequest;
 import lule.dictionary.auth.data.SessionContext;
 import lule.dictionary.auth.data.request.LoginRequest;
 import lule.dictionary.auth.data.request.SignupRequest;
-import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.auth.data.AuthenticationData;
 import lule.dictionary.cookie.service.CookieService;
 import lule.dictionary.userProfiles.service.exception.UserExistsException;
@@ -99,7 +99,7 @@ public class AuthService {
     }
 
     private String getUsername(SessionContext sessionContext) {
-        return sessionContext.authenticationData().userProfile().username();
+        return sessionContext.authenticationData().userProfile().getUsername();
     }
 
     private void addToResponse(Cookie jwtCookie, HttpServletResponse response) {
@@ -120,7 +120,7 @@ public class AuthService {
     }
 
     private Authentication authenticate(UserProfile userProfile) {
-        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.username(), userProfile.password()));
+        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.getUsername(), userProfile.getPassword()));
     }
 
     private UserProfile getUserProfile(AuthRequest loginRequest) throws UserNotFoundException {

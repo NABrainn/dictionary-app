@@ -102,11 +102,11 @@ public class UserProfileRepository {
                     userProfile.sourceLanguage().name(),
                     userProfile.targetLanguage().name(),
                     userProfile.userInterfaceLanguage().name(),
-                    userProfile.username(),
+                    userProfile.getUsername(),
                     0,
-                    userProfile.username(),
+                    userProfile.getUsername(),
                     userProfile.email(),
-                    userProfile.password()
+                    userProfile.getPassword()
             );
             return addedUser.stream().findFirst();
         } catch (DataAccessException e) {

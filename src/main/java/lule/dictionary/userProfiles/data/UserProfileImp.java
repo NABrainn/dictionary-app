@@ -32,7 +32,7 @@ public record UserProfileImp(
 
     public static UserProfile withNewPassword(UserProfile userProfile, String password) {
         return UserProfileImp.builder()
-                .username(userProfile.username())
+                .username(userProfile.getUsername())
                 .email(userProfile.email())
                 .password(password)
                 .sourceLanguage(userProfile.sourceLanguage())

@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.userProfiles.data.UserProfileImp;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
@@ -80,7 +79,7 @@ public class UserProfileService implements UserDetailsService {
 
     public void updateTargetLanguage(String owner, Language newTargetLanguage) {
         userProfileRepository.updateTargetLanguage(owner, newTargetLanguage.name());
-        CustomUserDetails userDetails = (CustomUserDetails) loadUserByUsername(owner);
+        UserProfile userDetails = (UserProfile) loadUserByUsername(owner);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
                 userDetails,
                 null,
@@ -94,7 +93,7 @@ public class UserProfileService implements UserDetailsService {
 
     public void updateSourceLanguage(String username, Language language) {
         userProfileRepository.updateSourceLanguage(username, language.name());
-        CustomUserDetails userDetails = (CustomUserDetails) loadUserByUsername(username);
+        UserProfile userDetails = (UserProfile) loadUserByUsername(username);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
                 userDetails,
                 null,
@@ -104,7 +103,7 @@ public class UserProfileService implements UserDetailsService {
 
     public void updateUILanguage(String username, Language uiLanguage) {
         userProfileRepository.updateUILanguage(username, uiLanguage.name());
-        CustomUserDetails userDetails = (CustomUserDetails) loadUserByUsername(username);
+        UserProfile userDetails = (UserProfile) loadUserByUsername(username);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
                 userDetails,
                 null,

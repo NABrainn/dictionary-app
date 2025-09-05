@@ -6,7 +6,7 @@ import lule.dictionary.translations.controller.vocabulary.dto.BaseFlashcardAttri
 import lule.dictionary.translations.controller.vocabulary.dto.FlashcardConfigLocalizationAttribute;
 import lule.dictionary.translations.controller.vocabulary.dto.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.session.service.SessionHelper;
@@ -33,7 +33,7 @@ public class VocabularyController {
     @GetMapping({"", "/"})
     public String vocabularyPage(Model model,
                                  Authentication authentication) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
                 .familiarityText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("familiarity"))
                 .howManyText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("how_many"))
@@ -50,7 +50,7 @@ public class VocabularyController {
                              @RequestParam(name = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                              Model model,
                              Authentication authentication) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         model.addAttribute("familiarity", familiarity);
         model.addAttribute("quantity", quantity);
         model.addAttribute("isPhrase", isPhrase);
@@ -72,8 +72,8 @@ public class VocabularyController {
                                          Model model,
                                          Authentication authentication,
                                          HttpSession session) {
-        String username = ((CustomUserDetails) authentication.getPrincipal()).getUsername();
-        Language uiLanguage = ((CustomUserDetails) authentication.getPrincipal()).userInterfaceLanguage();
+        String username = ((UserProfile) authentication.getPrincipal()).getUsername();
+        Language uiLanguage = ((UserProfile) authentication.getPrincipal()).userInterfaceLanguage();
         try {
             BaseFlashcardAttribute attribute = translationService.getRandomTranslations(GetRandomTranslationsRequest.builder()
                     .familiarity(familiarity)

@@ -3,7 +3,7 @@ package lule.dictionary.documents.controller;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.DocumentsLocalizationAttribute;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.documents.service.DocumentServiceImp;
 import lule.dictionary.documents.data.request.FindByOwnerAndTargetLanguageRequest;
 import lule.dictionary.localization.service.LocalizationService;
@@ -24,7 +24,7 @@ public class LessonController {
     @GetMapping({"/lessons", "/lessons/"})
     public String lessonsPage(Model model,
                               Authentication authentication) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         List<DocumentWithTranslationData> imports = getImports(principal);
         model.addAttribute("documentsAttribute", imports);
         model.addAttribute("documentsLocalizationAttribute", DocumentsLocalizationAttribute.builder()
@@ -40,7 +40,7 @@ public class LessonController {
                 .build());
         return "document-list-page/documents";
     }
-    private List<DocumentWithTranslationData> getImports(CustomUserDetails principal) {
+    private List<DocumentWithTranslationData> getImports(UserProfile principal) {
         return documentService.findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage()));
     }
 }

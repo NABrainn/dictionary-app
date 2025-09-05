@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.translations.data.TranslationImp;
 import lule.dictionary.translations.data.request.*;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.localization.service.LocalizationService;
@@ -42,7 +42,7 @@ public class TranslationControllerImp {
                                        @RequestParam(value = "isPhrase", required = false) boolean isPhrase,
                                        @RequestParam("isFound") boolean isFound) {
         if(!isFound) {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            UserProfile principal = (UserProfile) authentication.getPrincipal();
             List<String> sourceWords = translationService.translate(TranslateRequest.of(targetWord, principal.sourceLanguage(), principal.targetLanguage()));
             model.addAttribute("translationAttribute", TranslationAttribute.builder()
                     .documentId(documentId)
@@ -64,7 +64,7 @@ public class TranslationControllerImp {
             model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/add/add-translation-form";
         }
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         FindByTargetWordRequest request = FindByTargetWordRequest.builder()
                 .documentId(documentId)
                 .selectedWordId(selectedWordId)
@@ -89,7 +89,7 @@ public class TranslationControllerImp {
                                @RequestParam("phraseLength") int phraseLength,
                                @RequestParam("familiarities") List<String> familiarities,
                                @RequestParam("isSavedList") List<String> isSavedList) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         List<String> sourceWords = translationService.translate(TranslateRequest.of(phraseText, principal.sourceLanguage(), principal.targetLanguage()));
         System.out.println(sourceWords);
         model.addAttribute("selectableId", selectableId);
@@ -131,7 +131,7 @@ public class TranslationControllerImp {
                                  @RequestParam("selectedWordId") int selectedWordId,
                                  @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         try {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            UserProfile principal = (UserProfile) authentication.getPrincipal();
             AddTranslationRequest request = AddTranslationRequest.builder()
                     .documentId(documentId)
                     .selectedWordId(selectedWordId)
@@ -165,7 +165,7 @@ public class TranslationControllerImp {
                                     @RequestParam("targetLanguage") Language targetLanguage,
                                     @RequestParam("selectedWordId") int selectedWordId,
                                     @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         UpdateTranslationFamiliarityRequest request = UpdateTranslationFamiliarityRequest.builder()
                 .selectedWordId(selectedWordId)
                 .targetWord(targetWord)
@@ -189,7 +189,7 @@ public class TranslationControllerImp {
                                     @RequestParam("familiarity") String currentFamiliarity,
                                     @RequestParam("selectedWordId") int selectedWordId,
                                     @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         try {
             UpdateSourceWordsRequest request = UpdateSourceWordsRequest.builder()
                     .sourceWords(sourceWords)
@@ -220,7 +220,7 @@ public class TranslationControllerImp {
                                    @RequestParam("targetWord") String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId,
                                    @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         DeleteSourceWordRequest request = DeleteSourceWordRequest.builder()
                 .sourceWord(sourceWord)
                 .targetWord(targetWord)

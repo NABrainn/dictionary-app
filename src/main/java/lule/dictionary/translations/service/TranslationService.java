@@ -4,7 +4,7 @@ import lule.dictionary.translations.controller.vocabulary.dto.BaseFlashcardAttri
 import lule.dictionary.translations.controller.vocabulary.dto.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.request.*;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public interface TranslationService {
     TranslationAttribute updateFamiliarity(UpdateTranslationFamiliarityRequest request);
     TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request);
     TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request);
-    int getWordsLearnedCount(CustomUserDetails principal);
+    int getWordsLearnedCount(UserProfile principal);
     Map<String, Translation> findTranslationsByImport(FindTranslationsByImportRequest request);
     List<Translation> extractPhrases(String content, String owner);
     List<String> translate(TranslateRequest request);

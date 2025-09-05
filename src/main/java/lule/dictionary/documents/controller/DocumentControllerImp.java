@@ -8,7 +8,7 @@ import lule.dictionary.documents.data.request.DocumentAttribute;
 import lule.dictionary.documents.data.request.LoadDocumentContentRequest;
 import lule.dictionary.documents.data.strategy.ContentSubmission;
 import lule.dictionary.documents.data.DocumentFormAttribute;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.documents.data.strategy.SubmissionStrategy;
 import lule.dictionary.documents.data.strategy.UrlSubmission;
 import lule.dictionary.documents.service.exception.ImportNotFoundException;
@@ -48,7 +48,7 @@ public class DocumentControllerImp implements DocumentController {
     public String createImportForm(@RequestParam(name = "strategy", defaultValue = "url_submit") String strategy,
                                    Model model,
                                    Authentication authentication) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
                         UrlSubmission.of("", "", localizationService.documentFormLocalization(language).get("space_for_url")) :
@@ -95,7 +95,7 @@ public class DocumentControllerImp implements DocumentController {
                                @RequestParam("strategy") String strategy,
                                Model model,
                                Authentication authentication) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
                 UrlSubmission.of(title, url, localizationService.documentFormLocalization(language).get("space_for_url")) :
@@ -134,7 +134,7 @@ public class DocumentControllerImp implements DocumentController {
     @GetMapping({"/url-form", "/url-form/"})
     public String urlForm(Model model,
                           Authentication authentication) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         model.addAttribute("spaceForUrlText", localizationService.documentFormLocalization(language).get("space_for_url"));
         return "create-document-form/url-form";
@@ -143,7 +143,7 @@ public class DocumentControllerImp implements DocumentController {
     @GetMapping({"/textarea-form", "/textarea-form/"})
     public String contentForm(Model model,
                               Authentication authentication) {
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         model.addAttribute("spaceForContentText", localizationService.documentFormLocalization(language).get("space_for_content"));
         return "create-document-form/content-form";

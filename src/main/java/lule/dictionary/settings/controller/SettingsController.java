@@ -2,7 +2,7 @@ package lule.dictionary.settings.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.service.UserProfileService;
@@ -67,7 +67,7 @@ public class SettingsController {
     }
 
     private String extractUsername(Authentication authentication) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UserProfile userDetails = (UserProfile) authentication.getPrincipal();
         return userDetails.getUsername();
     }
 }

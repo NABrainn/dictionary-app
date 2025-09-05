@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.controllerAdvice.data.BaseAttribute;
 import lule.dictionary.controllerAdvice.data.NavbarAttribute;
 import lule.dictionary.language.service.LanguageData;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.language.service.LanguageHelper;
 import lule.dictionary.localization.service.LocalizationService;
@@ -34,7 +34,7 @@ public class JteControllerAdvice {
                                  Authentication authentication,
                                  CsrfToken csrfToken) {
         if(authentication != null) {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            UserProfile principal = (UserProfile) authentication.getPrincipal();
             model.addAttribute("baseAttribute", BaseAttribute.builder()
                     ._csrf(csrfToken)
                     .isAuthenticated(authentication.isAuthenticated())
@@ -77,7 +77,7 @@ public class JteControllerAdvice {
                                    Authentication authentication,
                                    HttpSession httpSession) {
         if(authentication != null) {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            UserProfile principal = (UserProfile) authentication.getPrincipal();
             model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                     .wordsLearned(translationService.getWordsLearnedCount(principal))
                     .wordsLearnedText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("words"))
