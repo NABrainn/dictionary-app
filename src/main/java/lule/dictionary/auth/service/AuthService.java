@@ -7,19 +7,18 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.userProfiles.data.UserProfileImp;
-import lule.dictionary.auth.service.dto.request.AuthRequest;
-import lule.dictionary.auth.service.dto.authenticationContext.SessionContext;
-import lule.dictionary.auth.service.dto.request.imp.LoginRequest;
-import lule.dictionary.auth.service.dto.request.imp.SignupRequest;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.auth.service.dto.authenticationResult.AuthenticationData;
+import lule.dictionary.auth.data.request.AuthRequest;
+import lule.dictionary.auth.data.SessionContext;
+import lule.dictionary.auth.data.request.LoginRequest;
+import lule.dictionary.auth.data.request.SignupRequest;
+import lule.dictionary.auth.data.AuthenticationData;
 import lule.dictionary.cookie.service.CookieService;
 import lule.dictionary.userProfiles.service.exception.UserExistsException;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
-import lule.dictionary.validation.service.ValidationService;
 import lule.dictionary.jwt.service.JwtService;
 import lule.dictionary.userProfiles.service.UserProfileService;
+import lule.dictionary.validation.service.ValidationService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -99,7 +98,7 @@ public class AuthService {
     }
 
     private String getUsername(SessionContext sessionContext) {
-        return sessionContext.authenticationData().userProfile().username();
+        return sessionContext.authenticationData().userProfile().getUsername();
     }
 
     private void addToResponse(Cookie jwtCookie, HttpServletResponse response) {
@@ -120,10 +119,10 @@ public class AuthService {
     }
 
     private Authentication authenticate(UserProfile userProfile) {
-        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.username(), userProfile.password()));
+        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.getUsername(), userProfile.getPassword()));
     }
 
     private UserProfile getUserProfile(AuthRequest loginRequest) throws UserNotFoundException {
-        return UserProfileImp.withNewPassword(userProfileService.getUserProfile(loginRequest.login()), loginRequest.password());
+        return UserProfile.copyOf(userProfileService.getUserProfile(loginRequest.login()), loginRequest.password());
     }
 }

@@ -3,13 +3,15 @@ package lule.dictionary.controllerAdvice;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.controllerAdvice.data.BaseAttribute;
+import lule.dictionary.controllerAdvice.data.NavbarAttribute;
 import lule.dictionary.language.service.LanguageData;
-import lule.dictionary.userProfiles.data.CustomUserDetails;
+import lule.dictionary.localization.service.LocalizationService;
+import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.language.service.LanguageHelper;
-import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.session.service.SessionHelper;
-import lule.dictionary.translations.service.TranslationService;
+import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.ui.Model;
@@ -32,7 +34,7 @@ public class JteControllerAdvice {
                                  Authentication authentication,
                                  CsrfToken csrfToken) {
         if(authentication != null) {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            UserProfile principal = (UserProfile) authentication.getPrincipal();
             model.addAttribute("baseAttribute", BaseAttribute.builder()
                     ._csrf(csrfToken)
                     .isAuthenticated(authentication.isAuthenticated())
@@ -75,7 +77,7 @@ public class JteControllerAdvice {
                                    Authentication authentication,
                                    HttpSession httpSession) {
         if(authentication != null) {
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            UserProfile principal = (UserProfile) authentication.getPrincipal();
             model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                     .wordsLearned(translationService.getWordsLearnedCount(principal))
                     .wordsLearnedText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("words"))

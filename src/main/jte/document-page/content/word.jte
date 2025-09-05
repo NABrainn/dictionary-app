@@ -1,4 +1,4 @@
-@import lule.dictionary.enumeration.Familiarity
+@import lule.dictionary.translations.data.Familiarity
 
 @param int wordId
 @param int documentId

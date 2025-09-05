@@ -1,4 +1,4 @@
-@import lule.dictionary.dto.application.LanguageData
+@import lule.dictionary.language.service.LanguageData
 @import java.util.List
 
 @param LanguageData selectedLanguage

@@ -2,7 +2,7 @@ package lule.dictionary.cookie.service;
 
 import jakarta.servlet.http.Cookie;
 import lombok.NonNull;
-import lule.dictionary.jwt.service.dto.TokenPair;
+import lule.dictionary.jwt.data.TokenPair;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,4 +1,4 @@
-@import lule.dictionary.dto.application.attribute.NavbarAttribute
+@import lule.dictionary.controllerAdvice.data.NavbarAttribute
 
 @param NavbarAttribute navbarAttribute
 @param boolean isProfileOpen

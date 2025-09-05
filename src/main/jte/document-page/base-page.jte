@@ -1,6 +1,6 @@
-@import lule.dictionary.controllerAdvice.BaseAttribute
-@import lule.dictionary.controllerAdvice.NavbarAttribute
-@import lule.dictionary.documents.service.dto.request.DocumentAttribute
+@import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.controllerAdvice.data.NavbarAttribute
+@import lule.dictionary.documents.data.request.DocumentAttribute
 
 @param NavbarAttribute navbarAttribute
 @param DocumentAttribute documentAttribute
