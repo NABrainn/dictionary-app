@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +45,7 @@ public class UserProfileRepository {
             return result.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return Optional.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -70,7 +72,7 @@ public class UserProfileRepository {
             return result.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return Optional.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -111,7 +113,7 @@ public class UserProfileRepository {
             return addedUser.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return Optional.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -136,7 +138,7 @@ public class UserProfileRepository {
             return template.query(sql, rowMapperStore.userProfileMapper());
         } catch (DataAccessException e) {
             log.error(e.getMessage());
-            return List.of();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -152,6 +154,7 @@ public class UserProfileRepository {
                     owner);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -195,7 +198,7 @@ public class UserProfileRepository {
             return OptionalInt.empty();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return OptionalInt.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -215,6 +218,7 @@ public class UserProfileRepository {
                     owner);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -234,6 +238,7 @@ public class UserProfileRepository {
                     owner);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -253,6 +258,7 @@ public class UserProfileRepository {
                     owner);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

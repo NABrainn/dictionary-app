@@ -11,8 +11,10 @@ import lule.dictionary.translations.data.request.FindByTargetWordRequest;
 import lule.dictionary.translations.data.request.UpdateSourceWordsRequest;
 import lule.dictionary.translations.data.request.UpdateTranslationFamiliarityRequest;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -80,7 +82,7 @@ public class TranslationRepository {
             return OptionalInt.empty();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return OptionalInt.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -102,7 +104,7 @@ public class TranslationRepository {
             }, rowMapperStore.translationMapper()).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return Optional.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -124,7 +126,7 @@ public class TranslationRepository {
             }, rowMapperStore.translationMapper()).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return Optional.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -137,7 +139,7 @@ public class TranslationRepository {
             return template.query(sql, rowMapperStore.translationMapper());
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return List.of();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -156,7 +158,7 @@ public class TranslationRepository {
             return translation.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return Optional.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -187,7 +189,7 @@ public class TranslationRepository {
             return template.query(sql, rowMapperStore.translationMapper(), params);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return List.of();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -207,7 +209,7 @@ public class TranslationRepository {
             ).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return Optional.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -229,7 +231,7 @@ public class TranslationRepository {
             return count != null ? count : 0;
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return 0;
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -251,7 +253,7 @@ public class TranslationRepository {
                     count);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return List.of();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -269,7 +271,7 @@ public class TranslationRepository {
                     owner);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return List.of();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -292,7 +294,7 @@ public class TranslationRepository {
                         limit);
             } catch (DataAccessException e) {
                 log.error(String.valueOf(e.getCause()));
-                return List.of();
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
         String sql = """
@@ -310,7 +312,7 @@ public class TranslationRepository {
                     limit);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return List.of();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
 

@@ -7,14 +7,14 @@ import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.language.service.Language;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-
-import static lule.dictionary.repository.factory.RowMapperFactory.*;
 
 @Slf4j
 @Repository
@@ -45,7 +45,7 @@ public class DocumentRepository {
             return OptionalInt.empty();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return OptionalInt.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -74,7 +74,7 @@ public class DocumentRepository {
             return found.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return Optional.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -143,7 +143,7 @@ public class DocumentRepository {
             );
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
-            return List.of();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
