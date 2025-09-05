@@ -1,8 +1,9 @@
-package lule.dictionary.userProfiles.data;
+package lule.dictionary.userProfiles.data.repository;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,14 +12,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import static lule.dictionary.repository.factory.RowMapperFactory.USER_PROFILE;
-
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class UserProfileRepository {
 
     private final JdbcTemplate template;
+    private final UserProfileRowMapperStore rowMapperStore;
 
     public Optional<UserProfile> findByUsername(@NonNull String username) {
         String sql = """
@@ -39,7 +39,7 @@ public class UserProfileRepository {
                     WHERE p.username=?;
                 """;
         try {
-            List<UserProfile> result = template.query(sql, USER_PROFILE, username);
+            List<UserProfile> result = template.query(sql, rowMapperStore.userProfileMapper(), username);
             return result.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -66,7 +66,7 @@ public class UserProfileRepository {
                     WHERE p.username=? OR p.email=?;
                 """;
         try {
-            List<UserProfile> result = template.query(sql, USER_PROFILE, username, email);
+            List<UserProfile> result = template.query(sql, rowMapperStore.userProfileMapper(), username, email);
             return result.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -98,7 +98,7 @@ public class UserProfileRepository {
                     LEFT JOIN streak str ON u.username = str.streak_owner;
                 """;
         try {
-            List<UserProfile> addedUser = template.query(sql, USER_PROFILE,
+            List<UserProfile> addedUser = template.query(sql, rowMapperStore.userProfileMapper(),
                     userProfile.sourceLanguage().name(),
                     userProfile.targetLanguage().name(),
                     userProfile.userInterfaceLanguage().name(),
@@ -133,7 +133,7 @@ public class UserProfileRepository {
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
                 """;
         try {
-            return template.query(sql, USER_PROFILE);
+            return template.query(sql, rowMapperStore.userProfileMapper());
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             return List.of();

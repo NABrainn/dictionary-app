@@ -7,14 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.translations.controller.vocabulary.dto.BaseFlashcardAttribute;
 import lule.dictionary.translations.controller.vocabulary.dto.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.TranslationImp;
-import lule.dictionary.translations.data.TranslationDetails;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.userProfiles.data.CustomUserDetails;
 import lule.dictionary.translations.service.exception.InvalidInputException;
 import lule.dictionary.shared.ServiceRequest;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.enumeration.Familiarity;
-import lule.dictionary.translations.data.TranslationRepository;
+import lule.dictionary.translations.data.Familiarity;
+import lule.dictionary.translations.data.repository.TranslationRepository;
 import lule.dictionary.errorLocalization.service.ErrorLocalizationImp;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
 import lule.dictionary.translations.service.exception.TranslationContraintViolationException;
@@ -271,12 +270,7 @@ public class TranslationServiceImp implements TranslationService {
 
     private Map<String, Translation> extractTranslationsFromDatabase(List<String> wordList, String owner) {
         return translationRepository.findByTargetWords(wordList, owner).stream()
-                .collect(Collectors.toUnmodifiableMap(
-                                TranslationDetails::targetWord,
-                                (value) -> value,
-                                (first, second) -> first
-                        )
-                );
+                .collect(Collectors.toUnmodifiableMap(Translation::targetWord, value -> value));
     }
 
     private Pattern compileNonSpecialChars() {

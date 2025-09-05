@@ -1,7 +1,15 @@
 package lule.dictionary.translations.data;
 
-import lule.dictionary.userProfiles.data.UserProfileSettings;
+import lule.dictionary.language.service.Language;
 
-public interface Translation extends TranslationDetails, UserProfileSettings {
+import java.util.List;
+
+public interface Translation {
     String owner();
+    List<String> sourceWords();
+    String targetWord();
+    Familiarity familiarity();
+    boolean isPhrase();
+    Language sourceLanguage();
+    Language targetLanguage();
 }

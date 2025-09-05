@@ -1,6 +1,6 @@
 package lule.dictionary.translations.controller;
 
-import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;

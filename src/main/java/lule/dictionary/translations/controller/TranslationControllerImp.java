@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.translations.data.TranslationImp;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.userProfiles.data.CustomUserDetails;
-import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.translations.service.TranslationServiceImp;

@@ -37,7 +37,7 @@ public class VocabularyController {
         model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
                 .familiarityText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("familiarity"))
                 .howManyText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("how_many"))
-                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("phrases"))
+                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("translationMapper"))
                 .wordsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("words"))
                 .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("review_translations"))
                 .build());
@@ -57,7 +57,7 @@ public class VocabularyController {
         model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
                 .familiarityText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("familiarity"))
                 .howManyText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("how_many"))
-                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("phrases"))
+                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("translationMapper"))
                 .wordsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("words"))
                 .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("review_translations"))
                 .build());
@@ -94,7 +94,7 @@ public class VocabularyController {
             model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
                     .familiarityText(localizationService.flashcardConfigLocalization(uiLanguage).get("familiarity"))
                     .howManyText(localizationService.flashcardConfigLocalization(uiLanguage).get("how_many"))
-                    .phrasesText(localizationService.flashcardConfigLocalization(uiLanguage).get("phrases"))
+                    .phrasesText(localizationService.flashcardConfigLocalization(uiLanguage).get("translationMapper"))
                     .wordsText(localizationService.flashcardConfigLocalization(uiLanguage).get("words"))
                     .reviewTranslationsText(localizationService.flashcardConfigLocalization(uiLanguage).get("review_translations"))
                     .build());

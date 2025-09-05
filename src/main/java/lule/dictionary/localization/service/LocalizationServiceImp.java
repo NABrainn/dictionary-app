@@ -71,7 +71,7 @@ public class LocalizationServiceImp implements LocalizationService {
 
     @Override
     public Map<String, String> flashcardConfigLocalization(Language language) {
-        List<String> keys = List.of("review_translations", "familiarity", "how_many", "phrases", "words");
+        List<String> keys = List.of("review_translations", "familiarity", "how_many", "translationMapper", "words");
         return switch (language) {
             case NO -> constructMap(keys, List.of("Se gjennom oversettelser", "Kjennskap", "Hvor mange", "Fraser", "Ord"));
             case IT -> constructMap(keys, List.of("Rivedi traduzioni", "Familiarità", "Quanti", "Frasi", "Parole"));

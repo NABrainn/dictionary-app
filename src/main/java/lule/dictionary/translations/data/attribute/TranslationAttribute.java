@@ -3,7 +3,7 @@ package lule.dictionary.translations.data.attribute;
 import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.translations.data.Familiarity;
 
 import java.util.Collections;
 import java.util.Map;

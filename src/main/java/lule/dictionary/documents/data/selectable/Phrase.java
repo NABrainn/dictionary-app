@@ -1,7 +1,7 @@
 package lule.dictionary.documents.data.selectable;
 
 import lombok.NonNull;
-import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.translations.data.Familiarity;
 
 import java.util.List;
 

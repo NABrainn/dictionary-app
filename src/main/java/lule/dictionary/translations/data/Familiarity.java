@@ -1,4 +1,4 @@
-package lule.dictionary.enumeration;
+package lule.dictionary.translations.data;
 
 public enum Familiarity {
     UNKNOWN,

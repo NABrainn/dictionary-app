@@ -1,13 +1,16 @@
-package lule.dictionary.repository.factory;
+package lule.dictionary.userProfiles.data.repository;
 
-import lule.dictionary.userProfiles.data.UserProfileImp;
-import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.language.service.Language;
+import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.userProfiles.data.UserProfileImp;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
-public class RowMapperFactory {
-    public static final RowMapper<UserProfile> USER_PROFILE = ((rs, rowNum) ->
-            UserProfileImp.builder()
+@Component
+public record UserProfileRowMapperStore(RowMapper<UserProfile> userProfileMapper) {
+    public UserProfileRowMapperStore {
+        userProfileMapper = ((rs, rowNum) ->
+                UserProfileImp.builder()
                     .username(rs.getString("username"))
                     .email(rs.getString("email"))
                     .password(rs.getString("password"))
@@ -18,4 +21,5 @@ public class RowMapperFactory {
                     .offset(rs.getString("tz_offset"))
                     .dailyStreak(rs.getInt("day_count"))
                     .build());
+    }
 }

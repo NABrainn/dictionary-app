@@ -7,7 +7,7 @@ import lule.dictionary.documents.data.entity.DocumentImp;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.enumeration.Familiarity;
+import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.documents.data.strategy.ContentSubmission;
 import lule.dictionary.documents.data.strategy.UrlSubmission;
 import lule.dictionary.documents.service.exception.ImportNotFoundException;
@@ -15,7 +15,7 @@ import lule.dictionary.documents.data.selectable.Phrase;
 import lule.dictionary.documents.data.selectable.Selectable;
 import lule.dictionary.documents.data.selectable.Word;
 import lule.dictionary.documents.data.DocumentPageData;
-import lule.dictionary.documents.data.entity.DocumentRepository;
+import lule.dictionary.documents.data.repository.DocumentRepository;
 import lule.dictionary.jsoup.service.JsoupService;
 import lule.dictionary.pagination.service.PaginationService;
 import lule.dictionary.pagination.data.PaginationData;
@@ -98,7 +98,7 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest request) {
-        return importRepository.createImport(DocumentImp.builder()
+        return importRepository.create(DocumentImp.builder()
                 .title(request.title())
                 .pageContent(request.content())
                 .url(request.url())
@@ -153,7 +153,7 @@ public class DocumentServiceImp implements DocumentService {
 
     public String markPhrases(String content, List<Translation> phrases) {
 //        List<String> contentAsList = List.of(content.split(" "));
-//        for(Translation phrase : phrases) {
+//        for(Translation phrase : translationMapper) {
 //            contentAsList.stream()
 //                    .map(word -> )
 //        }

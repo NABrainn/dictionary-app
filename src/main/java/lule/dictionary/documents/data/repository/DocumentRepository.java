@@ -1,8 +1,10 @@
-package lule.dictionary.documents.data.entity;
+package lule.dictionary.documents.data.repository;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.documents.data.entity.Document;
+import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.language.service.Language;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,22 +22,23 @@ import static lule.dictionary.repository.factory.RowMapperFactory.*;
 public class DocumentRepository {
 
     private final JdbcTemplate template;
+    private final DocumentRowMapperStore rowMapperStore;
 
-    public OptionalInt createImport(Document importt) {
+    public OptionalInt create(Document document) {
         final String sql = """
                 INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner, total_length)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 RETURNING imports_id
                 """;
         try {
-            List<Integer> importsId = template.query(sql, IMPORT_ID,
-                    importt.title(),
-                    importt.pageContent(),
-                    importt.url(),
-                    importt.sourceLanguage().toString(),
-                    importt.targetLanguage().toString(),
-                    importt.owner(),
-                    importt.totalContentLength());
+            List<Integer> importsId = template.query(sql, rowMapperStore.documentIdMapper(),
+                    document.title(),
+                    document.pageContent(),
+                    document.url(),
+                    document.sourceLanguage().toString(),
+                    document.targetLanguage().toString(),
+                    document.owner(),
+                    document.totalContentLength());
 
             if(importsId.stream().findFirst().isPresent())
                 return OptionalInt.of(importsId.stream().findFirst().get());
@@ -66,10 +69,8 @@ public class DocumentRepository {
                 WHERE imports.imports_id=?
                 """;
         try {
-            List<Document> found = template.query(sql, IMPORT,
-                    page,
-                    id
-            );
+            List<Document> found = template.query(sql, rowMapperStore.documentMapper(),
+                    page, id);
             return found.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -134,7 +135,7 @@ public class DocumentRepository {
                 GROUP BY cw.imports_id, cw.title, cw.url, cw.source_lang, cw.target_lang, cw.import_owner, cw.word_array;
             """;
         try {
-            return template.query(sql, IMPORT_WITH_TRANSLATION_DATA,
+            return template.query(sql, rowMapperStore.documentWithTranslationDataMapper(),
                     owner,
                     targetLanguage.name(),
                     owner,

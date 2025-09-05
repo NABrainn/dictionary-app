@@ -1,10 +1,11 @@
-package lule.dictionary.translations.data;
+package lule.dictionary.translations.data.repository;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.language.service.Language;
+import lule.dictionary.translations.data.Familiarity;
+import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.request.DeleteSourceWordRequest;
 import lule.dictionary.translations.data.request.FindByTargetWordRequest;
 import lule.dictionary.translations.data.request.UpdateSourceWordsRequest;
@@ -27,6 +28,7 @@ import static lule.dictionary.repository.factory.RowMapperFactory.*;
 public class TranslationRepository {
 
     private final JdbcTemplate template;
+    private final TranslationRowMapperStore rowMapperStore;
 
     public OptionalInt addTranslation(@NonNull Translation translation, int importId) {
         String insertSql = """
@@ -72,7 +74,7 @@ public class TranslationRepository {
                 ps.setInt(8, importId);
                 ps.setInt(9, 1);
                 return ps;
-            }, TRANSLATION_ID).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
+            }, rowMapperStore.translationIdMapper()).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
             template.update(updateSql, translation.owner());
             if(translationId != null) {
                 return OptionalInt.of(translationId);
@@ -99,7 +101,7 @@ public class TranslationRepository {
                 ps.setString(2, request.targetWord());
                 ps.setString(3, request.owner());
                 return ps;
-            }, TRANSLATION).stream().findFirst();
+            }, rowMapperStore.translationMapper()).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             return Optional.empty();
@@ -121,7 +123,7 @@ public class TranslationRepository {
                 ps.setString(2, request.targetWord());
                 ps.setString(3, request.owner());
                 return ps;
-            }, TRANSLATION).stream().findFirst();
+            }, rowMapperStore.translationMapper()).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             return Optional.empty();
@@ -134,7 +136,7 @@ public class TranslationRepository {
                 FROM dictionary.translations
                 """;
         try {
-            return template.query(sql, TRANSLATION);
+            return template.query(sql, rowMapperStore.translationMapper());
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             return List.of();
@@ -150,7 +152,7 @@ public class TranslationRepository {
                 LIMIT 1
                 """;
         try {
-            List<Translation> translation = template.query(sql, TRANSLATION,
+            List<Translation> translation = template.query(sql, rowMapperStore.translationMapper(),
                     request.targetWord().toLowerCase(),
                     request.owner());
             return translation.stream().findFirst();
@@ -184,7 +186,7 @@ public class TranslationRepository {
                     targetWords.stream(),
                     Stream.of(owner)
             ).toArray();
-            return template.query(sql, TRANSLATION, params);
+            return template.query(sql, rowMapperStore.translationMapper(), params);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             return List.of();
@@ -200,7 +202,7 @@ public class TranslationRepository {
                 RETURNING *
                 """;
         try {
-            return template.query(sql, TRANSLATION,
+            return template.query(sql, rowMapperStore.translationMapper(),
                     request.sourceWord(),
                     request.targetWord(),
                     request.owner()
@@ -246,7 +248,7 @@ public class TranslationRepository {
                     LIMIT ?;
                 """;
         try {
-            return template.query(sql, SOURCE_WORDS,
+            return template.query(sql, rowMapperStore.sourceWordsMapper(),
                     targetWord.toLowerCase(),
                     count);
         } catch (DataAccessException e) {
@@ -264,7 +266,7 @@ public class TranslationRepository {
                 AND is_phrase = true
                 """;
         try {
-            return template.query(sql, PHRASES,
+            return template.query(sql, rowMapperStore.translationMapper(),
                     content,
                     owner);
         } catch (DataAccessException e) {
@@ -285,7 +287,7 @@ public class TranslationRepository {
                 LIMIT ?
                 """;
             try {
-                return template.query(sql, TRANSLATION,
+                return template.query(sql, rowMapperStore.translationMapper(),
                         isPhrase,
                         owner,
                         Familiarity.values()[familiarity - 1].name(),
@@ -304,7 +306,7 @@ public class TranslationRepository {
                 LIMIT ?
                 """;
         try {
-            return template.query(sql, TRANSLATION,
+            return template.query(sql, rowMapperStore.translationMapper(),
                     isPhrase,
                     owner,
                     limit);
