@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.translations.data.Familiarity;
-import lule.dictionary.shared.ServiceRequest;
 import lule.dictionary.language.service.Language;
 
 import java.util.List;
@@ -23,5 +22,5 @@ public record AddTranslationRequest(int documentId,
                                     Language targetLanguage,
                                     Familiarity familiarity,
                                     String owner,
-                                    boolean isPhrase) implements ServiceRequest {
+                                    boolean isPhrase) implements TranslationsRequest {
 }

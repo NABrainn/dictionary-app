@@ -10,7 +10,7 @@ import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.userProfiles.data.repository.UserProfileRepository;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
-import lule.dictionary.shared.DateUtil;
+import lule.dictionary.date.DateUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

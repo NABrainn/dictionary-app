@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.shared.ServiceRequest;
 
 @Builder
 public record DeleteSourceWordRequest(@NotBlank(message = "Source word cannot be blank")
@@ -21,5 +20,5 @@ public record DeleteSourceWordRequest(@NotBlank(message = "Source word cannot be
                                       String owner,
 
                                       int selectedWordId,
-                                      boolean isPhrase) implements ServiceRequest {
+                                      boolean isPhrase) implements TranslationsRequest {
 }

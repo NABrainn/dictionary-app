@@ -1,4 +1,4 @@
-package lule.dictionary.translations.data.attribute;
+package lule.dictionary.translations.data;
 
 import java.util.List;
 

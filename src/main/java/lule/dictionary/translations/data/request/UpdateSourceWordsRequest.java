@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.shared.ServiceRequest;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
 
@@ -35,7 +34,7 @@ public record UpdateSourceWordsRequest(@NonNull
                                        String owner,
 
                                        int selectedWordId,
-                                       boolean isPhrase) implements ServiceRequest {
+                                       boolean isPhrase) implements TranslationsRequest {
 
     @Override
     public List<String> sourceWords() {

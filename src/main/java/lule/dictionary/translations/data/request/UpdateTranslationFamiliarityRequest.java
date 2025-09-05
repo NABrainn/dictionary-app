@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.translations.data.Familiarity;
-import lule.dictionary.shared.ServiceRequest;
 import lule.dictionary.language.service.Language;
 
 @Builder
@@ -19,5 +18,5 @@ public record UpdateTranslationFamiliarityRequest(@NotBlank
                                                   @NonNull Language targetLanguage,
                                                   @NonNull String owner,
                                                   int selectedWordId,
-                                                  boolean isPhrase) implements ServiceRequest {
+                                                  boolean isPhrase) {
 }

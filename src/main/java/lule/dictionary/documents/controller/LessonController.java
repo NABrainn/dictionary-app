@@ -3,10 +3,10 @@ package lule.dictionary.documents.controller;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.DocumentsLocalizationAttribute;
-import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.documents.service.DocumentServiceImp;
-import lule.dictionary.documents.data.request.FindByOwnerAndTargetLanguageRequest;
 import lule.dictionary.localization.service.LocalizationService;
+import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.documents.service.DocumentService;
+import lule.dictionary.documents.data.request.FindByOwnerAndTargetLanguageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LessonController {
 
-    private final DocumentServiceImp documentService;
+    private final DocumentService documentService;
     private final LocalizationService localizationService;
 
     @GetMapping({"/lessons", "/lessons/"})

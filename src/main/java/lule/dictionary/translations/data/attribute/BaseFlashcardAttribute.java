@@ -1,4 +1,4 @@
-package lule.dictionary.translations.controller.vocabulary.dto;
+package lule.dictionary.translations.data.attribute;
 
 import lombok.Builder;
 import lombok.NonNull;

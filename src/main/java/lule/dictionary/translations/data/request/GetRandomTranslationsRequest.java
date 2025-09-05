@@ -1,13 +1,12 @@
-package lule.dictionary.translations.controller.vocabulary.dto;
+package lule.dictionary.translations.data.request;
 
 import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.shared.ServiceRequest;
 
 @Builder
 public record GetRandomTranslationsRequest(int familiarity,
                                            int quantity,
                                            boolean isPhrase,
                                            int id,
-                                           @NonNull String owner) implements ServiceRequest {
+                                           @NonNull String owner) {
 }

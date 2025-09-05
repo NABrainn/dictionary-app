@@ -1,4 +1,4 @@
-@import lule.dictionary.translations.controller.vocabulary.dto.FlashcardConfigLocalizationAttribute
+@import lule.dictionary.translations.data.attribute.FlashcardConfigLocalizationAttribute
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.controllerAdvice.data.NavbarAttribute
 

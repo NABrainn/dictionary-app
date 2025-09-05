@@ -1,16 +1,16 @@
-package lule.dictionary.translations.controller.vocabulary;
+package lule.dictionary.translations.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.translations.controller.vocabulary.dto.BaseFlashcardAttribute;
-import lule.dictionary.translations.controller.vocabulary.dto.FlashcardConfigLocalizationAttribute;
-import lule.dictionary.translations.controller.vocabulary.dto.GetRandomTranslationsRequest;
+import lule.dictionary.localization.service.LocalizationService;
+import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
+import lule.dictionary.translations.data.attribute.FlashcardConfigLocalizationAttribute;
+import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.language.service.Language;
-import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.session.service.SessionHelper;
-import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;

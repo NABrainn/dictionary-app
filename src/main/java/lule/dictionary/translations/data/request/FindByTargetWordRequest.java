@@ -3,7 +3,6 @@ package lule.dictionary.translations.data.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import lule.dictionary.shared.ServiceRequest;
 import lule.dictionary.language.service.Language;
 
 @Builder
@@ -15,5 +14,5 @@ public record FindByTargetWordRequest(int documentId,
                                       Language sourceLanguage,
                                       Language targetLanguage,
                                       String owner,
-                                      boolean isPhrase) implements ServiceRequest {
+                                      boolean isPhrase) implements TranslationsRequest {
 }
