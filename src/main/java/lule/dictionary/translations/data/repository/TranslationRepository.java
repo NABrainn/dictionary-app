@@ -20,8 +20,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
 
-import static lule.dictionary.repository.factory.RowMapperFactory.*;
-
 @Slf4j
 @Repository
 @RequiredArgsConstructor

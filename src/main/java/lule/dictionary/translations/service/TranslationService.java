@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.TranslationImp;
@@ -13,7 +14,6 @@ import lule.dictionary.translations.service.exception.InvalidInputException;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.repository.TranslationRepository;
-import lule.dictionary.errorLocalization.service.ErrorLocalization;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
 import lule.dictionary.translations.service.exception.TranslationContraintViolationException;
 import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
@@ -36,7 +36,7 @@ public class TranslationService {
     private final TranslationRepository translationRepository;
     private final TranslationFetchingExecutor translationFetchingService;
     private final ValidationService validationService;
-    private final ErrorLocalization errorLocalization;
+    private final FamiliarityService familiarityService;
 
     @Transactional
     public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
@@ -56,8 +56,8 @@ public class TranslationService {
                     .selectedWordId(request.selectedWordId())
                     .translationId(translationId)
                     .translation(translation)
-                    .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
-                    .familiarityLevels(getFamiliarityTable())
+                    .currentFamiliarity(familiarityService.getFamiliarityAsDigit(request.familiarity()))
+                    .familiarityLevels(familiarityService.getFamiliarityTable())
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
                     .build();
@@ -65,8 +65,8 @@ public class TranslationService {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translation(null)
-                    .currentFamiliarity(getFamiliarityAsDigit(request.familiarity()))
-                    .familiarityLevels(getFamiliarityTable())
+                    .currentFamiliarity(familiarityService.getFamiliarityAsDigit(request.familiarity()))
+                    .familiarityLevels(familiarityService.getFamiliarityTable())
                     .translationId(-1)
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
@@ -84,8 +84,8 @@ public class TranslationService {
             return TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translation(translation)
-                    .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
-                    .familiarityLevels(getFamiliarityTable())
+                    .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
+                    .familiarityLevels(familiarityService.getFamiliarityTable())
                     .translationId(-1)
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
@@ -110,8 +110,8 @@ public class TranslationService {
         return TranslationAttribute.builder()
                 .selectedWordId(request.selectedWordId())
                 .translation(translation)
-                .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
-                .familiarityLevels(getFamiliarityTable())
+                .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
+                .familiarityLevels(familiarityService.getFamiliarityTable())
                 .translationId(-1)
                 .documentId(request.documentId())
                 .isPhrase(request.isPhrase())
@@ -126,8 +126,8 @@ public class TranslationService {
         return TranslationAttribute.builder()
                 .selectedWordId(request.selectedWordId())
                 .translation(translation)
-                .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
-                .familiarityLevels(getFamiliarityTable())
+                .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
+                .familiarityLevels(familiarityService.getFamiliarityTable())
                 .translationId(-1)
                 .documentId(-1)
                 .isPhrase(request.isPhrase())
@@ -145,8 +145,8 @@ public class TranslationService {
                         .selectedWordId(request.selectedWordId())
                         .translationId(-1)
                         .translation(optionalTranslation.get())
-                        .currentFamiliarity(getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
-                        .familiarityLevels(getFamiliarityTable())
+                        .currentFamiliarity(familiarityService.getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
+                        .familiarityLevels(familiarityService.getFamiliarityTable())
                         .isPhrase(request.isPhrase())
                         .build();
             }
@@ -171,8 +171,8 @@ public class TranslationService {
                     .selectedWordId(request.selectedWordId())
                     .translationId(-1)
                     .translation(translation)
-                    .currentFamiliarity(getFamiliarityAsDigit(translation.familiarity()))
-                    .familiarityLevels(getFamiliarityTable())
+                    .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
+                    .familiarityLevels(familiarityService.getFamiliarityTable())
                     .isPhrase(request.isPhrase())
                     .build();
             throw new TranslationContraintViolationException(translationAttribute, e.getViolation());
@@ -189,8 +189,8 @@ public class TranslationService {
                     .selectedWordId(request.selectedWordId())
                     .translationId(-1)
                     .translation(optionalTranslation.get())
-                    .currentFamiliarity(getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
-                    .familiarityLevels(getFamiliarityTable())
+                    .currentFamiliarity(familiarityService.getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
+                    .familiarityLevels(familiarityService.getFamiliarityTable())
                     .isPhrase(request.isPhrase())
                     .build();
         }
@@ -214,14 +214,31 @@ public class TranslationService {
                 .toList();
     }
 
-    public List<String> translate(TranslateRequest request) {
+    public TranslationAttribute translate(CreateTranslationRequest request) {
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase(), 3);
         List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord());
-        return Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
+        List<String> sourceWords = Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                 .filter(word -> !word.isBlank())
                 .distinct()
                 .limit(3)
                 .toList();
+        return TranslationAttribute.builder()
+                .documentId(request.documentId())
+                .selectedWordId(request.selectedWordId())
+                .translationId(-1)
+                .translation(TranslationImp.builder()
+                        .sourceWords(sourceWords)
+                        .targetWord(request.targetWord())
+                        .familiarity(Familiarity.UNKNOWN)
+                        .sourceLanguage(request.sourceLanguage())
+                        .targetLanguage(request.targetLanguage())
+                        .owner(request.username())
+                        .isPhrase(request.isPhrase())
+                        .build())
+                .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
+                .isPhrase(request.isPhrase())
+                .familiarityLevels(familiarityService.getFamiliarityTable())
+                .build();
     }
 
     public BaseFlashcardAttribute getRandomTranslations(GetRandomTranslationsRequest request) throws TranslationsNotFoundException {
@@ -274,25 +291,5 @@ public class TranslationService {
 
     private void validate(TranslationsRequest request) throws ConstraintViolationException {
         validationService.validate(request);
-    }
-
-    private int getFamiliarityAsDigit(Familiarity familiarity) {
-        return switch (familiarity) {
-            case UNKNOWN -> 1;
-            case RECOGNIZED -> 2;
-            case FAMILIAR -> 3;
-            case KNOWN -> 4;
-            case IGNORED -> 5;
-        };
-    }
-
-    private Map<Integer, Familiarity> getFamiliarityTable() {
-        return new TreeMap<>(Map.of(
-                1, Familiarity.UNKNOWN,
-                2, Familiarity.RECOGNIZED,
-                3, Familiarity.FAMILIAR,
-                4, Familiarity.KNOWN,
-                5, Familiarity.IGNORED)
-        );
     }
 }

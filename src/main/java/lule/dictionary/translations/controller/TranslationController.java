@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 @Controller
@@ -43,24 +41,12 @@ public class TranslationController {
                                        @RequestParam("isFound") boolean isFound) {
         if(!isFound) {
             UserProfile principal = (UserProfile) authentication.getPrincipal();
-            List<String> sourceWords = translationService.translate(TranslateRequest.of(targetWord, principal.sourceLanguage(), principal.targetLanguage()));
-            model.addAttribute("translationAttribute", TranslationAttribute.builder()
+            TranslationAttribute translationAttribute = translationService.translate(CreateTranslationRequest.builder()
                     .documentId(documentId)
                     .selectedWordId(selectedWordId)
-                    .translationId(-1)
-                    .translation(TranslationImp.builder()
-                        .sourceWords(sourceWords)
-                        .targetWord(targetWord)
-                        .familiarity(Familiarity.UNKNOWN)
-                        .sourceLanguage(principal.sourceLanguage())
-                        .targetLanguage(principal.targetLanguage())
-                        .owner(principal.getUsername())
-                        .isPhrase(isPhrase)
-                        .build())
-                    .currentFamiliarity(getFamiliarityAsDigit(Familiarity.UNKNOWN))
                     .isPhrase(isPhrase)
-                    .familiarityLevels(getFamiliarityTable())
                     .build());
+            model.addAttribute("translationAttribute", translationAttribute);
             model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
             return "document-page/content/translation/add/add-translation-form";
         }
@@ -90,31 +76,18 @@ public class TranslationController {
                                @RequestParam("familiarities") List<String> familiarities,
                                @RequestParam("isSavedList") List<String> isSavedList) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        List<String> sourceWords = translationService.translate(TranslateRequest.of(phraseText, principal.sourceLanguage(), principal.targetLanguage()));
-        System.out.println(sourceWords);
+        TranslationAttribute translationAttribute = translationService.translate(CreateTranslationRequest.builder()
+                .documentId(documentId)
+                .selectedWordId(selectableId)
+                .isPhrase(true)
+                .build());
         model.addAttribute("selectableId", selectableId);
         model.addAttribute("phraseText", phraseText);
         model.addAttribute("documentId", documentId);
         model.addAttribute("phraseLength", phraseLength);
         model.addAttribute("familiarities", familiarities);
         model.addAttribute("isSavedList", isSavedList);
-        model.addAttribute("translationAttribute", TranslationAttribute.builder()
-                .documentId(documentId)
-                .selectedWordId(selectableId)
-                .translationId(-1)
-                .translation(TranslationImp.builder()
-                    .sourceWords(sourceWords)
-                    .targetWord(phraseText)
-                    .familiarity(Familiarity.UNKNOWN)
-                    .sourceLanguage(principal.sourceLanguage())
-                    .targetLanguage(principal.targetLanguage())
-                    .owner(principal.getUsername())
-                    .isPhrase(true)
-                    .build())
-                .currentFamiliarity(getFamiliarityAsDigit(Familiarity.UNKNOWN))
-                .isPhrase(true)
-                .familiarityLevels(getFamiliarityTable())
-                .build());
+        model.addAttribute("translationAttribute", translationAttribute);
         model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
         return "document-page/content/new-phrase";
     }
@@ -237,25 +210,5 @@ public class TranslationController {
 
     private Pattern compileNonSpecialChars() {
         return Pattern.compile("[^\\p{L}0-9 ]");
-    }
-
-    private int getFamiliarityAsDigit(Familiarity familiarity) {
-        return switch (familiarity) {
-            case UNKNOWN -> 1;
-            case RECOGNIZED -> 2;
-            case FAMILIAR -> 3;
-            case KNOWN -> 4;
-            case IGNORED -> 5;
-        };
-    }
-
-    private Map<Integer, Familiarity> getFamiliarityTable() {
-        return new TreeMap<>(Map.of(
-                1, Familiarity.UNKNOWN,
-                2, Familiarity.RECOGNIZED,
-                3, Familiarity.FAMILIAR,
-                4, Familiarity.KNOWN,
-                5, Familiarity.IGNORED)
-        );
     }
 }
