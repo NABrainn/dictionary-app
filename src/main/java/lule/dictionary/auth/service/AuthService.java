@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.userProfiles.data.UserProfileImp;
 import lule.dictionary.auth.data.request.AuthRequest;
 import lule.dictionary.auth.data.SessionContext;
 import lule.dictionary.auth.data.request.LoginRequest;
@@ -124,6 +123,6 @@ public class AuthService {
     }
 
     private UserProfile getUserProfile(AuthRequest loginRequest) throws UserNotFoundException {
-        return UserProfileImp.withNewPassword(userProfileService.getUserProfile(loginRequest.login()), loginRequest.password());
+        return UserProfile.copyOf(userProfileService.getUserProfile(loginRequest.login()), loginRequest.password());
     }
 }

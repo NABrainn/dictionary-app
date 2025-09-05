@@ -4,13 +4,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.userProfiles.data.UserProfileImp;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.userProfiles.data.repository.UserProfileRepository;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
 import lule.dictionary.date.DateUtil;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,7 +37,7 @@ public class UserProfileService implements UserDetailsService {
 
     @Transactional
     public void addUserProfile(@NonNull SignupRequest signupRequest) {
-        UserProfile userProfile = UserProfileImp.builder()
+        UserProfile userProfile = UserProfile.builder()
                 .username(signupRequest.login())
                 .email(signupRequest.email())
                 .password(encode(signupRequest.password()))
@@ -69,6 +69,7 @@ public class UserProfileService implements UserDetailsService {
             userProfileRepository.updateTimezoneOffset(owner, DateUtil.stringToZoneOffset(offset).getId());
         }
     }
+    @Scheduled(cron = "0 0 * * * *")
     public void resetStreaksIfMidnight() {
         userProfileRepository.resetStreaksIfMidnight();
     }

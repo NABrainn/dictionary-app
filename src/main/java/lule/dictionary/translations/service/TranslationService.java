@@ -7,17 +7,16 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
-import lule.dictionary.translations.data.TranslationImp;
-import lule.dictionary.translations.data.request.*;
-import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.translations.service.exception.InvalidInputException;
 import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.request.*;
+import lule.dictionary.translations.service.exception.InvalidInputException;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.repository.TranslationRepository;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
 import lule.dictionary.translations.service.exception.TranslationContraintViolationException;
 import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.validation.service.ValidationService;
 import lule.dictionary.validation.service.ValidationServiceException;
 import org.springframework.stereotype.Service;
@@ -42,7 +41,7 @@ public class TranslationService {
     public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
         try {
             validate(request);
-            Translation translation = TranslationImp.builder()
+            Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords())
                     .targetWord(request.targetWord())
                     .familiarity(request.familiarity())
@@ -94,7 +93,7 @@ public class TranslationService {
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
         List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord());
         System.out.println(sourceWordsFromService);
-        Translation translation = TranslationImp.builder()
+        Translation translation = Translation.builder()
                 .sourceWords(Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                         .filter(word -> !word.isBlank())
                         .distinct()
@@ -152,7 +151,7 @@ public class TranslationService {
             }
             throw new RuntimeException("Unknown exception");
         } catch (ValidationServiceException e) {
-            Translation translation = TranslationImp.builder()
+            Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords()
                             .stream()
                             .filter(word -> !word.isBlank())
@@ -226,7 +225,7 @@ public class TranslationService {
                 .documentId(request.documentId())
                 .selectedWordId(request.selectedWordId())
                 .translationId(-1)
-                .translation(TranslationImp.builder()
+                .translation(Translation.builder()
                         .sourceWords(sourceWords)
                         .targetWord(request.targetWord())
                         .familiarity(Familiarity.UNKNOWN)

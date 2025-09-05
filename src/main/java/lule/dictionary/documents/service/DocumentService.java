@@ -1,10 +1,9 @@
 package lule.dictionary.documents.service;
 
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.ContentData;
-import lule.dictionary.documents.data.entity.DocumentImp;
-import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.Familiarity;
@@ -98,7 +97,7 @@ public class DocumentService {
     }
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest request) {
-        return importRepository.create(DocumentImp.builder()
+        return importRepository.create(Document.builder()
                 .title(request.title())
                 .pageContent(request.content())
                 .url(request.url())

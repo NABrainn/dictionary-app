@@ -1,8 +1,8 @@
 package lule.dictionary.documents.data.request;
 
 import lombok.NonNull;
-import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.documents.data.strategy.SubmissionStrategy;
+import lule.dictionary.userProfiles.data.UserProfile;
 
 public record CreateDocumentRequest(@NonNull
                                     SubmissionStrategy submissionStrategy,

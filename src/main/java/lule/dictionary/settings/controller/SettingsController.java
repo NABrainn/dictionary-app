@@ -2,9 +2,9 @@ package lule.dictionary.settings.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.session.service.SessionHelper;
+import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.userProfiles.service.UserProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;

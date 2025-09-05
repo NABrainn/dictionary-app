@@ -2,7 +2,6 @@ package lule.dictionary.userProfiles.data.repository;
 
 import lule.dictionary.language.service.Language;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.userProfiles.data.UserProfileImp;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
 public record UserProfileRowMapperStore(RowMapper<UserProfile> userProfileMapper) {
     public UserProfileRowMapperStore {
         userProfileMapper = ((rs, rowNum) ->
-                UserProfileImp.builder()
+                UserProfile.builder()
                     .username(rs.getString("username"))
                     .email(rs.getString("email"))
                     .password(rs.getString("password"))

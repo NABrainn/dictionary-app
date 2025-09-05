@@ -1,9 +1,7 @@
 package lule.dictionary.documents.data.repository;
 
 import lule.dictionary.documents.data.entity.Document;
-import lule.dictionary.documents.data.entity.DocumentImp;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
-import lule.dictionary.documents.data.entity.DocumentWithTranslationDataImp;
 import lule.dictionary.language.service.Language;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -13,7 +11,7 @@ public record DocumentRowMapperStore(RowMapper<Document> documentMapper,
                                      RowMapper<Integer> documentIdMapper,
                                      RowMapper<DocumentWithTranslationData> documentWithTranslationDataMapper) {
     public DocumentRowMapperStore {
-        documentMapper = ((rs, rowNum) -> DocumentImp.builder()
+        documentMapper = ((rs, rowNum) -> Document.builder()
                 .title(rs.getString("title"))
                 .url(rs.getString("url"))
                 .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
@@ -23,7 +21,7 @@ public record DocumentRowMapperStore(RowMapper<Document> documentMapper,
                 .totalContentLength(rs.getInt("total_length"))
                 .build());
         documentIdMapper = ((rs, rowNum) -> rs.getInt("imports_id"));
-        documentWithTranslationDataMapper = ((rs, rowNum) -> DocumentWithTranslationDataImp.builder()
+        documentWithTranslationDataMapper = ((rs, rowNum) -> DocumentWithTranslationData.builder()
                 .title(rs.getString("title"))
                 .url(rs.getString("url"))
                 .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
