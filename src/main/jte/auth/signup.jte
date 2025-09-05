@@ -1,5 +1,5 @@
-@import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.dto.application.attribute.NavbarAttribute
+@import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.controllerAdvice.data.NavbarAttribute
 @import java.util.Map
 
 @param NavbarAttribute navbarAttribute

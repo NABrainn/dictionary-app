@@ -7,7 +7,7 @@ import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetCont
 import lule.dictionary.userProfiles.data.UserProfileImp;
 import lule.dictionary.userProfiles.data.CustomUserDetails;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.auth.service.dto.request.imp.SignupRequest;
+import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.userProfiles.data.UserProfileRepository;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;

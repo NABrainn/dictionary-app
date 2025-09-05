@@ -1,4 +1,4 @@
-@import lule.dictionary.translations.service.dto.attribute.TranslationAttribute
+@import lule.dictionary.translations.data.attribute.TranslationAttribute
 
 @param TranslationAttribute translationAttribute 
 @param String placeholderText

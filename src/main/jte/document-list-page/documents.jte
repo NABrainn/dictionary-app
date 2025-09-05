@@ -1,13 +1,13 @@
-@import lule.dictionary.dto.application.BaseAttribute
-@import lule.dictionary.dto.application.attribute.DocumentsLocalizationAttribute
-@import lule.dictionary.dto.application.attribute.NavbarAttribute
-@import lule.dictionary.dto.database.interfaces.imports.ImportWithTranslationData
+@import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.documents.data.DocumentsLocalizationAttribute
+@import lule.dictionary.controllerAdvice.data.NavbarAttribute
+@import lule.dictionary.documents.data.entity.DocumentWithTranslationData
 @import java.util.List
 
 @param NavbarAttribute navbarAttribute
 @param BaseAttribute baseAttribute
 @param DocumentsLocalizationAttribute documentsLocalizationAttribute
-@param List<ImportWithTranslationData> documentsAttribute 
+@param List<DocumentWithTranslationData> documentsAttribute
 
 
 @template.layout.base(content = @`

@@ -1,5 +1,5 @@
 @import lule.dictionary.enumeration.Familiarity
-@import lule.dictionary.translations.service.dto.attribute.TranslationAttribute
+@import lule.dictionary.translations.data.attribute.TranslationAttribute
 @import java.util.List
 @import java.util.Map
 

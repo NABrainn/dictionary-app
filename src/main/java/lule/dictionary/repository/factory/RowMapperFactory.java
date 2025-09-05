@@ -1,11 +1,11 @@
 package lule.dictionary.repository.factory;
 
-import lule.dictionary.documents.data.DocumentWithTranslationDataImp;
-import lule.dictionary.documents.data.DocumentImp;
+import lule.dictionary.documents.data.entity.DocumentWithTranslationDataImp;
+import lule.dictionary.documents.data.entity.DocumentImp;
 import lule.dictionary.translations.data.TranslationImp;
 import lule.dictionary.userProfiles.data.UserProfileImp;
-import lule.dictionary.documents.data.DocumentWithTranslationData;
-import lule.dictionary.documents.data.Document;
+import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
+import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.enumeration.Familiarity;

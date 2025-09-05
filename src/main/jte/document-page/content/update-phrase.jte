@@ -1,7 +1,7 @@
 @import gg.jte.support.ForSupport
 @import lule.dictionary.translations.data.Translation
 @import lule.dictionary.enumeration.Familiarity
-@import lule.dictionary.documents.service.dto.selectable.Phrase
+@import lule.dictionary.documents.data.selectable.Phrase
 @import java.util.List
 @import java.util.Map
 @import java.util.regex.Pattern

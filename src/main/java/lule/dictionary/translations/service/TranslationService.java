@@ -1,11 +1,11 @@
 package lule.dictionary.translations.service;
 
-import lule.dictionary.vocabulary.controller.dto.BaseFlashcardAttribute;
-import lule.dictionary.vocabulary.controller.dto.GetRandomTranslationsRequest;
+import lule.dictionary.translations.controller.vocabulary.dto.BaseFlashcardAttribute;
+import lule.dictionary.translations.controller.vocabulary.dto.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.request.*;
 import lule.dictionary.userProfiles.data.CustomUserDetails;
-import lule.dictionary.translations.service.dto.request.*;
-import lule.dictionary.translations.service.dto.attribute.TranslationAttribute;
+import lule.dictionary.translations.data.attribute.TranslationAttribute;
 
 import java.util.List;
 import java.util.Map;

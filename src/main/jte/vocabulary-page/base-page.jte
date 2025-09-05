@@ -1,6 +1,6 @@
-@import lule.dictionary.vocabulary.controller.dto.FlashcardConfigLocalizationAttribute
-@import lule.dictionary.controllerAdvice.BaseAttribute
-@import lule.dictionary.controllerAdvice.NavbarAttribute
+@import lule.dictionary.translations.controller.vocabulary.dto.FlashcardConfigLocalizationAttribute
+@import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.controllerAdvice.data.NavbarAttribute
 
 @param BaseAttribute baseAttribute
 @param NavbarAttribute navbarAttribute 

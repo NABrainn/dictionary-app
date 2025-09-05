@@ -1,4 +1,4 @@
-@import lule.dictionary.vocabulary.controller.dto.FlashcardConfigLocalizationAttribute
+@import lule.dictionary.translations.controller.vocabulary.dto.FlashcardConfigLocalizationAttribute
 
 @param int familiarity = 0
 @param int quantity = 10

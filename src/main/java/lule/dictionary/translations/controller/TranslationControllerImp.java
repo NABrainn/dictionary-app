@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.translations.data.TranslationImp;
+import lule.dictionary.translations.data.request.*;
 import lule.dictionary.userProfiles.data.CustomUserDetails;
 import lule.dictionary.enumeration.Familiarity;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.translations.service.TranslationServiceImp;
-import lule.dictionary.translations.service.dto.attribute.TranslationAttribute;
-import lule.dictionary.translations.service.dto.request.*;
+import lule.dictionary.translations.data.attribute.TranslationAttribute;
 import lule.dictionary.translations.service.exception.TranslationContraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;

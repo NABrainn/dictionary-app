@@ -3,6 +3,8 @@ package lule.dictionary.controllerAdvice;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.controllerAdvice.data.BaseAttribute;
+import lule.dictionary.controllerAdvice.data.NavbarAttribute;
 import lule.dictionary.language.service.LanguageData;
 import lule.dictionary.userProfiles.data.CustomUserDetails;
 import lule.dictionary.language.service.Language;

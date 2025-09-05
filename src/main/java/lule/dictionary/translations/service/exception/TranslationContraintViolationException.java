@@ -2,7 +2,7 @@ package lule.dictionary.translations.service.exception;
 
 import jakarta.validation.ConstraintViolation;
 import lombok.Getter;
-import lule.dictionary.translations.service.dto.attribute.TranslationAttribute;
+import lule.dictionary.translations.data.attribute.TranslationAttribute;
 
 @Getter
 public class TranslationContraintViolationException extends RuntimeException {
