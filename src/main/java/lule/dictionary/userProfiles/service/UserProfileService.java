@@ -31,7 +31,7 @@ public class UserProfileService implements UserDetailsService {
     private final UserProfileRepository userProfileRepository;
     private final BCryptPasswordEncoder encoder;
 
-    public UserProfile getUserProfile(@NonNull String username) throws UserNotFoundException {
+    public UserProfile findByLogin(@NonNull String username) throws UserNotFoundException {
         return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with given username does not exist"));
     }
 
