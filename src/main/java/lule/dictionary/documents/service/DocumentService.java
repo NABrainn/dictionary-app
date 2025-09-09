@@ -26,7 +26,6 @@ import lule.dictionary.validation.service.ValidationService;
 import lule.dictionary.validation.service.ValidationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.InvalidUrlException;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,13 +44,14 @@ public class DocumentService {
     private final TranslationService translationService;
     private final PatternService patternService;
     private final FamiliarityService familiarityService;
+    private final DocumentSanitizer documentSanitizer;
 
     @Transactional
-    public int createImport(CreateDocumentRequest request) throws ValidationServiceException {
+    public int createDocument(CreateDocumentRequest request) throws ValidationServiceException {
         switch (request.submissionStrategy()) {
             case UrlSubmission urlSubmission -> {
                 validationService.validate(urlSubmission);
-                String content = getDocumentContent(urlSubmission.url());
+                String content = jsoupService.importDocumentContent(urlSubmission.url());
                 return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
                         .title(urlSubmission.title())
                         .url(urlSubmission.url())
@@ -74,12 +74,13 @@ public class DocumentService {
     }
 
     public List<DocumentWithTranslationData> findByOwnerAndTargetLanguage(FindByTargetLanguageRequest request) {
-        return getImportByUsernameAndTargetLanguage(request);
+        return documentRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
     }
 
     public DocumentAttribute loadDocumentContent(LoadDocumentContentRequest request) {
-        Document document = documentRepository.findById(request.documentId(), request.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
-        validatePageNumber(request.page(), getNumberOfPagesForDocument(document));
+        Document document = documentRepository.findById(request.documentId(), request.page())
+                .orElseThrow(() -> new ImportNotFoundException("Import not found"));
+        documentSanitizer.sanitizeNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(document.totalContentLength())));
         AssembleDocumentContentData assembleContentRequest = AssembleDocumentContentData.builder()
                 .selectableId(request.wordId())
                 .documentId(request.documentId())
@@ -90,10 +91,6 @@ public class DocumentService {
         DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
         DocumentPaginationData paginationData = assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest.of(document.totalContentLength(), request.page()));
         return DocumentAttribute.of(documentContentData, paginationData);
-    }
-
-    private List<DocumentWithTranslationData> getImportByUsernameAndTargetLanguage(FindByTargetLanguageRequest request) {
-        return documentRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
     }
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest request) {
@@ -107,24 +104,6 @@ public class DocumentService {
                 .owner(request.userDetails().getUsername())
                 .totalContentLength(request.content().length())
                 .build()).orElseThrow(() -> new RuntimeException("Failed to add a new import"));
-    }
-
-    private String getDocumentContent(String url) {
-        return jsoupService.importDocumentContent(url);
-    }
-
-    private int getNumberOfPagesForDocument(Document document) {
-        return paginationService.getNumberOfPages(document.totalContentLength());
-    }
-
-    private int getNumberOfPagesForLength(int length) {
-        return paginationService.getNumberOfPages(length);
-    }
-
-    private void validatePageNumber(int page, int numberOfPages) throws InvalidUrlException {
-        if(page <= 0 || page > numberOfPages) {
-            throw new InvalidUrlException("Invalid url parameter provided");
-        }
     }
 
     private DocumentContentData assembleDocumentContentData(AssembleDocumentContentData request) {
@@ -241,7 +220,7 @@ public class DocumentService {
 
     private DocumentPaginationData assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest request) {
         int currentPage = request.currentPage();
-        int pagesTotal = getNumberOfPagesForLength(request.totalLength());
+        int pagesTotal = paginationService.getNumberOfPages(request.totalLength());
         return DocumentPaginationData.builder()
                 .currentPageNumber(currentPage)
                 .numberOfPages(pagesTotal)
