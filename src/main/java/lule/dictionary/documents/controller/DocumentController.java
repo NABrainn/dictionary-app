@@ -69,7 +69,6 @@ public class DocumentController {
     public String importPage(@PathVariable("documentId") int importId,
                              @RequestParam(name = "page", defaultValue = "1") int page,
                              Model model,
-                             Authentication authentication,
                              HttpSession session) {
         try {
             DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
