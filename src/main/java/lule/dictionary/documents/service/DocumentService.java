@@ -201,7 +201,7 @@ public class DocumentService {
                 if(bufferValue.equals(phraseValue)) {
                     phrasesFound.add(PhraseNode.of(List.copyOf(buffer.stream()
                             .map(wordNode -> buffer.getFirst().equals(wordNode) ?
-                                    wordNode.copyWithRenderedText("ph<" + (phrase.familiarity().ordinal() + 1) + "<" + wordNode.renderedText()) :
+                                    wordNode.copyWithRenderedText("ph<" + (phrase.familiarity().ordinal()) + "<" + wordNode.renderedText()) :
                                     buffer.getLast().equals(wordNode) ?
                                             wordNode.copyWithRenderedText(wordNode.renderedText() + ">>") :
                                             wordNode)
