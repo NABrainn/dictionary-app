@@ -13,7 +13,7 @@ public record Phrase(@NonNull List<@NonNull String> targetWords,
         return new Phrase(phrase, familiarity, id);
     }
 
-    public static Phrase process(String phrase, Familiarity familiarity, int id) {
+    public static Phrase fromString(String phrase, Familiarity familiarity, int id) {
         List<String> processedPhrase = Arrays.stream(phrase
                         .replace("ph<", "")
                         .replace(">", "")
