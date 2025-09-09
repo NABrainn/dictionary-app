@@ -19,9 +19,9 @@ public record Translation(@NonNull List<String> sourceWords,
                 if(object == null) {
                         return false;
                 }
-                if(!(object instanceof Translation)) {
+                if(!(object instanceof Translation translation)) {
                         return false;
                 }
-                return this.targetWord.equals(((Translation) object).targetWord);
+                return this.targetWord.equals(translation.targetWord);
         }
 }
