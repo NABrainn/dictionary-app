@@ -135,7 +135,7 @@ hx-vals='js:{
         id="content-main"
         class="leading-9 flex flex-col">
             !{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
-            @for(var paragraphEntry :  ForSupport.of(content)
+            @for(var paragraphEntry :  ForSupport.of(content))
                 !{var paragraph = paragraphEntry.get();}
                 <div class="inline-flex flex-wrap">
                     @for(var selectableEntry : ForSupport.of(paragraphEntry.get().selectables()))
