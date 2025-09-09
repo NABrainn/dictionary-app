@@ -6,11 +6,11 @@ import lule.dictionary.documents.data.*;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
+import lule.dictionary.documents.data.strategy.ContentSubmissionStrategy;
+import lule.dictionary.documents.data.strategy.UrlSubmissionStrategy;
 import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.documents.data.strategy.ContentSubmission;
-import lule.dictionary.documents.data.strategy.UrlSubmission;
 import lule.dictionary.documents.service.exception.ImportNotFoundException;
 import lule.dictionary.documents.data.selectable.Phrase;
 import lule.dictionary.documents.data.selectable.Selectable;
@@ -49,7 +49,7 @@ public class DocumentService {
     @Transactional
     public int createDocument(CreateDocumentRequest request) throws ValidationServiceException {
         switch (request.submissionStrategy()) {
-            case UrlSubmission urlSubmission -> {
+            case UrlSubmissionStrategy urlSubmission -> {
                 validationService.validate(urlSubmission);
                 String content = jsoupService.importDocumentContent(urlSubmission.url());
                 return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
@@ -59,7 +59,7 @@ public class DocumentService {
                         .userDetails(request.userDetails())
                         .build());
             }
-            case ContentSubmission contentSubmission -> {
+            case ContentSubmissionStrategy contentSubmission -> {
                 validationService.validate(contentSubmission);
                 String content = contentSubmission.content();
                 return insertIntoDatabase(InsertIntoDatabaseRequest.builder()

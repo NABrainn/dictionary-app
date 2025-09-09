@@ -8,8 +8,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lule.dictionary.auth.data.request.LoginRequest;
 import lule.dictionary.auth.data.request.SignupRequest;
-import lule.dictionary.documents.data.strategy.ContentSubmission;
-import lule.dictionary.documents.data.strategy.UrlSubmission;
+import lule.dictionary.documents.data.strategy.ContentSubmissionStrategy;
+import lule.dictionary.documents.data.strategy.UrlSubmissionStrategy;
 import lule.dictionary.language.service.Language;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class ErrorLocalization {
     }
 
     private void initContentSubmissionMessages() throws NoSuchFieldException {
-        Class<?> clazz = UrlSubmission.class;
+        Class<?> clazz = UrlSubmissionStrategy.class;
 
         Map<String, String> englishMessages = Map.of(
                 createConstraintViolationKey(clazz, "title", NotBlank.class, Language.EN), "Title cannot be blank",
@@ -78,7 +78,7 @@ public class ErrorLocalization {
     }
 
     private void initUrlSubmissionMessages() throws NoSuchFieldException {
-        Class<?> clazz = ContentSubmission.class;
+        Class<?> clazz = ContentSubmissionStrategy.class;
 
         Map<String, String> englishMessages = Map.of(
                 createConstraintViolationKey(clazz, "title", NotBlank.class, Language.EN), "Title cannot be blank",

@@ -6,12 +6,12 @@ import jakarta.validation.constraints.Size;
 import lombok.NonNull;
 import org.hibernate.validator.constraints.URL;
 
-public record UrlSubmission(@NonNull
+public record UrlSubmissionStrategy(@NonNull
                             @NotBlank @Size(min = 10, max = 200) String title,
-                            @NonNull
+                                    @NonNull
                             @NotNull @Size(max = 200) @URL(protocol = "https") String url,
-                            @NonNull String spaceForUrlText) implements SubmissionStrategy {
-    public static UrlSubmission of(String spaceForUrlText, String title, String url) {
-        return new UrlSubmission(spaceForUrlText, title, url);
+                                    @NonNull String spaceForUrlText) implements SubmissionStrategy {
+    public static UrlSubmissionStrategy of(String spaceForUrlText, String title, String url) {
+        return new UrlSubmissionStrategy(spaceForUrlText, title, url);
     }
 }

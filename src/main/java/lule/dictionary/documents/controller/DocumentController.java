@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.request.CreateDocumentRequest;
 import lule.dictionary.documents.data.request.DocumentAttribute;
 import lule.dictionary.documents.data.request.LoadDocumentContentRequest;
-import lule.dictionary.documents.data.strategy.ContentSubmission;
+import lule.dictionary.documents.data.strategy.ContentSubmissionStrategy;
 import lule.dictionary.documents.data.DocumentFormAttribute;
+import lule.dictionary.documents.data.strategy.UrlSubmissionStrategy;
 import lule.dictionary.errorLocalization.service.ErrorLocalization;
 import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.documents.data.strategy.SubmissionStrategy;
-import lule.dictionary.documents.data.strategy.UrlSubmission;
 import lule.dictionary.documents.service.exception.ImportNotFoundException;
 import lule.dictionary.documents.service.DocumentService;
 import lule.dictionary.jsoup.service.exception.InvalidUriException;
@@ -51,8 +51,8 @@ public class DocumentController {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
-                        UrlSubmission.of("", "", localizationService.documentFormLocalization(language).get("space_for_url")) :
-                        ContentSubmission.of("", "", localizationService.documentFormLocalization(language).get("space_for_content"));
+                        UrlSubmissionStrategy.of("", "", localizationService.documentFormLocalization(language).get("space_for_url")) :
+                        ContentSubmissionStrategy.of("", "", localizationService.documentFormLocalization(language).get("space_for_content"));
         model.addAttribute("messages", Map.of());
         model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
                 .titleText(localizationService.documentFormLocalization(language).get("title"))
@@ -98,8 +98,8 @@ public class DocumentController {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
-                UrlSubmission.of(title, url, localizationService.documentFormLocalization(language).get("space_for_url")) :
-                ContentSubmission.of(title, content, localizationService.documentFormLocalization(language).get("space_for_content"));
+                UrlSubmissionStrategy.of(title, url, localizationService.documentFormLocalization(language).get("space_for_url")) :
+                ContentSubmissionStrategy.of(title, content, localizationService.documentFormLocalization(language).get("space_for_content"));
         try {
             int id = documentService.createDocument(CreateDocumentRequest.of(submissionStrategy, principal));
             return "redirect:/imports/" + id + "?page=1";
