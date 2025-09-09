@@ -9,7 +9,37 @@
     --color-neutral: #B8CFCE;
     --color-error: #C03A3A;
 
-    --animate-fade: fadeIn .1s ease-in-out;
+    --animate-fade-5: fadeIn .05s ease-in;
+    @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+    }
+
+    --animate-fade-10: fadeIn .1s ease-in;
+    @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+    }
+
+    --animate-fade-15: fadeIn .15s ease-in;
+    @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+    }
+
+    --animate-fade-20: fadeIn .2s ease-in-out;
     @keyframes fadeIn {
         0% {
           opacity: 0;
