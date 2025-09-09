@@ -131,7 +131,6 @@ public class DocumentService {
                 .map(String::toLowerCase)
                 .map(patternService::removeSpecialCharacters)
                 .toList();
-//        IntStream.range(0, formattedContentAsList.size()).forEach(id -> System.out.println("formatted: " + id + ": " + formattedContentAsList.get(id) + "; content: " + id + ": " + contentAsList.get(id) + ";"));
         List<PhraseNode> phrasesFound = new ArrayList<>();
         for(Translation phrase : request.phrases()) {
             List<String> searchedPhrase = List.of(patternService.removeSpecialCharacters(phrase.targetWord())
@@ -164,14 +163,7 @@ public class DocumentService {
                         .toList());
                 String phraseValue = String.join(" ", searchedPhrase);
                 if(bufferValue.equals(phraseValue)) {
-                    phrasesFound.add(PhraseNode.of(List.copyOf(buffer.stream()
-                            .map(wordNode -> buffer.getFirst().equals(wordNode) ?
-                                    wordNode.copyWithRenderedText("ph<" + (phrase.familiarity().ordinal()) + "<" + wordNode.renderedText()) :
-                                    buffer.getLast().equals(wordNode) ?
-                                            wordNode.copyWithRenderedText(wordNode.renderedText() + ">>") :
-                                            wordNode
-                            )
-                            .toList())));
+                    phrasesFound.add(PhraseNode.fromWordNodes(buffer, phrase));
                     buffer.clear();
                     pointer = 0;
                 }
