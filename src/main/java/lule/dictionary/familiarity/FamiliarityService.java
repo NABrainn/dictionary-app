@@ -27,4 +27,8 @@ public class FamiliarityService {
                 5, Familiarity.IGNORED)
         );
     }
+
+    public Familiarity getFamiliarityFromDigit(int digit) {
+        return Familiarity.values()[digit];
+    }
 }

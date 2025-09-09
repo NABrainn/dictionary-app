@@ -2,22 +2,19 @@ package lule.dictionary.documents.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.documents.data.PhraseNode;
-import lule.dictionary.documents.data.WordNode;
+import lule.dictionary.documents.data.*;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.request.*;
-import lule.dictionary.documents.data.ContentData;
 import lule.dictionary.documents.data.entity.Document;
+import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.documents.data.strategy.ContentSubmission;
 import lule.dictionary.documents.data.strategy.UrlSubmission;
 import lule.dictionary.documents.service.exception.ImportNotFoundException;
 import lule.dictionary.documents.data.selectable.Phrase;
 import lule.dictionary.documents.data.selectable.Selectable;
 import lule.dictionary.documents.data.selectable.Word;
-import lule.dictionary.documents.data.DocumentPageData;
 import lule.dictionary.documents.data.repository.DocumentRepository;
 import lule.dictionary.jsoup.service.JsoupService;
 import lule.dictionary.pagination.service.PaginationService;
@@ -31,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.InvalidUrlException;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -45,6 +43,7 @@ public class DocumentService {
     private final JsoupService jsoupService;
     private final TranslationService translationService;
     private final PatternService patternService;
+    private final FamiliarityService familiarityService;
 
     @Transactional
     public int createImport(CreateDocumentRequest request) throws ValidationServiceException {
@@ -132,30 +131,25 @@ public class DocumentService {
     }
 
     private DocumentPageData createDocumentPageData(AssembleDocumentAttributeRequest request) {
-        ContentData documentContentData = assembleDocumentContentData(request.document());
-        Map<String, Translation> translations = getTranslationsFromDatabase(request.document());
+        List<Paragraph> content = assembleContentData(request.document());
+        var translations = translationService.findTranslationsByImport(FindTranslationsByImportRequest.of(request.document(), request.document().owner()));
         return DocumentPageData.builder()
                 .selectedWordId(request.wordId())
                 .documentId(request.documentId())
                 .title(request.document().title())
-                .content(documentContentData)
+                .content(content)
                 .translations(translations)
                 .build();
     }
 
-    private ContentData assembleDocumentContentData(Document document) {
-        List<Translation> phrases = extractPhrases(document.pageContent(), document.owner());
-        String parsedContent = markPhrases(document.pageContent(), phrases.stream().toList());
-        List<List<Selectable>> paragraphs = extractParagraphs(parsedContent);
-        List<Integer> startIndices = extractIndices(paragraphs);
-        return ContentData.of(paragraphs, startIndices);
+    private List<Paragraph> assembleContentData(Document document) {
+        List<Translation> phrases = translationService.extractPhrases(document.pageContent(), document.owner());
+        String renderedContent = renderPhrases(document.pageContent(), phrases);
+        List<Paragraph> paragraphs = extractParagraphs(renderedContent);
+        return paragraphs;
     }
 
-    private List<Translation> extractPhrases(String content, String owner) {
-        return translationService.extractPhrases(content, owner);
-    }
-
-    public String markPhrases(String content, List<Translation> phrases) {
+    public String renderPhrases(String content, List<Translation> phrases) {
         List<String> contentAsList = Stream.of(content.split("((?<=\\n)|(?=\\n))| "))
                 .map(word -> !word.contains("\n") ? word.trim() : word)
                 .filter(word -> !word.isEmpty())
@@ -166,7 +160,7 @@ public class DocumentService {
                 .map(String::toLowerCase)
                 .map(patternService::removeSpecialCharacters)
                 .toList();
-        IntStream.range(0, formattedContentAsList.size()).forEach(id -> System.out.println("formatted: " + id + ": " + formattedContentAsList.get(id) + "; content: " + id + ": " + contentAsList.get(id) + ";"));
+//        IntStream.range(0, formattedContentAsList.size()).forEach(id -> System.out.println("formatted: " + id + ": " + formattedContentAsList.get(id) + "; content: " + id + ": " + contentAsList.get(id) + ";"));
         List<PhraseNode> phrasesFound = new ArrayList<>();
         for(Translation phrase : phrases) {
             List<String> searchedPhrase = List.of(patternService.removeSpecialCharacters(phrase.targetWord())
@@ -204,7 +198,8 @@ public class DocumentService {
                                     wordNode.copyWithRenderedText("ph<" + (phrase.familiarity().ordinal()) + "<" + wordNode.renderedText()) :
                                     buffer.getLast().equals(wordNode) ?
                                             wordNode.copyWithRenderedText(wordNode.renderedText() + ">>") :
-                                            wordNode)
+                                            wordNode
+                            )
                             .toList())));
                     buffer.clear();
                     pointer = 0;
@@ -240,40 +235,19 @@ public class DocumentService {
         return String.join(" ", outputContentAsList);
     }
 
-    private Map<String, Translation> getTranslationsFromDatabase(Document importWithPagination) {
-        return translationService.findTranslationsByImport(FindTranslationsByImportRequest.of(importWithPagination, importWithPagination.owner()));
-    }
-    private List<List<Selectable>> extractParagraphs(String content) {
+    private List<Paragraph> extractParagraphs(String content) {
+        AtomicInteger idCounter = new AtomicInteger(0);
         return Stream.of(content.split("\n+"))
-                .map(paragraph -> Arrays.stream(paragraph.split("\\s+"))
-                        .map(selectable -> selectable.startsWith("ph<") && selectable.endsWith(">") ?
-                                buildPhraseFrom(selectable) :
-                                (Selectable) Word.of(selectable))
+                .map(paragraphAsString -> Arrays.stream(paragraphAsString.split("\\s+"))
+                        .map(selectable -> {
+                            int currentId = idCounter.getAndIncrement();
+                            return selectable.startsWith("ph<") && selectable.endsWith(">>") ?
+                                    Phrase.process(selectable, familiarityService.getFamiliarityFromDigit(Integer.parseInt(selectable.substring(3, 4))), currentId) :
+                                    (Selectable) Word.of(selectable, currentId);
+                        })
                         .toList())
-                .filter(list -> !list.isEmpty())
-                .toList();
-    }
-
-    private Phrase buildPhraseFrom(String literal) {
-        return Phrase.of(Arrays.stream(literal
-                .replace("ph<", "")
-                .replace(">", "")
-                .replace("-", " ")
-                .substring(2)
-                .split(" "))
-                .toList(), Familiarity.values()[Integer.parseInt(literal.substring(3, 4))]);
-    }
-
-    private List<Integer> extractIndices(List<List<Selectable>> paragraphs) {
-        return IntStream.range(0, paragraphs.stream()
-                .map(paragraph -> paragraph.stream()
-                    .map(selectable -> selectable instanceof Phrase ? String.join("", ((Phrase) selectable).targetWords()) : selectable))
-                .toList()
-                .size())
-                .map(i -> 1 + paragraphs.subList(0, i).stream()
-                    .mapToInt(List::size)
-                    .sum())
-                .boxed()
+                .filter(paragraphAsList -> !paragraphAsList.isEmpty())
+                .map(paragraphAsList -> Paragraph.of(paragraphAsList, 0))
                 .toList();
     }
 
