@@ -11,7 +11,8 @@ An application that makes language learning fun and engaging through reading.
 - **Use records over classes for data transfer**
 - **Classes are still fine for services and extending exceptions**
 ### 2. Prefer constructing via static factory method over "new" keyword
-### ~~3. Do describe public APIs with interfaces~~
+### ~~3. Do describe public APIs with interfaces~~ 
+### 3. Records ARE interfaces
 ![Screenshot](readme_resources/img.png)
 
 ### 13/06/2025
