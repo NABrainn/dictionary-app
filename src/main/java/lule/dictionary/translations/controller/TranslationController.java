@@ -44,6 +44,10 @@ public class TranslationController {
                     .documentId(documentId)
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
+                    .username(principal.getUsername())
+                    .targetWord(targetWord)
+                    .sourceLanguage(principal.sourceLanguage())
+                    .targetLanguage(principal.targetLanguage())
                     .build());
             model.addAttribute("translationAttribute", translationAttribute);
             model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
@@ -76,9 +80,13 @@ public class TranslationController {
                                @RequestParam("isSavedList") List<String> isSavedList) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         TranslationAttribute translationAttribute = translationService.translate(CreateTranslationRequest.builder()
+                .targetWord(phraseText)
                 .documentId(documentId)
                 .selectedWordId(selectableId)
                 .isPhrase(true)
+                .username(principal.getUsername())
+                .sourceLanguage(principal.sourceLanguage())
+                .targetLanguage(principal.targetLanguage())
                 .build());
         model.addAttribute("selectableId", selectableId);
         model.addAttribute("phraseText", phraseText);
