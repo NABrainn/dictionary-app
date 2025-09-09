@@ -28,7 +28,11 @@ public class FamiliarityService {
         );
     }
 
-    public Familiarity getFamiliarityFromDigit(int digit) {
-        return Familiarity.values()[digit];
+    public Familiarity getFamiliarity(String phraseLiteral) {
+        return getFamiliarityFromPhraseLiteral(phraseLiteral);
+    }
+
+    private Familiarity getFamiliarityFromPhraseLiteral(String phraseLiteral) {
+        return Familiarity.values()[Integer.parseInt(phraseLiteral.substring(3, 4))];
     }
 }
