@@ -6,8 +6,8 @@ import lule.dictionary.documents.data.*;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
-import lule.dictionary.documents.data.strategy.ContentSubmissionStrategy;
-import lule.dictionary.documents.data.strategy.UrlSubmissionStrategy;
+import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
+import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
 import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
@@ -210,7 +210,7 @@ public class DocumentService {
         return Stream.of(request.contentBlob().split("\n+"))
                 .map(paragraphAsString -> Arrays.stream(paragraphAsString.split("\\s+"))
                         .map(selectable -> selectable.startsWith("ph<") && selectable.endsWith(">>") ?
-                                Phrase.process(selectable, familiarityService.getFamiliarity(selectable), request.idCounter().getAndIncrement()) :
+                                Phrase.fromString(selectable, familiarityService.getFamiliarity(selectable), request.idCounter().getAndIncrement()) :
                                 (Selectable) Word.of(selectable, request.idCounter().getAndIncrement()))
                         .toList())
                 .filter(paragraphAsList -> !paragraphAsList.isEmpty())
