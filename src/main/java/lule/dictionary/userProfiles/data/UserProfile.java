@@ -22,7 +22,7 @@ public record UserProfile(
         int dailyStreak,
         String offset) implements UserDetails {
 
-    public UserProfile copyWith(String password) {
+    public UserProfile withPassword(String password) {
         return UserProfile.builder()
             .username(this.getUsername())
             .email(this.email())
