@@ -1,8 +1,10 @@
 package lule.dictionary.documents.data.request;
 
+import lombok.NonNull;
 import lule.dictionary.language.service.Language;
 
-public record FindByTargetLanguageRequest(String owner, Language targetLanguage) {
+public record FindByTargetLanguageRequest(@NonNull String owner,
+                                          @NonNull Language targetLanguage) {
     public static FindByTargetLanguageRequest of(String username, Language language) {
         return new FindByTargetLanguageRequest(username, language);
     }
