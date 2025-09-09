@@ -1,8 +1,8 @@
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
-@import lule.dictionary.documents.data.strategy.ContentSubmission
+@import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy
 @import lule.dictionary.documents.data.DocumentFormAttribute
 @import lule.dictionary.controllerAdvice.data.NavbarAttribute
-@import lule.dictionary.documents.data.strategy.UrlSubmission
+@import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy
 @import java.util.Map
 
 @param DocumentFormAttribute documentFormAttribute
@@ -43,11 +43,11 @@
                 <span class="text-accent font-bold text-2xl">${documentFormAttribute.contentText()}</span>
                 <div class="flex justify-center">
                     !{String color = switch(documentFormAttribute.submissionStrategy()) {
-                        case ContentSubmission content -> messages.getOrDefault("content", "");
-                        case UrlSubmission url -> messages.get("invalidUriMessage");
+                        case ContentSubmissionStrategy content -> messages.getOrDefault("content", "");
+                        case UrlSubmissionStrategy url -> messages.get("invalidUriMessage");
                         default -> "";
                     };}
-                    @if(documentFormAttribute.submissionStrategy() instanceof UrlSubmission)
+                    @if(documentFormAttribute.submissionStrategy() instanceof UrlSubmissionStrategy)
                         <button class="
                         bg-primary border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
                         type="button"
@@ -105,17 +105,17 @@
 
                 </div>
                 !{String message = switch(documentFormAttribute.submissionStrategy()) {
-                    case ContentSubmission content -> messages.getOrDefault("content", "");
-                    case UrlSubmission url when messages.get("invalidUriMessage") != null -> messages.get("invalidUriMessage");
-                    case UrlSubmission url when messages.get("url") != null -> messages.get("url");
+                    case ContentSubmissionStrategy content -> messages.getOrDefault("content", "");
+                    case UrlSubmissionStrategy url when messages.get("invalidUriMessage") != null -> messages.get("invalidUriMessage");
+                    case UrlSubmissionStrategy url when messages.get("url") != null -> messages.get("url");
                     default -> "";
                 };}
-                @if(documentFormAttribute.submissionStrategy() instanceof ContentSubmission content)
+                @if(documentFormAttribute.submissionStrategy() instanceof ContentSubmissionStrategy content)
                     @template.create-document-form.content-form(
                         spaceForContentText = content.spaceForContentText(),
                         message = message
                     )
-                @elseif(documentFormAttribute.submissionStrategy() instanceof UrlSubmission url)
+                @elseif(documentFormAttribute.submissionStrategy() instanceof UrlSubmissionStrategy url)
                     @template.create-document-form.url-form(
                         spaceForUrlText = url.spaceForUrlText(),
                         message = message
