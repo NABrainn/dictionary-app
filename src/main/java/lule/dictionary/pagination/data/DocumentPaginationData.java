@@ -1,0 +1,18 @@
+package lule.dictionary.pagination.data;
+
+import lombok.Builder;
+import lombok.NonNull;
+
+import java.util.List;
+
+@Builder
+public record DocumentPaginationData(int currentPageNumber,
+                                     int numberOfPages,
+                                     @NonNull List<List<Integer>> rows,
+                                     int currentRowNumber,
+                                     int firstPageOfRowNumber) {
+    @Override
+    public List<List<Integer>> rows() {
+        return List.copyOf(rows);
+    }
+}

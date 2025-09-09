@@ -2,16 +2,13 @@
 @import lule.dictionary.translations.data.Translation
 @import lule.dictionary.translations.data.Familiarity
 @import lule.dictionary.documents.data.selectable.Phrase
-@import java.util.List
 @import java.util.Map
 @import java.util.regex.Pattern
 
 @param Phrase phrase
 @param Pattern cleanWordPattern
-@param int paragraphId
 @param int selectableId
 @param int documentId
-@param List<Integer> startIndices
 @param Map<String, Translation> translations
 
 !{var processedWord = String.join(" ", phrase.targetWords().stream()

@@ -133,72 +133,68 @@ hx-vals='js:{
         @endif
         <div
         id="content-main"
-        class="leading-9 flex flex-col">!{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
-            @for(var paragraphEntry :  ForSupport.of(content.paragraphs()))
-                !{var paragraph = paragraphEntry.get(); var paragraphId = paragraphEntry.getIndex();}
-                <div
-                class="paragraph-${paragraphId} inline-flex flex-wrap"
-                data-paragraph-id="${paragraphId}">
-                    @for(var selectableEntry : ForSupport.of(paragraphEntry.get()))!{var selectable = selectableEntry.get();}
-                        !{var selectableId = selectableEntry.getIndex();}@if(selectable instanceof Word)
-                        !{var wordId = content.startIndices().get(paragraphId) + selectableId;}
-                        !{var word = ((Word) selectable).value();}
-                        !{var cleanWord = cleanWordPattern.matcher(word).replaceAll("")
-                                                .replace("-", "")
-                                                .toLowerCase();}
-                        @if(!cleanWord.isEmpty())
-                            @if(translations.get(cleanWord) != null)
-                                !{String unselectedBgColor = switch(translations.get(cleanWord).familiarity()){
-                                    case UNKNOWN -> "bg-accent";
-                                    case RECOGNIZED -> "bg-accent/80";
-                                    case FAMILIAR -> "bg-accent/60";
-                                    case KNOWN -> "bg-primary";
-                                    default -> "bg-primary";
-                                };}
-                                !{String unselectedTextColor = switch(translations.get(cleanWord).familiarity()){
-                                    case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
-                                    default -> "text-neutral";
-                                };}
-                                @template.document-page.content.word(
-                                wordId = wordId,
-                                processedWord = cleanWord,
-                                documentId = documentId,
-                                word = word,
-                                bgColor = unselectedBgColor,
-                                textColor = unselectedTextColor,
-                                familiarity = translations.get(cleanWord).familiarity(),
-                                isFound = true)
-                            @else
-                                @template.document-page.content.word(
-                                    wordId = wordId,
+        class="leading-9 flex flex-col">
+            !{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
+            @for(var paragraphEntry :  ForSupport.of(content))
+                !{var paragraph = paragraphEntry.get();}
+                <div class="inline-flex flex-wrap">
+                    @for(var selectableEntry : ForSupport.of(paragraphEntry.get().selectables()))
+
+                        !{var selectable = selectableEntry.get();}
+                        @if(selectable instanceof Word)
+                            !{var word = ((Word) selectable).value();}
+                            !{var cleanWord = cleanWordPattern.matcher(word).replaceAll("")
+                                                    .replace("-", "")
+                                                    .toLowerCase();}
+                            @if(!cleanWord.isEmpty())
+                                @if(translations.get(cleanWord) != null)
+                                    !{String unselectedBgColor = switch(translations.get(cleanWord).familiarity()){
+                                        case UNKNOWN -> "bg-accent";
+                                        case RECOGNIZED -> "bg-accent/80";
+                                        case FAMILIAR -> "bg-accent/60";
+                                        case KNOWN -> "bg-primary";
+                                        default -> "bg-primary";
+                                    };}
+                                    !{String unselectedTextColor = switch(translations.get(cleanWord).familiarity()){
+                                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                                        default -> "text-neutral";
+                                    };}
+                                    @template.document-page.content.word(
+                                    wordId = selectable.id(),
+                                    processedWord = cleanWord,
+                                    documentId = documentId,
+                                    word = word,
+                                    bgColor = unselectedBgColor,
+                                    textColor = unselectedTextColor,
+                                    familiarity = translations.get(cleanWord).familiarity(),
+                                    isFound = true)
+                                @else
+                                    @template.document-page.content.word(
+                                    wordId = selectable.id(),
                                     processedWord = cleanWord,
                                     documentId = documentId,
                                     word = word,
                                     bgColor = "bg-accent",
-                                    textColor = "text-primary"
-                                )
-                            @endif
-                        @else
-                            @template.document-page.content.word(
-                                wordId = wordId,
+                                    textColor = "text-primary")
+                                @endif
+                            @else
+                                @template.document-page.content.word(
+                                wordId = selectable.id(),
                                 processedWord = cleanWord,
                                 documentId = documentId,
                                 word = word,
                                 bgColor = "bg-primary",
                                 textColor = "text-neutral",
-                                isSelectable = false
-                            )
-                        @endif
-                    @else
-                        !{var phrase = ((Phrase) selectable);}
-                        @template.document-page.content.update-phrase(
-                        phrase = phrase,
-                        cleanWordPattern = cleanWordPattern,
-                        paragraphId = paragraphId,
-                        selectableId = content.startIndices().get(paragraphId) + selectableId,
-                        documentId = documentId,
-                        startIndices = content.startIndices(),
-                        translations = translations)
+                                isSelectable = false)
+                            @endif
+                        @else
+                            !{var phrase = ((Phrase) selectable);}
+                            @template.document-page.content.update-phrase(
+                            phrase = phrase,
+                            cleanWordPattern = cleanWordPattern,
+                            selectableId = selectable.id(),
+                            documentId = documentId,
+                            translations = translations)
                     @endif
                 @endfor
                 </div>
@@ -210,13 +206,12 @@ hx-vals='js:{
     md:max-w-2/5 md:gap-4
     max-w-full flex justify-center gap-2  mx-auto items-center">
         @template.document-page.content.paginator(
-            id = documentAttribute.importData().documentId(),
-            currentPage = documentAttribute.paginationData().currentPageNumber(),
-            pages = documentAttribute.paginationData().numberOfPages(),
-            importId = documentAttribute.importData().documentId(),
-            rows = documentAttribute.paginationData().rows(),
-            currentRow = documentAttribute.paginationData().currentRowNumber(),
-            firstPageOfRow = documentAttribute.paginationData().firstPageOfRowNumber()
-        )
+        id = documentAttribute.importData().documentId(),
+        currentPage = documentAttribute.paginationData().currentPageNumber(),
+        pages = documentAttribute.paginationData().numberOfPages(),
+        importId = documentAttribute.importData().documentId(),
+        rows = documentAttribute.paginationData().rows(),
+        currentRow = documentAttribute.paginationData().currentRowNumber(),
+        firstPageOfRow = documentAttribute.paginationData().firstPageOfRowNumber())
     </div>
 </form>

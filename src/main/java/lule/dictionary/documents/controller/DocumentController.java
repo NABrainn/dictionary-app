@@ -101,7 +101,7 @@ public class DocumentController {
                 UrlSubmission.of(title, url, localizationService.documentFormLocalization(language).get("space_for_url")) :
                 ContentSubmission.of(title, content, localizationService.documentFormLocalization(language).get("space_for_content"));
         try {
-            int id = documentService.createImport(CreateDocumentRequest.of(submissionStrategy, principal));
+            int id = documentService.createDocument(CreateDocumentRequest.of(submissionStrategy, principal));
             return "redirect:/imports/" + id + "?page=1";
 
         } catch (ValidationServiceException e) {

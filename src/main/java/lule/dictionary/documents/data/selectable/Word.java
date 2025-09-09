@@ -1,7 +1,10 @@
 package lule.dictionary.documents.data.selectable;
 
-public record Word(String value) implements Selectable {
-    public static Word of(String value) {
-        return new Word(value);
+import lombok.NonNull;
+
+public record Word(@NonNull String value,
+                   int id) implements Selectable {
+    public static Word of(String value, int id) {
+        return new Word(value, id);
     }
 }

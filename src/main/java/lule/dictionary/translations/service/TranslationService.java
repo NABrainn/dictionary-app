@@ -200,15 +200,15 @@ public class TranslationService {
         return translationRepository.getWordsLearnedCount(principal.getUsername(), principal.targetLanguage());
     }
 
-    public Map<String, Translation> findTranslationsByImport(FindTranslationsByImportRequest request) {
+    public Map<String, Translation> findTranslationsInDocument(FindTranslationsInDocumentRequest request) {
         Pattern newLinePattern = Pattern.compile("\n+");
         Pattern nonLetterNonNumberPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");
-        List<String> wordList = getContentAsWordList(request.anImport().pageContent(), Map.of("newLine", newLinePattern, "nonLetterNonNumber", nonLetterNonNumberPattern));
+        List<String> wordList = getContentAsWordList(request.contentBlob(), Map.of("newLine", newLinePattern, "nonLetterNonNumber", nonLetterNonNumberPattern));
         return extractTranslationsFromDatabase(wordList, request.owner());
     }
 
-    public List<Translation> extractPhrases(String content, String owner) {
-        return translationRepository.extractPhrases(content, owner).stream()
+    public List<Translation> extractPhrases(ExtractPhrasesRequest request) {
+        return translationRepository.extractPhrases(request.content(), request.owner()).stream()
                 .distinct()
                 .toList();
     }
