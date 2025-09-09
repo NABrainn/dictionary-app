@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 @Builder
-public record DocumentPageData(@NonNull String title,
-                               @NonNull List<Paragraph> content,
-                               @NonNull Map<String, Translation> translations,
-                               int documentId,
-                               int selectedWordId) {
+public record DocumentContentData(@NonNull String title,
+                                  @NonNull List<Paragraph> content,
+                                  @NonNull Map<String, Translation> translations,
+                                  int documentId,
+                                  int selectedWordId) {
     @Override
     public Map<String, Translation> translations() {
         return Map.copyOf(translations);
