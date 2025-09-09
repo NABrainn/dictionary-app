@@ -74,7 +74,7 @@ public class TranslationRepository {
                 ps.setInt(8, importId);
                 ps.setInt(9, 1);
                 return ps;
-            }, rowMapperStore.translationIdMapper()).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
+            }, rowMapperStore.getTranslationIdMapper()).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
             template.update(updateSql, translation.owner());
             if(translationId != null) {
                 return OptionalInt.of(translationId);
@@ -101,7 +101,7 @@ public class TranslationRepository {
                 ps.setString(2, request.targetWord());
                 ps.setString(3, request.owner());
                 return ps;
-            }, rowMapperStore.translationMapper()).stream().findFirst();
+            }, rowMapperStore.getTranslationMapper()).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -123,7 +123,7 @@ public class TranslationRepository {
                 ps.setString(2, request.targetWord());
                 ps.setString(3, request.owner());
                 return ps;
-            }, rowMapperStore.translationMapper()).stream().findFirst();
+            }, rowMapperStore.getTranslationMapper()).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -136,7 +136,7 @@ public class TranslationRepository {
                 FROM dictionary.translations
                 """;
         try {
-            return template.query(sql, rowMapperStore.translationMapper());
+            return template.query(sql, rowMapperStore.getTranslationMapper());
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -152,7 +152,7 @@ public class TranslationRepository {
                 LIMIT 1
                 """;
         try {
-            List<Translation> translation = template.query(sql, rowMapperStore.translationMapper(),
+            List<Translation> translation = template.query(sql, rowMapperStore.getTranslationMapper(),
                     request.targetWord().toLowerCase(),
                     request.owner());
             return translation.stream().findFirst();
@@ -186,7 +186,7 @@ public class TranslationRepository {
                     targetWords.stream(),
                     Stream.of(owner)
             ).toArray();
-            return template.query(sql, rowMapperStore.translationMapper(), params);
+            return template.query(sql, rowMapperStore.getTranslationMapper(), params);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -202,7 +202,7 @@ public class TranslationRepository {
                 RETURNING *
                 """;
         try {
-            return template.query(sql, rowMapperStore.translationMapper(),
+            return template.query(sql, rowMapperStore.getTranslationMapper(),
                     request.sourceWord(),
                     request.targetWord(),
                     request.owner()
@@ -248,7 +248,7 @@ public class TranslationRepository {
                     LIMIT ?;
                 """;
         try {
-            return template.query(sql, rowMapperStore.sourceWordsMapper(),
+            return template.query(sql, rowMapperStore.getSourceWordsMapper(),
                     targetWord.toLowerCase(),
                     count);
         } catch (DataAccessException e) {
@@ -266,7 +266,7 @@ public class TranslationRepository {
                 AND is_phrase = true
                 """;
         try {
-            return template.query(sql, rowMapperStore.translationMapper(),
+            return template.query(sql, rowMapperStore.getTranslationMapper(),
                     content,
                     owner);
         } catch (DataAccessException e) {
@@ -287,7 +287,7 @@ public class TranslationRepository {
                 LIMIT ?
                 """;
             try {
-                return template.query(sql, rowMapperStore.translationMapper(),
+                return template.query(sql, rowMapperStore.getTranslationMapper(),
                         isPhrase,
                         owner,
                         Familiarity.values()[familiarity - 1].name(),
@@ -306,7 +306,7 @@ public class TranslationRepository {
                 LIMIT ?
                 """;
         try {
-            return template.query(sql, rowMapperStore.translationMapper(),
+            return template.query(sql, rowMapperStore.getTranslationMapper(),
                     isPhrase,
                     owner,
                     limit);

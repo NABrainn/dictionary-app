@@ -5,7 +5,7 @@ import lule.dictionary.documents.data.DocumentsLocalizationAttribute;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.documents.service.DocumentService;
-import lule.dictionary.documents.data.request.FindByOwnerAndTargetLanguageRequest;
+import lule.dictionary.documents.data.request.FindByTargetLanguageRequest;
 import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -41,6 +41,6 @@ public class LessonController {
         return "document-list-page/documents";
     }
     private List<DocumentWithTranslationData> getImports(UserProfile principal) {
-        return documentService.findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage()));
+        return documentService.findByOwnerAndTargetLanguage(FindByTargetLanguageRequest.of(principal.getUsername(), principal.targetLanguage()));
     }
 }

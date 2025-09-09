@@ -1,10 +1,14 @@
 package lule.dictionary.documents.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.documents.data.PhraseNode;
+import lule.dictionary.documents.data.WordNode;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.ContentData;
 import lule.dictionary.documents.data.entity.Document;
+import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.documents.data.strategy.ContentSubmission;
@@ -26,21 +30,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.InvalidUrlException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DocumentService {
 
-    private final DocumentRepository importRepository;
+    private final DocumentRepository documentRepository;
     private final ValidationService validationService;
     private final PaginationService paginationService;
     private final JsoupService jsoupService;
     private final TranslationService translationService;
+    private final PatternService patternService;
 
     @Transactional
     public int createImport(CreateDocumentRequest request) throws ValidationServiceException {
@@ -69,7 +73,7 @@ public class DocumentService {
         }
     }
 
-    public List<DocumentWithTranslationData> findByOwnerAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
+    public List<DocumentWithTranslationData> findByOwnerAndTargetLanguage(FindByTargetLanguageRequest request) {
         return getImportByUsernameAndTargetLanguage(request);
     }
 
@@ -89,15 +93,16 @@ public class DocumentService {
     }
 
     private Document getImport(LoadDocumentContentRequest loadRequest) throws ImportNotFoundException {
-        return importRepository.findById(loadRequest.documentId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
+        return documentRepository.findById(loadRequest.documentId(), loadRequest.page()).orElseThrow(() -> new ImportNotFoundException("Import not found"));
     }
 
-    private List<DocumentWithTranslationData> getImportByUsernameAndTargetLanguage(FindByOwnerAndTargetLanguageRequest request) {
-        return importRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
+    private List<DocumentWithTranslationData> getImportByUsernameAndTargetLanguage(FindByTargetLanguageRequest request) {
+        return documentRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
     }
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest request) {
-        return importRepository.create(Document.builder()
+        return documentRepository.create(Document.builder()
+                .id(-1)
                 .title(request.title())
                 .pageContent(request.content())
                 .url(request.url())
@@ -151,12 +156,88 @@ public class DocumentService {
     }
 
     public String markPhrases(String content, List<Translation> phrases) {
-//        List<String> contentAsList = List.of(content.split(" "));
-//        for(Translation phrase : translationMapper) {
-//            contentAsList.stream()
-//                    .map(word -> )
-//        }
-        return "";
+        List<String> contentAsList = Stream.of(content.split("((?<=\\n)|(?=\\n))| "))
+                .map(word -> !word.contains("\n") ? word.trim() : word)
+                .filter(word -> !word.isEmpty())
+                .toList();
+        List<String> formattedContentAsList = Arrays.stream(content.split("((?<=\\n)|(?=\\n))| "))
+                .filter(word -> !word.isEmpty())
+                .map(word -> !word.contains("\n") ? word.trim() : word)
+                .map(String::toLowerCase)
+                .map(patternService::removeSpecialCharacters)
+                .toList();
+        IntStream.range(0, formattedContentAsList.size()).forEach(id -> System.out.println("formatted: " + id + ": " + formattedContentAsList.get(id) + "; content: " + id + ": " + contentAsList.get(id) + ";"));
+        List<PhraseNode> phrasesFound = new ArrayList<>();
+        for(Translation phrase : phrases) {
+            List<String> searchedPhrase = List.of(patternService.removeSpecialCharacters(phrase.targetWord())
+                    .toLowerCase()
+                    .split(" "));
+            List<WordNode> matchingNodes = IntStream.range(0, contentAsList.size())
+                    .mapToObj(i -> WordNode.of(i, formattedContentAsList.get(i), contentAsList.get(i)))
+                    .filter(node -> searchedPhrase.contains(node.formattedText()))
+                    .distinct()
+                    .sorted(Comparator.comparingInt(WordNode::id))
+                    .toList();
+            List<WordNode> buffer = new ArrayList<>();
+            int pointer = 0;
+            for(WordNode node : matchingNodes) {
+                if(!buffer.isEmpty()) {
+                    WordNode lastInBuffer = buffer.getLast();
+                    if(node.id() - lastInBuffer.id() != 1) {
+                        buffer.clear();
+                        pointer = 0;
+                    }
+                }
+                if(!node.formattedText().equals(searchedPhrase.get(pointer))) {
+                    buffer.clear();
+                    pointer = 0;
+                }
+                buffer.add(node);
+                pointer++;
+                String bufferValue = String.join(" ", buffer.stream()
+                        .map(WordNode::formattedText)
+                        .toList());
+                String phraseValue = String.join(" ", searchedPhrase);
+                if(bufferValue.equals(phraseValue)) {
+                    phrasesFound.add(PhraseNode.of(List.copyOf(buffer.stream()
+                            .map(wordNode -> buffer.getFirst().equals(wordNode) ?
+                                    wordNode.copyWithRenderedText("ph<" + (phrase.familiarity().ordinal() + 1) + "<" + wordNode.renderedText()) :
+                                    buffer.getLast().equals(wordNode) ?
+                                            wordNode.copyWithRenderedText(wordNode.renderedText() + ">>") :
+                                            wordNode)
+                            .toList())));
+                    buffer.clear();
+                    pointer = 0;
+                }
+            }
+        }
+        List<WordNode> phrasesAsWordNodes = phrasesFound.stream()
+                .flatMap(phrase -> phrase.wordNodes().stream())
+                .sorted(Comparator.comparingInt(WordNode::id))
+                .toList();
+
+        List<String> outputContentAsList = new ArrayList<>();
+        int wordId = 0;
+        int pointer = 0;
+
+        while (wordId < contentAsList.size()) {
+            if (pointer < phrasesAsWordNodes.size() && wordId == phrasesAsWordNodes.get(pointer).id()) {
+                List<String> phraseParts = new ArrayList<>();
+                while (pointer < phrasesAsWordNodes.size() && wordId == phrasesAsWordNodes.get(pointer).id()) {
+                    phraseParts.add(phrasesAsWordNodes.get(pointer).renderedText());
+                    pointer++;
+                    wordId++;
+                    if (phraseParts.getLast().endsWith(">>")) {
+                        break;
+                    }
+                }
+                outputContentAsList.add(String.join("-", phraseParts));
+            } else {
+                outputContentAsList.add(contentAsList.get(wordId));
+                wordId++;
+            }
+        }
+        return String.join(" ", outputContentAsList);
     }
 
     private Map<String, Translation> getTranslationsFromDatabase(Document importWithPagination) {
@@ -185,15 +266,13 @@ public class DocumentService {
 
     private List<Integer> extractIndices(List<List<Selectable>> paragraphs) {
         return IntStream.range(0, paragraphs.stream()
-                        .map(paragraph -> paragraph.stream()
-                                .map(selectable -> selectable instanceof Phrase ?
-                                        String.join("", ((Phrase) selectable).targetWords()) :
-                                        selectable))
-                        .toList()
-                        .size())
+                .map(paragraph -> paragraph.stream()
+                    .map(selectable -> selectable instanceof Phrase ? String.join("", ((Phrase) selectable).targetWords()) : selectable))
+                .toList()
+                .size())
                 .map(i -> 1 + paragraphs.subList(0, i).stream()
-                        .mapToInt(List::size)
-                        .sum())
+                    .mapToInt(List::size)
+                    .sum())
                 .boxed()
                 .toList();
     }

@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.familiarity.FamiliarityService;
+import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
@@ -36,6 +37,7 @@ public class TranslationService {
     private final TranslationFetchingExecutor translationFetchingService;
     private final ValidationService validationService;
     private final FamiliarityService familiarityService;
+    private final PatternService patternService;
 
     @Transactional
     public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
@@ -152,12 +154,10 @@ public class TranslationService {
             throw new RuntimeException("Unknown exception");
         } catch (ValidationServiceException e) {
             Translation translation = Translation.builder()
-                    .sourceWords(request.sourceWords()
-                            .stream()
+                    .sourceWords(request.sourceWords().stream()
+                            .map(patternService::removeSpecialCharacters)
                             .filter(word -> !word.isBlank())
-                            .filter(word -> compileNonSpecialChars().matcher(word).matches())
-                            .toList()
-                    )
+                            .toList())
                     .targetWord(request.targetWord())
                     .familiarity(request.familiarity())
                     .sourceLanguage(request.sourceLanguage())
@@ -214,7 +214,7 @@ public class TranslationService {
     }
 
     public TranslationAttribute translate(CreateTranslationRequest request) {
-        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase(), 3);
+        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(request.targetWord()).toLowerCase(), 3);
         List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord());
         List<String> sourceWords = Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                 .filter(word -> !word.isBlank())
@@ -277,11 +277,8 @@ public class TranslationService {
 
     private Map<String, Translation> extractTranslationsFromDatabase(List<String> wordList, String owner) {
         return translationRepository.findByTargetWords(wordList, owner).stream()
+                .distinct()
                 .collect(Collectors.toUnmodifiableMap(Translation::targetWord, value -> value));
-    }
-
-    private Pattern compileNonSpecialChars() {
-        return Pattern.compile("^[\\p{L}0-9 ]+$");
     }
 
     private int insertIntoDatabase(Translation translation,  AddTranslationRequest request) {
