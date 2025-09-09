@@ -245,21 +245,9 @@ public class DocumentService {
         return DocumentPaginationData.builder()
                 .currentPageNumber(currentPage)
                 .numberOfPages(pagesTotal)
-                .currentRowNumber(getNumberOfCurrentRow(currentPage))
-                .firstPageOfRowNumber(getNumberOfRowFirstPage(currentPage))
-                .rows(getRows(pagesTotal))
+                .currentRowNumber(paginationService.getCurrentRow(currentPage, paginationService.getMAX_ROW_SIZE()))
+                .firstPageOfRowNumber(paginationService.getFirstPageOfRow(currentPage, paginationService.getMAX_ROW_SIZE()))
+                .rows(paginationService.getRows(pagesTotal))
                 .build();
-    }
-
-    private int getNumberOfCurrentRow(int page) {
-        return paginationService.getCurrentRow(page, paginationService.getMAX_ROW_SIZE());
-    }
-
-    private int getNumberOfRowFirstPage(int page) {
-        return paginationService.getFirstPageOfRow(page, paginationService.getMAX_ROW_SIZE());
-    }
-
-    private List<List<Integer>> getRows(int pagesTotal) {
-        return paginationService.getRows(pagesTotal);
     }
 }
