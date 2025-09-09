@@ -275,5 +275,113 @@ window.documentPage = window.documentPage || {
                 })
             }
         })
+    },
+    handleWordClick: (wordId) => {
+        util.findAllByData({ key: 'is-word', value: 'true' })
+        .filter(word => data.get(word, 'is-selected') === 'false')
+        .filter(word => data.get(word, 'is-selectable') === 'true')
+        .filter(word => data.get(word, 'id') === `${wordId}`)
+        .flatMap(word => word.firstElementChild.nextElementSibling)
+        .forEach(span => {
+            data.set(span.parentElement, { key: 'is-selected', value: 'true' })
+            util.replaceClasses(span, {
+                toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
+                toAdd: ['bg-tertiary', 'text-accent']
+            })
+        })
+    },
+    handlePhraseSelection: () => {
+        const focusId = parseInt(window.getSelection()?.focusNode?.parentElement?.parentElement?.dataset?.id);
+        const anchorId = parseInt(window.getSelection()?.anchorNode?.parentElement?.parentElement?.dataset?.id);
+        if(focusId === anchorId) {
+            return
+        }
+        const phraseNodes =  Array.from(
+            { length: focusId - anchorId + 1 },
+            (_, i) => htmx.find('#word-' + (i + anchorId))
+        )
+        const result = util.catchErr(() => {
+            if(!phraseNodes) {
+                throw new Error('phrase nodes cant be undefined')
+            }
+            if(!phraseNodes.length) {
+                throw new Error('phrase nodes cant be empty')
+            }
+            if(phraseNodes.length > 5) {
+                throw new Error('selection too long')
+            }
+            if(phraseNodes.some(node => data.get(node, 'is-selected') === 'true')) {
+                throw new Error('cannot create phrase from selected word')
+            }
+            if(phraseNodes.some(node => data.get(node, 'is-wrapped') === 'true')) {
+                throw new Error('cannot create phrase from wrapped word')
+            }
+            if(!phraseNodes.every(node => data.get(node, 'is-selectable') === 'true')) {
+                throw new Error('all phrase parent nodes must be selectable')
+            }
+        })
+        if(result.err) {
+            return window.getSelection().removeAllRanges()
+        }
+
+        const phraseText = phraseNodes
+        .flatMap(node => [...node.children])
+        .filter(child => child instanceof HTMLSpanElement)
+        .map(span => span.innerText)
+        .join(' ')
+        const phraseId = data.get(phraseNodes.at(0), 'id')
+        const wrappedPhrase = util.wrap({
+            wrapper: util.define('div', {
+                classList: ['inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary'],
+                data: [
+                    { key: 'id', value: phraseId },
+                    { key: 'value', value: phraseText },
+                    { key: 'is-phrase', value: 'true' },
+                    { key: 'is-saved', value: 'false' },
+                    { key: 'is-selected', value: 'true' },
+                    { key: 'length', value: phraseNodes.length }
+                ],
+                id: 'new-phrase'
+            }),
+            content: phraseNodes
+        })
+        htmx.on('htmx:afterSwap', (e) => {
+            formAdjuster.updateFormPosition(e.target.firstElementChild)
+        })
+        htmx.on('htmx:load', (e) => {
+            formAdjuster.updateFormPosition(e.target.firstElementChild)
+        })
+        htmx.on('htmx:afterSettle', (e) => {
+            formAdjuster.updateFormPosition(e.target.firstElementChild)
+        })
+
+        wrappedPhrase.content.forEach(node => node.classList.remove('border', 'border-2', 'border-transparent'))
+        util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
+        .forEach(formContainer => util.removeInnerHTML(formContainer))
+
+        document.dispatchEvent(new Event('createphrase'))
+    },
+    handlePhraseClick: (selectableId) => {
+        util.findAllByData({ key: 'is-phrase', value: 'true' })
+        .filter(node => data.get(node, 'is-selected') === 'false')
+        .filter(node => data.get(node, 'id') === `${selectableId}`)
+        .forEach(node => {
+            data.set(node, { key: 'is-selected', value: 'true' })
+            util.replaceClasses(node, {
+                toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                toAdd: ['bg-tertiary', 'text-accent']
+            })
+
+            Array.from(node.children)
+            .filter(child => data.get(child, 'is-word') === 'true')
+            .flatMap(word => [...word.children])
+            .filter(child => child instanceof HTMLSpanElement)
+            .forEach(span => {
+                util.replaceClasses(span, {
+                    toRemove: ['text-primary', 'text-accent'],
+                    toAdd: ['text-accent']
+                })
+            })
+        })
     }
 }

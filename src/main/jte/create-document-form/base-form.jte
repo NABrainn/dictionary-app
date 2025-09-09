@@ -14,8 +14,25 @@
 @template.layout.base(content = @`
     <div id="document-form-wrapper">
         @template.navbar.navbar(
-            navbarAttribute = navbarAttribute,
-            isAuthenticated = baseAttribute.isAuthenticated())
+        navbarAttribute = navbarAttribute,
+        isAuthenticated = baseAttribute.isAuthenticated())
+        <script>
+            if (!customElements.get('static-textarea')) {
+                class StaticTextArea extends HTMLTextAreaElement {
+                    constructor() {
+                        super()
+                    }
+                    connectedCallback() {
+                        this.addEventListener('keydown', (event) => {
+                            if (event.key === 'Enter') {
+                                event.preventDefault();
+                            }
+                        });
+                    }
+                }
+                customElements.define('static-textarea', StaticTextArea, { extends: 'textarea' });
+            }
+        </script>
         <form
         class="md:w-3/5
         w-9/10 flex flex-col gap-6 bg-tertiary mx-auto p-6 rounded mt-16"

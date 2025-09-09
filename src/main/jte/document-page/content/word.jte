@@ -1,5 +1,4 @@
 @import lule.dictionary.translations.data.Familiarity
-
 @param int wordId
 @param int documentId
 @param String word
@@ -12,38 +11,22 @@
 @param Familiarity phraseFamiliarity = null
 @param boolean isFound = false
 @param boolean isWrapped = false
-
-!{var familiarityString = "unknown";}
-@if(familiarity != null)
-    !{familiarityString = familiarity.name().toLowerCase();}
-@endif
-!{String borderStyles = isWrapped ? "pointer-events-none" : "border border-2  border-transparent";}
-!{String isWrappedData = isWrapped  ? "true" : "false";}
-!{String isSavedData = isFound  ? "true" : "false";}
-
-
-<input
-id="selectable-input-${wordId}"
-type="hidden"
-
-data-is-found="${isFound}">
-
 @if(isSelectable)
     <div
     class="
-    ${borderStyles} inline-block rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg"
+    ${isWrapped ? "pointer-events-none" : "border border-2  border-transparent"} inline-block rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg animate-fade-15"
     id="word-${wordId}"
 
     data-id="${wordId}"
     data-value="${processedWord}"
-    data-familiarity="${familiarityString}"
+    data-familiarity="${familiarity != null ? familiarity.name().toLowerCase() : "unknown"}"
     data-document-id="${documentId}"
 
     data-is-selectable="true"
     data-is-selected="false"
     data-is-word="true"
-    data-is-saved="${isSavedData}"
-    data-is-wrapped="${isWrappedData}"
+    data-is-saved="${isFound  ? "true" : "false"}"
+    data-is-wrapped="${isWrapped  ? "true" : "false"}"
 
     hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
@@ -56,26 +39,11 @@ data-is-found="${isFound}">
         isPhrase: false,
         isFound: data.get(htmx.find("#word-${wordId}"), "is-saved")
     }'
-    hx-trigger="click"
     hx-on:click="
-
     documentPage.closeAllTranslationForms()
     documentPage.cleanupSelectedWord()
     documentPage.cleanupSelectedPhrase()
-
-    util.findAllByData({ key: 'is-word', value: 'true' })
-    .filter(word => data.get(word, 'is-selected') === 'false')
-    .filter(word => data.get(word, 'is-selectable') === 'true')
-    .filter(word => data.get(word, 'id') === '${wordId}')
-    .flatMap(word => word.firstElementChild.nextElementSibling)
-    .forEach(span => {
-        data.set(span.parentElement, { key: 'is-selected', value: 'true' })
-        util.replaceClasses(span, {
-            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
-            toAdd: ['bg-tertiary', 'text-accent']
-        })
-    })
-    ">
+    documentPage.handleWordClick(${wordId})">
         <div
         onclick="event.stopPropagation()"
         class="
@@ -85,15 +53,14 @@ data-is-found="${isFound}">
         data-id="${wordId}"
         data-is-translation-form-container="true"
 
-        hx-on::after-swap="formAdjuster.updatePositions(${wordId})">
-        </div>
+        hx-on::after-swap="formAdjuster.updatePositions(${wordId})"></div>
         <span
         class="${bgColor} ${textColor} rounded"
         id="word-span-${wordId}"
 
         data-id="${wordId}"
         data-value="${processedWord}"
-        data-familiarity="${familiarityString}"
+        data-familiarity="${familiarity != null ? familiarity.name().toLowerCase() : "unknown"}"
         data-is-selected="false"
         data-is-word-span="true">${word}</span>
     </div>
@@ -101,11 +68,9 @@ data-is-found="${isFound}">
     <div
     class="
     inline-block relative rounded whitespace-nowrap text-lg pointer-events-none select-none"
-
-    data-familiarity="${familiarityString}"
+    data-familiarity="${familiarity != null ? familiarity.name().toLowerCase() : "unknown"}"
     data-is-word="true"
     data-is-selectable="false">
-        <span
-        class="${bgColor} ${textColor} rounded">${word}</span>
+        <span class="${bgColor} ${textColor} rounded">${word}</span>
     </div>
 @endif
