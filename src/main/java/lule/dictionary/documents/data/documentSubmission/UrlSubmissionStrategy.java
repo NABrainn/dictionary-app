@@ -1,4 +1,4 @@
-package lule.dictionary.documents.data.strategy;
+package lule.dictionary.documents.data.documentSubmission;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
