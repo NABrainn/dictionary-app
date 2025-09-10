@@ -5,8 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.controllerAdvice.data.BaseAttribute;
 import lule.dictionary.controllerAdvice.data.NavbarAttribute;
+import lule.dictionary.controllerAdvice.data.NavbarLocalizationKey;
+import lule.dictionary.controllerAdvice.service.NavbarLocalizationService;
 import lule.dictionary.language.service.LanguageData;
-import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.language.service.LanguageHelper;
@@ -26,8 +27,7 @@ public class JteControllerAdvice {
     private final TranslationService translationService;
     private final LanguageHelper languageHelper;
     private final SessionHelper sessionHelper;
-    private final LocalizationService localizationService;
-
+    private final NavbarLocalizationService navbarLocalization;
 
     @ModelAttribute
     public void addBaseAttribute(Model model,
@@ -78,14 +78,15 @@ public class JteControllerAdvice {
                                    HttpSession httpSession) {
         if(authentication != null) {
             UserProfile principal = (UserProfile) authentication.getPrincipal();
+            Language sourceLanguage = principal.userInterfaceLanguage();
             model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                     .wordsLearned(translationService.getWordsLearnedCount(principal))
-                    .wordsLearnedText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("words"))
-                    .daysSingularText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("days_singular"))
-                    .daysPluralText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("days_plural"))
-                    .loginBtnText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("log_in"))
-                    .lessonsBtnText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("lessons"))
-                    .vocabularyBtnText(localizationService.navbarLocalization(principal.userInterfaceLanguage()).get("vocabulary"))
+                    .wordsLearnedText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.WORDS))
+                    .daysSingularText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.DAYS_SINGULAR))
+                    .daysPluralText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.DAYS_PLURAL))
+                    .loginBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LOG_IN))
+                    .lessonsBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LESSONS))
+                    .vocabularyBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.VOCABULARY))
                     .dailyStreak(principal.dailyStreak())
                     .languageDataList(languageHelper.getAllLanguageData())
                     .targetLanguage(LanguageData.builder()
@@ -101,25 +102,25 @@ public class JteControllerAdvice {
                             .imgPath(languageHelper.getImagePath(principal.sourceLanguage()))
                             .build())
                     .userInterfaceLanguage(LanguageData.builder()
-                            .language(principal.userInterfaceLanguage())
-                            .fullName(languageHelper.getFullName(principal.userInterfaceLanguage()))
-                            .languageCode(languageHelper.getCode(principal.userInterfaceLanguage()))
-                            .imgPath(languageHelper.getImagePath(principal.userInterfaceLanguage()))
+                            .language(sourceLanguage)
+                            .fullName(languageHelper.getFullName(sourceLanguage))
+                            .languageCode(languageHelper.getCode(sourceLanguage))
+                            .imgPath(languageHelper.getImagePath(sourceLanguage))
                             .build())
                     .isProfileOpen(sessionHelper.getOrFalse(httpSession, "isProfileOpen"))
-                    .settingsText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("settings"))
-                    .languageText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("language"))
-                    .uiText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("user_interface"))
-                    .translationsText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("translations"))
-                    .logoutText(localizationService.settingsLocalization(principal.userInterfaceLanguage()).get("log_out"))
+                    .settingsText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.SETTINGS))
+                    .languageText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LANGUAGE))
+                    .uiText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.USER_INTERFACE))
+                    .translationsText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.TRANSLATIONS))
+                    .logoutText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LOG_OUT))
                     .build());
             return;
         }
         Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
         model.addAttribute("navbarAttribute", NavbarAttribute.builder()
-                .loginBtnText(localizationService.navbarLocalization(sourceLanguage).get("log_in"))
-                .lessonsBtnText(localizationService.navbarLocalization(sourceLanguage).get("lessons"))
-                .vocabularyBtnText(localizationService.navbarLocalization(sourceLanguage).get("vocabulary"))
+                .loginBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LOG_IN))
+                .lessonsBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LESSONS))
+                .vocabularyBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.VOCABULARY))
                 .wordsLearned(0)
                 .dailyStreak(0)
                 .isProfileOpen(false)

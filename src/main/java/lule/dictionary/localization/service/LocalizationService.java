@@ -13,16 +13,6 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class LocalizationService {
 
-    public Map<String, String> navbarLocalization(Language language) {
-        List<String> keys = List.of("lessons", "vocabulary", "words", "days_singular", "days_plural", "log_in", "log_out");
-        return switch (language) {
-            case NO -> constructMap(keys, List.of("Leksjoner", "Vokabular", "Ord", "Dag", "Dager", "Logg på", "Logg av"));
-            case IT -> constructMap(keys, List.of("Lezioni", "Vocabolario", "Parole", "Giorno", "Giorni", "Accedi", "Disconnettersi"));
-            case PL -> constructMap(keys, List.of("Lekcje", "Słownictwo", "Słowa", "Dzień", "Dni", "Zaloguj się", "Wyloguj się"));
-            default -> constructMap(keys, List.of("Lessons", "Vocabulary", "Words", "Day", "Days", "Log in", "Log out"));
-        };
-    }
-
     public Map<String, String> documentListLocalization(Language language) {
         List<String> keys = List.of("author", "words_total", "new_words", "translations", "add_book", "there_are_no_documents_in_the_library", "click_here", "to_add_your_first");
         return switch (language) {
@@ -60,16 +50,6 @@ public class LocalizationService {
             case IT -> constructMap(keys, List.of("Rivedi traduzioni", "Familiarità", "Quanti", "Frasi", "Parole"));
             case PL -> constructMap(keys, List.of("Przejrzyj tłumaczenia", "Znajomość", "Ile", "Frazy", "Słowa"));
             default -> constructMap(keys, List.of("Review translations", "Familiarity", "How many", "Phrases", "Words"));
-        };
-    }
-
-    public Map<String, String> settingsLocalization(Language language) {
-        List<String> keys = List.of("settings", "language", "user_interface", "translations", "log_out");
-        return switch (language) {
-            case NO -> constructMap(keys, List.of("Innstillinger", "Språk", "Brukergrensesnitt", "Oversettelser", "Logg av"));
-            case IT -> constructMap(keys, List.of("Impostazioni", "Lingua", "Interfaccia utente", "Traduzioni", "Disconnettersi"));
-            case PL -> constructMap(keys, List.of("Ustawienia", "Język", "Interfejs użytkownika", "Tłumaczenia", "Wyloguj się"));
-            default -> constructMap(keys, List.of("Settings", "Language", "User interface", "Translations", "Log out"));
         };
     }
 
