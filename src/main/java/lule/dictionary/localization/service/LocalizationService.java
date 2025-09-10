@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-//TODO deverbosify the process of retrieving localization items
 @Service
 @RequiredArgsConstructor
 public class LocalizationService {
@@ -31,16 +30,6 @@ public class LocalizationService {
             case IT -> constructMap(keys, List.of("Creato da", "Totale parole", "Nuove parole", "Traduzioni", "Aggiungi libro", "Non ci sono documenti nella biblioteca.", "Clicca qui", "per aggiungere il tuo primo"));
             case PL -> constructMap(keys, List.of("Autor", "Całkowita liczba słów", "Nowe słowa", "Tłumaczenia", "Dodaj książkę", "Nie znaleziono dokumentów w bibliotece.", "Kliknij tutaj", "aby dodać swój pierwszy"));
             default -> constructMap(keys, List.of("Author", "Words total", "New words", "Translations", "Add book", "There are no documents in the library.", "Click here", "to add your first"));
-        };
-    }
-
-    public Map<String, String> authLocalization(Language language) {
-        List<String> keys = List.of("log_in", "sign_up", "username", "email", "password", "create_account", "submit");
-        return switch (language) {
-            case NO -> constructMap(keys, List.of("Logg på", "Registrer", "Brukernavn", "E-post", "Passord", "Opprett konto", "Send inn"));
-            case IT -> constructMap(keys, List.of("Accedi", "Iscriviti", "Nome utente", "E-mail", "Password", "Crea account", "Invia"));
-            case PL -> constructMap(keys, List.of("Zaloguj się", "Zarejestruj się", "Nazwa użytkownika", "E-mail", "Hasło", "Załóż konto", "Wyślij"));
-            default -> constructMap(keys, List.of("Log in", "Sign up", "Username", "Email", "Password", "Create account", "Submit"));
         };
     }
 

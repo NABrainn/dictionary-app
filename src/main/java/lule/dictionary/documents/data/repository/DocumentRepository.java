@@ -33,7 +33,6 @@ public class DocumentRepository {
             .totalContentLength(rs.getInt("total_length"))
             .id(-1)
             .build();
-    private final RowMapper<Integer> documentIdMapper = (rs, rowNum) -> rs.getInt("imports_id");
     private final RowMapper<DocumentWithTranslationData> documentWithTranslationDataMapper = (rs, rowNum) -> DocumentWithTranslationData.builder()
             .title(rs.getString("title"))
             .url(rs.getString("url"))
@@ -46,6 +45,7 @@ public class DocumentRepository {
             .newWordCount(rs.getInt("new_word_count"))
             .translationCount(rs.getInt("translation_count"))
             .build();
+    private final RowMapper<Integer> documentIdMapper = (rs, rowNum) -> rs.getInt("imports_id");
 
     public OptionalInt create(Document document) {
         final String sql = """

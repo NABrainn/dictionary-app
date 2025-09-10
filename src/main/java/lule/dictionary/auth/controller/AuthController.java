@@ -10,7 +10,6 @@ import lule.dictionary.auth.service.AuthService;
 import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.errorLocalization.service.ErrorLocalization;
-import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.service.exception.UserExistsException;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
@@ -25,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -32,20 +33,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
 
     private final AuthService authService;
-    private final LocalizationService localizationService;
     private final ErrorLocalization errorLocalization;
     private final SessionHelper sessionHelper;
 
     @GetMapping({"/login", "/login/"})
     public String loginPage(Model model,
-                            RedirectAttributes redirectAttributes,
                             Authentication authentication,
                             HttpSession httpSession) {
         if(authentication != null) {
             return "redirect:/";
         }
         Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-        model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
+        model.addAttribute("localization", authService.getLocalization(sourceLanguage));
         return "auth/login";
     }
 
@@ -53,7 +52,6 @@ public class AuthController {
     public String login(@RequestParam("login") @NonNull String login,
                         @RequestParam("password") @NonNull String password,
                         Model model,
-                        RedirectAttributes redirectAttributes,
                         Authentication authentication,
                         HttpServletResponse response,
                         HttpSession httpSession) {
@@ -69,7 +67,7 @@ public class AuthController {
             var messages = errorLocalization.getMessageByViolation(e.getViolation(), sourceLanguage);
             log.warn("Login authentication failure, resending page: {}", e.getViolation());
             model.addAttribute("messages", errorLocalization.getMessageByViolation(e.getViolation(), sourceLanguage));
-            model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
+            model.addAttribute("localization", authService.getLocalization(sourceLanguage));
             return "auth/login";
         }
         catch (UserNotFoundException e) {
@@ -85,14 +83,13 @@ public class AuthController {
 
     @GetMapping({"/signup", "/signup/"})
     public String signupPage(Model model,
-                             RedirectAttributes redirectAttributes,
                              Authentication authentication,
                              HttpSession httpSession) {
         if(authentication != null) {
             return "redirect:/";
         }
         Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-        model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
+        model.addAttribute("localization", authService.getLocalization(sourceLanguage));
         return "auth/signup";
     }
 
@@ -101,7 +98,6 @@ public class AuthController {
                          @RequestParam("email") @NonNull String email,
                          @RequestParam("password") @NonNull String password,
                          Model model,
-                         RedirectAttributes redirectAttributes,
                          Authentication authentication,
                          HttpSession httpSession) {
         if(authentication != null) {
@@ -115,7 +111,7 @@ public class AuthController {
             Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
             log.info(e.getMessage());
             model.addAttribute("messages", errorLocalization.getMessageByViolation(e.getViolation(), sourceLanguage));
-            model.addAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
+            model.addAttribute("localization", authService.getLocalization(sourceLanguage));
             return "auth/signup";
         }
 
@@ -128,14 +124,10 @@ public class AuthController {
     @PostMapping({"/logout", "/logout/"})
     public String logout(RedirectAttributes redirectAttributes,
                          HttpServletResponse response,
-                         Model model,
-                         Authentication authentication,
                          HttpSession httpSession) {
         authService.logout(response);
         Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-        redirectAttributes.addFlashAttribute("authLocalization", localizationService.authLocalization(sourceLanguage));
+        redirectAttributes.addFlashAttribute("localization", authService.getLocalization(sourceLanguage));
         return "redirect:/auth/login";
     }
-
-
 }

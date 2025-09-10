@@ -6,7 +6,9 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.auth.data.localization.AuthLocalizationKey;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
+import lule.dictionary.language.service.Language;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.auth.data.request.AuthRequest;
 import lule.dictionary.auth.data.SessionContext;
@@ -27,6 +29,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -37,6 +41,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final CookieService cookieService;
     private final ValidationService validationService;
+    private final AuthLocalizationService authLocalizationService;
 
 
     public void login(@NonNull LoginRequest loginData,
@@ -124,5 +129,9 @@ public class AuthService {
 
     private UserProfile getUserProfile(AuthRequest loginRequest) throws UserNotFoundException {
         return userProfileService.findByLogin(loginRequest.login()).withPassword(loginRequest.password());
+    }
+
+    public Map<AuthLocalizationKey, String> getLocalization(Language language) {
+        return authLocalizationService.getLocalization(language);
     }
 }
