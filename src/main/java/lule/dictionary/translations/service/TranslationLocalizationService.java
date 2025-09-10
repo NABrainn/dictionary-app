@@ -21,7 +21,12 @@ public class TranslationLocalizationService {
                     Map.entry(RECOGNIZED, "Rozpoznany"),
                     Map.entry(FAMILIAR, "Znajomy"),
                     Map.entry(KNOWN, "Znany"),
-                    Map.entry(IGNORED, "Zignorowany")
+                    Map.entry(IGNORED, "Zignorowany"),
+                    Map.entry(FAMILIARITY, "Znajomość"),
+                    Map.entry(HOW_MANY, "Ile"),
+                    Map.entry(PHRASES, "Frazy"),
+                    Map.entry(WORDS, "Słowa"),
+                    Map.entry(REVIEW_TRANSLATIONS, "Przejrzyj tłumaczenia")
             );
             case EN -> Map.ofEntries(
                     Map.entry(ADD_TRANSLATION, "Add translation"),
@@ -30,7 +35,12 @@ public class TranslationLocalizationService {
                     Map.entry(RECOGNIZED, "Recognized"),
                     Map.entry(FAMILIAR, "Familiar"),
                     Map.entry(KNOWN, "Known"),
-                    Map.entry(IGNORED, "Ignored")
+                    Map.entry(IGNORED, "Ignored"),
+                    Map.entry(FAMILIARITY, "Familiarity"),
+                    Map.entry(HOW_MANY, "How many"),
+                    Map.entry(PHRASES, "Phrases"),
+                    Map.entry(WORDS, "Words"),
+                    Map.entry(REVIEW_TRANSLATIONS, "Review translations")
             );
             case IT -> Map.ofEntries(
                     Map.entry(ADD_TRANSLATION, "Aggiungi traduzione"),
@@ -39,7 +49,12 @@ public class TranslationLocalizationService {
                     Map.entry(RECOGNIZED, "Riconosciuto"),
                     Map.entry(FAMILIAR, "Familiare"),
                     Map.entry(KNOWN, "Noto"),
-                    Map.entry(IGNORED, "Ignorato")
+                    Map.entry(IGNORED, "Ignorato"),
+                    Map.entry(FAMILIARITY, "Familiarità"),
+                    Map.entry(HOW_MANY, "Quanti"),
+                    Map.entry(PHRASES, "Frasi"),
+                    Map.entry(WORDS, "Parole"),
+                    Map.entry(REVIEW_TRANSLATIONS, "Rivedi traduzioni")
             );
             case NO -> Map.ofEntries(
                     Map.entry(ADD_TRANSLATION, "Legg til oversettelse"),
@@ -48,7 +63,12 @@ public class TranslationLocalizationService {
                     Map.entry(RECOGNIZED, "Gjenkjent"),
                     Map.entry(FAMILIAR, "Familier"),
                     Map.entry(KNOWN, "Kjent"),
-                    Map.entry(IGNORED, "Ignorert")
+                    Map.entry(IGNORED, "Ignorert"),
+                    Map.entry(FAMILIARITY, "Kjennskap"),
+                    Map.entry(HOW_MANY, "Hvor mange"),
+                    Map.entry(PHRASES, "Fraser"),
+                    Map.entry(WORDS, "Ord"),
+                    Map.entry(REVIEW_TRANSLATIONS, "Gjennomgå oversettelser")
             );
         };
     }

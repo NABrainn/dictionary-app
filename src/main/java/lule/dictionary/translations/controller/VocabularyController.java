@@ -2,8 +2,8 @@ package lule.dictionary.translations.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.translations.data.FlashcardLocalizationKey;
 import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.TranslationLocalizationKey;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.service.TranslationService;
@@ -34,7 +34,7 @@ public class VocabularyController {
                                  Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language systemLanguage = principal.userInterfaceLanguage();
-        Map<FlashcardLocalizationKey, String> localization = translationService.getFlashcardLocalization(systemLanguage);
+        Map<TranslationLocalizationKey, String> localization = translationService.getFlashcardLocalization(systemLanguage);
         model.addAttribute("localization", localization);
         return "vocabulary-page/base-page";
     }
@@ -47,7 +47,7 @@ public class VocabularyController {
                              Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language systemLanguage = principal.userInterfaceLanguage();
-        Map<FlashcardLocalizationKey, String> localization = translationService.getFlashcardLocalization(systemLanguage);
+        Map<TranslationLocalizationKey, String> localization = translationService.getFlashcardLocalization(systemLanguage);
         model.addAttribute("familiarity", familiarity);
         model.addAttribute("quantity", quantity);
         model.addAttribute("isPhrase", isPhrase);
@@ -65,7 +65,7 @@ public class VocabularyController {
                                          HttpSession session) {
         String username = ((UserProfile) authentication.getPrincipal()).getUsername();
         Language systemLanguage = ((UserProfile) authentication.getPrincipal()).userInterfaceLanguage();
-        Map<FlashcardLocalizationKey, String> localization = translationService.getFlashcardLocalization(systemLanguage);
+        Map<TranslationLocalizationKey, String> localization = translationService.getFlashcardLocalization(systemLanguage);
         try {
             BaseFlashcardAttribute attribute = translationService.getRandomTranslations(GetRandomTranslationsRequest.builder()
                     .familiarity(familiarity)

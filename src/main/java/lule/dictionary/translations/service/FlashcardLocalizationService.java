@@ -2,7 +2,6 @@ package lule.dictionary.translations.service;
 
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.language.service.Language;
-import lule.dictionary.translations.data.FlashcardLocalizationKey;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

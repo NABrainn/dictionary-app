@@ -7,5 +7,11 @@ public enum TranslationLocalizationKey {
     RECOGNIZED,
     FAMILIAR,
     KNOWN,
-    IGNORED
+    IGNORED,
+
+    FAMILIARITY,
+    HOW_MANY,
+    PHRASES,
+    WORDS,
+    REVIEW_TRANSLATIONS
 }

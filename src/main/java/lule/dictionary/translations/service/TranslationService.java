@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.stringUtil.service.PatternService;
-import lule.dictionary.translations.data.FlashcardLocalizationKey;
+import lule.dictionary.translations.data.TranslationLocalizationKey;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
@@ -301,6 +301,7 @@ public class TranslationService {
         validationService.validate(request);
     }
 
-    public Map<FlashcardLocalizationKey, String> getFlashcardLocalization(Language language) {
+    public Map<TranslationLocalizationKey, String> getFlashcardLocalization(Language language) {
+        return translationLocalization.get(language);
     }
 }
