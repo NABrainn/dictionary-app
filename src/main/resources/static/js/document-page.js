@@ -185,19 +185,21 @@ if (!window.FormAdjuster) {
             return form.getBoundingClientRect().bottom > window.innerHeight;
         }
         #updateCords(form, cords) {
-            form.style.removeProperty('left')
-            form.style.removeProperty('right')
-            form.style.removeProperty('top')
-            form.style.removeProperty('bottom')
+            form?.style?.removeProperty('left')
+            form?.style?.removeProperty('right')
+            form?.style?.removeProperty('top')
+            form?.style?.removeProperty('bottom')
 
             if(this.debug) {
-                console.log('properties removed: ', form.style)
+                console.log('properties removed: ', form?.style)
             }
             for(const position in cords) {
-                form.style[position] = cords[position]
+                if(form) {
+                    form.style[position] = cords[position]
+                }
             }
             if(this.debug) {
-                console.log('coords updated: ', form.style)
+                console.log('coords updated: ', form?.style)
             }
         }
     }

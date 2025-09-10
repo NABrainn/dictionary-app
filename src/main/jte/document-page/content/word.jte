@@ -20,7 +20,6 @@
     data-id="${wordId}"
     data-value="${processedWord}"
     data-familiarity="${familiarity != null ? familiarity.name().toLowerCase() : "unknown"}"
-    data-document-id="${documentId}"
 
     data-is-selectable="true"
     data-is-selected="false"
@@ -31,12 +30,11 @@
     hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
-    hx-params="documentId,targetWord,selectedWordId,isPhrase,isFound"
+    hx-params="documentId,targetWord,selectedWordId,isFound"
     hx-vals='js:{
         documentId: ${documentId},
         targetWord: "${processedWord}",
         selectedWordId: ${wordId},
-        isPhrase: false,
         isFound: data.get(htmx.find("#word-${wordId}"), "is-saved")
     }'
     hx-on:click="
@@ -45,32 +43,19 @@
     documentPage.cleanupSelectedPhrase()
     documentPage.handleWordClick(${wordId})">
         <div
-        onclick="event.stopPropagation()"
         class="
         cursor-default z-2 absolute inline"
         id="translation-form-container-${wordId}"
-
-        data-id="${wordId}"
         data-is-translation-form-container="true"
-
         hx-on::after-swap="formAdjuster.updatePositions(${wordId})"></div>
         <span
         class="${bgColor} ${textColor} rounded"
-        id="word-span-${wordId}"
-
-        data-id="${wordId}"
-        data-value="${processedWord}"
-        data-familiarity="${familiarity != null ? familiarity.name().toLowerCase() : "unknown"}"
-        data-is-selected="false"
         data-is-word-span="true">${word}</span>
     </div>
 @else
     <div
     class="
-    inline-block relative rounded whitespace-nowrap text-lg pointer-events-none select-none"
-    data-familiarity="${familiarity != null ? familiarity.name().toLowerCase() : "unknown"}"
-    data-is-word="true"
-    data-is-selectable="false">
+    inline-block relative rounded whitespace-nowrap text-lg pointer-events-none select-none">
         <span class="${bgColor} ${textColor} rounded">${word}</span>
     </div>
 @endif

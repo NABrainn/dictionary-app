@@ -43,11 +43,12 @@ hx-vals='js:{
     md:w-3/5 mx-auto text-wrap min-h-165"
 
     hx-on:mouseup="
+    documentPage.handlePhraseSelection()
+    "
+    hx-on::selectphrase="
     documentPage.closeAllTranslationForms()
     documentPage.cleanupSelectedWord()
-    documentPage.cleanupSelectedPhrase()
-    documentPage.handlePhraseSelection()
-    ">
+    documentPage.cleanupSelectedPhrase()">
         @if(documentAttribute.paginationData().currentPageNumber() == 1)
             <span
             id="content-title"

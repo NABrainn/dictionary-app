@@ -29,14 +29,12 @@
     case FAMILIAR -> "text-primary";
     default -> "text-neutral";
 };}
-!{var familiarity = "";}
 <div
 class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${wordTextColor} ${wordBgColor} animate-fade-15"
-id="phrase-${selectableId}"
 
 data-id="${selectableId}"
 data-value="${processedWord}"
-data-familiarity="${familiarity}"
+data-familiarity="${phrase.familiarity() != null ? phrase.familiarity().name().toLowerCase() : null}"
 
 data-is-phrase="true"
 data-is-saved="true"
@@ -61,12 +59,9 @@ documentPage.cleanupSelectedWord()
 documentPage.cleanupSelectedPhrase()
 documentPage.handlePhraseClick(${selectableId})">
     <div
-    onclick="event.stopPropagation()"
     class="
     cursor-default z-2 absolute inline"
     id="translation-form-container-${selectableId}"
-
-    data-id="${selectableId}"
     data-is-translation-form-container="true"
     hx-on::after-swap="formAdjuster.updatePositions(${selectableId})">
     </div>
