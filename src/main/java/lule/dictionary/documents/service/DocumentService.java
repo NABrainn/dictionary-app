@@ -11,7 +11,7 @@ import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
 import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.documents.service.exception.ImportNotFoundException;
+import lule.dictionary.documents.service.exception.DocumentNotFoundException;
 import lule.dictionary.documents.data.selectable.Phrase;
 import lule.dictionary.documents.data.selectable.Selectable;
 import lule.dictionary.documents.data.selectable.Word;
@@ -79,7 +79,7 @@ public class DocumentService {
 
     public DocumentAttribute loadDocumentContent(LoadDocumentContentRequest request) {
         Document document = documentRepository.findById(request.documentId(), request.page())
-                .orElseThrow(() -> new ImportNotFoundException("Import not found"));
+                .orElseThrow(() -> new DocumentNotFoundException("Import not found"));
         documentSanitizer.sanitizeNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(document.totalContentLength())));
         AssembleDocumentContentData assembleContentRequest = AssembleDocumentContentData.builder()
                 .selectableId(request.wordId())

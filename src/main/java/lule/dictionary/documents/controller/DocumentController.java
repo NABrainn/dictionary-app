@@ -12,7 +12,7 @@ import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
 import lule.dictionary.errorLocalization.service.ErrorLocalization;
 import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.documents.data.documentSubmission.SubmissionStrategy;
-import lule.dictionary.documents.service.exception.ImportNotFoundException;
+import lule.dictionary.documents.service.exception.DocumentNotFoundException;
 import lule.dictionary.documents.service.DocumentService;
 import lule.dictionary.jsoup.service.exception.InvalidUriException;
 import lule.dictionary.language.service.Language;
@@ -81,7 +81,7 @@ public class DocumentController {
             log.warn("Invalid url: {}", e.getMessage());
             return "error";
         }
-        catch (ImportNotFoundException e) {
+        catch (DocumentNotFoundException e) {
             log.warn("Import not found: {}", e.getMessage());
             return "error";
         }
@@ -103,7 +103,7 @@ public class DocumentController {
             log.warn("Invalid url: {}", e.getMessage());
             return "error";
         }
-        catch (ImportNotFoundException e) {
+        catch (DocumentNotFoundException e) {
             log.warn("Import not found: {}", e.getMessage());
             return "error";
         }
