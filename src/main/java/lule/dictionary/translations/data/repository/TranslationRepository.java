@@ -13,10 +13,12 @@ import lule.dictionary.translations.data.request.UpdateTranslationFamiliarityReq
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.PreparedStatement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -28,7 +30,17 @@ import java.util.stream.Stream;
 public class TranslationRepository {
 
     private final JdbcTemplate template;
-    private final TranslationRowMapperStore rowMapperStore;
+    private final RowMapper<Translation> translationMapper = (rs, rowNum) -> Translation.builder()
+            .sourceWords(Arrays.asList((String[]) rs.getArray("source_words").getArray()))
+            .targetWord(rs.getString("target_word"))
+            .familiarity(Familiarity.valueOf(rs.getString("familiarity")))
+            .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
+            .targetLanguage(Language.valueOf(rs.getString("target_lang")))
+            .owner(rs.getString("translation_owner"))
+            .isPhrase(rs.getBoolean("is_phrase"))
+            .build();
+    private final RowMapper<String> sourceWordsMapper = (rs, rowNum) -> rs.getString("word");
+    private final RowMapper<Integer> translationIdMapper = (rs, rowNum) -> rs.getInt("translations_id");
 
     public OptionalInt addTranslation(@NonNull Translation translation, int importId) {
         String insertSql = """
@@ -74,7 +86,7 @@ public class TranslationRepository {
                 ps.setInt(8, importId);
                 ps.setInt(9, 1);
                 return ps;
-            }, rowMapperStore.getTranslationIdMapper()).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
+            }, translationIdMapper).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
             template.update(updateSql, translation.owner());
             if(translationId != null) {
                 return OptionalInt.of(translationId);
@@ -101,7 +113,7 @@ public class TranslationRepository {
                 ps.setString(2, request.targetWord());
                 ps.setString(3, request.owner());
                 return ps;
-            }, rowMapperStore.getTranslationMapper()).stream().findFirst();
+            }, translationMapper).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -123,7 +135,7 @@ public class TranslationRepository {
                 ps.setString(2, request.targetWord());
                 ps.setString(3, request.owner());
                 return ps;
-            }, rowMapperStore.getTranslationMapper()).stream().findFirst();
+            }, translationMapper).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -136,7 +148,7 @@ public class TranslationRepository {
                 FROM dictionary.translations
                 """;
         try {
-            return template.query(sql, rowMapperStore.getTranslationMapper());
+            return template.query(sql, translationMapper);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -152,7 +164,7 @@ public class TranslationRepository {
                 LIMIT 1
                 """;
         try {
-            List<Translation> translation = template.query(sql, rowMapperStore.getTranslationMapper(),
+            List<Translation> translation = template.query(sql, translationMapper,
                     request.targetWord().toLowerCase(),
                     request.owner());
             return translation.stream().findFirst();
@@ -186,7 +198,7 @@ public class TranslationRepository {
                     targetWords.stream(),
                     Stream.of(owner)
             ).toArray();
-            return template.query(sql, rowMapperStore.getTranslationMapper(), params);
+            return template.query(sql, translationMapper, params);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -202,7 +214,7 @@ public class TranslationRepository {
                 RETURNING *
                 """;
         try {
-            return template.query(sql, rowMapperStore.getTranslationMapper(),
+            return template.query(sql, translationMapper,
                     request.sourceWord(),
                     request.targetWord(),
                     request.owner()
@@ -248,7 +260,7 @@ public class TranslationRepository {
                     LIMIT ?;
                 """;
         try {
-            return template.query(sql, rowMapperStore.getSourceWordsMapper(),
+            return template.query(sql, sourceWordsMapper,
                     targetWord.toLowerCase(),
                     count);
         } catch (DataAccessException e) {
@@ -266,7 +278,7 @@ public class TranslationRepository {
                 AND is_phrase = true
                 """;
         try {
-            return template.query(sql, rowMapperStore.getTranslationMapper(),
+            return template.query(sql, translationMapper,
                     content,
                     owner);
         } catch (DataAccessException e) {
@@ -287,7 +299,7 @@ public class TranslationRepository {
                 LIMIT ?
                 """;
             try {
-                return template.query(sql, rowMapperStore.getTranslationMapper(),
+                return template.query(sql, translationMapper,
                         isPhrase,
                         owner,
                         Familiarity.values()[familiarity - 1].name(),
@@ -306,7 +318,7 @@ public class TranslationRepository {
                 LIMIT ?
                 """;
         try {
-            return template.query(sql, rowMapperStore.getTranslationMapper(),
+            return template.query(sql, translationMapper,
                     isPhrase,
                     owner,
                     limit);
@@ -314,7 +326,5 @@ public class TranslationRepository {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
 }

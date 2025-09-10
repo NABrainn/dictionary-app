@@ -82,7 +82,7 @@ public class DocumentController {
             return "error";
         }
         catch (DocumentNotFoundException e) {
-            log.warn("Import not found: {}", e.getMessage());
+            log.warn("Document not found: {}", e.getMessage());
             return "error";
         }
     }
