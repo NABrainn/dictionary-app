@@ -2,16 +2,18 @@ package lule.dictionary.translations.service;
 
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.language.service.Language;
+import lule.dictionary.translations.data.TranslationLocalizationKey;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static lule.dictionary.translations.data.FlashcardLocalizationKey.*;
+import static lule.dictionary.translations.data.TranslationLocalizationKey.*;
+
 
 @Service
 @RequiredArgsConstructor
 public class FlashcardLocalizationService {
-    public Map<FlashcardLocalizationKey, String> get(Language language) {
+    public Map<TranslationLocalizationKey, String> get(Language language) {
         return switch (language) {
             case PL -> Map.ofEntries(
                     Map.entry(FAMILIARITY, "Znajomość"),
