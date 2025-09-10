@@ -3,7 +3,6 @@ package lule.dictionary.translations.controller;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
