@@ -1,18 +1,16 @@
 package lule.dictionary.translations.data.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
+import lombok.NonNull;
 import lule.dictionary.language.service.Language;
 
 @Builder
 public record FindByTargetWordRequest(int documentId,
                                       int selectedWordId,
-                                      @NotBlank(message = "Target word cannot be blank")
-                                      @Size(max = 200, message = "Target word cannot be longer than 200 characters")
                                       String targetWord,
                                       Language sourceLanguage,
                                       Language targetLanguage,
+                                      @NonNull Language systemLanguage,
                                       String owner,
                                       boolean isPhrase) implements TranslationsRequest {
 }

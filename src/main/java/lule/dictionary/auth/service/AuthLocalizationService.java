@@ -1,13 +1,13 @@
 package lule.dictionary.auth.service;
 
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.auth.data.localization.AuthLocalizationKey;
+import lule.dictionary.auth.data.AuthLocalizationKey;
 import lule.dictionary.language.service.Language;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static lule.dictionary.auth.data.localization.AuthLocalizationKey.*;
+import static lule.dictionary.auth.data.AuthLocalizationKey.*;
 
 @Service
 @RequiredArgsConstructor

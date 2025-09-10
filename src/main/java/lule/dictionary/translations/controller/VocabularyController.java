@@ -2,10 +2,9 @@ package lule.dictionary.translations.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.localization.service.LocalizationService;
+import lule.dictionary.translations.data.FlashcardLocalizationKey;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
-import lule.dictionary.translations.data.attribute.FlashcardConfigLocalizationAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.language.service.Language;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,19 +28,14 @@ public class VocabularyController {
 
     private final TranslationService translationService;
     private final SessionHelper sessionHelper;
-    private final LocalizationService localizationService;
 
     @GetMapping({"", "/"})
     public String vocabularyPage(Model model,
                                  Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
-                .familiarityText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("familiarity"))
-                .howManyText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("how_many"))
-                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("translationMapper"))
-                .wordsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("words"))
-                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("review_translations"))
-                .build());
+        Language systemLanguage = principal.userInterfaceLanguage();
+        Map<FlashcardLocalizationKey, String> localization = translationService.getFlashcardLocalization(systemLanguage);
+        model.addAttribute("localization", localization);
         return "vocabulary-page/base-page";
     }
 
@@ -51,16 +46,12 @@ public class VocabularyController {
                              Model model,
                              Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Language systemLanguage = principal.userInterfaceLanguage();
+        Map<FlashcardLocalizationKey, String> localization = translationService.getFlashcardLocalization(systemLanguage);
         model.addAttribute("familiarity", familiarity);
         model.addAttribute("quantity", quantity);
         model.addAttribute("isPhrase", isPhrase);
-        model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
-                .familiarityText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("familiarity"))
-                .howManyText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("how_many"))
-                .phrasesText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("translationMapper"))
-                .wordsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("words"))
-                .reviewTranslationsText(localizationService.flashcardConfigLocalization(principal.userInterfaceLanguage()).get("review_translations"))
-                .build());
+        model.addAttribute("localization", localization);
         return "vocabulary-page/flashcard/flashcard-config";
     }
 
@@ -73,7 +64,8 @@ public class VocabularyController {
                                          Authentication authentication,
                                          HttpSession session) {
         String username = ((UserProfile) authentication.getPrincipal()).getUsername();
-        Language uiLanguage = ((UserProfile) authentication.getPrincipal()).userInterfaceLanguage();
+        Language systemLanguage = ((UserProfile) authentication.getPrincipal()).userInterfaceLanguage();
+        Map<FlashcardLocalizationKey, String> localization = translationService.getFlashcardLocalization(systemLanguage);
         try {
             BaseFlashcardAttribute attribute = translationService.getRandomTranslations(GetRandomTranslationsRequest.builder()
                     .familiarity(familiarity)
@@ -91,13 +83,7 @@ public class VocabularyController {
             model.addAttribute("familiarity", familiarity);
             model.addAttribute("quantity", quantity);
             model.addAttribute("isPhrase", isPhrase);
-            model.addAttribute("flashcardConfigLocalizationAttribute", FlashcardConfigLocalizationAttribute.builder()
-                    .familiarityText(localizationService.flashcardConfigLocalization(uiLanguage).get("familiarity"))
-                    .howManyText(localizationService.flashcardConfigLocalization(uiLanguage).get("how_many"))
-                    .phrasesText(localizationService.flashcardConfigLocalization(uiLanguage).get("translationMapper"))
-                    .wordsText(localizationService.flashcardConfigLocalization(uiLanguage).get("words"))
-                    .reviewTranslationsText(localizationService.flashcardConfigLocalization(uiLanguage).get("review_translations"))
-                    .build());
+            model.addAttribute("localization", localization);
             return "vocabulary-page/flashcard/flashcard-config";
         }
     }

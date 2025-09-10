@@ -3,12 +3,14 @@ package lule.dictionary.documents.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.*;
+import lule.dictionary.documents.data.attribute.DocumentListAttribute;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
 import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
 import lule.dictionary.familiarity.FamiliarityService;
+import lule.dictionary.language.service.Language;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.documents.service.exception.DocumentNotFoundException;
@@ -45,6 +47,7 @@ public class DocumentService {
     private final PatternService patternService;
     private final FamiliarityService familiarityService;
     private final DocumentSanitizer documentSanitizer;
+    private final DocumentsLocalizationService documentsLocalization;
 
     @Transactional
     public int createDocument(CreateDocumentRequest request) throws ValidationServiceException {
@@ -73,8 +76,10 @@ public class DocumentService {
         }
     }
 
-    public List<DocumentWithTranslationData> findByOwnerAndTargetLanguage(FindByTargetLanguageRequest request) {
-        return documentRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
+    public DocumentListAttribute findMany(FindByTargetLanguageRequest request) {
+        List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
+        Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(request.sourceLanguage());
+        return DocumentListAttribute.of(documents, localization);
     }
 
     public DocumentAttribute loadDocumentContent(LoadDocumentContentRequest request) {
@@ -220,5 +225,9 @@ public class DocumentService {
                 .firstPageOfRowNumber(paginationService.getFirstPageOfRow(currentPage, paginationService.getMAX_ROW_SIZE()))
                 .rows(paginationService.getRows(pagesTotal))
                 .build();
+    }
+
+    public Map<DocumentLocalizationKey, String> getDocumentFormLocalization(Language language) {
+        return documentsLocalization.get(language);
     }
 }

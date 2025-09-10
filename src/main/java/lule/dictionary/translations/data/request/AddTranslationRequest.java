@@ -16,6 +16,7 @@ public record AddTranslationRequest(int documentId,
                                     @NotBlank String targetWord,
                                     @NonNull Language sourceLanguage,
                                     @NonNull Language targetLanguage,
+                                    @NonNull Language systemLanguage,
                                     @NonNull Familiarity familiarity,
                                     @NonNull String owner,
                                     boolean isPhrase) implements TranslationsRequest {

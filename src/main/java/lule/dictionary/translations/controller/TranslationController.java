@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 public class TranslationController {
 
     private final TranslationService translationService;
-    private final LocalizationService localizationService;
 
     @GetMapping({"/find", "/find/"})
     public String findOrAddTranslation(Model model,
@@ -48,10 +47,10 @@ public class TranslationController {
                     .targetWord(targetWord)
                     .sourceLanguage(principal.sourceLanguage())
                     .targetLanguage(principal.targetLanguage())
+                    .systemLanguage(principal.userInterfaceLanguage())
                     .build());
-            model.addAttribute("translationAttribute", translationAttribute);
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-            return "document-page/content/translation/add/add-translation-form";
+            model.addAttribute("attribute", translationAttribute);
+            return "documentContentData-page/content/translation/add/add-translation-form";
         }
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         FindByTargetWordRequest request = FindByTargetWordRequest.builder()
@@ -62,11 +61,11 @@ public class TranslationController {
                 .targetLanguage(principal.targetLanguage())
                 .owner(principal.getUsername())
                 .isPhrase(isPhrase)
+                .systemLanguage(principal.userInterfaceLanguage())
                 .build();
         TranslationAttribute attribute = translationService.findByTargetWord(request);
-        model.addAttribute("translationAttribute", attribute);
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-        return "document-page/content/translation/update/update-translation-form";
+        model.addAttribute("attribute", attribute);
+        return "documentContentData-page/content/translation/update/update-translation-form";
     }
 
     @GetMapping({"/create-phrase", "/create-phrase/"})
@@ -87,6 +86,7 @@ public class TranslationController {
                 .username(principal.getUsername())
                 .sourceLanguage(principal.sourceLanguage())
                 .targetLanguage(principal.targetLanguage())
+                .systemLanguage(principal.userInterfaceLanguage())
                 .build());
         model.addAttribute("selectableId", selectableId);
         model.addAttribute("phraseText", phraseText);
@@ -94,9 +94,8 @@ public class TranslationController {
         model.addAttribute("phraseLength", phraseLength);
         model.addAttribute("familiarities", familiarities);
         model.addAttribute("isSavedList", isSavedList);
-        model.addAttribute("translationAttribute", translationAttribute);
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-        return "document-page/content/new-phrase";
+        model.addAttribute("attribute", translationAttribute);
+        return "documentContentData-page/content/new-phrase";
     }
 
     @PostMapping({"/new", "/new/"})
@@ -125,11 +124,11 @@ public class TranslationController {
                     .familiarity(familiarity)
                     .owner(principal.getUsername())
                     .isPhrase(isPhrase)
+                    .systemLanguage(principal.userInterfaceLanguage())
                     .build();
             TranslationAttribute result = translationService.createTranslation(request);
             model.addAttribute("translationAttribute", result);
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-            return "document-page/content/translation/update/update-translation-form";
+            return "documentContentData-page/content/translation/update/update-translation-form";
         } catch (TranslationContraintViolationException e) {
             log.info(e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -154,11 +153,11 @@ public class TranslationController {
                 .familiarity(familiarity)
                 .owner(principal.getUsername())
                 .isPhrase(isPhrase)
+                .systemLanguage(principal.userInterfaceLanguage())
                 .build();
         TranslationAttribute result = translationService.updateFamiliarity(request);
-        model.addAttribute("translationAttribute", result);
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-        return "document-page/content/translation/update/update-translation-form";
+        model.addAttribute("attribute", result);
+        return "documentContentData-page/content/translation/update/update-translation-form";
     }
 
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
@@ -180,16 +179,15 @@ public class TranslationController {
                     .targetWord(targetWord)
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
+                    .systemLanguage(principal.userInterfaceLanguage())
                     .build();
             TranslationAttribute attribute = translationService.updateSourceWords(request);
-            model.addAttribute("translationAttribute", attribute);
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-            return "document-page/content/translation/update/update-translation-form";
+            model.addAttribute("attribute", attribute);
+            return "documentContentData-page/content/translation/update/update-translation-form";
         } catch (TranslationContraintViolationException e) {
             log.warn(e.getMessage());
-            model.addAttribute("translationAttribute", e.getTranslationAttribute());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-            return "document-page/content/translation/update/update-translation-form";
+            model.addAttribute("attribute", e.getTranslationAttribute());
+            return "documentContentData-page/content/translation/update/update-translation-form";
         }
     }
 
@@ -207,12 +205,11 @@ public class TranslationController {
                 .owner(principal.getUsername())
                 .selectedWordId(selectedWordId)
                 .isPhrase(isPhrase)
+                .systemLanguage(principal.userInterfaceLanguage())
                 .build();
         TranslationAttribute result = translationService.deleteSourceWord(request);
-        model.addAttribute("translationAttribute", result);
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
-        return "document-page/content/translation/update/update-translation-form";
-
+        model.addAttribute("attribute", result);
+        return "documentContentData-page/content/translation/update/update-translation-form";
     }
 
     private Pattern compileNonSpecialChars() {

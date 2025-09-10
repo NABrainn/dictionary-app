@@ -3,14 +3,14 @@ package lule.dictionary.documents.controller;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.documents.data.DocumentLocalizationKey;
 import lule.dictionary.documents.data.request.CreateDocumentRequest;
 import lule.dictionary.documents.data.request.DocumentAttribute;
 import lule.dictionary.documents.data.request.LoadDocumentContentRequest;
 import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
-import lule.dictionary.documents.data.DocumentFormAttribute;
+import lule.dictionary.documents.data.attribute.DocumentFormAttribute;
 import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
 import lule.dictionary.errorLocalization.service.ErrorLocalization;
-import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.documents.data.documentSubmission.SubmissionStrategy;
 import lule.dictionary.documents.service.exception.DocumentNotFoundException;
 import lule.dictionary.documents.service.DocumentService;
@@ -34,35 +34,28 @@ import java.util.Map;
 public class DocumentController {
 
     private final DocumentService documentService;
-    private final LocalizationService localizationService;
     private final SessionHelper sessionHelper;
     private final ErrorLocalization errorLocalization;
 
 
     @GetMapping({"", "/"})
-    public String importListPage() {
+    public String DocumentListPage() {
         return "redirect:/lessons";
     }
 
     @GetMapping({"/new", "/new/"})
-    public String createImportForm(@RequestParam(name = "strategy", defaultValue = "url_submit") String strategy,
-                                   Model model,
-                                   Authentication authentication) {
+    public String createDocumentForm(@RequestParam(name = "strategy", defaultValue = "url_submit") String strategy,
+                                     Model model,
+                                     Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
+        Map<DocumentLocalizationKey, String> localization = documentService.getDocumentFormLocalization(language);
         SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
-                        UrlSubmissionStrategy.of("", "", localizationService.documentFormLocalization(language).get("space_for_url")) :
-                        ContentSubmissionStrategy.of("", "", localizationService.documentFormLocalization(language).get("space_for_content"));
+                        UrlSubmissionStrategy.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_URL)) :
+                        ContentSubmissionStrategy.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
         model.addAttribute("messages", Map.of());
-        model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
-                .titleText(localizationService.documentFormLocalization(language).get("title"))
-                .contentText(localizationService.documentFormLocalization(language).get("content"))
-                .importByUrlBtnText(localizationService.documentFormLocalization(language).get("import_by_url"))
-                .insertManuallyBtnText(localizationService.documentFormLocalization(language).get("insert_manually"))
-                .submitBtnText(localizationService.documentFormLocalization(language).get("submit"))
-                .submissionStrategy(submissionStrategy)
-                .build());
-        return "create-document-form/base-form";
+        model.addAttribute("attribute", DocumentFormAttribute.of(submissionStrategy, localization));
+        return "create-documentContentData-form/base-form";
     }
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
@@ -74,7 +67,7 @@ public class DocumentController {
             DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
             model.addAttribute("documentAttribute", documentAttribute);
             model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
-            return "document-page/base-page";
+            return "documentContentData-page/base-page";
 
         }
         catch (InvalidUrlException e) {
@@ -96,7 +89,7 @@ public class DocumentController {
             DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
             model.addAttribute("documentAttribute", documentAttribute);
             model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
-            return "document-page/content/content";
+            return "documentContentData-page/content/content";
 
         }
         catch (InvalidUrlException e) {
@@ -118,9 +111,10 @@ public class DocumentController {
                                  Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
+        Map<DocumentLocalizationKey, String> localization = documentService.getDocumentFormLocalization(language);
         SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
-                UrlSubmissionStrategy.of(title, url, localizationService.documentFormLocalization(language).get("space_for_url")) :
-                ContentSubmissionStrategy.of(title, content, localizationService.documentFormLocalization(language).get("space_for_content"));
+                UrlSubmissionStrategy.of(title, url, localization.get(DocumentLocalizationKey.SPACE_FOR_URL)) :
+                ContentSubmissionStrategy.of(title, content, localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
         try {
             int id = documentService.createDocument(CreateDocumentRequest.of(submissionStrategy, principal));
             return "redirect:/documents/" + id + "?page=1";
@@ -128,26 +122,12 @@ public class DocumentController {
         } catch (ValidationServiceException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
             model.addAttribute("messages", errorLocalization.getMessageByViolation(e.getViolation(), principal.userInterfaceLanguage()));
-            model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
-                    .titleText(localizationService.documentFormLocalization(language).get("title"))
-                    .contentText(localizationService.documentFormLocalization(language).get("content"))
-                    .importByUrlBtnText(localizationService.documentFormLocalization(language).get("import_by_url"))
-                    .insertManuallyBtnText(localizationService.documentFormLocalization(language).get("insert_manually"))
-                    .submitBtnText(localizationService.documentFormLocalization(language).get("submit"))
-                    .submissionStrategy(submissionStrategy)
-                    .build());
+            model.addAttribute("attribute", DocumentFormAttribute.of(submissionStrategy, localization));
             return "create-document-form/base-form";
         } catch (InvalidUriException e) {
             log.warn("Retrying view due to url issue: {}", e.getMessage());
             model.addAttribute("messages", Map.of("invalidUriMessage", e.getLocalizedMessages().get(principal.userInterfaceLanguage())));
-            model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
-                    .titleText(localizationService.documentFormLocalization(language).get("title"))
-                    .contentText(localizationService.documentFormLocalization(language).get("content"))
-                    .importByUrlBtnText(localizationService.documentFormLocalization(language).get("import_by_url"))
-                    .insertManuallyBtnText(localizationService.documentFormLocalization(language).get("insert_manually"))
-                    .submitBtnText(localizationService.documentFormLocalization(language).get("submit"))
-                    .submissionStrategy(submissionStrategy)
-                    .build());
+            model.addAttribute("attribute", DocumentFormAttribute.of(submissionStrategy, localization));
             return "create-document-form/base-form";
         }
     }
@@ -157,7 +137,8 @@ public class DocumentController {
                           Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
-        model.addAttribute("spaceForUrlText", localizationService.documentFormLocalization(language).get("space_for_url"));
+        Map<DocumentLocalizationKey, String> localization = documentService.getDocumentFormLocalization(language);
+        model.addAttribute("spaceForUrlText", localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
         return "create-document-form/url-form";
     }
 
@@ -166,7 +147,8 @@ public class DocumentController {
                               Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
-        model.addAttribute("spaceForContentText", localizationService.documentFormLocalization(language).get("space_for_content"));
+        Map<DocumentLocalizationKey, String> localization = documentService.getDocumentFormLocalization(language);
+        model.addAttribute("spaceForContentText", localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
         return "create-document-form/content-form";
     }
 }

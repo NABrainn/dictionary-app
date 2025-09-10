@@ -5,7 +5,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.familiarity.FamiliarityService;
+import lule.dictionary.language.service.Language;
 import lule.dictionary.stringUtil.service.PatternService;
+import lule.dictionary.translations.data.FlashcardLocalizationKey;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
@@ -38,6 +40,7 @@ public class TranslationService {
     private final ValidationService validationService;
     private final FamiliarityService familiarityService;
     private final PatternService patternService;
+    private final TranslationLocalizationService translationLocalization;
 
     @Transactional
     public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
@@ -61,6 +64,7 @@ public class TranslationService {
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
         } catch (ValidationServiceException e) {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
@@ -71,6 +75,7 @@ public class TranslationService {
                     .translationId(-1)
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
             throw new TranslationContraintViolationException(translationAttribute, e.getViolation());
         }
@@ -90,6 +95,7 @@ public class TranslationService {
                     .translationId(-1)
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
         }
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
@@ -116,6 +122,7 @@ public class TranslationService {
                 .translationId(-1)
                 .documentId(request.documentId())
                 .isPhrase(request.isPhrase())
+                .localization(translationLocalization.get(request.systemLanguage()))
                 .build();
 
     }
@@ -132,6 +139,7 @@ public class TranslationService {
                 .translationId(-1)
                 .documentId(-1)
                 .isPhrase(request.isPhrase())
+                .localization(translationLocalization.get(request.systemLanguage()))
                 .build();
     }
 
@@ -149,6 +157,7 @@ public class TranslationService {
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
                         .familiarityLevels(familiarityService.getFamiliarityTable())
                         .isPhrase(request.isPhrase())
+                        .localization(translationLocalization.get(request.systemLanguage()))
                         .build();
             }
             throw new RuntimeException("Unknown exception");
@@ -173,6 +182,7 @@ public class TranslationService {
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
             throw new TranslationContraintViolationException(translationAttribute, e.getViolation());
         }
@@ -191,6 +201,7 @@ public class TranslationService {
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
         }
         throw new RuntimeException("Unknown exception");
@@ -237,6 +248,7 @@ public class TranslationService {
                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
                 .isPhrase(request.isPhrase())
                 .familiarityLevels(familiarityService.getFamiliarityTable())
+                .localization(translationLocalization.get(request.systemLanguage()))
                 .build();
     }
 
@@ -287,5 +299,8 @@ public class TranslationService {
 
     private void validate(TranslationsRequest request) throws ConstraintViolationException {
         validationService.validate(request);
+    }
+
+    public Map<FlashcardLocalizationKey, String> getFlashcardLocalization(Language language) {
     }
 }

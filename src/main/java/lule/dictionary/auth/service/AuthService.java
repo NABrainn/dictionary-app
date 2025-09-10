@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.auth.data.localization.AuthLocalizationKey;
+import lule.dictionary.auth.data.AuthLocalizationKey;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.userProfiles.data.UserProfile;

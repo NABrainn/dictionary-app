@@ -1,4 +1,4 @@
-package lule.dictionary.auth.data.localization;
+package lule.dictionary.auth.data;
 
 public enum AuthLocalizationKey {
     LOG_IN,
