@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.request.CreateDocumentRequest;
 import lule.dictionary.documents.data.request.DocumentAttribute;
 import lule.dictionary.documents.data.request.LoadDocumentContentRequest;
-import lule.dictionary.documents.data.strategy.ContentSubmission;
+import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
 import lule.dictionary.documents.data.DocumentFormAttribute;
+import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
 import lule.dictionary.errorLocalization.service.ErrorLocalization;
 import lule.dictionary.localization.service.LocalizationService;
-import lule.dictionary.documents.data.strategy.SubmissionStrategy;
-import lule.dictionary.documents.data.strategy.UrlSubmission;
+import lule.dictionary.documents.data.documentSubmission.SubmissionStrategy;
 import lule.dictionary.documents.service.exception.ImportNotFoundException;
 import lule.dictionary.documents.service.DocumentService;
 import lule.dictionary.jsoup.service.exception.InvalidUriException;
@@ -29,7 +29,7 @@ import java.util.Map;
 
 @Slf4j
 @Controller
-@RequestMapping("/imports")
+@RequestMapping("/documents")
 @RequiredArgsConstructor
 public class DocumentController {
 
@@ -51,8 +51,8 @@ public class DocumentController {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
-                        UrlSubmission.of("", "", localizationService.documentFormLocalization(language).get("space_for_url")) :
-                        ContentSubmission.of("", "", localizationService.documentFormLocalization(language).get("space_for_content"));
+                        UrlSubmissionStrategy.of("", "", localizationService.documentFormLocalization(language).get("space_for_url")) :
+                        ContentSubmissionStrategy.of("", "", localizationService.documentFormLocalization(language).get("space_for_content"));
         model.addAttribute("messages", Map.of());
         model.addAttribute("documentFormAttribute", DocumentFormAttribute.builder()
                 .titleText(localizationService.documentFormLocalization(language).get("title"))
@@ -66,13 +66,12 @@ public class DocumentController {
     }
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
-    public String importPage(@PathVariable("documentId") int importId,
-                             @RequestParam(name = "page", defaultValue = "1") int page,
-                             Model model,
-                             Authentication authentication,
-                             HttpSession session) {
+    public String documentPage(@PathVariable("documentId") int documentId,
+                               @RequestParam(name = "page", defaultValue = "1") int page,
+                               Model model,
+                               HttpSession session) {
         try {
-            DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
+            DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
             model.addAttribute("documentAttribute", documentAttribute);
             model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
             return "document-page/base-page";
@@ -88,21 +87,43 @@ public class DocumentController {
         }
     }
 
-    @PostMapping({"/new", "/new/"})
-    public String createImport(@RequestParam("title") String title,
-                               @RequestParam("content") String content,
-                               @RequestParam("url") String url,
-                               @RequestParam("strategy") String strategy,
+    @GetMapping({"/{documentId}/reload", "/{documentId}/reload/"})
+    public String reloadDocumentPage(@PathVariable("documentId") int documentId,
+                               @RequestParam(name = "page", defaultValue = "1") int page,
                                Model model,
-                               Authentication authentication) {
+                               HttpSession session) {
+        try {
+            DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
+            model.addAttribute("documentAttribute", documentAttribute);
+            model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
+            return "document-page/content/content";
+
+        }
+        catch (InvalidUrlException e) {
+            log.warn("Invalid url: {}", e.getMessage());
+            return "error";
+        }
+        catch (ImportNotFoundException e) {
+            log.warn("Import not found: {}", e.getMessage());
+            return "error";
+        }
+    }
+
+    @PostMapping({"/new", "/new/"})
+    public String createDocument(@RequestParam("title") String title,
+                                 @RequestParam("content") String content,
+                                 @RequestParam("url") String url,
+                                 @RequestParam("strategy") String strategy,
+                                 Model model,
+                                 Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
-                UrlSubmission.of(title, url, localizationService.documentFormLocalization(language).get("space_for_url")) :
-                ContentSubmission.of(title, content, localizationService.documentFormLocalization(language).get("space_for_content"));
+                UrlSubmissionStrategy.of(title, url, localizationService.documentFormLocalization(language).get("space_for_url")) :
+                ContentSubmissionStrategy.of(title, content, localizationService.documentFormLocalization(language).get("space_for_content"));
         try {
             int id = documentService.createDocument(CreateDocumentRequest.of(submissionStrategy, principal));
-            return "redirect:/imports/" + id + "?page=1";
+            return "redirect:/documents/" + id + "?page=1";
 
         } catch (ValidationServiceException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());

@@ -123,6 +123,6 @@ public class AuthService {
     }
 
     private UserProfile getUserProfile(AuthRequest loginRequest) throws UserNotFoundException {
-        return userProfileService.findByLogin(loginRequest.login()).copyWith(loginRequest.password());
+        return userProfileService.findByLogin(loginRequest.login()).withPassword(loginRequest.password());
     }
 }

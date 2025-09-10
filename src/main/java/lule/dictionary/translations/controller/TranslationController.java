@@ -36,7 +36,7 @@ public class TranslationController {
                                        @RequestParam int documentId,
                                        @RequestParam String targetWord,
                                        @RequestParam("selectedWordId") int selectedWordId,
-                                       @RequestParam(value = "isPhrase", required = false) boolean isPhrase,
+                                       @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                        @RequestParam("isFound") boolean isFound) {
         if(!isFound) {
             UserProfile principal = (UserProfile) authentication.getPrincipal();

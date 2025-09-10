@@ -13,16 +13,16 @@
     <div
     class="text-2xl cursor-pointer select-none"
     hx-params="page"
-    hx-get="/imports/${importId}?page=${currentPage - 1}"
-    hx-target="#main"
+    hx-get="/documents/${importId}/reload?page=${currentPage - 1}"
+    hx-target="#page-content"
     hx-swap="outerHTML"
     hx-push-url="false">⬅️</div>
 @else
     <div
     class="text-2xl cursor-pointer select-none invisible"
     hx-params="page"
-    hx-get="/imports/${importId}?page=${currentPage + 1}"
-    hx-target="#main"
+    hx-get="/documents/${importId}/reload?page=${currentPage + 1}"
+    hx-target="#page-content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
 @endif
@@ -30,8 +30,8 @@
     @if(currentPage == row.get())
         <form
         hx-params="page"
-        hx-get="/imports/${id}?page=${row.get()}"
-        hx-target="#main"
+        hx-get="/documents/${id}/reload?page=${row.get()}"
+        hx-target="#page-content"
         hx-swap="outerHTML"
         hx-push-url="false">
             <div class="bg-tertiary rounded text-primary font-bold text-xl">
@@ -41,8 +41,8 @@
     @else
         <form
         hx-params="page"
-        hx-get="/imports/${id}?page=${row.get()}"
-        hx-target="#main"
+        hx-get="/documents/${id}/reload?page=${row.get()}"
+        hx-target="#page-content"
         hx-swap="outerHTML"
         hx-push-url="false">
             <div class="bg-accent rounded text-primary font-bold text-xl">
@@ -56,15 +56,15 @@
     <div
     class="text-2xl cursor-pointer select-none"
     hx-params="page"
-    hx-get="/imports/${importId}?page=${currentPage + 1}"
-    hx-target="#main"
+    hx-get="/documents/${importId}/reload?page=${currentPage + 1}"
+    hx-target="#page-content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
 @else
     <div
     class="text-2xl cursor-pointer select-none invisible"
     hx-params="page"
-    hx-get="/imports/${importId}?page=${currentPage + 1}"
+    hx-get="/documents/${importId}/reload?page=${currentPage + 1}"
     hx-target="#main"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>

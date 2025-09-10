@@ -15,7 +15,7 @@ public record WordNode(int id,
         return this.id == iterable.id();
     }
 
-    public WordNode copyWithRenderedText(String renderedText) {
+    public WordNode withRenderedText(String renderedText) {
         return new WordNode(this.id(), this.formattedText(), renderedText);
     }
 }

@@ -6,11 +6,11 @@ import lule.dictionary.documents.data.*;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
+import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
+import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
 import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.documents.data.strategy.ContentSubmission;
-import lule.dictionary.documents.data.strategy.UrlSubmission;
 import lule.dictionary.documents.service.exception.ImportNotFoundException;
 import lule.dictionary.documents.data.selectable.Phrase;
 import lule.dictionary.documents.data.selectable.Selectable;
@@ -49,7 +49,7 @@ public class DocumentService {
     @Transactional
     public int createDocument(CreateDocumentRequest request) throws ValidationServiceException {
         switch (request.submissionStrategy()) {
-            case UrlSubmission urlSubmission -> {
+            case UrlSubmissionStrategy urlSubmission -> {
                 validationService.validate(urlSubmission);
                 String content = jsoupService.importDocumentContent(urlSubmission.url());
                 return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
@@ -59,7 +59,7 @@ public class DocumentService {
                         .userDetails(request.userDetails())
                         .build());
             }
-            case ContentSubmission contentSubmission -> {
+            case ContentSubmissionStrategy contentSubmission -> {
                 validationService.validate(contentSubmission);
                 String content = contentSubmission.content();
                 return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
@@ -131,7 +131,6 @@ public class DocumentService {
                 .map(String::toLowerCase)
                 .map(patternService::removeSpecialCharacters)
                 .toList();
-//        IntStream.range(0, formattedContentAsList.size()).forEach(id -> System.out.println("formatted: " + id + ": " + formattedContentAsList.get(id) + "; content: " + id + ": " + contentAsList.get(id) + ";"));
         List<PhraseNode> phrasesFound = new ArrayList<>();
         for(Translation phrase : request.phrases()) {
             List<String> searchedPhrase = List.of(patternService.removeSpecialCharacters(phrase.targetWord())
@@ -164,14 +163,7 @@ public class DocumentService {
                         .toList());
                 String phraseValue = String.join(" ", searchedPhrase);
                 if(bufferValue.equals(phraseValue)) {
-                    phrasesFound.add(PhraseNode.of(List.copyOf(buffer.stream()
-                            .map(wordNode -> buffer.getFirst().equals(wordNode) ?
-                                    wordNode.copyWithRenderedText("ph<" + (phrase.familiarity().ordinal()) + "<" + wordNode.renderedText()) :
-                                    buffer.getLast().equals(wordNode) ?
-                                            wordNode.copyWithRenderedText(wordNode.renderedText() + ">>") :
-                                            wordNode
-                            )
-                            .toList())));
+                    phrasesFound.add(PhraseNode.fromWordNodes(buffer, phrase));
                     buffer.clear();
                     pointer = 0;
                 }
@@ -210,7 +202,7 @@ public class DocumentService {
         return Stream.of(request.contentBlob().split("\n+"))
                 .map(paragraphAsString -> Arrays.stream(paragraphAsString.split("\\s+"))
                         .map(selectable -> selectable.startsWith("ph<") && selectable.endsWith(">>") ?
-                                Phrase.process(selectable, familiarityService.getFamiliarity(selectable), request.idCounter().getAndIncrement()) :
+                                Phrase.fromString(selectable, familiarityService.getFamiliarity(selectable), request.idCounter().getAndIncrement()) :
                                 (Selectable) Word.of(selectable, request.idCounter().getAndIncrement()))
                         .toList())
                 .filter(paragraphAsList -> !paragraphAsList.isEmpty())

@@ -16,8 +16,7 @@ public record DeleteSourceWordRequest(@NotBlank(message = "Source word cannot be
                                       @Size(max = 200, message = "Target word cannot be longer than 200 characters")
                                       String targetWord,
 
-                                      @NonNull
-                                      String owner,
+                                      @NonNull String owner,
 
                                       int selectedWordId,
                                       boolean isPhrase) implements TranslationsRequest {

@@ -1,4 +1,4 @@
-package lule.dictionary.date;
+package lule.dictionary.date.service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;

@@ -1,32 +1,11 @@
 @import gg.jte.Content
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
-
 @param Content authView = null
 @param Content content = null
 @param BaseAttribute baseAttribute
 
 <html lang="en">
     <script>
-    <%--
-    CUSTOM COMPONENTS
-    --%>
-        if (!customElements.get('static-textarea')) {
-            class StaticTextArea extends HTMLTextAreaElement {
-                constructor() {
-                    super()
-                }
-
-                connectedCallback() {
-                    this.addEventListener('keydown', (event) => {
-                        if (event.key === 'Enter') {
-                            event.preventDefault();
-                        }
-                    });
-                }
-            }
-            customElements.define('static-textarea', StaticTextArea, { extends: 'textarea' });
-        }
-
         @if(baseAttribute != null)
             @if(!baseAttribute.isAuthenticated())
                 if (window.location.pathname.startsWith('/auth/')) {

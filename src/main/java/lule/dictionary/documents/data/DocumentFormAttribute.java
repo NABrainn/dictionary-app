@@ -2,7 +2,7 @@ package lule.dictionary.documents.data;
 
 import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.documents.data.strategy.SubmissionStrategy;
+import lule.dictionary.documents.data.documentSubmission.SubmissionStrategy;
 
 @Builder
 public record DocumentFormAttribute(@NonNull SubmissionStrategy submissionStrategy,

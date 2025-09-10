@@ -24,10 +24,10 @@
                         <span class="text-neutral font-bold">${documentsLocalizationAttribute.noDocumentsText()}
                             <a
                             class="cursor-pointer text-accent underline"
-                            hx-get="/imports/new"
+                            hx-get="/documents/new"
                             hx-target="#main"
                             hx-swap="innerHTML"
-                            hx-push-url="/imports/new">${documentsLocalizationAttribute.clickHereBtnText()}</a> ${documentsLocalizationAttribute.toAddYourFirstBtnText()}
+                            hx-push-url="/documents/new">${documentsLocalizationAttribute.clickHereBtnText()}</a> ${documentsLocalizationAttribute.toAddYourFirstBtnText()}
                         </span>
                     </div>
                 @else
@@ -37,14 +37,14 @@
                         @for(var item : documentsAttribute)
                             <div
                             class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer"
-                            hx-get="/imports/${item.id()}"
+                            hx-get="/documents/${item.id()}"
                             hx-params="page"
                             hx-vals='{
                                 "page": "1"
                             }'
                             hx-target="#main"
                             hx-swap="innerHTML"
-                            hx-push-url="/imports/${item.id()}">
+                            hx-push-url="/documents/${item.id()}">
                                 <img
                                 class="border min-h-30"
                                 src="/images/open-book.svg"
@@ -65,10 +65,10 @@
                 <div class="flex justify-end sticky bottom-8">
                     <button
                     class="cursor-pointer bg-secondary px-2 py-1 rounded text-lg font-bold text-neutral"
-                    hx-get="/imports/new"
+                    hx-get="/documents/new"
                     hx-target="#main"
                     hx-swap="innerHTML"
-                    hx-push-url="/imports/new"
+                    hx-push-url="/documents/new"
                     type="button">${documentsLocalizationAttribute.addBookBtnText()}</button>
                 </div>
             </div>

@@ -17,40 +17,24 @@
                                                         .replace("-", " ")
                                                         .toLowerCase())
                                                 .toList());}
-
-!{var containerBgColor = "";}
-!{var containerTextColor = "";}
-!{var familiarity = "";}
-
-@if(phrase.familiarity() != null)
-    @if(phrase.familiarity() == Familiarity.UNKNOWN)
-        !{containerBgColor = "bg-accent";}
-        !{containerTextColor = "text-primary";}
-    @elseif(phrase.familiarity() == Familiarity.RECOGNIZED)
-        !{containerBgColor = "bg-accent/80";}
-        !{containerTextColor = "text-primary";}
-    @elseif(phrase.familiarity() == Familiarity.FAMILIAR)
-        !{containerBgColor = "bg-accent/60";}
-        !{containerTextColor = "text-primary";}
-    @elseif(phrase.familiarity() == Familiarity.KNOWN)
-        !{containerBgColor = "bg-primary";}
-        !{containerTextColor = "text-neutral";}
-    @else
-        !{containerBgColor = "bg-primary";}
-        !{containerTextColor = "text-neutral";}
-    @endif
-    !{familiarity = phrase.familiarity().name().toLowerCase();}
-@else
-    !{containerBgColor = "bg-primary";}
-    !{containerTextColor = "text-neutral";}
-@endif
+!{var wordBgColor = switch (phrase.familiarity()) {
+    case UNKNOWN -> "bg-accent";
+    case RECOGNIZED -> "bg-accent/80";
+    case FAMILIAR -> "bg-accent/60";
+    default -> "bg-primary";
+};}
+!{var wordTextColor = switch (phrase.familiarity()) {
+    case UNKNOWN -> "text-primary";
+    case RECOGNIZED -> "text-primary";
+    case FAMILIAR -> "text-primary";
+    default -> "text-neutral";
+};}
 <div
-class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${containerTextColor} ${containerBgColor}"
-id="phrase-${selectableId}"
+class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${wordTextColor} ${wordBgColor} animate-fade-15"
 
 data-id="${selectableId}"
 data-value="${processedWord}"
-data-familiarity="${familiarity}"
+data-familiarity="${phrase.familiarity() != null ? phrase.familiarity().name().toLowerCase() : null}"
 
 data-is-phrase="true"
 data-is-saved="true"
@@ -73,37 +57,11 @@ hx-on:click="
 documentPage.closeAllTranslationForms()
 documentPage.cleanupSelectedWord()
 documentPage.cleanupSelectedPhrase()
-
-//handle selection
-util.findAllByData({ key: 'is-phrase', value: 'true' })
-.filter(node => data.get(node, 'is-selected') === 'false')
-.filter(node => data.get(node, 'id') === '${selectableId}')
-.forEach(node => {
-    data.set(node, { key: 'is-selected', value: 'true' })
-    util.replaceClasses(node, {
-        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
-        toAdd: ['bg-tertiary', 'text-accent']
-    })
-
-    Array.from(node.children)
-    .filter(child => data.get(child, 'is-word') === 'true')
-    .flatMap(word => [...word.children])
-    .filter(child => child instanceof HTMLSpanElement)
-    .forEach(span => {
-        util.replaceClasses(span, {
-            toRemove: ['text-primary', 'text-accent'],
-            toAdd: ['text-accent']
-        })
-    })
-})
-">
+documentPage.handlePhraseClick(${selectableId})">
     <div
-    onclick="event.stopPropagation()"
     class="
     cursor-default z-2 absolute inline"
     id="translation-form-container-${selectableId}"
-
-    data-id="${selectableId}"
     data-is-translation-form-container="true"
     hx-on::after-swap="formAdjuster.updatePositions(${selectableId})">
     </div>
@@ -140,7 +98,7 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
             processedWord = cleanWord,
             documentId = documentId,
             word = word,
-            textColor = containerTextColor,
+            textColor = wordTextColor,
             isSelectable = false,
             isWrapped = true,
             phraseFamiliarity = phrase.familiarity())

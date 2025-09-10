@@ -12,15 +12,11 @@ import java.util.List;
 @Builder
 public record AddTranslationRequest(int documentId,
                                     int selectedWordId,
-                                    @NonNull
-                                    List<
-                                    @NotBlank(message = "Source word cannot be blank")
-                                    @Size(max = 200, message = "Source word cannot be longer than 200 characters") String> sourceWords,
-                                    @NotBlank
-                                    String targetWord,
-                                    Language sourceLanguage,
-                                    Language targetLanguage,
-                                    Familiarity familiarity,
-                                    String owner,
+                                    @NonNull List<@NotBlank(message = "Source word cannot be blank") @Size(max = 200, message = "Source word cannot be longer than 200 characters") String> sourceWords,
+                                    @NotBlank String targetWord,
+                                    @NonNull Language sourceLanguage,
+                                    @NonNull Language targetLanguage,
+                                    @NonNull Familiarity familiarity,
+                                    @NonNull String owner,
                                     boolean isPhrase) implements TranslationsRequest {
 }

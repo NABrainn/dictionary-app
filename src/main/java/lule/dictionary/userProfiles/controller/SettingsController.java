@@ -1,4 +1,4 @@
-package lule.dictionary.settings.controller;
+package lule.dictionary.userProfiles.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
