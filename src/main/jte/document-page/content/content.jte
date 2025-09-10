@@ -1,14 +1,10 @@
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
-@import lule.dictionary.controllerAdvice.data.NavbarAttribute
 @import lule.dictionary.documents.data.selectable.Word
 @import lule.dictionary.documents.data.selectable.Phrase
 @import lule.dictionary.documents.data.request.DocumentAttribute
 @import gg.jte.support.ForSupport
 @import java.util.regex.Pattern
 
-@param NavbarAttribute navbarAttribute
 @param DocumentAttribute documentAttribute
-@param BaseAttribute baseAttribute
 
 !{var translations = documentAttribute.importData().translations();}
 !{var content = documentAttribute.importData().content();}
@@ -32,19 +28,13 @@ hx-vals='js:{
     familiarities: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "familiarity")),
     isSavedList: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "is-saved") ?? "false"),
 }'>
-    @template.navbar.navbar(
-    navbarAttribute = navbarAttribute,
-    isAuthenticated = baseAttribute.isAuthenticated(),
-    isProfileToggleBtnVisible = false)
     <div
     id="content-container"
     class="
     w-full px-2
     md:w-3/5 mx-auto text-wrap min-h-165"
 
-    hx-on:mouseup="
-    documentPage.handlePhraseSelection()
-    "
+    hx-on:mouseup="documentPage.handlePhraseSelection()"
     hx-on::selectphrase="
     documentPage.closeAllTranslationForms()
     documentPage.cleanupSelectedWord()

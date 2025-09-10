@@ -29,7 +29,7 @@ import java.util.Map;
 
 @Slf4j
 @Controller
-@RequestMapping("/imports")
+@RequestMapping("/documents")
 @RequiredArgsConstructor
 public class DocumentController {
 
@@ -66,12 +66,12 @@ public class DocumentController {
     }
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
-    public String importPage(@PathVariable("documentId") int importId,
-                             @RequestParam(name = "page", defaultValue = "1") int page,
-                             Model model,
-                             HttpSession session) {
+    public String documentPage(@PathVariable("documentId") int documentId,
+                               @RequestParam(name = "page", defaultValue = "1") int page,
+                               Model model,
+                               HttpSession session) {
         try {
-            DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, importId, page));
+            DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
             model.addAttribute("documentAttribute", documentAttribute);
             model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
             return "document-page/base-page";
@@ -87,13 +87,35 @@ public class DocumentController {
         }
     }
 
-    @PostMapping({"/new", "/new/"})
-    public String createImport(@RequestParam("title") String title,
-                               @RequestParam("content") String content,
-                               @RequestParam("url") String url,
-                               @RequestParam("strategy") String strategy,
+    @GetMapping({"/{documentId}/reload", "/{documentId}/reload/"})
+    public String reloadDocumentPage(@PathVariable("documentId") int documentId,
+                               @RequestParam(name = "page", defaultValue = "1") int page,
                                Model model,
-                               Authentication authentication) {
+                               HttpSession session) {
+        try {
+            DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
+            model.addAttribute("documentAttribute", documentAttribute);
+            model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
+            return "document-page/content/content";
+
+        }
+        catch (InvalidUrlException e) {
+            log.warn("Invalid url: {}", e.getMessage());
+            return "error";
+        }
+        catch (ImportNotFoundException e) {
+            log.warn("Import not found: {}", e.getMessage());
+            return "error";
+        }
+    }
+
+    @PostMapping({"/new", "/new/"})
+    public String createDocument(@RequestParam("title") String title,
+                                 @RequestParam("content") String content,
+                                 @RequestParam("url") String url,
+                                 @RequestParam("strategy") String strategy,
+                                 Model model,
+                                 Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language language = principal.userInterfaceLanguage();
         SubmissionStrategy submissionStrategy = strategy.equals("url_submit") ?
@@ -101,7 +123,7 @@ public class DocumentController {
                 ContentSubmissionStrategy.of(title, content, localizationService.documentFormLocalization(language).get("space_for_content"));
         try {
             int id = documentService.createDocument(CreateDocumentRequest.of(submissionStrategy, principal));
-            return "redirect:/imports/" + id + "?page=1";
+            return "redirect:/documents/" + id + "?page=1";
 
         } catch (ValidationServiceException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());

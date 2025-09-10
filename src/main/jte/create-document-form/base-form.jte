@@ -36,7 +36,7 @@
         <form
         class="md:w-3/5
         w-9/10 flex flex-col gap-6 bg-tertiary mx-auto p-6 rounded mt-16"
-        hx-post="/imports/new"
+        hx-post="/documents/new"
         hx-params="title,url,content,strategy"
         hx-target="#main"
         hx-swap="innerHTML"
@@ -69,7 +69,7 @@
                         bg-primary border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
                         type="button"
                         id="url"
-                        hx-get="/imports/new/"
+                        hx-get="/documents/new/"
                         hx-params="strategy"
                         hx-vals='{
                             "strategy": "url_submit"
@@ -83,7 +83,7 @@
                         border border-2 border-l-1 border-primary text-accent px-4 py-1 grow-1"
                         type="button"
                         id="insert"
-                        hx-get="/imports/new/"
+                        hx-get="/documents/new/"
                         hx-params="strategy"
                         hx-vals='{
                             "strategy": "content_submit"
@@ -96,7 +96,7 @@
                         border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
                         type="button"
                         id="url"
-                        hx-get="/imports/new/"
+                        hx-get="/documents/new/"
                         hx-params="strategy"
                         hx-vals='{
                             "strategy": "url_submit"
@@ -110,7 +110,7 @@
                         bg-primary border border-2 border-l-1 border-primary text-accent px-4 py-1 grow-1"
                         type="button"
                         id="insert"
-                        hx-get="/imports/new/"
+                        hx-get="/documents/new/"
                         hx-params="strategy"
                         hx-vals='{
                             "strategy": "content_submit"
