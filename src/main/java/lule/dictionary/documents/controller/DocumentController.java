@@ -17,7 +17,6 @@ import lule.dictionary.jsoup.service.exception.InvalidUriException;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.validation.service.ValidationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -116,7 +115,7 @@ public class DocumentController {
             int id = documentService.createDocument(CreateDocumentRequest.of(submissionStrategy, principal));
             return "redirect:/documents/" + id + "?page=1";
 
-        } catch (ValidationServiceException e) {
+        } catch (ValidationException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
             model.addAttribute("messages", Map.of());
             model.addAttribute("attribute", DocumentFormAttribute.of(submissionStrategy, localization));

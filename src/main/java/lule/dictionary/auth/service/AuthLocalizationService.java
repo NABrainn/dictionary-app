@@ -1,18 +1,18 @@
 package lule.dictionary.auth.service;
 
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.auth.data.AuthLocalizationKey;
+import lule.dictionary.auth.data.localization.*;
 import lule.dictionary.language.service.Language;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static lule.dictionary.auth.data.AuthLocalizationKey.*;
+import static lule.dictionary.auth.data.localization.AuthTextLocalization.*;
 
 @Service
 @RequiredArgsConstructor
 public class AuthLocalizationService {
-    public Map<AuthLocalizationKey, String> getLocalization(Language language) {
+    public Map<AuthTextLocalization, String> getTextLocalization(Language language) {
         return switch (language) {
             case PL -> Map.of(
                     LOG_IN, "Zaloguj się",

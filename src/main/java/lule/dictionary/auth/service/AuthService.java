@@ -6,7 +6,13 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.auth.data.AuthLocalizationKey;
+import lule.dictionary.auth.data.exception.EmailException;
+import lule.dictionary.auth.data.exception.LoginException;
+import lule.dictionary.auth.data.exception.PasswordException;
+import lule.dictionary.auth.data.localization.AuthTextLocalization;
+import lule.dictionary.auth.data.localization.group.EmailViolation;
+import lule.dictionary.auth.data.localization.group.LoginViolation;
+import lule.dictionary.auth.data.localization.group.PasswordViolation;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.userProfiles.data.UserProfile;
@@ -44,22 +50,23 @@ public class AuthService {
     private final AuthLocalizationService authLocalizationService;
 
 
-    public void login(@NonNull LoginRequest loginData,
+    public void login(@NonNull LoginRequest request,
                       @NonNull HttpServletResponse response,
                       @NonNull HttpSession httpSession) {
-        validationService.validate(loginData);
-        AuthenticationData authResult = authenticateUser(loginData);
+        validationService.validate(request, LoginViolation.class).ifPresent(violation -> { throw new LoginException(request.uiLanguage(), violation); });
+        validationService.validate(request, PasswordViolation.class).ifPresent(violation -> { throw new PasswordException(request.uiLanguage(), violation); });
+        AuthenticationData authResult = authenticateUser(request);
         setAuthenticationContext(SessionContext.of(authResult, response, httpSession));
     }
 
     @Transactional
     public void signup(@NonNull SignupRequest request) {
-        validationService.validate(request);
+        validationService.validate(request, LoginViolation.class).ifPresent(violation -> { throw new LoginException(request.uiLanguage(), violation); });
+        validationService.validate(request, EmailViolation.class).ifPresent(violation -> { throw new EmailException(request.uiLanguage(), violation); });
+        validationService.validate(request, PasswordViolation.class).ifPresent(violation -> { throw new PasswordException(request.uiLanguage(), violation); });
         userProfileService.findByUsernameOrEmail(request.login(), request.email())
                 .ifPresentOrElse(
-                        user -> {
-                            throw new UserExistsException("User with given username or email already exists");
-                        },
+                        user -> { throw new UserExistsException("User with given username or email already exists"); },
                         () -> userProfileService.addUserProfile(request)
                 );
     }
@@ -131,7 +138,7 @@ public class AuthService {
         return userProfileService.findByLogin(loginRequest.login()).withPassword(loginRequest.password());
     }
 
-    public Map<AuthLocalizationKey, String> getLocalization(Language language) {
-        return authLocalizationService.getLocalization(language);
+    public Map<AuthTextLocalization, String> getTextLocalization(Language language) {
+        return authLocalizationService.getTextLocalization(language);
     }
 }

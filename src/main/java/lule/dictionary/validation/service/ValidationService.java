@@ -5,10 +5,7 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-
-import static java.util.stream.Collectors.*;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,17 +13,8 @@ public class ValidationService {
 
     private final Validator validator;
 
-    public <T> void validate(T ob) throws ValidationServiceException {
-        validator.validate(ob).stream()
-                .sorted(Comparator.comparingInt(violation -> violation.getMessage().length()))
-                .collect(groupingBy(ConstraintViolation::getPropertyPath))
-                .values().stream()
-                .filter(group -> !group.isEmpty())
-                .findFirst()
-                .orElseGet(List::of).stream()
-                .findFirst()
-                .ifPresent(violation -> {
-                    throw new ValidationServiceException( violation.getPropertyPath() + " " + violation.getMessage(), violation);
-                });
+    public <T> Optional<ConstraintViolation<T>> validate(T ob, Class<?> group) {
+        return validator.validate(ob, group).stream()
+                .findFirst();
     }
 }

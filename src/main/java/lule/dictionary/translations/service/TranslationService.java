@@ -23,7 +23,6 @@ import lule.dictionary.translations.service.exception.TranslationsNotFoundExcept
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.validation.service.ValidationService;
-import lule.dictionary.validation.service.ValidationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +67,7 @@ public class TranslationService {
                     .isPhrase(request.isPhrase())
                     .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
-        } catch (ValidationServiceException e) {
+        } catch (ValidationException e) {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translation(null)
@@ -163,7 +162,7 @@ public class TranslationService {
                         .build();
             }
             throw new RuntimeException("Unknown exception");
-        } catch (ValidationServiceException e) {
+        } catch (ValidationException e) {
             Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords().stream()
                             .map(patternService::removeSpecialCharacters)

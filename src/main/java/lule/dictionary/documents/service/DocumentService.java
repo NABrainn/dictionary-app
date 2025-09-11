@@ -25,7 +25,6 @@ import lule.dictionary.translations.data.request.ExtractPhrasesRequest;
 import lule.dictionary.translations.data.request.FindTranslationsInDocumentRequest;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.validation.service.ValidationService;
-import lule.dictionary.validation.service.ValidationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +49,7 @@ public class DocumentService {
     private final DocumentsLocalizationService documentsLocalization;
 
     @Transactional
-    public int createDocument(CreateDocumentRequest request) throws ValidationServiceException {
+    public int createDocument(CreateDocumentRequest request) throws ValidationException {
         switch (request.submissionStrategy()) {
             case UrlSubmissionStrategy urlSubmission -> {
                 validationService.validate(urlSubmission);

@@ -5,6 +5,9 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.auth.data.exception.EmailException;
+import lule.dictionary.auth.data.exception.LoginException;
+import lule.dictionary.auth.data.exception.PasswordException;
 import lule.dictionary.auth.data.request.LoginRequest;
 import lule.dictionary.auth.service.AuthService;
 import lule.dictionary.auth.data.request.SignupRequest;
@@ -12,7 +15,6 @@ import lule.dictionary.language.service.Language;
 import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.service.exception.UserExistsException;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
-import lule.dictionary.validation.service.ValidationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
@@ -42,7 +44,8 @@ public class AuthController {
             return "redirect:/";
         }
         Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-        model.addAttribute("localization", authService.getLocalization(sourceLanguage));
+        model.addAttribute("violations", Map.of());
+        model.addAttribute("localization", authService.getTextLocalization(sourceLanguage));
         return "auth/login";
     }
 
@@ -53,27 +56,35 @@ public class AuthController {
                         Authentication authentication,
                         HttpServletResponse response,
                         HttpSession httpSession) {
+        Language uiLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
         if(authentication != null) {
             return "redirect:/";
         }
         try {
-            authService.login(LoginRequest.of(login, password), response, httpSession);
+            authService.login(LoginRequest.of(login, password, uiLanguage), response, httpSession);
             return "redirect:/";
         }
-        catch (ValidationServiceException e) {
-            Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-            log.warn("Login authentication failure, resending page: {}", e.getViolation());
-            model.addAttribute("messages", Map.of());
-            model.addAttribute("localization", authService.getLocalization(sourceLanguage));
-            return "auth/login";
+        catch (LoginException e) {
+            log.info(e.getMessage());
+            model.addAttribute("loginViolation", e.getViolationMessage());
+            model.addAttribute("localization", authService.getTextLocalization(uiLanguage));
+            return "auth/signup";
+        }
+        catch (PasswordException e) {
+            log.info(e.getMessage());
+            model.addAttribute("passwordViolation", e.getViolationMessage());
+            model.addAttribute("localization", authService.getTextLocalization(uiLanguage));
+            return "auth/signup";
         }
         catch (UserNotFoundException e) {
             log.info("UserNotFoundException exception: {}", e.getMessage());
             model.addAttribute("login", "User does not exist");
+            model.addAttribute("localization", authService.getTextLocalization(uiLanguage));
             return "auth/login";
         }
         catch (AuthenticationException e) {
             log.info("Authentication exception: {}", e.getMessage());
+            model.addAttribute("localization", authService.getTextLocalization(uiLanguage));
             return "auth/login";
         }
     }
@@ -86,7 +97,7 @@ public class AuthController {
             return "redirect:/";
         }
         Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-        model.addAttribute("localization", authService.getLocalization(sourceLanguage));
+        model.addAttribute("localization", authService.getTextLocalization(sourceLanguage));
         return "auth/signup";
     }
 
@@ -97,23 +108,36 @@ public class AuthController {
                          Model model,
                          Authentication authentication,
                          HttpSession httpSession) {
+        Language uiLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
         if(authentication != null) {
             return "redirect:/";
         }
         try {
-            authService.signup(SignupRequest.of(login, email, password));
+            authService.signup(SignupRequest.of(login, email, password, uiLanguage));
+            model.addAttribute("localization", authService.getTextLocalization(uiLanguage));
             return "redirect:/auth/login";
         }
-        catch (ValidationServiceException e) {
-            Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
+        catch (LoginException e) {
             log.info(e.getMessage());
-            model.addAttribute("messages", Map.of());
-            model.addAttribute("localization", authService.getLocalization(sourceLanguage));
+            model.addAttribute("loginViolation", e.getViolationMessage());
+            model.addAttribute("localization", authService.getTextLocalization(uiLanguage));
             return "auth/signup";
         }
-
+        catch (EmailException e) {
+            log.info(e.getMessage());
+            model.addAttribute("emailViolation", e.getViolationMessage());
+            model.addAttribute("localization", authService.getTextLocalization(uiLanguage));
+            return "auth/signup";
+        }
+        catch (PasswordException e) {
+            log.info(e.getMessage());
+            model.addAttribute("passwordViolation", e.getViolationMessage());
+            model.addAttribute("localization", authService.getTextLocalization(uiLanguage));
+            return "auth/signup";
+        }
         catch (UserExistsException e) {
             log.info(e.getMessage());
+            model.addAttribute("localization", authService.getTextLocalization(uiLanguage));
             return "auth/signup";
         }
     }
@@ -124,7 +148,7 @@ public class AuthController {
                          HttpSession httpSession) {
         authService.logout(response);
         Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-        redirectAttributes.addFlashAttribute("localization", authService.getLocalization(sourceLanguage));
+        redirectAttributes.addFlashAttribute("localization", authService.getTextLocalization(sourceLanguage));
         return "redirect:/auth/login";
     }
 }
