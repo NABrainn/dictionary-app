@@ -1,4 +1,4 @@
-@import lule.dictionary.auth.data.localization.AuthLocalizationKey
+@import lule.dictionary.auth.data.AuthLocalizationKey
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.controllerAdvice.data.NavbarAttribute
 @import java.util.Map

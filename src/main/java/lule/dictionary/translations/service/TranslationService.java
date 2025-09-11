@@ -9,6 +9,8 @@ import lule.dictionary.language.service.Language;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.TranslationLocalizationKey;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
+import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
+import lule.dictionary.translations.data.attribute.WordCardAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.request.*;
@@ -262,9 +264,15 @@ public class TranslationService {
                     .quantity(request.quantity())
                     .isPhrase(request.isPhrase())
                     .translations(translations)
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
         }
-        throw new TranslationsNotFoundException("No translations found to review");
+        throw new TranslationsNotFoundException("No translations found to review", FlashcardConfigAttribute.builder()
+                .familiarity(request.familiarity())
+                .quantity(request.quantity())
+                .isPhrase(request.isPhrase())
+                .localization(translationLocalization.get(request.systemLanguage()))
+                .build());
 
     }
 
@@ -303,5 +311,30 @@ public class TranslationService {
 
     public Map<TranslationLocalizationKey, String> getFlashcardLocalization(Language language) {
         return translationLocalization.get(language);
+    }
+
+    public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request) {
+        return FlashcardConfigAttribute.builder()
+                .familiarity(request.familiarity())
+                .quantity(request.quantity())
+                .isPhrase(request.isPhrase())
+                .localization(translationLocalization.get(request.systemLanguage()))
+                .build();
+    }
+
+    public BaseFlashcardAttribute flipFlashcard(FlipFlashcardRequest request) {
+        return BaseFlashcardAttribute.builder()
+                .translations(request.translations())
+                .localization(translationLocalization.get(request.systemLanguage()))
+                .id(request.id())
+                .size(request.size())
+                .familiarity(request.familiarity())
+                .quantity(request.quantity())
+                .isPhrase(request.isPhrase())
+                .build();
+    }
+
+    public WordCardAttribute getCardAttribute(GetCardAttributeRequest request) {
+        return WordCardAttribute.of(request.sourceWord(), request.targetWord());
     }
 }

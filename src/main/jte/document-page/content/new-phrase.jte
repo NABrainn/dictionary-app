@@ -8,13 +8,12 @@
 @param int phraseLength
 @param List<String> familiarities
 @param List<String> isSavedList
-@param TranslationAttribute translationAttribute
-@param Map<String, String> translationLocalization
+@param TranslationAttribute attribute
 
 !{var cleanWordPattern = java.util.regex.Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
-!{String[] unprocessedPhraseText = translationAttribute.translation().targetWord().split(" ");}
+!{String[] unprocessedPhraseText = attribute.translation().targetWord().split(" ");}
 !{String[] processedPhraseText = cleanWordPattern
-    .matcher(translationAttribute.translation().targetWord())
+    .matcher(attribute.translation().targetWord())
     .replaceAll("")
     .toLowerCase()
     .split(" ");}
@@ -159,8 +158,7 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
     data-id="${selectableId}"
     data-is-translation-form-container="true">
         @template.document-page.content.translation.add.add-translation-form(
-        translationAttribute = translationAttribute,
-        translationLocalization = translationLocalization)
+        attribute = attribute)
     </div>
     @for(int wordId = selectableId, phraseWordId = 0; wordId < selectableId + phraseLength; wordId++, phraseWordId++)
         @template.document-page.content.word(

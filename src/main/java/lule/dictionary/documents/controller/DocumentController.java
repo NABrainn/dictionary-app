@@ -10,7 +10,6 @@ import lule.dictionary.documents.data.request.LoadDocumentContentRequest;
 import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
 import lule.dictionary.documents.data.attribute.DocumentFormAttribute;
 import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
-import lule.dictionary.errorLocalization.service.ErrorLocalization;
 import lule.dictionary.documents.data.documentSubmission.SubmissionStrategy;
 import lule.dictionary.documents.service.exception.DocumentNotFoundException;
 import lule.dictionary.documents.service.DocumentService;
@@ -35,8 +34,6 @@ public class DocumentController {
 
     private final DocumentService documentService;
     private final SessionHelper sessionHelper;
-    private final ErrorLocalization errorLocalization;
-
 
     @GetMapping({"", "/"})
     public String DocumentListPage() {
@@ -55,7 +52,7 @@ public class DocumentController {
                         ContentSubmissionStrategy.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
         model.addAttribute("messages", Map.of());
         model.addAttribute("attribute", DocumentFormAttribute.of(submissionStrategy, localization));
-        return "create-documentContentData-form/base-form";
+        return "create-document-form/base-form";
     }
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
@@ -65,9 +62,9 @@ public class DocumentController {
                                HttpSession session) {
         try {
             DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
-            model.addAttribute("documentAttribute", documentAttribute);
+            model.addAttribute("attribute", documentAttribute);
             model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
-            return "documentContentData-page/base-page";
+            return "document-page/base-page";
 
         }
         catch (InvalidUrlException e) {
@@ -82,14 +79,14 @@ public class DocumentController {
 
     @GetMapping({"/{documentId}/reload", "/{documentId}/reload/"})
     public String reloadDocumentPage(@PathVariable("documentId") int documentId,
-                               @RequestParam(name = "page", defaultValue = "1") int page,
-                               Model model,
-                               HttpSession session) {
+                                     @RequestParam(name = "page", defaultValue = "1") int page,
+                                     Model model,
+                                     HttpSession session) {
         try {
             DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
             model.addAttribute("documentAttribute", documentAttribute);
             model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
-            return "documentContentData-page/content/content";
+            return "document-page/content/content";
 
         }
         catch (InvalidUrlException e) {
@@ -121,7 +118,7 @@ public class DocumentController {
 
         } catch (ValidationServiceException e) {
             log.warn("Retrying view due to input issue: {}", e.getMessage());
-            model.addAttribute("messages", errorLocalization.getMessageByViolation(e.getViolation(), principal.userInterfaceLanguage()));
+            model.addAttribute("messages", Map.of());
             model.addAttribute("attribute", DocumentFormAttribute.of(submissionStrategy, localization));
             return "create-document-form/base-form";
         } catch (InvalidUriException e) {

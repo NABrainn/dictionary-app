@@ -9,7 +9,6 @@ import lule.dictionary.auth.data.request.LoginRequest;
 import lule.dictionary.auth.service.AuthService;
 import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
-import lule.dictionary.errorLocalization.service.ErrorLocalization;
 import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.service.exception.UserExistsException;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
@@ -33,7 +32,6 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
-    private final ErrorLocalization errorLocalization;
     private final SessionHelper sessionHelper;
 
     @GetMapping({"/login", "/login/"})
@@ -64,9 +62,8 @@ public class AuthController {
         }
         catch (ValidationServiceException e) {
             Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
-            var messages = errorLocalization.getMessageByViolation(e.getViolation(), sourceLanguage);
             log.warn("Login authentication failure, resending page: {}", e.getViolation());
-            model.addAttribute("messages", errorLocalization.getMessageByViolation(e.getViolation(), sourceLanguage));
+            model.addAttribute("messages", Map.of());
             model.addAttribute("localization", authService.getLocalization(sourceLanguage));
             return "auth/login";
         }
@@ -110,7 +107,7 @@ public class AuthController {
         catch (ValidationServiceException e) {
             Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
             log.info(e.getMessage());
-            model.addAttribute("messages", errorLocalization.getMessageByViolation(e.getViolation(), sourceLanguage));
+            model.addAttribute("messages", Map.of());
             model.addAttribute("localization", authService.getLocalization(sourceLanguage));
             return "auth/signup";
         }

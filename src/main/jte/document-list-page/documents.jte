@@ -24,7 +24,7 @@
                             hx-get="/documents/new"
                             hx-target="#main"
                             hx-swap="innerHTML"
-                            hx-push-url="/documents/new">${attribute.localization().get(DocumentLocalizationKey.CLICK_HERE}</a> ${attribute.localization().get(DocumentLocalizationKey.TO_ADD_YOUR_FIRST}
+                            hx-push-url="/documents/new">${attribute.localization().get(DocumentLocalizationKey.CLICK_HERE)}</a> ${attribute.localization().get(DocumentLocalizationKey.TO_ADD_YOUR_FIRST)}
                         </span>
                     </div>
                 @else
@@ -50,10 +50,10 @@
                                 class="md:text-xl
                                 text-lg font-bold truncate text-primary">${item.title()}</p>
                                 <div class="flex flex-col gap-1">
-                                    <span>${attribute.localization().get(DocumentLocalizationKey.WORDS_TOTAL}: <span class="text-secondary font-bold">${item.wordCount()}</span></span>
-                                    <span>${attribute.localization().get(DocumentLocalizationKey.NEW_WORDS}: <span class="text-secondary font-bold">${item.newWordCount()}</span></span>
-                                    <span>${attribute.localization().get(DocumentLocalizationKey.TRANSLATIONS}: <span class="text-secondary font-bold">${item.translationCount()}</span></span>
-                                    <span>${attribute.localization().get(DocumentLocalizationKey.AUTHOR}: <span class="text-secondary font-bold">${item.owner()}</span></span>
+                                    <span>${attribute.localization().get(DocumentLocalizationKey.WORDS_TOTAL)}: <span class="text-secondary font-bold">${item.wordCount()}</span></span>
+                                    <span>${attribute.localization().get(DocumentLocalizationKey.NEW_WORDS)}: <span class="text-secondary font-bold">${item.newWordCount()}</span></span>
+                                    <span>${attribute.localization().get(DocumentLocalizationKey.TRANSLATIONS)}: <span class="text-secondary font-bold">${item.translationCount()}</span></span>
+                                    <span>${attribute.localization().get(DocumentLocalizationKey.AUTHOR)}: <span class="text-secondary font-bold">${item.owner()}</span></span>
                                 </div>
                             </div>
                         @endfor
@@ -66,7 +66,7 @@
                     hx-target="#main"
                     hx-swap="innerHTML"
                     hx-push-url="/documents/new"
-                    type="button">${attribute.localization().get(DocumentLocalizationKey.ADD_BOOK}</button>
+                    type="button">${attribute.localization().get(DocumentLocalizationKey.ADD_BOOK)}</button>
                 </div>
             </div>
     @endif

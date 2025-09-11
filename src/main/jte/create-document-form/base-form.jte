@@ -1,11 +1,12 @@
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.documents.data.DocumentLocalizationKey
 @import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy
-@import lule.dictionary.documents.data.DocumentFormAttribute
+@import lule.dictionary.documents.data.attribute.DocumentFormAttribute
 @import lule.dictionary.controllerAdvice.data.NavbarAttribute
 @import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy
 @import java.util.Map
 
-@param DocumentFormAttribute documentFormAttribute
+@param DocumentFormAttribute attribute
 @param NavbarAttribute navbarAttribute
 @param BaseAttribute baseAttribute
 @param Map<String, String> messages
@@ -42,7 +43,7 @@
         hx-swap="innerHTML"
         hx-push-url="true">
             <div class="flex flex-col gap-2">
-                <label class="text-accent font-bold text-2xl min-h-8" for="title">${documentFormAttribute.titleText()}</label>
+                <label class="text-accent font-bold text-2xl min-h-8" for="title">${attribute.localization().get(DocumentLocalizationKey.TITLE)}</label>
                 <textarea
                 is="static-textarea"
                 maxlength="175"
@@ -57,14 +58,14 @@
                 @endif
             </div>
             <div class="flex flex-col gap-4">
-                <span class="text-accent font-bold text-2xl">${documentFormAttribute.contentText()}</span>
+                <span class="text-accent font-bold text-2xl">${attribute.localization().get(DocumentLocalizationKey.CONTENT)}</span>
                 <div class="flex justify-center">
-                    !{String color = switch(documentFormAttribute.submissionStrategy()) {
+                    !{String color = switch(attribute.submissionStrategy()) {
                         case ContentSubmissionStrategy content -> messages.getOrDefault("content", "");
                         case UrlSubmissionStrategy url -> messages.get("invalidUriMessage");
                         default -> "";
                     };}
-                    @if(documentFormAttribute.submissionStrategy() instanceof UrlSubmissionStrategy)
+                    @if(attribute.submissionStrategy() instanceof UrlSubmissionStrategy)
                         <button class="
                         bg-primary border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
                         type="button"
@@ -77,7 +78,7 @@
                         hx-target="#document-form-wrapper"
                         hx-swap="outerHTML"
                         hx-push-url="false"
-                        autofocus>${documentFormAttribute.importByUrlBtnText()}</button>
+                        autofocus>${attribute.localization().get(DocumentLocalizationKey.IMPORT_BY_URL)}</button>
                         <button
                         class="
                         border border-2 border-l-1 border-primary text-accent px-4 py-1 grow-1"
@@ -90,7 +91,7 @@
                         }'
                         hx-target="#document-form-wrapper"
                         hx-swap="outerHTML"
-                        hx-push-url="false">${documentFormAttribute.insertManuallyBtnText()}</button>
+                        hx-push-url="false">${attribute.localization().get(DocumentLocalizationKey.INSERT_MANUALLY)}</button>
                     @else
                         <button class="
                         border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
@@ -104,7 +105,7 @@
                         hx-target="#document-form-wrapper"
                         hx-swap="outerHTML"
                         hx-push-url="false"
-                        autofocus>${documentFormAttribute.importByUrlBtnText()}</button>
+                        autofocus>${attribute.localization().get(DocumentLocalizationKey.IMPORT_BY_URL)}</button>
                         <button
                         class="
                         bg-primary border border-2 border-l-1 border-primary text-accent px-4 py-1 grow-1"
@@ -117,32 +118,30 @@
                         }'
                         hx-target="#document-form-wrapper"
                         hx-swap="outerHTML"
-                        hx-push-url="false">${documentFormAttribute.insertManuallyBtnText()}</button>
+                        hx-push-url="false">${attribute.localization().get(DocumentLocalizationKey.INSERT_MANUALLY)}</button>
                     @endif
 
                 </div>
-                !{String message = switch(documentFormAttribute.submissionStrategy()) {
+                !{String message = switch(attribute.submissionStrategy()) {
                     case ContentSubmissionStrategy content -> messages.getOrDefault("content", "");
                     case UrlSubmissionStrategy url when messages.get("invalidUriMessage") != null -> messages.get("invalidUriMessage");
                     case UrlSubmissionStrategy url when messages.get("url") != null -> messages.get("url");
                     default -> "";
                 };}
-                @if(documentFormAttribute.submissionStrategy() instanceof ContentSubmissionStrategy content)
+                @if(attribute.submissionStrategy() instanceof ContentSubmissionStrategy content)
                     @template.create-document-form.content-form(
-                        spaceForContentText = content.spaceForContentText(),
-                        message = message
-                    )
-                @elseif(documentFormAttribute.submissionStrategy() instanceof UrlSubmissionStrategy url)
+                    spaceForContentText = content.spaceForContentText(),
+                    message = message)
+                @elseif(attribute.submissionStrategy() instanceof UrlSubmissionStrategy url)
                     @template.create-document-form.url-form(
-                        spaceForUrlText = url.spaceForUrlText(),
-                        message = message
-                    )
+                    spaceForUrlText = url.spaceForUrlText(),
+                    message = message)
                 @endif
             </div>
             <div>
                 <button
                 type="submit"
-                class="text-left px-2 py-1 bg-accent text-primary rounded cursor-pointer">${documentFormAttribute.submitBtnText()}</button>
+                class="text-left px-2 py-1 bg-accent text-primary rounded cursor-pointer">${attribute.localization().get(DocumentLocalizationKey.SUBMIT)}</button>
             </div>
         </form>
     </div>

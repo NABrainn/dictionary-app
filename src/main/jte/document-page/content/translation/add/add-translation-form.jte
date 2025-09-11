@@ -1,10 +1,8 @@
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
-@import java.util.Map
 
-@param TranslationAttribute translationAttribute
-@param Map<String, String> translationLocalization
+@param TranslationAttribute attribute
 
-!{var processedWord = translationAttribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
+!{var processedWord = attribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
 
 <div
 onclick="event.stopPropagation()"
@@ -21,32 +19,32 @@ id="translation-form">
     <span class="font-bold text-lg text-accent text-wrap">${processedWord}</span>
     <div id="translation-manager">
         @template.document-page.content.translation.add.translation-manager(
-        translationAttribute = translationAttribute,
-        translationLocalization = translationLocalization)
+        attribute = attribute,
+        localization = attribute.localization())
     </div>
     <div class="
     md:flex md:flex-col md:gap-0.25
     flex flex-row justify-around">
-        @for(var level : translationAttribute.familiarityLevels().entrySet())
+        @for(var level : attribute.familiarityLevels().entrySet())
             <form
             class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
             cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8  justify-center items-center"
-            id="translation-form-${translationAttribute.selectedWordId()}"
+            id="translation-form-${attribute.selectedWordId()}"
             hx-trigger="click"
             hx-post="/translations/new"
             hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,sourceWords,documentId"
             hx-vals='{
                 "targetWord": "${processedWord}",
                 "familiarity": "${level.getValue().name()}",
-                "sourceLanguage": "${translationAttribute.translation().sourceLanguage().name()}",
-                "targetLanguage": "${translationAttribute.translation().targetLanguage().name()}",
-                "documentId": "${translationAttribute.documentId()}",
-                "selectedWordId": "${translationAttribute.selectedWordId()}",
-                "isPhrase": "${translationAttribute.isPhrase()}"
+                "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
+                "targetLanguage": "${attribute.translation().targetLanguage().name()}",
+                "documentId": "${attribute.documentId()}",
+                "selectedWordId": "${attribute.selectedWordId()}",
+                "isPhrase": "${attribute.isPhrase()}"
             }'
             hx-disinherit="*"
-            hx-target="closest #translation-form-container-${translationAttribute.selectedWordId()}"
+            hx-target="closest #translation-form-container-${attribute.selectedWordId()}"
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()
             }'
@@ -265,14 +263,14 @@ id="translation-form">
                     }
                 })
             }">
-                @for(var word : translationAttribute.translation().sourceWords())
+                @for(var word : attribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">
                 @endfor
                 <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                 <input
                 class="md:inline
                 hidden cursor-pointer"
-                value="${translationLocalization.get(level.getValue().name().toLowerCase())}"
+                value="${level.getValue().name().toLowerCase()}"
                 type="submit">
             </form>
         @endfor

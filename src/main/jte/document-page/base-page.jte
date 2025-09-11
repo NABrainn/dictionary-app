@@ -3,7 +3,7 @@
 @import lule.dictionary.documents.data.request.DocumentAttribute
 
 @param NavbarAttribute navbarAttribute
-@param DocumentAttribute documentAttribute
+@param DocumentAttribute attribute
 @param BaseAttribute baseAttribute
 <script src="/js/document-page.js" defer></script>
 
@@ -13,5 +13,5 @@
     isAuthenticated = baseAttribute.isAuthenticated(),
     isProfileToggleBtnVisible = false)
     @template.document-page.content.content(
-    documentAttribute = documentAttribute)`,
+    attribute = attribute)`,
     baseAttribute = baseAttribute)

@@ -49,7 +49,7 @@ public class TranslationController {
                     .systemLanguage(principal.userInterfaceLanguage())
                     .build());
             model.addAttribute("attribute", translationAttribute);
-            return "documentContentData-page/content/translation/add/add-translation-form";
+            return "document-page/content/translation/add/add-translation-form";
         }
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         FindByTargetWordRequest request = FindByTargetWordRequest.builder()
@@ -64,7 +64,7 @@ public class TranslationController {
                 .build();
         TranslationAttribute attribute = translationService.findByTargetWord(request);
         model.addAttribute("attribute", attribute);
-        return "documentContentData-page/content/translation/update/update-translation-form";
+        return "document-page/content/translation/update/update-translation-form";
     }
 
     @GetMapping({"/create-phrase", "/create-phrase/"})
@@ -94,7 +94,7 @@ public class TranslationController {
         model.addAttribute("familiarities", familiarities);
         model.addAttribute("isSavedList", isSavedList);
         model.addAttribute("attribute", translationAttribute);
-        return "documentContentData-page/content/new-phrase";
+        return "document-page/content/new-phrase";
     }
 
     @PostMapping({"/new", "/new/"})
@@ -125,9 +125,9 @@ public class TranslationController {
                     .isPhrase(isPhrase)
                     .systemLanguage(principal.userInterfaceLanguage())
                     .build();
-            TranslationAttribute result = translationService.createTranslation(request);
-            model.addAttribute("translationAttribute", result);
-            return "documentContentData-page/content/translation/update/update-translation-form";
+            TranslationAttribute attribute = translationService.createTranslation(request);
+            model.addAttribute("attribute", attribute);
+            return "document-page/content/translation/update/update-translation-form";
         } catch (TranslationContraintViolationException e) {
             log.info(e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -156,7 +156,7 @@ public class TranslationController {
                 .build();
         TranslationAttribute result = translationService.updateFamiliarity(request);
         model.addAttribute("attribute", result);
-        return "documentContentData-page/content/translation/update/update-translation-form";
+        return "document-page/content/translation/update/update-translation-form";
     }
 
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
@@ -186,7 +186,7 @@ public class TranslationController {
         } catch (TranslationContraintViolationException e) {
             log.warn(e.getMessage());
             model.addAttribute("attribute", e.getTranslationAttribute());
-            return "documentContentData-page/content/translation/update/update-translation-form";
+            return "document-page/content/translation/update/update-translation-form";
         }
     }
 
@@ -208,7 +208,7 @@ public class TranslationController {
                 .build();
         TranslationAttribute result = translationService.deleteSourceWord(request);
         model.addAttribute("attribute", result);
-        return "documentContentData-page/content/translation/update/update-translation-form";
+        return "document-page/content/translation/update/update-translation-form";
     }
 
     private Pattern compileNonSpecialChars() {

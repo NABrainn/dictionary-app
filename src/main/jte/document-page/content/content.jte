@@ -4,17 +4,17 @@
 @import gg.jte.support.ForSupport
 @import java.util.regex.Pattern
 
-@param DocumentAttribute documentAttribute
+@param DocumentAttribute attribute
 
-!{var translations = documentAttribute.importData().translations();}
-!{var content = documentAttribute.importData().content();}
-!{var documentId = documentAttribute.importData().documentId();}
+!{var translations = attribute.documentContentData().translations();}
+!{var content = attribute.documentContentData().content();}
+!{var documentId = attribute.documentContentData().documentId();}
 
 <form
 id="page-content"
 class="flex flex-col gap-8 text-wrap"
 
-data-document-id="${documentAttribute.importData().documentId()}"
+data-document-id="${attribute.documentContentData().documentId()}"
 hx-trigger="createphrase from:document"
 hx-get="/translations/create-phrase"
 hx-target="#new-phrase"
@@ -39,12 +39,12 @@ hx-vals='js:{
     documentPage.closeAllTranslationForms()
     documentPage.cleanupSelectedWord()
     documentPage.cleanupSelectedPhrase()">
-        @if(documentAttribute.paginationData().currentPageNumber() == 1)
+        @if(attribute.paginationData().currentPageNumber() == 1)
             <span
             id="content-title"
             class="
             md:text-4xl
-            text-xl text-neutral font-bold ">${documentAttribute.importData().title()}</span>
+            text-xl text-neutral font-bold ">${attribute.documentContentData().title()}</span>
         @endif
         <div
         id="content-main"
@@ -119,12 +119,12 @@ hx-vals='js:{
     md:max-w-2/5 md:gap-4
     max-w-full flex justify-center gap-2  mx-auto items-center">
         @template.document-page.content.paginator(
-        id = documentAttribute.importData().documentId(),
-        currentPage = documentAttribute.paginationData().currentPageNumber(),
-        pages = documentAttribute.paginationData().numberOfPages(),
-        importId = documentAttribute.importData().documentId(),
-        rows = documentAttribute.paginationData().rows(),
-        currentRow = documentAttribute.paginationData().currentRowNumber(),
-        firstPageOfRow = documentAttribute.paginationData().firstPageOfRowNumber())
+        id = attribute.documentContentData().documentId(),
+        currentPage = attribute.paginationData().currentPageNumber(),
+        pages = attribute.paginationData().numberOfPages(),
+        importId = attribute.documentContentData().documentId(),
+        rows = attribute.paginationData().rows(),
+        currentRow = attribute.paginationData().currentRowNumber(),
+        firstPageOfRow = attribute.paginationData().firstPageOfRowNumber())
     </div>
 </form>
