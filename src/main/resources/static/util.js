@@ -157,7 +157,10 @@ window.util = {
             throw new Error('Nodes config cannot be undefined')
         }
         
-        const searchWords = config.text.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, '').split(' ');            
+        const searchWords = config.text
+            .toLowerCase()
+            .replace(/[^\p{L}\p{N}\s]/gu, '')
+            .split(' ');            
         const phraseWordNodes = config.nodes
             .map((node, index) => ({
                 id: index,
