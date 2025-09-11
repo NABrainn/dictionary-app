@@ -20,7 +20,7 @@ public class LessonController {
     public String lessonsPage(Model model,
                               Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        DocumentListAttribute documents = documentService.findMany(FindByTargetLanguageRequest.of(principal.getUsername(), principal.sourceLanguage(), principal.targetLanguage()));
+        DocumentListAttribute documents = documentService.findMany(FindByTargetLanguageRequest.of(principal.getUsername(), principal.userInterfaceLanguage(), principal.targetLanguage()));
         model.addAttribute("attribute", documents);
         return "document-list-page/documents";
     }

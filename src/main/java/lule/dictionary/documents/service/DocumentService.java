@@ -78,7 +78,7 @@ public class DocumentService {
 
     public DocumentListAttribute findMany(FindByTargetLanguageRequest request) {
         List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(request.owner(), request.targetLanguage());
-        Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(request.sourceLanguage());
+        Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(request.uiLanguage());
         return DocumentListAttribute.of(documents, localization);
     }
 
