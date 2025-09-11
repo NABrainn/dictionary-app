@@ -84,7 +84,7 @@ public class DocumentController {
                                      HttpSession session) {
         try {
             DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
-            model.addAttribute("documentAttribute", documentAttribute);
+            model.addAttribute("attribute", documentAttribute);
             model.addAttribute("isProfileOpen", sessionHelper.getOrFalse(session, "isProfileOpen"));
             return "document-page/content/content";
 
