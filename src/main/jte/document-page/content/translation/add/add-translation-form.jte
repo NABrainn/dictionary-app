@@ -1,3 +1,5 @@
+@import lule.dictionary.translations.data.Familiarity
+@import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 
 @param TranslationAttribute attribute
@@ -270,7 +272,7 @@ id="translation-form">
                 <input
                 class="md:inline
                 hidden cursor-pointer"
-                value="${level.getValue().name().toLowerCase()}"
+                value="${attribute.localization().get(TranslationLocalizationKey.valueOf(level.getValue().name().toUpperCase()))}"
                 type="submit">
             </form>
         @endfor

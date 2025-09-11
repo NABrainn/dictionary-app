@@ -1,3 +1,4 @@
+@import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 
 @param TranslationAttribute attribute
@@ -36,7 +37,7 @@ id="translation-form">
                     block">${level.getKey()}<span class="md:inline hidden">: </span></span>
                     <span class="
                     md:inline
-                    hidden">${level.getValue().name().toLowerCase()}</span>
+                    hidden">${attribute.localization().get(TranslationLocalizationKey.valueOf(level.getValue().name().toUpperCase()))}</span>
                 </div>
             @else
             <form
@@ -138,7 +139,7 @@ id="translation-form">
                 class="
                 md:inline
                 hidden cursor-pointer"
-                value="${level.getValue().name().toLowerCase()}"
+                value="${attribute.localization().get(TranslationLocalizationKey.valueOf(level.getValue().name().toUpperCase()))}"
                 type="submit">
             </form>
             @endif
