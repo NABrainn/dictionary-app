@@ -1,20 +1,17 @@
 package lule.dictionary.validation.service;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.language.service.Language;
+import lule.dictionary.validation.data.Validated;
+import lule.dictionary.validation.data.ValidationException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ValidationService {
-
-    private final Validator validator;
-
-    public <T> Optional<ConstraintViolation<T>> validate(T ob, Class<?> group) {
-        return validator.validate(ob, group).stream()
-                .findFirst();
+    public void validate(Validated object, Language language) {
+        object.validate(language).stream()
+                .findFirst()
+                .ifPresent(violation -> { throw new ValidationException(violation); });
     }
 }

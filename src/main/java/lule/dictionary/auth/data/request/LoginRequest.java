@@ -1,20 +1,67 @@
 package lule.dictionary.auth.data.request;
 
-import jakarta.validation.constraints.*;
-import lombok.NonNull;
-import lule.dictionary.auth.data.localization.group.LoginViolation;
-import lule.dictionary.auth.data.localization.group.PasswordViolation;
 import lule.dictionary.language.service.Language;
+import lule.dictionary.validation.data.Validated;
+import lule.dictionary.validation.data.ValidationException;
 
-public record LoginRequest(@NotBlank(message = "LOGIN_CANNOT_BE_EMPTY", groups = LoginViolation.class)
-                           @Pattern(message = "LOGIN_MUST_CONTAIN_ONLY_LETTERS", regexp = "^[a-zA-Z]{8,50}$", groups = LoginViolation.class)
-                           @Size(message = "LOGIN_MUST_BE_BETWEEN_8_AND_50_CHARACTERS", min = 8, max = 50, groups = LoginViolation.class)
-                           String login,
-                           @NotBlank(message = "PASSWORD_CANNOT_BE_EMPTY", groups = PasswordViolation.class)
-                           @Size(message = "PASSWORD_MUST_BE_BETWEEN_8_AND_200_CHARACTERS", min = 8, max = 200, groups = PasswordViolation.class)
-                           String password,
-                           @NonNull Language uiLanguage) implements AuthRequest {
-    public static LoginRequest of(String login, String password, Language language) {
-        return new LoginRequest(login, password, language);
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public record LoginRequest(
+        String login,
+        String password) implements AuthRequest, Validated {
+    public static LoginRequest of(String login, String password) {
+        return new LoginRequest(login, password);
+    }
+
+    @Override
+    public Set<Map<String, String>> validate(Language language) {
+        Set<Map<String, String>> violations = new HashSet<>();
+        if (login.isBlank()) {
+            violations.add(Map.of(
+                    "login",
+                    switch (language) {
+                        case PL -> "Nazwa użytkownika nie może być pusta";
+                        case EN -> "Username cannot be empty";
+                        case IT -> "Il nome utente non può essere vuoto";
+                        case NO -> "Brukernavn kan ikke være tomt";
+                    })
+            );
+        }
+        if (login.length() < 8 || login.length() > 50) {
+            throw new ValidationException(Map.of(
+                    "login",
+                    switch (language) {
+                        case PL -> "Nazwa użytkownika musi mieć od 8 do 50 znaków";
+                        case EN -> "Username must be between 8 and 50 characters";
+                        case IT -> "Il nome utente deve avere tra 8 e 50 caratteri";
+                        case NO -> "Brukernavn må være mellom 8 og 50 tegn";
+                    })
+            );
+        }
+        if (password.isBlank()) {
+            violations.add(Map.of(
+                    "password",
+                    switch (language) {
+                        case PL -> "Hasło nie może być puste";
+                        case EN -> "Password cannot be empty";
+                        case IT -> "La password non può essere vuota";
+                        case NO -> "Passord kan ikke være tomt";
+                    })
+            );
+        }
+        if (password.length() < 8 || password.length() > 200) {
+            throw new ValidationException(Map.of(
+                    "password",
+                    switch (language) {
+                        case PL -> "Hasło musi mieć od 8 do 200 znaków";
+                        case EN -> "Password must be between 8 and 200 characters";
+                        case IT -> "La password deve avere tra 8 e 200 caratteri";
+                        case NO -> "Passord må være mellom 8 og 200 tegn";
+                    })
+            );
+        }
+        return violations;
     }
 }

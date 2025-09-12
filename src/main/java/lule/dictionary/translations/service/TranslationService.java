@@ -1,13 +1,11 @@
 package lule.dictionary.translations.service;
 
-import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.stringUtil.service.PatternService;
-import lule.dictionary.translations.data.TranslationLocalizationKey;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
 import lule.dictionary.translations.data.attribute.WordCardAttribute;
@@ -18,10 +16,11 @@ import lule.dictionary.translations.service.exception.InvalidInputException;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.repository.TranslationRepository;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
-import lule.dictionary.translations.service.exception.TranslationContraintViolationException;
+import lule.dictionary.translations.service.exception.TranslationConstraintViolationException;
 import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
 import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.validation.data.ValidationException;
 import lule.dictionary.validation.service.ValidationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +45,7 @@ public class TranslationService {
     @Transactional
     public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
         try {
-            validate(request);
+            validationService.validate(request, Language.EN);
             Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords())
                     .targetWord(request.targetWord())
@@ -78,13 +77,13 @@ public class TranslationService {
                     .isPhrase(request.isPhrase())
                     .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
-            throw new TranslationContraintViolationException(translationAttribute, e.getViolation());
+            throw new TranslationConstraintViolationException(translationAttribute, e.getViolation());
         }
     }
 
     @Transactional
     public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request)throws InvalidInputException {
-        validate(request);
+        validationService.validate(request, Language.EN);
         Optional<Translation> optionalTranslation = getTranslationFromDatabase(request);
         if(optionalTranslation.isPresent()) {
             Translation translation = optionalTranslation.get();
@@ -147,7 +146,7 @@ public class TranslationService {
     @Transactional
     public TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request) throws InvalidInputException {
         try {
-            validate(request);
+            validationService.validate(request, Language.EN);
             Optional<Translation> optionalTranslation = executeDatabaseUpdate(request);
             if(optionalTranslation.isPresent()) {
                 return TranslationAttribute.builder()
@@ -185,13 +184,13 @@ public class TranslationService {
                     .isPhrase(request.isPhrase())
                     .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
-            throw new TranslationContraintViolationException(translationAttribute, e.getViolation());
+            throw new TranslationConstraintViolationException(translationAttribute, e.getViolation());
         }
     }
 
     @Transactional
     public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request) {
-        validate(request);
+        validationService.validate(request, Language.EN);
         Optional<Translation> optionalTranslation = translationRepository.deleteSourceWord(request);
         if(optionalTranslation.isPresent()) {
             return TranslationAttribute.builder()
@@ -302,14 +301,6 @@ public class TranslationService {
 
     private int insertIntoDatabase(Translation translation,  AddTranslationRequest request) {
         return translationRepository.addTranslation(translation, request.documentId()).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
-    }
-
-    private void validate(TranslationsRequest request) throws ConstraintViolationException {
-        validationService.validate(request);
-    }
-
-    public Map<TranslationLocalizationKey, String> getFlashcardLocalization(Language language) {
-        return translationLocalization.get(language);
     }
 
     public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request) {

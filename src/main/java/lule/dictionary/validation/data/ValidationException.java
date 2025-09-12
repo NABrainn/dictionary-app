@@ -1,12 +1,12 @@
 package lule.dictionary.validation.data;
 
-public abstract class ValidationException extends RuntimeException {
-  public ValidationException(String message) {
-    super(message);
-  }
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-  protected ValidationException() {
-  }
+import java.util.Map;
 
-    public abstract String getViolationMessage();
+@RequiredArgsConstructor
+@Getter
+public class ValidationException extends RuntimeException {
+  private final Map<String, String> violation;
 }

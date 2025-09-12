@@ -17,6 +17,7 @@ import lule.dictionary.jsoup.service.exception.InvalidUriException;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.validation.data.ValidationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

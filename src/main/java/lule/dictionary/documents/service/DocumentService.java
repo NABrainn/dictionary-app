@@ -49,10 +49,10 @@ public class DocumentService {
     private final DocumentsLocalizationService documentsLocalization;
 
     @Transactional
-    public int createDocument(CreateDocumentRequest request) throws ValidationException {
+    public int createDocument(CreateDocumentRequest request) {
         switch (request.submissionStrategy()) {
             case UrlSubmissionStrategy urlSubmission -> {
-                validationService.validate(urlSubmission);
+                validationService.validate(urlSubmission, Language.EN);
                 String content = jsoupService.importDocumentContent(urlSubmission.url());
                 return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
                         .title(urlSubmission.title())
@@ -62,7 +62,7 @@ public class DocumentService {
                         .build());
             }
             case ContentSubmissionStrategy contentSubmission -> {
-                validationService.validate(contentSubmission);
+                validationService.validate(contentSubmission, Language.EN);
                 String content = contentSubmission.content();
                 return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
                         .title(contentSubmission.title())

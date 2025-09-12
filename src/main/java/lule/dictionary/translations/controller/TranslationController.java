@@ -8,7 +8,7 @@ import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
-import lule.dictionary.translations.service.exception.TranslationContraintViolationException;
+import lule.dictionary.translations.service.exception.TranslationConstraintViolationException;
 import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -128,7 +128,7 @@ public class TranslationController {
             TranslationAttribute attribute = translationService.createTranslation(request);
             model.addAttribute("attribute", attribute);
             return "document-page/content/translation/update/update-translation-form";
-        } catch (TranslationContraintViolationException e) {
+        } catch (TranslationConstraintViolationException e) {
             log.info(e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -183,7 +183,7 @@ public class TranslationController {
             TranslationAttribute attribute = translationService.updateSourceWords(request);
             model.addAttribute("attribute", attribute);
             return "documentContentData-page/content/translation/update/update-translation-form";
-        } catch (TranslationContraintViolationException e) {
+        } catch (TranslationConstraintViolationException e) {
             log.warn(e.getMessage());
             model.addAttribute("attribute", e.getTranslationAttribute());
             return "document-page/content/translation/update/update-translation-form";

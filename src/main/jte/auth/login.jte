@@ -1,5 +1,4 @@
 @import lule.dictionary.auth.data.localization.AuthTextLocalization
-@import lule.dictionary.auth.data.localization.group.LoginViolation
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.controllerAdvice.data.NavbarAttribute
 @import java.util.Map

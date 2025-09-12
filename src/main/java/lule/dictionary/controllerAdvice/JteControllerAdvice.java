@@ -116,7 +116,7 @@ public class JteControllerAdvice {
                     .build());
             return;
         }
-        Language sourceLanguage = sessionHelper.getSystemLanguageInfo(httpSession);
+        Language sourceLanguage = sessionHelper.getUILanguage(httpSession);
         model.addAttribute("navbarAttribute", NavbarAttribute.builder()
                 .loginBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LOG_IN))
                 .lessonsBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LESSONS))
