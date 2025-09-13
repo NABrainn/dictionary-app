@@ -110,6 +110,24 @@
 
 	<build>
 		<plugins>
+<!--			<plugin>-->
+<!--				<groupId>gg.jte</groupId>-->
+<!--				<artifactId>jte-maven-plugin</artifactId>-->
+<!--				<version>3.2.1</version>-->
+<!--				<configuration>-->
+<!--					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>-->
+<!--					<targetDirectory>${project.build.outputDirectory}</targetDirectory>-->
+<!--					<contentType>Html</contentType>-->
+<!--				</configuration>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<phase>process-classes</phase>-->
+<!--						<goals>-->
+<!--							<goal>precompile</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -125,29 +143,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.flywaydb</groupId>
-				<artifactId>flyway-maven-plugin</artifactId>
-				<version>10.17.0</version>
-			</plugin>
-			<plugin>
-				<groupId>gg.jte</groupId>
-				<artifactId>jte-maven-plugin</artifactId>
-				<version>3.2.1</version>
-				<configuration>
-					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
-					<targetDirectory>${project.build.outputDirectory}</targetDirectory>
-					<contentType>Html</contentType>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>precompile</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -157,9 +152,8 @@
 							<artifactId>lombok</artifactId>
 						</path>
 					</annotationProcessorPaths>
-                    <source>24</source>
-                    <target>24</target>
-                    <compilerArgs>--enable-preview</compilerArgs>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
 			</plugin>
 			<plugin>
