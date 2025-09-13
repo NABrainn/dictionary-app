@@ -18,7 +18,7 @@ import lule.dictionary.translations.service.exception.InvalidInputException;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.repository.TranslationRepository;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
-import lule.dictionary.translations.service.exception.TranslationConstraintViolationException;
+import lule.dictionary.translations.service.exception.TranslationServiceException;
 import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
 import lule.dictionary.userProfiles.data.UserProfile;
@@ -80,7 +80,7 @@ public class TranslationService {
                     .isPhrase(request.isPhrase())
                     .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
-            throw new TranslationConstraintViolationException(translationAttribute, e.getViolation());
+            throw new TranslationServiceException(translationAttribute, e.getViolation());
         }
     }
 
@@ -150,20 +150,20 @@ public class TranslationService {
         try {
             Language uiLanguage = sessionHelper.getUILanguage(session);
             validationService.validate(request, uiLanguage);
-            Optional<Translation> optionalTranslation = executeDatabaseUpdate(request);
-            if(optionalTranslation.isPresent()) {
-                return TranslationAttribute.builder()
+            return translationRepository.updateSourceWords(request)
+                    .map(translation -> TranslationAttribute.builder()
                         .documentId(-1)
                         .selectedWordId(request.selectedWordId())
                         .translationId(-1)
-                        .translation(optionalTranslation.get())
-                        .currentFamiliarity(familiarityService.getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
+                        .translation(translation.withSourceWords(translation.sourceWords().stream()
+                                .filter(word -> !word.isBlank())
+                                .toList()))
+                        .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                         .familiarityLevels(familiarityService.getFamiliarityTable())
                         .isPhrase(request.isPhrase())
-                        .localization(translationLocalization.get(request.systemLanguage()))
-                        .build();
-            }
-            throw new RuntimeException("Unknown exception");
+                        .localization(translationLocalization.get(request.uiLanguage()))
+                    .build())
+                    .orElseThrow(RuntimeException::new);
         } catch (ValidationException e) {
             Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords().stream()
@@ -185,9 +185,9 @@ public class TranslationService {
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .isPhrase(request.isPhrase())
-                    .localization(translationLocalization.get(request.systemLanguage()))
+                    .localization(translationLocalization.get(request.uiLanguage()))
                     .build();
-            throw new TranslationConstraintViolationException(translationAttribute, e.getViolation());
+            throw new TranslationServiceException(translationAttribute, e.getViolation());
         }
     }
 
@@ -287,10 +287,6 @@ public class TranslationService {
                 .filter(word -> !word.isEmpty())
                 .distinct()
                 .toList();
-    }
-
-    private Optional<Translation> executeDatabaseUpdate(UpdateSourceWordsRequest request) {
-        return translationRepository.updateSourceWords(request);
     }
 
     private Optional<Translation> getTranslationFromDatabase(FindByTargetWordRequest request) {

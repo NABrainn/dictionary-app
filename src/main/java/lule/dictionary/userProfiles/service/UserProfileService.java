@@ -33,7 +33,6 @@ public class UserProfileService implements UserDetailsService {
 
     private final UserProfileRepository userProfileRepository;
     private final BCryptPasswordEncoder encoder;
-    private final LanguageHelper languageHelper;
 
     @Transactional
     public void addUserProfile(@NonNull SignupRequest signupRequest) {

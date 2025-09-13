@@ -101,7 +101,7 @@ public class TranslationRepository {
     public Optional<Translation> updateSourceWords(UpdateSourceWordsRequest request) {
         String sql = """
                 UPDATE dictionary.translations
-                SET source_words =  ?
+                SET source_words = ?
                 WHERE target_word = ?
                 AND translation_owner = ?
                 RETURNING *

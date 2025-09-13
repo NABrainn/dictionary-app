@@ -8,8 +8,8 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Getter
-public class TranslationConstraintViolationException extends RuntimeException {
-    private final TranslationAttribute translationAttribute;
+public class TranslationServiceException extends RuntimeException {
+    private final TranslationAttribute attribute;
     private final Map<String, String> violation;
 
 }

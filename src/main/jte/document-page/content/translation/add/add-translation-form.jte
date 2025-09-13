@@ -10,7 +10,7 @@
 onclick="event.stopPropagation()"
 class="
 mg:gap-0.75
-bg-tertiary flex flex-col gap-4 p-3 rounded pointer-events-auto animate-fade"
+bg-tertiary flex flex-col p-3 rounded pointer-events-auto animate-fade"
 id="translation-form">
     <div class="flex justify-end">
         <span

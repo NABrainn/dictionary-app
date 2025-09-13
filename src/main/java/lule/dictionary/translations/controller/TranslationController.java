@@ -9,7 +9,7 @@ import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
-import lule.dictionary.translations.service.exception.TranslationConstraintViolationException;
+import lule.dictionary.translations.service.exception.TranslationServiceException;
 import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Controller
@@ -129,7 +130,7 @@ public class TranslationController {
             TranslationAttribute attribute = translationService.createTranslation(request);
             model.addAttribute("attribute", attribute);
             return "document-page/content/translation/update/update-translation-form";
-        } catch (TranslationConstraintViolationException e) {
+        } catch (TranslationServiceException e) {
             log.info(e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -180,14 +181,16 @@ public class TranslationController {
                     .targetWord(targetWord)
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
-                    .systemLanguage(principal.userInterfaceLanguage())
+                    .uiLanguage(principal.userInterfaceLanguage())
                     .build();
             TranslationAttribute attribute = translationService.updateSourceWords(request, session);
+            model.addAttribute("error", Map.of());
             model.addAttribute("attribute", attribute);
-            return "documentContentData-page/content/translation/update/update-translation-form";
-        } catch (TranslationConstraintViolationException e) {
-            log.warn(e.getMessage());
-            model.addAttribute("attribute", e.getTranslationAttribute());
+            return "document-page/content/translation/update/update-translation-form";
+        } catch (TranslationServiceException e) {
+            log.warn("TranslationServiceException: {}", e.getViolation());
+            model.addAttribute("error", e.getViolation());
+            model.addAttribute("attribute", e.getAttribute());
             return "document-page/content/translation/update/update-translation-form";
         }
     }
