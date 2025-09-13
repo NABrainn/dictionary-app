@@ -7,10 +7,7 @@
 @param BaseAttribute baseAttribute
 @param Map<String, String> navbarLocalization
 @param Map<AuthTextLocalization, String> localization
-@param String loginViolation
-@param String emailViolation
-@param String passwordViolation
-
+@param Map<String, String> violation
 
 @template.layout.base(authView = @`
     @template.navbar.navbar(
@@ -33,8 +30,8 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="text" name="login" id="login">
-            @if(loginViolation != null)
-                <span class="font-bold text-error">${loginViolation}</span>
+            @if(violation.get("login") != null)
+                <span class="font-bold text-error">${violation.get("login")}</span>
             @endif
         </div>
         <div class="flex flex-col">
@@ -44,8 +41,8 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="email" name="email" id="email">
-            @if(emailViolation != null)
-                <span class="font-bold text-error">${emailViolation}</span>
+            @if(violation.get("email") != null)
+                <span class="font-bold text-error">${violation.get("email")}</span>
             @endif        </div>
         <div class="flex flex-col">
             <label class="text-accent" for="password">${localization.get(AuthTextLocalization.PASSWORD)}</label>
@@ -54,8 +51,8 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="password" name="password" id="password">
-            @if(passwordViolation != null)
-                <span class="font-bold text-error">${passwordViolation}</span>
+            @if(violation.get("password") != null)
+                <span class="font-bold text-error">${violation.get("password")}</span>
             @endif
         </div>
         <div class="flex gap-4 items-center justify-between">

@@ -26,8 +26,8 @@ public class JteControllerAdvice {
 
     private final TranslationService translationService;
     private final LanguageHelper languageHelper;
-    private final SessionHelper sessionHelper;
     private final NavbarLocalizationService navbarLocalization;
+    private final SessionHelper sessionHelper;
 
     @ModelAttribute
     public void addBaseAttribute(Model model,
@@ -75,8 +75,18 @@ public class JteControllerAdvice {
     @ModelAttribute
     public void addNavbarAttribute(Model model,
                                    Authentication authentication,
-                                   HttpSession httpSession) {
-        if(authentication != null) {
+                                   HttpSession session) {
+        if (authentication == null) {
+            Language sourceLanguage = sessionHelper.getUILanguage(session);
+            model.addAttribute("navbarAttribute", NavbarAttribute.builder()
+                    .loginBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LOG_IN))
+                    .lessonsBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LESSONS))
+                    .vocabularyBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.VOCABULARY))
+                    .wordsLearned(0)
+                    .dailyStreak(0)
+                    .isProfileOpen(false)
+                    .build());
+        } else {
             UserProfile principal = (UserProfile) authentication.getPrincipal();
             Language sourceLanguage = principal.userInterfaceLanguage();
             model.addAttribute("navbarAttribute", NavbarAttribute.builder()
@@ -107,23 +117,13 @@ public class JteControllerAdvice {
                             .languageCode(languageHelper.getCode(sourceLanguage))
                             .imgPath(languageHelper.getImagePath(sourceLanguage))
                             .build())
-                    .isProfileOpen(sessionHelper.getOrFalse(httpSession, "isProfileOpen"))
+                    .isProfileOpen((boolean) session.getAttribute("isProfileOpen"))
                     .settingsText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.SETTINGS))
                     .languageText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LANGUAGE))
                     .uiText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.USER_INTERFACE))
                     .translationsText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.TRANSLATIONS))
                     .logoutText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LOG_OUT))
                     .build());
-            return;
         }
-        Language sourceLanguage = sessionHelper.getUILanguage(httpSession);
-        model.addAttribute("navbarAttribute", NavbarAttribute.builder()
-                .loginBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LOG_IN))
-                .lessonsBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LESSONS))
-                .vocabularyBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.VOCABULARY))
-                .wordsLearned(0)
-                .dailyStreak(0)
-                .isProfileOpen(false)
-                .build());
     }
 }

@@ -1,12 +1,13 @@
 package lule.dictionary.documents.data.request;
 
+import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.documents.data.documentSubmission.SubmissionStrategy;
-import lule.dictionary.userProfiles.data.UserProfile;
+import org.springframework.security.core.Authentication;
 
-public record CreateDocumentRequest(@NonNull SubmissionStrategy submissionStrategy,
-                                    @NonNull UserProfile userDetails) {
-    public static CreateDocumentRequest of(SubmissionStrategy submissionStrategy, UserProfile customUserDetails) {
-        return new CreateDocumentRequest(submissionStrategy, customUserDetails);
-    }
+@Builder
+public record CreateDocumentRequest(@NonNull String submissionStrategy,
+                                    @NonNull Authentication authentication,
+                                    @NonNull String title,
+                                    @NonNull String content,
+                                    @NonNull String url) {
 }

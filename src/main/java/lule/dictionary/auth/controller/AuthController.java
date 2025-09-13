@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -36,6 +38,7 @@ public class AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
+        model.addAttribute("violation", Map.of());
         model.addAttribute("localization", authService.getTextLocalization(httpSession));
         return "auth/login";
     }
@@ -63,11 +66,13 @@ public class AuthController {
         catch (UserNotFoundException e) {
             log.info("UserNotFoundException exception: {}", e.getMessage());
             model.addAttribute("userNotFound", "User does not exist");
+            model.addAttribute("violation", Map.of());
             model.addAttribute("localization", authService.getTextLocalization(httpSession));
             return "auth/login";
         }
         catch (AuthenticationException e) {
             log.info("Authentication exception: {}", e.getMessage());
+            model.addAttribute("violation", Map.of());
             model.addAttribute("localization", authService.getTextLocalization(httpSession));
             return "auth/login";
         }
@@ -96,6 +101,7 @@ public class AuthController {
         }
         try {
             authService.signup(SignupRequest.of(login, email, password), httpSession);
+            model.addAttribute("violation", Map.of());
             model.addAttribute("localization", authService.getTextLocalization(httpSession));
             return "redirect:/auth/login";
         }
@@ -107,6 +113,7 @@ public class AuthController {
         }
         catch (UserExistsException e) {
             log.info(e.getMessage());
+            model.addAttribute("violation", Map.of());
             model.addAttribute("localization", authService.getTextLocalization(httpSession));
             return "auth/signup";
         }
@@ -114,9 +121,11 @@ public class AuthController {
 
     @PostMapping({"/logout", "/logout/"})
     public String logout(RedirectAttributes redirectAttributes,
+                         Model model,
                          HttpServletResponse response,
                          HttpSession httpSession) {
         authService.logout(response);
+        model.addAttribute("violation", Map.of());
         redirectAttributes.addFlashAttribute("localization", authService.getTextLocalization(httpSession));
         return "redirect:/auth/login";
     }

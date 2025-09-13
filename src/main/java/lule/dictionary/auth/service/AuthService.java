@@ -59,10 +59,11 @@ public class AuthService {
     public void signup(@NonNull SignupRequest request, HttpSession httpSession) {
         Language uiLanguage = sessionHelper.getUILanguage(httpSession);
         validationService.validate(request, uiLanguage);
-        userProfileService.findByUsernameOrEmail(request.login(), request.email()).ifPresentOrElse(
-                user -> { throw new UserExistsException("User with given username or email already exists"); },
-                () -> userProfileService.addUserProfile(request)
-        );
+        userProfileService.findByUsernameOrEmail(request.login(), request.email())
+                .ifPresentOrElse(
+                    user -> { throw new UserExistsException("User with given username or email already exists"); },
+                    () -> userProfileService.addUserProfile(request)
+                );
     }
 
     public void logout(@NonNull HttpServletResponse httpServletResponse) {

@@ -40,7 +40,7 @@
                             }'
                             hx-target="#main"
                             hx-swap="innerHTML"
-                            hx-push-url="/documents/${item.id()}">
+                            hx-push-url="/lessons/${item.id()}">
                                 <img
                                 class="border min-h-30"
                                 src="/images/open-book.svg"

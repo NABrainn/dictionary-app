@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ValidationService {
-    public void validate(Validated object, Language language) {
+    public void validate(Validated object, Language language) throws ValidationException {
         object.validate(language).stream()
                 .findFirst()
                 .ifPresent(violation -> { throw new ValidationException(violation); });

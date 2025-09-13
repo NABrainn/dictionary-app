@@ -3,13 +3,14 @@
 @import lule.dictionary.documents.data.request.DocumentAttribute
 
 @param NavbarAttribute navbarAttribute
-@param DocumentAttribute attribute
 @param BaseAttribute baseAttribute
+@param DocumentAttribute attribute
+
 <script src="/js/document-page.js" defer></script>
 
 @template.layout.base(content = @`
     @template.navbar.navbar(
-    navbarAttribute = navbarAttribute,
+    navbarAttribute = navbarAttribute.withIsProfileOpen(false),
     isAuthenticated = baseAttribute.isAuthenticated(),
     isProfileToggleBtnVisible = false)
     @template.document-page.content.content(

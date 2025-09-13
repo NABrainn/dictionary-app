@@ -9,8 +9,7 @@
 @param DocumentFormAttribute attribute
 @param NavbarAttribute navbarAttribute
 @param BaseAttribute baseAttribute
-@param Map<String, String> messages
-
+@param Map<String, String> violation
 
 @template.layout.base(content = @`
     <div id="document-form-wrapper">
@@ -52,19 +51,17 @@
                 focus:border-accent"
                 rows="2"
                 name="title"
-                id="title"></textarea>
-                @if(messages.get("title") != null)
-                    <span class="text-error font-bold">${messages.get("title")}</span>
+                id="title">${switch (attribute.submissionStrategy()){
+                    case ContentSubmissionStrategy content -> content.title();
+                    case UrlSubmissionStrategy url -> url.title();
+                }}</textarea>
+                @if(violation.get("title") != null)
+                    <span class="text-error font-bold">${violation.get("title")}</span>
                 @endif
             </div>
             <div class="flex flex-col gap-4">
                 <span class="text-accent font-bold text-2xl">${attribute.localization().get(DocumentLocalizationKey.CONTENT)}</span>
                 <div class="flex justify-center">
-                    !{String color = switch(attribute.submissionStrategy()) {
-                        case ContentSubmissionStrategy content -> messages.getOrDefault("content", "");
-                        case UrlSubmissionStrategy url -> messages.get("invalidUriMessage");
-                        default -> "";
-                    };}
                     @if(attribute.submissionStrategy() instanceof UrlSubmissionStrategy)
                         <button class="
                         bg-primary border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
@@ -122,20 +119,16 @@
                     @endif
 
                 </div>
-                !{String message = switch(attribute.submissionStrategy()) {
-                    case ContentSubmissionStrategy content -> messages.getOrDefault("content", "");
-                    case UrlSubmissionStrategy url when messages.get("invalidUriMessage") != null -> messages.get("invalidUriMessage");
-                    case UrlSubmissionStrategy url when messages.get("url") != null -> messages.get("url");
-                    default -> "";
-                };}
                 @if(attribute.submissionStrategy() instanceof ContentSubmissionStrategy content)
                     @template.create-document-form.content-form(
-                    spaceForContentText = content.spaceForContentText(),
-                    message = message)
+                    contentPlaceholderText = content.contentPlaceholderText(),
+                    violation = violation.getOrDefault("content", ""),
+                    content = content.content())
                 @elseif(attribute.submissionStrategy() instanceof UrlSubmissionStrategy url)
                     @template.create-document-form.url-form(
-                    spaceForUrlText = url.spaceForUrlText(),
-                    message = message)
+                    urlPlaceholderText = url.urlPlaceholderText(),
+                    violation = violation.getOrDefault("url", ""),
+                    content = url.url())
                 @endif
             </div>
             <div>

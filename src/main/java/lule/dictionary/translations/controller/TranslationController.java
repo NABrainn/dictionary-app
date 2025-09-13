@@ -1,5 +1,6 @@
 package lule.dictionary.translations.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -162,6 +163,7 @@ public class TranslationController {
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
     public String updateSourceWords(Model model,
                                     Authentication authentication,
+                                    HttpSession session,
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord,
                                     @RequestParam("familiarity") String currentFamiliarity,
@@ -180,7 +182,7 @@ public class TranslationController {
                     .isPhrase(isPhrase)
                     .systemLanguage(principal.userInterfaceLanguage())
                     .build();
-            TranslationAttribute attribute = translationService.updateSourceWords(request);
+            TranslationAttribute attribute = translationService.updateSourceWords(request, session);
             model.addAttribute("attribute", attribute);
             return "documentContentData-page/content/translation/update/update-translation-form";
         } catch (TranslationConstraintViolationException e) {
@@ -193,6 +195,7 @@ public class TranslationController {
     @DeleteMapping({"/sourceWords/delete", "/sourceWords/delete/"})
     public String deleteSourceWord(Model model,
                                    Authentication authentication,
+                                   HttpSession session,
                                    @RequestParam("sourceWord") String sourceWord,
                                    @RequestParam("targetWord") String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId,
@@ -206,7 +209,7 @@ public class TranslationController {
                 .isPhrase(isPhrase)
                 .systemLanguage(principal.userInterfaceLanguage())
                 .build();
-        TranslationAttribute result = translationService.deleteSourceWord(request);
+        TranslationAttribute result = translationService.deleteSourceWord(request, session);
         model.addAttribute("attribute", result);
         return "document-page/content/translation/update/update-translation-form";
     }

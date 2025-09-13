@@ -1,5 +1,6 @@
-@param String spaceForContentText
-@param String message = ""
+@param String contentPlaceholderText
+@param String content = ""
+@param String violation = ""
 
 <div class="flex flex-col" id="content">
     <input type="hidden" name="url">
@@ -13,9 +14,9 @@
         focus:border-accent w-full"
         name="content"
         id="area"
-        placeholder="${spaceForContentText}"></textarea>
-        @if(!message.isBlank())
-            <span class="text-error font-bold">${message}</span>
+        placeholder="${contentPlaceholderText}">${content}</textarea>
+        @if(!violation.isBlank())
+            <span class="text-error font-bold">${violation}</span>
         @endif
     </div>
 </div>

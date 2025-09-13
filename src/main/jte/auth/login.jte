@@ -6,8 +6,7 @@
 @param BaseAttribute baseAttribute
 @param NavbarAttribute navbarAttribute
 @param Map<AuthTextLocalization, String> localization
-@param String loginViolation
-@param String passwordViolation
+@param Map<String, String> violation
 
 @template.layout.base(authView = @`
     @template.navbar.navbar(
@@ -31,8 +30,8 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="text" name="login" id="login">
-            @if(loginViolation != null)
-                <span class="font-bold text-error">${loginViolation}</span>
+            @if(violation.get("login") != null)
+                <span class="font-bold text-error">${violation.get("login")}</span>
             @endif
         </div>
         <div class="flex flex-col">
@@ -42,8 +41,8 @@
             outline-none border border-2 border-primary rounded text-neutral text-sm min-h-8
             focus:border-accent"
             type="password" name="password" id="password">
-            @if(passwordViolation != null)
-                <span class="font-bold text-error">${passwordViolation}</span>
+            @if(violation.get("password") != null)
+                <span class="font-bold text-error">${violation.get("password")}</span>
             @endif
         </div>
         <div class="flex gap-4 items-center justify-between">

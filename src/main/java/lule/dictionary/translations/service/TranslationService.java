@@ -1,10 +1,12 @@
 package lule.dictionary.translations.service;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.familiarity.FamiliarityService;
 import lule.dictionary.language.service.Language;
+import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
@@ -41,6 +43,7 @@ public class TranslationService {
     private final FamiliarityService familiarityService;
     private final PatternService patternService;
     private final TranslationLocalizationService translationLocalization;
+    private final SessionHelper sessionHelper;
 
     @Transactional
     public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
@@ -100,7 +103,6 @@ public class TranslationService {
         }
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
         List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord());
-        System.out.println(sourceWordsFromService);
         Translation translation = Translation.builder()
                 .sourceWords(Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                         .filter(word -> !word.isBlank())
@@ -144,9 +146,10 @@ public class TranslationService {
     }
 
     @Transactional
-    public TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request) throws InvalidInputException {
+    public TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request, HttpSession session) throws InvalidInputException {
         try {
-            validationService.validate(request, Language.EN);
+            Language uiLanguage = sessionHelper.getUILanguage(session);
+            validationService.validate(request, uiLanguage);
             Optional<Translation> optionalTranslation = executeDatabaseUpdate(request);
             if(optionalTranslation.isPresent()) {
                 return TranslationAttribute.builder()
@@ -189,8 +192,9 @@ public class TranslationService {
     }
 
     @Transactional
-    public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request) {
-        validationService.validate(request, Language.EN);
+    public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request, HttpSession session) {
+        Language uiLanguage = sessionHelper.getUILanguage(session);
+        validationService.validate(request, uiLanguage);
         Optional<Translation> optionalTranslation = translationRepository.deleteSourceWord(request);
         if(optionalTranslation.isPresent()) {
             return TranslationAttribute.builder()
