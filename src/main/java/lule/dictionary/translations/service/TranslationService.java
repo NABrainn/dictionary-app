@@ -1,12 +1,16 @@
 package lule.dictionary.translations.service;
 
-import jakarta.validation.ConstraintViolationException;
+import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.familiarity.FamiliarityService;
+import lule.dictionary.language.service.Language;
+import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
+import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
+import lule.dictionary.translations.data.attribute.WordCardAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.request.*;
@@ -14,12 +18,12 @@ import lule.dictionary.translations.service.exception.InvalidInputException;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.repository.TranslationRepository;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
-import lule.dictionary.translations.service.exception.TranslationContraintViolationException;
+import lule.dictionary.translations.service.exception.TranslationServiceException;
 import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
 import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.validation.data.ValidationException;
 import lule.dictionary.validation.service.ValidationService;
-import lule.dictionary.validation.service.ValidationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,11 +42,13 @@ public class TranslationService {
     private final ValidationService validationService;
     private final FamiliarityService familiarityService;
     private final PatternService patternService;
+    private final TranslationLocalizationService translationLocalization;
+    private final SessionHelper sessionHelper;
 
     @Transactional
     public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
         try {
-            validate(request);
+            validationService.validate(request, Language.EN);
             Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords())
                     .targetWord(request.targetWord())
@@ -61,8 +67,9 @@ public class TranslationService {
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
-        } catch (ValidationServiceException e) {
+        } catch (ValidationException e) {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translation(null)
@@ -71,14 +78,15 @@ public class TranslationService {
                     .translationId(-1)
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
-            throw new TranslationContraintViolationException(translationAttribute, e.getViolation());
+            throw new TranslationServiceException(translationAttribute, e.getViolation());
         }
     }
 
     @Transactional
     public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request)throws InvalidInputException {
-        validate(request);
+        validationService.validate(request, Language.EN);
         Optional<Translation> optionalTranslation = getTranslationFromDatabase(request);
         if(optionalTranslation.isPresent()) {
             Translation translation = optionalTranslation.get();
@@ -90,11 +98,11 @@ public class TranslationService {
                     .translationId(-1)
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
         }
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
         List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord());
-        System.out.println(sourceWordsFromService);
         Translation translation = Translation.builder()
                 .sourceWords(Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                         .filter(word -> !word.isBlank())
@@ -116,6 +124,7 @@ public class TranslationService {
                 .translationId(-1)
                 .documentId(request.documentId())
                 .isPhrase(request.isPhrase())
+                .localization(translationLocalization.get(request.systemLanguage()))
                 .build();
 
     }
@@ -132,27 +141,30 @@ public class TranslationService {
                 .translationId(-1)
                 .documentId(-1)
                 .isPhrase(request.isPhrase())
+                .localization(translationLocalization.get(request.systemLanguage()))
                 .build();
     }
 
     @Transactional
-    public TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request) throws InvalidInputException {
+    public TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request, HttpSession session) throws InvalidInputException {
         try {
-            validate(request);
-            Optional<Translation> optionalTranslation = executeDatabaseUpdate(request);
-            if(optionalTranslation.isPresent()) {
-                return TranslationAttribute.builder()
+            Language uiLanguage = sessionHelper.getUILanguage(session);
+            validationService.validate(request, uiLanguage);
+            return translationRepository.updateSourceWords(request)
+                    .map(translation -> TranslationAttribute.builder()
                         .documentId(-1)
                         .selectedWordId(request.selectedWordId())
                         .translationId(-1)
-                        .translation(optionalTranslation.get())
-                        .currentFamiliarity(familiarityService.getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
+                        .translation(translation.withSourceWords(translation.sourceWords().stream()
+                                .filter(word -> !word.isBlank())
+                                .toList()))
+                        .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                         .familiarityLevels(familiarityService.getFamiliarityTable())
                         .isPhrase(request.isPhrase())
-                        .build();
-            }
-            throw new RuntimeException("Unknown exception");
-        } catch (ValidationServiceException e) {
+                        .localization(translationLocalization.get(request.uiLanguage()))
+                    .build())
+                    .orElseThrow(RuntimeException::new);
+        } catch (ValidationException e) {
             Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords().stream()
                             .map(patternService::removeSpecialCharacters)
@@ -173,14 +185,16 @@ public class TranslationService {
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.uiLanguage()))
                     .build();
-            throw new TranslationContraintViolationException(translationAttribute, e.getViolation());
+            throw new TranslationServiceException(translationAttribute, e.getViolation());
         }
     }
 
     @Transactional
-    public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request) {
-        validate(request);
+    public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request, HttpSession session) {
+        Language uiLanguage = sessionHelper.getUILanguage(session);
+        validationService.validate(request, uiLanguage);
         Optional<Translation> optionalTranslation = translationRepository.deleteSourceWord(request);
         if(optionalTranslation.isPresent()) {
             return TranslationAttribute.builder()
@@ -191,6 +205,7 @@ public class TranslationService {
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .isPhrase(request.isPhrase())
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
         }
         throw new RuntimeException("Unknown exception");
@@ -237,6 +252,7 @@ public class TranslationService {
                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
                 .isPhrase(request.isPhrase())
                 .familiarityLevels(familiarityService.getFamiliarityTable())
+                .localization(translationLocalization.get(request.systemLanguage()))
                 .build();
     }
 
@@ -250,9 +266,15 @@ public class TranslationService {
                     .quantity(request.quantity())
                     .isPhrase(request.isPhrase())
                     .translations(translations)
+                    .localization(translationLocalization.get(request.systemLanguage()))
                     .build();
         }
-        throw new TranslationsNotFoundException("No translations found to review");
+        throw new TranslationsNotFoundException("No translations found to review", FlashcardConfigAttribute.builder()
+                .familiarity(request.familiarity())
+                .quantity(request.quantity())
+                .isPhrase(request.isPhrase())
+                .localization(translationLocalization.get(request.systemLanguage()))
+                .build());
 
     }
 
@@ -265,10 +287,6 @@ public class TranslationService {
                 .filter(word -> !word.isEmpty())
                 .distinct()
                 .toList();
-    }
-
-    private Optional<Translation> executeDatabaseUpdate(UpdateSourceWordsRequest request) {
-        return translationRepository.updateSourceWords(request);
     }
 
     private Optional<Translation> getTranslationFromDatabase(FindByTargetWordRequest request) {
@@ -285,7 +303,28 @@ public class TranslationService {
         return translationRepository.addTranslation(translation, request.documentId()).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
     }
 
-    private void validate(TranslationsRequest request) throws ConstraintViolationException {
-        validationService.validate(request);
+    public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request) {
+        return FlashcardConfigAttribute.builder()
+                .familiarity(request.familiarity())
+                .quantity(request.quantity())
+                .isPhrase(request.isPhrase())
+                .localization(translationLocalization.get(request.systemLanguage()))
+                .build();
+    }
+
+    public BaseFlashcardAttribute flipFlashcard(FlipFlashcardRequest request) {
+        return BaseFlashcardAttribute.builder()
+                .translations(request.translations())
+                .localization(translationLocalization.get(request.systemLanguage()))
+                .id(request.id())
+                .size(request.size())
+                .familiarity(request.familiarity())
+                .quantity(request.quantity())
+                .isPhrase(request.isPhrase())
+                .build();
+    }
+
+    public WordCardAttribute getCardAttribute(GetCardAttributeRequest request) {
+        return WordCardAttribute.of(request.sourceWord(), request.targetWord());
     }
 }

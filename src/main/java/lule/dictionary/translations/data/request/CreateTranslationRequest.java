@@ -11,5 +11,6 @@ public record CreateTranslationRequest(int documentId,
                                        boolean isPhrase,
                                        @NonNull String targetWord,
                                        @NonNull Language sourceLanguage,
-                                       @NonNull Language targetLanguage) {
+                                       @NonNull Language targetLanguage,
+                                       @NonNull Language systemLanguage) {
 }

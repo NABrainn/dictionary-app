@@ -19,36 +19,35 @@
     md:p-4 md:py-2
     gap-2 px-1.5 flex bg-secondary justify-between items-center min-h-18 select-none">
         @template.navbar.nav-buttons(
-            lessons = navbarAttribute.lessonsBtnText(),
-            vocabulary = navbarAttribute.vocabularyBtnText(),
-            size = navButtonsSize
-        )
+        lessons = navbarAttribute.lessonsBtnText(),
+        vocabulary = navbarAttribute.vocabularyBtnText(),
+        size = navButtonsSize)
         @if(isAuthenticated)
             @if(isProfileToggleBtnVisible)
                 @template.navbar.panel-toggle-btn()
             @endif
             @template.navbar.settings(
-                size = authButtonsSize,
-                languages = navbarAttribute.languageDataList(),
-                userInterfaceLanguage = navbarAttribute.userInterfaceLanguage(),
-                translationLanguage = navbarAttribute.translationLanguage(),
-                settingsText = navbarAttribute.settingsText(),
-                languageText = navbarAttribute.languageText(),
-                uiText = navbarAttribute.uiText(),
-                translationsText = navbarAttribute.translationsText(),
-                logoutText = navbarAttribute.logoutText())
+            size = authButtonsSize,
+            languages = navbarAttribute.languageDataList(),
+            userInterfaceLanguage = navbarAttribute.userInterfaceLanguage(),
+            translationLanguage = navbarAttribute.translationLanguage(),
+            settingsText = navbarAttribute.settingsText(),
+            languageText = navbarAttribute.languageText(),
+            uiText = navbarAttribute.uiText(),
+            translationsText = navbarAttribute.translationsText(),
+            logoutText = navbarAttribute.logoutText())
         @else
             @template.navbar.login-btn(
-                text = navbarAttribute.loginBtnText(),
-                size = authButtonsSize)
+            text = navbarAttribute.loginBtnText(),
+            size = authButtonsSize)
         @endif
     </nav>
     @if(isAuthenticated)
         <div
         id="profile-panel">
             @template.navbar.profile-panel(
-                navbarAttribute = navbarAttribute,
-                isProfileOpen = navbarAttribute.isProfileOpen())
+            navbarAttribute = navbarAttribute,
+            isProfileOpen = navbarAttribute.isProfileOpen())
         </div>
     @endif
 </div>

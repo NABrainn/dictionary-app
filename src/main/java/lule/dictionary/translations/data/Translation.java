@@ -14,6 +14,17 @@ public record Translation(@NonNull List<String> sourceWords,
                           @NonNull Language targetLanguage,
                           @NonNull String owner,
                           boolean isPhrase) {
+        public Translation withSourceWords(List<String> sourceWords) {
+                return Translation.builder()
+                        .sourceWords(sourceWords)
+                        .targetWord(targetWord)
+                        .familiarity(familiarity)
+                        .sourceLanguage(sourceLanguage)
+                        .targetLanguage(targetLanguage)
+                        .owner(owner)
+                        .isPhrase(isPhrase)
+                        .build();
+        }
         @Override
         public boolean equals(Object object) {
                 if(object == null) {

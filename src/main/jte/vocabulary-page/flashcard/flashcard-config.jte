@@ -1,23 +1,21 @@
-@import lule.dictionary.translations.data.attribute.FlashcardConfigLocalizationAttribute
+@import lule.dictionary.translations.data.TranslationLocalizationKey
+@import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute
 
-@param int familiarity = 0
-@param int quantity = 10
-@param boolean isPhrase = false
 @param java.util.Map<String, String> messages = java.util.Map.of()
-@param FlashcardConfigLocalizationAttribute flashcardConfigLocalizationAttribute
+@param FlashcardConfigAttribute attribute
 
 <div
 id="flashcard-config-form"
 class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-between p-6">
     <div class="flex flex-col gap-10">
-        <p class="font-bold text-3xl text-primary">${flashcardConfigLocalizationAttribute.reviewTranslationsText()}</p>
+        <p class="font-bold text-3xl text-primary">${attribute.localization().get(TranslationLocalizationKey.REVIEW_TRANSLATIONS)}</p>
         <div class="flex flex-col gap-4">
-            <span class="font-bold text-xl text-secondary">${flashcardConfigLocalizationAttribute.familiarityText()}</span>
+            <span class="font-bold text-xl text-secondary">${attribute.localization().get(TranslationLocalizationKey.FAMILIARITY)}</span>
             <div class="flex gap-8 select-none">
                 @for(int i = 1; i <= 5; i++)
-                    @if(familiarity == i)
+                    @if(attribute.familiarity() == i)
                         <div
-                        class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${familiarity}</div>
+                        class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${attribute.familiarity()}</div>
                     @else
                         <div
                         class="p-0.5 flex justify-center items-center size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
@@ -27,12 +25,12 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                         hx-params="familiarity,quantity,isPhrase"
                         hx-vals='{
                             "familiarity": "${i}",
-                            "quantity": "${quantity}",
-                            "isPhrase":"${isPhrase}"
+                            "quantity": "${attribute.quantity()}",
+                            "isPhrase":"${attribute.isPhrase()}"
                         }'>${i}</div>
                     @endif
                 @endfor
-                @if(familiarity > 5 || familiarity < 1)
+                @if(attribute.familiarity() > 5 || attribute.familiarity() < 1)
                     <div
                     class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">-</div>
                 @else
@@ -44,16 +42,16 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                     hx-params="familiarity,quantity,isPhrase"
                     hx-vals='{
                         "familiarity": "0",
-                        "quantity": "${quantity}",
-                        "isPhrase":"${isPhrase}"
+                        "quantity": "${attribute.quantity()}",
+                        "isPhrase":"${attribute.isPhrase()}"
                     }'>-</div>
                 @endif
             </div>
         </div>
         <div class="flex flex-col gap-4">
-            <span class="font-bold text-xl text-secondary">${flashcardConfigLocalizationAttribute.howManyText()}?</span>
+            <span class="font-bold text-xl text-secondary">${attribute.localization().get(TranslationLocalizationKey.HOW_MANY)}?</span>
             <div class="flex gap-8 select-none">
-                @if(quantity == 10)
+                @if(attribute.quantity() == 10)
                     <div
                     class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">10</div>
                 @else
@@ -63,12 +61,12 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                     hx-target="#flashcard-config-form"
                     hx-swap="outerHTML"
                     hx-vals='{
-                        "familiarity": "${familiarity}",
+                        "familiarity": "${attribute.familiarity()}",
                         "quantity": "10",
-                        "isPhrase":"${isPhrase}"
+                        "isPhrase":"${attribute.isPhrase()}"
                     }'>10</div>
                 @endif
-                @if(quantity == 50)
+                @if(attribute.quantity() == 50)
                     <div
                     class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">50</div>
                 @else
@@ -78,12 +76,12 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                     hx-target="#flashcard-config-form"
                     hx-swap="outerHTML"
                     hx-vals='{
-                        "familiarity": "${familiarity}",
+                        "familiarity": "${attribute.familiarity()}",
                         "quantity": "50",
-                        "isPhrase":"${isPhrase}"
+                        "isPhrase":"${attribute.isPhrase()}"
                     }'>50</div>
                 @endif
-                @if(quantity == 100)
+                @if(attribute.quantity() == 100)
                     <div
                     class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">100</div>
                 @else
@@ -93,27 +91,27 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                     hx-target="#flashcard-config-form"
                     hx-swap="outerHTML"
                     hx-vals='{
-                        "familiarity": "${familiarity}",
+                        "familiarity": "${attribute.familiarity()}",
                         "quantity": "100",
-                        "isPhrase":"${isPhrase}"
+                        "isPhrase":"${attribute.isPhrase()}"
                     }'>100</div>
                 @endif
             </div>
         </div>
         <div class="flex gap-8 select-none">
-            @if(isPhrase)
+            @if(attribute.isPhrase())
                 <div
-                class="basis-1/2 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${flashcardConfigLocalizationAttribute.phrasesText()}</div>
+                class="basis-1/2 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${attribute.localization().get(TranslationLocalizationKey.PHRASES)}</div>
                 <div
                 class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
                 hx-get="/vocabulary/config-form/"
                 hx-target="#flashcard-config-form"
                 hx-swap="outerHTML"
                 hx-vals='{
-                    "familiarity": "${familiarity}",
-                    "quantity": "${quantity}",
+                    "familiarity": "${attribute.familiarity()}",
+                    "quantity": "${attribute.quantity()}",
                     "isPhrase": "false"
-                }'>${flashcardConfigLocalizationAttribute.wordsText()}</div>
+                }'>${attribute.localization().get(TranslationLocalizationKey.WORDS)}</div>
             @else
                 <div
                 class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
@@ -121,12 +119,12 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                 hx-target="#flashcard-config-form"
                 hx-swap="outerHTML"
                 hx-vals='{
-                    "familiarity": "${familiarity}",
-                    "quantity": "${quantity}",
+                    "familiarity": "${attribute.familiarity()}",
+                    "quantity": "${attribute.quantity()}",
                     "isPhrase": "true"
-                }'>${flashcardConfigLocalizationAttribute.phrasesText()}</div>
+                }'>${attribute.localization().get(TranslationLocalizationKey.PHRASES)}</div>
                 <div
-                class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${flashcardConfigLocalizationAttribute.wordsText()}</div>
+                class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${attribute.localization().get(TranslationLocalizationKey.WORDS)}</div>
             @endif
         </div>
     </div>
@@ -136,10 +134,10 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
     hx-target="#flashcard-config-form"
     hx-swap="outerHTML"
     hx-vals='{
-    "familiarity": "${familiarity}",
-    "quantity": "${quantity}",
-    "isPhrase":"${isPhrase}",
-    "id": "1"
+        "familiarity": "${attribute.familiarity()}",
+        "quantity": "${attribute.quantity()}",
+        "isPhrase":"${attribute.isPhrase()}",
+        "id": "1"
     }'>
         <button
         type="submit"

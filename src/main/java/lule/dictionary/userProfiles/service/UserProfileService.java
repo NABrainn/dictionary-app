@@ -4,6 +4,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
+import lule.dictionary.language.service.LanguageHelper;
+import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -30,10 +33,6 @@ public class UserProfileService implements UserDetailsService {
 
     private final UserProfileRepository userProfileRepository;
     private final BCryptPasswordEncoder encoder;
-
-    public UserProfile findByLogin(@NonNull String username) throws UserNotFoundException {
-        return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with given username does not exist"));
-    }
 
     @Transactional
     public void addUserProfile(@NonNull SignupRequest signupRequest) {
@@ -56,11 +55,11 @@ public class UserProfileService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userProfileRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
+    public UserDetails loadUserByUsername(@NonNull String username) throws UserNotFoundException {
+        return userProfileRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
-    public Optional<UserProfile> findByUsernameOrEmail(String username, String email) throws UserNotFoundException {
+    public Optional<UserProfile> findByUsernameOrEmail(String username, String email) {
         return userProfileRepository.findByUsernameOrEmail(username, email);
     }
 

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.5</version>
+		<version>3.5.5</version>
 		<relativePath/>
 	</parent>
 	<groupId>lule</groupId>
@@ -34,12 +34,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/io.github.ollama4j/ollama4j -->
-		<dependency>
-			<groupId>io.github.ollama4j</groupId>
-			<artifactId>ollama4j</artifactId>
-			<version>1.0.100</version>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
@@ -47,10 +41,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>gg.jte</groupId>
@@ -79,12 +69,6 @@
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>htmx.org</artifactId>
 			<version>2.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>1.21.0</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -150,9 +134,7 @@
 				<artifactId>jte-maven-plugin</artifactId>
 				<version>3.2.1</version>
 				<configuration>
-					<!-- This is the directory where your .jte files are located. -->
 					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
-					<!-- This is the directory where compiled templates are located. -->
 					<targetDirectory>${project.build.outputDirectory}</targetDirectory>
 					<contentType>Html</contentType>
 				</configuration>
@@ -175,8 +157,8 @@
 							<artifactId>lombok</artifactId>
 						</path>
 					</annotationProcessorPaths>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>24</source>
+                    <target>24</target>
                     <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
 			</plugin>

@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 public class LocalizationController {
 
-    @GetMapping("/systemLanguage")
-    public ResponseEntity<String> setupInterfaceLanguage(@NonNull @RequestHeader("systemLanguage") String systemLanguage,
+    @GetMapping("/uiLanguage")
+    public ResponseEntity<String> setupInterfaceLanguage(@NonNull @RequestHeader("uiLanguage") String systemLanguage,
                                                          HttpSession httpSession) {
         Language sourceLanguage = parseHeader(systemLanguage);
         httpSession.setAttribute("navbarLocalization", sourceLanguage);

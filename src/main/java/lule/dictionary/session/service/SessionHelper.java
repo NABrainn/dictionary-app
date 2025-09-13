@@ -36,7 +36,7 @@ public class SessionHelper {
                 .orElseGet(List::of);
     }
 
-    public Language getSystemLanguageInfo(HttpSession httpSession) {
+    public Language getUILanguage(HttpSession httpSession) {
         return httpSession.getAttribute("sourceLanguage") != null ? (Language) httpSession.getAttribute("sourceLanguage") : Language.EN;
     }
 }

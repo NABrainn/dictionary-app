@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.Familiarity;
+import lule.dictionary.translations.data.TranslationLocalizationKey;
 
 import java.util.Collections;
 import java.util.Map;
@@ -15,7 +16,8 @@ public record TranslationAttribute(int documentId,
                                    Translation translation,
                                    int currentFamiliarity,
                                    boolean isPhrase,
-                                   @NonNull Map<Integer, Familiarity> familiarityLevels) {
+                                   @NonNull Map<Integer, Familiarity> familiarityLevels,
+                                   @NonNull Map<TranslationLocalizationKey, String> localization) {
     public static final int UNINITIALIZED_ID = -1;
 
     public TranslationAttribute {

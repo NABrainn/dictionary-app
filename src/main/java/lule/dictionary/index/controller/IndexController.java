@@ -12,6 +12,6 @@ public class IndexController {
 
     @GetMapping("/")
     public String base() {
-        return "redirect:/documents";
+        return "redirect:/lessons";
     }
 }

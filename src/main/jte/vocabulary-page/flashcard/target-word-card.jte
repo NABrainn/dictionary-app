@@ -1,5 +1,6 @@
-@param String targetWord
-@param java.util.List<String> sourceWord
+@import lule.dictionary.translations.data.attribute.WordCardAttribute
+
+@param WordCardAttribute attribute
 
 <form
 class="
@@ -10,13 +11,13 @@ hx-target="this"
 hx-swap="outerHTML"
 hx-trigger="click"
 hx-vals='{
-    "targetWord": "${targetWord}"
+    "targetWord": "${attribute.targetWord()}"
 }'>
-    @for(var sw : sourceWord)
+    @for(var sw : attribute.sourceWord())
         <input name="sourceWord" value="${sw}" type="hidden">
     @endfor
-    @if(sourceWord.isEmpty())
+    @if(attribute.sourceWord().isEmpty())
         <input name="sourceWord" value="" type="hidden">
     @endif
-    <p class="block text-center grow-1 font-bold text-primary text-3xl select-none">${targetWord}</p>
+    <p class="block text-center grow-1 font-bold text-primary text-3xl select-none">${attribute.targetWord()}</p>
 </form>

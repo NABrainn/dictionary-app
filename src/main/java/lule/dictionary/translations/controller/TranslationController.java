@@ -1,15 +1,15 @@
 package lule.dictionary.translations.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.localization.service.LocalizationService;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
-import lule.dictionary.translations.service.exception.TranslationContraintViolationException;
+import lule.dictionary.translations.service.exception.TranslationServiceException;
 import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Controller
@@ -28,7 +29,6 @@ import java.util.regex.Pattern;
 public class TranslationController {
 
     private final TranslationService translationService;
-    private final LocalizationService localizationService;
 
     @GetMapping({"/find", "/find/"})
     public String findOrAddTranslation(Model model,
@@ -48,9 +48,9 @@ public class TranslationController {
                     .targetWord(targetWord)
                     .sourceLanguage(principal.sourceLanguage())
                     .targetLanguage(principal.targetLanguage())
+                    .systemLanguage(principal.userInterfaceLanguage())
                     .build());
-            model.addAttribute("translationAttribute", translationAttribute);
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+            model.addAttribute("attribute", translationAttribute);
             return "document-page/content/translation/add/add-translation-form";
         }
         UserProfile principal = (UserProfile) authentication.getPrincipal();
@@ -62,10 +62,10 @@ public class TranslationController {
                 .targetLanguage(principal.targetLanguage())
                 .owner(principal.getUsername())
                 .isPhrase(isPhrase)
+                .systemLanguage(principal.userInterfaceLanguage())
                 .build();
         TranslationAttribute attribute = translationService.findByTargetWord(request);
-        model.addAttribute("translationAttribute", attribute);
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+        model.addAttribute("attribute", attribute);
         return "document-page/content/translation/update/update-translation-form";
     }
 
@@ -87,6 +87,7 @@ public class TranslationController {
                 .username(principal.getUsername())
                 .sourceLanguage(principal.sourceLanguage())
                 .targetLanguage(principal.targetLanguage())
+                .systemLanguage(principal.userInterfaceLanguage())
                 .build());
         model.addAttribute("selectableId", selectableId);
         model.addAttribute("phraseText", phraseText);
@@ -94,8 +95,7 @@ public class TranslationController {
         model.addAttribute("phraseLength", phraseLength);
         model.addAttribute("familiarities", familiarities);
         model.addAttribute("isSavedList", isSavedList);
-        model.addAttribute("translationAttribute", translationAttribute);
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+        model.addAttribute("attribute", translationAttribute);
         return "document-page/content/new-phrase";
     }
 
@@ -125,12 +125,12 @@ public class TranslationController {
                     .familiarity(familiarity)
                     .owner(principal.getUsername())
                     .isPhrase(isPhrase)
+                    .systemLanguage(principal.userInterfaceLanguage())
                     .build();
-            TranslationAttribute result = translationService.createTranslation(request);
-            model.addAttribute("translationAttribute", result);
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+            TranslationAttribute attribute = translationService.createTranslation(request);
+            model.addAttribute("attribute", attribute);
             return "document-page/content/translation/update/update-translation-form";
-        } catch (TranslationContraintViolationException e) {
+        } catch (TranslationServiceException e) {
             log.info(e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -154,16 +154,17 @@ public class TranslationController {
                 .familiarity(familiarity)
                 .owner(principal.getUsername())
                 .isPhrase(isPhrase)
+                .systemLanguage(principal.userInterfaceLanguage())
                 .build();
         TranslationAttribute result = translationService.updateFamiliarity(request);
-        model.addAttribute("translationAttribute", result);
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+        model.addAttribute("attribute", result);
         return "document-page/content/translation/update/update-translation-form";
     }
 
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
     public String updateSourceWords(Model model,
                                     Authentication authentication,
+                                    HttpSession session,
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord,
                                     @RequestParam("familiarity") String currentFamiliarity,
@@ -180,15 +181,16 @@ public class TranslationController {
                     .targetWord(targetWord)
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
+                    .uiLanguage(principal.userInterfaceLanguage())
                     .build();
-            TranslationAttribute attribute = translationService.updateSourceWords(request);
-            model.addAttribute("translationAttribute", attribute);
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+            TranslationAttribute attribute = translationService.updateSourceWords(request, session);
+            model.addAttribute("error", Map.of());
+            model.addAttribute("attribute", attribute);
             return "document-page/content/translation/update/update-translation-form";
-        } catch (TranslationContraintViolationException e) {
-            log.warn(e.getMessage());
-            model.addAttribute("translationAttribute", e.getTranslationAttribute());
-            model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+        } catch (TranslationServiceException e) {
+            log.warn("TranslationServiceException: {}", e.getViolation());
+            model.addAttribute("error", e.getViolation());
+            model.addAttribute("attribute", e.getAttribute());
             return "document-page/content/translation/update/update-translation-form";
         }
     }
@@ -196,6 +198,7 @@ public class TranslationController {
     @DeleteMapping({"/sourceWords/delete", "/sourceWords/delete/"})
     public String deleteSourceWord(Model model,
                                    Authentication authentication,
+                                   HttpSession session,
                                    @RequestParam("sourceWord") String sourceWord,
                                    @RequestParam("targetWord") String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId,
@@ -207,12 +210,11 @@ public class TranslationController {
                 .owner(principal.getUsername())
                 .selectedWordId(selectedWordId)
                 .isPhrase(isPhrase)
+                .systemLanguage(principal.userInterfaceLanguage())
                 .build();
-        TranslationAttribute result = translationService.deleteSourceWord(request);
-        model.addAttribute("translationAttribute", result);
-        model.addAttribute("translationLocalization", localizationService.translationFormLocalization(principal.userInterfaceLanguage()));
+        TranslationAttribute result = translationService.deleteSourceWord(request, session);
+        model.addAttribute("attribute", result);
         return "document-page/content/translation/update/update-translation-form";
-
     }
 
     private Pattern compileNonSpecialChars() {

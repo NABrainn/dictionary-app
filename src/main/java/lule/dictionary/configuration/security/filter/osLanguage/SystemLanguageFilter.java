@@ -17,7 +17,7 @@ public class SystemLanguageFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        String systemLanguage = request.getHeader("systemLanguage");
+        String systemLanguage = request.getHeader("uiLanguage");
 
         if (session.getAttribute("sourceLanguage") == null) {
             Language language = parseHeader(systemLanguage);

@@ -3,10 +3,12 @@ package lule.dictionary.userProfiles.data.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.language.service.Language;
 import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,7 +22,18 @@ import java.util.OptionalInt;
 public class UserProfileRepository {
 
     private final JdbcTemplate template;
-    private final UserProfileRowMapperStore rowMapperStore;
+    private final RowMapper<UserProfile> userProfileMapper = ((rs, rowNum) ->
+            UserProfile.builder()
+                    .username(rs.getString("username"))
+                    .email(rs.getString("email"))
+                    .password(rs.getString("password"))
+                    .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
+                    .targetLanguage(Language.valueOf(rs.getString("target_lang")))
+                    .userInterfaceLanguage(Language.valueOf(rs.getString("ui_lang")))
+                    .wordsAddedToday(rs.getInt("words_added_today"))
+                    .offset(rs.getString("tz_offset"))
+                    .dailyStreak(rs.getInt("day_count"))
+                    .build());
 
     public Optional<UserProfile> findByUsername(@NonNull String username) {
         String sql = """
@@ -41,7 +54,7 @@ public class UserProfileRepository {
                     WHERE p.username=?;
                 """;
         try {
-            List<UserProfile> result = template.query(sql, rowMapperStore.getUserProfileMapper(), username);
+            List<UserProfile> result = template.query(sql, userProfileMapper, username);
             return result.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -68,7 +81,7 @@ public class UserProfileRepository {
                     WHERE p.username=? OR p.email=?;
                 """;
         try {
-            List<UserProfile> result = template.query(sql, rowMapperStore.getUserProfileMapper(), username, email);
+            List<UserProfile> result = template.query(sql, userProfileMapper, username, email);
             return result.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -100,7 +113,7 @@ public class UserProfileRepository {
                     LEFT JOIN streak str ON u.username = str.streak_owner;
                 """;
         try {
-            List<UserProfile> addedUser = template.query(sql, rowMapperStore.getUserProfileMapper(),
+            List<UserProfile> addedUser = template.query(sql, userProfileMapper,
                     userProfile.sourceLanguage().name(),
                     userProfile.targetLanguage().name(),
                     userProfile.userInterfaceLanguage().name(),
@@ -135,7 +148,7 @@ public class UserProfileRepository {
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
                 """;
         try {
-            return template.query(sql, rowMapperStore.getUserProfileMapper());
+            return template.query(sql, userProfileMapper);
         } catch (DataAccessException e) {
             log.error(e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);

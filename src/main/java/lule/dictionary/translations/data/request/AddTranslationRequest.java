@@ -1,22 +1,28 @@
 package lule.dictionary.translations.data.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
+import lule.dictionary.validation.data.Validated;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Builder
 public record AddTranslationRequest(int documentId,
                                     int selectedWordId,
-                                    @NonNull List<@NotBlank(message = "Source word cannot be blank") @Size(max = 200, message = "Source word cannot be longer than 200 characters") String> sourceWords,
-                                    @NotBlank String targetWord,
+                                    @NonNull List<String> sourceWords,
+                                    String targetWord,
                                     @NonNull Language sourceLanguage,
                                     @NonNull Language targetLanguage,
+                                    @NonNull Language systemLanguage,
                                     @NonNull Familiarity familiarity,
                                     @NonNull String owner,
-                                    boolean isPhrase) implements TranslationsRequest {
+                                    boolean isPhrase) implements TranslationsRequest, Validated {
+    @Override
+    public Set<Map<String, String>> validate(Language language) {
+        return Set.of();
+    }
 }

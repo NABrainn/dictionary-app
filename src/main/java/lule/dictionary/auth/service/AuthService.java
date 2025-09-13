@@ -6,7 +6,12 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.auth.data.exception.AuthServiceException;
+import lule.dictionary.auth.data.localization.AuthError;
+import lule.dictionary.auth.data.localization.AuthText;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
+import lule.dictionary.language.service.Language;
+import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.auth.data.request.AuthRequest;
 import lule.dictionary.auth.data.SessionContext;
@@ -18,6 +23,7 @@ import lule.dictionary.userProfiles.service.exception.UserExistsException;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
 import lule.dictionary.jwt.service.JwtService;
 import lule.dictionary.userProfiles.service.UserProfileService;
+import lule.dictionary.validation.data.ValidationException;
 import lule.dictionary.validation.service.ValidationService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +32,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -37,32 +45,56 @@ public class AuthService {
     private final JwtService jwtService;
     private final CookieService cookieService;
     private final ValidationService validationService;
+    private final AuthLocalizationService authLocalizationService;
+    private final SessionHelper sessionHelper;
 
 
-    public void login(@NonNull LoginRequest loginData,
+    public void login(@NonNull LoginRequest request,
                       @NonNull HttpServletResponse response,
-                      @NonNull HttpSession httpSession) {
-        validationService.validate(loginData);
-        AuthenticationData authResult = authenticateUser(loginData);
-        setAuthenticationContext(SessionContext.of(authResult, response, httpSession));
+                      @NonNull HttpSession session) {
+        Language uiLanguage = sessionHelper.getUILanguage(session);
+        try {
+            validationService.validate(request, uiLanguage);
+            AuthenticationData authResult = authenticateUser(request);
+            setAuthenticationContext(SessionContext.of(authResult, response, session));
+        } catch (ValidationException e) {
+            throw new AuthServiceException(e.getViolation());
+        } catch (UserNotFoundException e) {
+            throw new AuthServiceException(Map.of("userNotFound", switch (uiLanguage) {
+                case PL -> "Użytkownik nie został znaleziony";
+                case EN -> "User not found";
+                case IT -> "Utente non trovato";
+                case NO -> "Bruker ikke funnet";
+            }));
+        }
     }
 
     @Transactional
-    public void signup(@NonNull SignupRequest request) {
-        validationService.validate(request);
-        userProfileService.findByUsernameOrEmail(request.login(), request.email())
-                .ifPresentOrElse(
-                        user -> {
-                            throw new UserExistsException("User with given username or email already exists");
-                        },
+    public void signup(@NonNull SignupRequest request, HttpSession httpSession) {
+        Language uiLanguage = sessionHelper.getUILanguage(httpSession);
+        try {
+            validationService.validate(request, uiLanguage);
+            userProfileService.findByUsernameOrEmail(request.login(), request.email())
+                    .ifPresentOrElse(
+                        user -> { throw new UserExistsException("User with given username or email already exists"); },
                         () -> userProfileService.addUserProfile(request)
-                );
+                    );
+        } catch (ValidationException e) {
+            throw new AuthServiceException(e.getViolation());
+        } catch (UserExistsException e) {
+            throw new AuthServiceException(Map.of("userExists", switch (uiLanguage) {
+                case PL -> "Użytkownik już istnieje";
+                case EN -> "User already exists";
+                case IT -> "L'utente esiste già";
+                case NO -> "Brukeren finnes allerede";
+            }));
+        }
     }
+
     public void logout(@NonNull HttpServletResponse httpServletResponse) {
         clearAuthentication();
         deleteJwtCookie(httpServletResponse);
     }
-
 
     private AuthenticationData authenticateUser(AuthRequest loginData) throws UserNotFoundException {
         UserProfile user = getUserProfile(loginData);
@@ -122,7 +154,13 @@ public class AuthService {
         return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.getUsername(), userProfile.getPassword()));
     }
 
-    private UserProfile getUserProfile(AuthRequest loginRequest) throws UserNotFoundException {
-        return userProfileService.findByLogin(loginRequest.login()).withPassword(loginRequest.password());
+    private UserProfile getUserProfile(AuthRequest request) throws UserNotFoundException {
+        return ((UserProfile) userProfileService.loadUserByUsername(request.login())).withPassword(request.password());
     }
+
+    public Map<AuthText, String> getTextLocalization(HttpSession session) {
+        Language uiLanguage = sessionHelper.getUILanguage(session);
+        return authLocalizationService.getTextLocalization(uiLanguage);
+    }
+
 }

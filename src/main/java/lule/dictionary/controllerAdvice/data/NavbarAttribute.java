@@ -26,6 +26,29 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
                               String translationsText,
                               String logoutText) {
 
+    public NavbarAttribute withIsProfileOpen(boolean isProfileOpen) {
+        return NavbarAttribute.builder()
+                .targetLanguage(this.targetLanguage)
+                .userInterfaceLanguage(this.userInterfaceLanguage)
+                .translationLanguage(this.translationLanguage)
+                .wordsLearned(this.wordsLearned)
+                .dailyStreak(this.dailyStreak)
+                .isProfileOpen(isProfileOpen)
+                .wordsLearnedText(this.wordsLearnedText)
+                .daysSingularText(this.daysSingularText)
+                .daysPluralText(this.daysPluralText)
+                .loginBtnText(this.loginBtnText)
+                .lessonsBtnText(this.lessonsBtnText)
+                .vocabularyBtnText(this.vocabularyBtnText)
+                .settingsText(this.settingsText)
+                .languageText(this.languageText)
+                .uiText(this.uiText)
+                .translationsText(this.translationsText)
+                .logoutText(this.logoutText)
+                .languageDataList(this.languageDataList)
+                .build();
+    }
+
     @Override
     public List<LanguageData> languageDataList() {
         if(languageDataList == null) throw new NullPointerException("Illegal value access: user not authenticated");

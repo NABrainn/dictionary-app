@@ -1,17 +1,67 @@
 package lule.dictionary.documents.data.documentSubmission;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.NonNull;
-import org.hibernate.validator.constraints.URL;
+import lule.dictionary.language.service.Language;
+import lule.dictionary.validation.data.Validated;
 
-public record UrlSubmissionStrategy(@NonNull
-                            @NotBlank @Size(min = 10, max = 200) String title,
-                                    @NonNull
-                            @NotNull @Size(max = 200) @URL(protocol = "https") String url,
-                                    @NonNull String spaceForUrlText) implements SubmissionStrategy {
-    public static UrlSubmissionStrategy of(String spaceForUrlText, String title, String url) {
-        return new UrlSubmissionStrategy(spaceForUrlText, title, url);
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public record UrlSubmissionStrategy(@NonNull String title,
+                                    @NonNull String url,
+                                    @NonNull String urlPlaceholderText) implements SubmissionStrategy, Validated {
+    public static UrlSubmissionStrategy of(String title, String url, String urlPlaceholderText) {
+        return new UrlSubmissionStrategy(title, url, urlPlaceholderText);
+    }
+
+    @Override
+    public Set<Map<String, String>> validate(Language language) {
+        Set<Map<String, String>> violations = new HashSet<>();
+        if (title.isBlank()) {
+            violations.add(Map.of(
+                    "title",
+                    switch (language) {
+                        case PL -> "Tytuł nie może być pusty";
+                        case EN -> "Title cannot be empty";
+                        case IT -> "Il titolo non può essere vuoto";
+                        case NO -> "Tittelen kan ikke være tom";
+                    }
+            ));
+        }
+        if (title.length() > 500) {
+            violations.add(Map.of(
+                    "title",
+                    switch (language) {
+                        case PL -> "Tytuł nie może przekraczać 500 znaków";
+                        case EN -> "Title cannot exceed 500 characters";
+                        case IT -> "Il titolo non può superare i 500 caratteri";
+                        case NO -> "Tittelen kan ikke overstige 500 tegn";
+                    }
+            ));
+        }
+        if (url.isBlank()) {
+            violations.add(Map.of(
+                    "url",
+                    switch (language) {
+                        case PL -> "Adres URL nie może być pusty";
+                        case EN -> "URL cannot be empty";
+                        case IT -> "L'URL non può essere vuoto";
+                        case NO -> "URL-en kan ikke være tom";
+                    }
+            ));
+        }
+        if (url.length() > 500) {
+            violations.add(Map.of(
+                    "url",
+                    switch (language) {
+                        case PL -> "Adres URL nie może przekraczać 500 znaków";
+                        case EN -> "URL cannot exceed 500 characters";
+                        case IT -> "L'URL non può superare i 500 caratteri";
+                        case NO -> "URL-en kan ikke overstige 500 tegn";
+                    }
+            ));
+        }
+        return violations;
     }
 }

@@ -1,32 +1,17 @@
 package lule.dictionary.validation.service;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.language.service.Language;
+import lule.dictionary.validation.data.Validated;
+import lule.dictionary.validation.data.ValidationException;
 import org.springframework.stereotype.Service;
-
-import java.util.Comparator;
-import java.util.List;
-
-import static java.util.stream.Collectors.*;
 
 @Service
 @RequiredArgsConstructor
 public class ValidationService {
-
-    private final Validator validator;
-
-    public <T> void validate(T ob) throws ValidationServiceException {
-        validator.validate(ob).stream()
-                .sorted(Comparator.comparingInt(violation -> violation.getMessage().length()))
-                .collect(groupingBy(ConstraintViolation::getPropertyPath))
-                .values().stream()
-                .filter(group -> !group.isEmpty())
+    public void validate(Validated object, Language language) throws ValidationException {
+        object.validate(language).stream()
                 .findFirst()
-                .orElseGet(List::of).stream()
-                .findFirst()
-                .ifPresent(violation -> {
-                    throw new ValidationServiceException( violation.getPropertyPath() + " " + violation.getMessage(), violation);
-                });
+                .ifPresent(violation -> { throw new ValidationException(violation); });
     }
 }
