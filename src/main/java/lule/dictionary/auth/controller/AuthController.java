@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.auth.data.exception.AuthServiceException;
 import lule.dictionary.auth.data.request.LoginRequest;
 import lule.dictionary.auth.service.AuthService;
 import lule.dictionary.auth.data.request.SignupRequest;
@@ -38,7 +39,7 @@ public class AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
-        model.addAttribute("violation", Map.of());
+        model.addAttribute("error", Map.of());
         model.addAttribute("localization", authService.getTextLocalization(httpSession));
         return "auth/login";
     }
@@ -49,31 +50,17 @@ public class AuthController {
                         Model model,
                         Authentication authentication,
                         HttpServletResponse response,
-                        HttpSession httpSession) {
+                        HttpSession session) {
         if(authentication != null) {
             return "redirect:/";
         }
         try {
-            authService.login(LoginRequest.of(login, password), response, httpSession);
+            authService.login(LoginRequest.of(login, password), response, session);
             return "redirect:/";
         }
-        catch (ValidationException e) {
-            log.info(e.getMessage());
-            model.addAttribute("violation", e.getViolation());
-            model.addAttribute("localization", authService.getTextLocalization(httpSession));
-            return "auth/signup";
-        }
-        catch (UserNotFoundException e) {
-            log.info("UserNotFoundException exception: {}", e.getMessage());
-            model.addAttribute("userNotFound", "User does not exist");
-            model.addAttribute("violation", Map.of());
-            model.addAttribute("localization", authService.getTextLocalization(httpSession));
-            return "auth/login";
-        }
-        catch (AuthenticationException e) {
-            log.info("Authentication exception: {}", e.getMessage());
-            model.addAttribute("violation", Map.of());
-            model.addAttribute("localization", authService.getTextLocalization(httpSession));
+        catch (AuthServiceException e) {
+            model.addAttribute("error", e.getViolation());
+            model.addAttribute("localization", authService.getTextLocalization(session));
             return "auth/login";
         }
     }
@@ -85,6 +72,7 @@ public class AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
+        model.addAttribute("error", Map.of());
         model.addAttribute("localization", authService.getTextLocalization(httpSession));
         return "auth/signup";
     }
@@ -95,26 +83,19 @@ public class AuthController {
                          @RequestParam("password") @NonNull String password,
                          Model model,
                          Authentication authentication,
-                         HttpSession httpSession) {
+                         HttpSession session) {
         if(authentication != null) {
             return "redirect:/";
         }
         try {
-            authService.signup(SignupRequest.of(login, email, password), httpSession);
-            model.addAttribute("violation", Map.of());
-            model.addAttribute("localization", authService.getTextLocalization(httpSession));
+            authService.signup(SignupRequest.of(login, email, password), session);
+            model.addAttribute("error", Map.of());
+            model.addAttribute("localization", authService.getTextLocalization(session));
             return "redirect:/auth/login";
         }
-        catch (ValidationException e) {
-            log.info(e.getMessage());
-            model.addAttribute("violation", e.getViolation());
-            model.addAttribute("localization", authService.getTextLocalization(httpSession));
-            return "auth/signup";
-        }
-        catch (UserExistsException e) {
-            log.info(e.getMessage());
-            model.addAttribute("violation", Map.of());
-            model.addAttribute("localization", authService.getTextLocalization(httpSession));
+        catch (AuthServiceException e) {
+            model.addAttribute("error", e.getViolation());
+            model.addAttribute("localization", authService.getTextLocalization(session));
             return "auth/signup";
         }
     }
@@ -125,7 +106,7 @@ public class AuthController {
                          HttpServletResponse response,
                          HttpSession httpSession) {
         authService.logout(response);
-        model.addAttribute("violation", Map.of());
+        model.addAttribute("error", Map.of());
         redirectAttributes.addFlashAttribute("localization", authService.getTextLocalization(httpSession));
         return "redirect:/auth/login";
     }

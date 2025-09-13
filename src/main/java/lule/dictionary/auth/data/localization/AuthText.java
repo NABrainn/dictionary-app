@@ -1,6 +1,6 @@
 package lule.dictionary.auth.data.localization;
 
-public enum AuthTextLocalization {
+public enum AuthText {
     LOG_IN,
     SIGN_UP,
     USERNAME,

@@ -7,12 +7,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static lule.dictionary.auth.data.localization.AuthTextLocalization.*;
+import static lule.dictionary.auth.data.localization.AuthText.*;
 
 @Service
 @RequiredArgsConstructor
 public class AuthLocalizationService {
-    public Map<AuthTextLocalization, String> getTextLocalization(Language language) {
+    public Map<AuthText, String> getTextLocalization(Language language) {
         return switch (language) {
             case PL -> Map.of(
                     LOG_IN, "Zaloguj się",
@@ -50,6 +50,15 @@ public class AuthLocalizationService {
                     CREATE_ACCOUNT, "Opprett konto",
                     SUBMIT, "Send"
             );
+        };
+    }
+
+    public Map<AuthError, String> getErrorLocalization(Language language) {
+        return switch (language) {
+            case PL -> Map.of(AuthError.USER_NOT_FOUND, "Użytkownik nie został znaleziony");
+            case EN -> Map.of(AuthError.USER_NOT_FOUND, "User not found");
+            case IT -> Map.of(AuthError.USER_NOT_FOUND, "Utente non trovato");
+            case NO -> Map.of(AuthError.USER_NOT_FOUND, "Bruker ikke funnet");
         };
     }
 }
