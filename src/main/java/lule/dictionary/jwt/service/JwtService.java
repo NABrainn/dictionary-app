@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -22,12 +23,10 @@ public class JwtService {
     @Value("${spring.security.jwt.expiration}")
     private long expiration;
 
-    // Generate a SecretKey from the secret string
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // Generate JWT token
     public String generateToken(String username) {
         return Jwts.builder()
                 .subject(username)
@@ -37,13 +36,14 @@ public class JwtService {
                 .compact();
     }
 
-    public String getUsernameFromToken(String token) {
-        return getClaims(token).getSubject();
+    public Optional<String> getUsernameFromToken(String token) {
+        return getClaims(token).getSubject() == null ? Optional.of(getClaims(token).getSubject()) : Optional.empty();
     }
 
     public boolean validateToken(String token, String username) {
-        final String tokenUsername = getUsernameFromToken(token);
-        return (tokenUsername.equals(username) && !isTokenExpired(token));
+        return getUsernameFromToken(token)
+                .map(tokenUsername -> tokenUsername.equals(username) && !isTokenExpired(token))
+                .orElseThrow();
     }
 
     private boolean isTokenExpired(String token) {
@@ -54,7 +54,7 @@ public class JwtService {
 
     private Claims getClaims(String token) {
         return Jwts.parser()
-                .verifyWith((SecretKey) getSigningKey()) // Use SecretKey for verification
+                .verifyWith((SecretKey) getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
