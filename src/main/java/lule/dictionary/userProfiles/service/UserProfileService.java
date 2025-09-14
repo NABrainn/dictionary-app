@@ -4,8 +4,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
-import lule.dictionary.language.service.LanguageHelper;
-import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
@@ -14,17 +12,18 @@ import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
 import lule.dictionary.date.service.DateUtil;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +38,7 @@ public class UserProfileService implements UserDetailsService {
         UserProfile userProfile = UserProfile.builder()
                 .username(signupRequest.login())
                 .email(signupRequest.email())
-                .password(encode(signupRequest.password()))
+                .password(encoder.encode(signupRequest.password()))
                 .sourceLanguage(Language.EN)
                 .targetLanguage(Language.NO)
                 .userInterfaceLanguage(Language.EN)
@@ -77,37 +76,75 @@ public class UserProfileService implements UserDetailsService {
         return userProfileRepository.getDailyStreak(owner).orElseThrow(() -> new RuntimeException("Failed to fetch daily streak"));
     }
 
-    public void updateTargetLanguage(String owner, Language newTargetLanguage) {
-        userProfileRepository.updateTargetLanguage(owner, newTargetLanguage.name());
-        UserProfile userDetails = (UserProfile) loadUserByUsername(owner);
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        ));
+    //TODO merge below methods into one
+    public void updateTargetLanguage(String languageString, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Stream.of(languageString)
+                .map(lang -> {
+                    try {
+                        return Language.valueOf(lang);
+                    }
+                    catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .ifPresentOrElse(
+                        value -> {
+                            userProfileRepository.updateTargetLanguage(principal.getUsername(), value.name());
+                            UserProfile userDetails = (UserProfile) loadUserByUsername(principal.getUsername());
+                            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+                        },
+                        () -> { throw new RuntimeException("Illegal value for language provided"); }
+                );
+
     }
 
-    private String encode(String password) {
-        return encoder.encode(password);
+    public void updateSourceLanguage(String languageString, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Stream.of(languageString)
+                .map(lang -> {
+                    try {
+                        return Language.valueOf(lang);
+                    }
+                    catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .ifPresentOrElse(
+                        value -> {
+                            userProfileRepository.updateSourceLanguage(principal.getUsername(), value.name());
+                            UserProfile userDetails = (UserProfile) loadUserByUsername(principal.getUsername());
+                            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+                        },
+                        () -> { throw new RuntimeException("Illegal value for language provided"); }
+                );
+
     }
 
-    public void updateSourceLanguage(String username, Language language) {
-        userProfileRepository.updateSourceLanguage(username, language.name());
-        UserProfile userDetails = (UserProfile) loadUserByUsername(username);
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        ));
-    }
-
-    public void updateUILanguage(String username, Language uiLanguage) {
-        userProfileRepository.updateUILanguage(username, uiLanguage.name());
-        UserProfile userDetails = (UserProfile) loadUserByUsername(username);
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        ));
+    public void updateUILanguage(String languageString, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Stream.of(languageString)
+                .map(lang -> {
+                    try {
+                        return Language.valueOf(lang);
+                    }
+                    catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .ifPresentOrElse(
+                        value -> {
+                            userProfileRepository.updateUILanguage(principal.getUsername(), value.name());
+                            UserProfile userDetails = (UserProfile) loadUserByUsername(principal.getUsername());
+                            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+                        },
+                        () -> { throw new RuntimeException("Illegal value for language provided"); }
+                );
     }
 }
