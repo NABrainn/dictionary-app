@@ -8,7 +8,5 @@ import lule.dictionary.language.service.Language;
 public record GetRandomTranslationsRequest(int familiarity,
                                            int quantity,
                                            boolean isPhrase,
-                                           int id,
-                                           @NonNull String owner,
-                                           @NonNull Language systemLanguage) {
+                                           int id) {
 }
