@@ -1,7 +1,7 @@
+@import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.translations.data.Familiarity
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 @import java.util.List
-@import java.util.Map
 
 @param int selectableId
 @param int documentId
@@ -9,6 +9,7 @@
 @param List<String> familiarities
 @param List<String> isSavedList
 @param TranslationAttribute attribute
+@param BaseAttribute baseAttribute 
 
 !{var cleanWordPattern = java.util.regex.Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
 !{String[] unprocessedPhraseText = attribute.translation().targetWord().split(" ");}
@@ -158,7 +159,8 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
     data-id="${selectableId}"
     data-is-translation-form-container="true">
         @template.document-page.content.translation.add.add-translation-form(
-        attribute = attribute)
+        attribute = attribute,
+        baseAttribute = baseAttribute)
     </div>
     @for(int wordId = selectableId, phraseWordId = 0; wordId < selectableId + phraseLength; wordId++, phraseWordId++)
         @template.document-page.content.word(
