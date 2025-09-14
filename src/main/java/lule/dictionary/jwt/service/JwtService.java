@@ -37,7 +37,7 @@ public class JwtService {
     }
 
     public Optional<String> getUsernameFromToken(String token) {
-        return getClaims(token).getSubject() == null ? Optional.of(getClaims(token).getSubject()) : Optional.empty();
+        return getClaims(token).getSubject() != null ? Optional.of(getClaims(token).getSubject()) : Optional.empty();
     }
 
     public boolean validateToken(String token, String username) {
