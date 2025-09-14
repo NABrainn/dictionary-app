@@ -35,7 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        Optional<String> optionalJwt = getJwtFromCookie("jwt", request);
+
+        Optional<String> optionalJwt = switch (request.getCookies()) {
+            case Cookie[] cookies -> Arrays.stream(request.getCookies())
+                    .filter(cookie -> "jwt".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst();
+            case null -> Optional.empty();
+        };
 
         if (optionalJwt.isEmpty()) {
             log.debug("No JWT cookie found, proceeding with filter chain");
@@ -76,16 +83,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private Optional<String> getJwtFromCookie(String jwtCookieName, HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return Optional.empty();
-        }
-        return Arrays.stream(cookies)
-                .filter(cookie -> jwtCookieName.equals(cookie.getName()))
-                .map(Cookie::getValue)
-                .findFirst();
     }
 }

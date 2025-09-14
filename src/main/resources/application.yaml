@@ -37,6 +37,13 @@ logging:
 #      springframework.jdbc.core.JdbcTemplate: DEBUG
 #      org.springframework.security.web.FilterChainProxy: DEBUG
 server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+        http-only: true
+        same-site: strict
+      timeout: 1440m
   compression:
     enabled: true
     min-response-size: 2048
