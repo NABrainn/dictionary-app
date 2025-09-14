@@ -39,17 +39,12 @@ public class TranslationController {
                                        @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                        @RequestParam("isFound") boolean isFound) {
         if(!isFound) {
-            UserProfile principal = (UserProfile) authentication.getPrincipal();
             TranslationAttribute translationAttribute = translationService.translate(CreateTranslationRequest.builder()
                     .documentId(documentId)
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
-                    .username(principal.getUsername())
                     .targetWord(targetWord)
-                    .sourceLanguage(principal.sourceLanguage())
-                    .targetLanguage(principal.targetLanguage())
-                    .systemLanguage(principal.userInterfaceLanguage())
-                    .build());
+                    .build(), authentication);
             model.addAttribute("attribute", translationAttribute);
             return "document-page/content/translation/add/add-translation-form";
         }
@@ -78,17 +73,12 @@ public class TranslationController {
                                @RequestParam("phraseLength") int phraseLength,
                                @RequestParam("familiarities") List<String> familiarities,
                                @RequestParam("isSavedList") List<String> isSavedList) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
         TranslationAttribute translationAttribute = translationService.translate(CreateTranslationRequest.builder()
                 .targetWord(phraseText)
                 .documentId(documentId)
                 .selectedWordId(selectableId)
                 .isPhrase(true)
-                .username(principal.getUsername())
-                .sourceLanguage(principal.sourceLanguage())
-                .targetLanguage(principal.targetLanguage())
-                .systemLanguage(principal.userInterfaceLanguage())
-                .build());
+                .build(), authentication);
         model.addAttribute("selectableId", selectableId);
         model.addAttribute("phraseText", phraseText);
         model.addAttribute("documentId", documentId);
@@ -111,23 +101,17 @@ public class TranslationController {
                                  @RequestParam("selectedWordId") int selectedWordId,
                                  @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         try {
-            UserProfile principal = (UserProfile) authentication.getPrincipal();
             AddTranslationRequest request = AddTranslationRequest.builder()
                     .documentId(documentId)
                     .selectedWordId(selectedWordId)
-                    .sourceWords(sourceWords.stream()
-                            .map(sw -> compileNonSpecialChars().matcher(sw).replaceAll(""))
-                            .filter(sw -> !sw.isBlank())
-                            .toList())
-                    .targetWord(compileNonSpecialChars().matcher(targetWord).replaceAll(""))
+                    .sourceWords(sourceWords)
+                    .targetWord(targetWord)
                     .sourceLanguage(sourceLanguage)
                     .targetLanguage(targetLanguage)
                     .familiarity(familiarity)
-                    .owner(principal.getUsername())
                     .isPhrase(isPhrase)
-                    .systemLanguage(principal.userInterfaceLanguage())
                     .build();
-            TranslationAttribute attribute = translationService.createTranslation(request);
+            TranslationAttribute attribute = translationService.createTranslation(request, authentication);
             model.addAttribute("attribute", attribute);
             return "document-page/content/translation/update/update-translation-form";
         } catch (TranslationServiceException e) {
@@ -215,9 +199,5 @@ public class TranslationController {
         TranslationAttribute result = translationService.deleteSourceWord(request, session);
         model.addAttribute("attribute", result);
         return "document-page/content/translation/update/update-translation-form";
-    }
-
-    private Pattern compileNonSpecialChars() {
-        return Pattern.compile("[^\\p{L}0-9 ]");
     }
 }
