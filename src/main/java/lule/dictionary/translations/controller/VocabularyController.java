@@ -2,16 +2,12 @@ package lule.dictionary.translations.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
 import lule.dictionary.translations.data.attribute.WordCardAttribute;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.translations.service.TranslationService;
-import lule.dictionary.language.service.Language;
-import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
-import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,14 +23,11 @@ import java.util.List;
 public class VocabularyController {
 
     private final TranslationService translationService;
-    private final SessionHelper sessionHelper;
 
     @GetMapping({"", "/"})
     public String vocabularyPage(Model model,
                                  Authentication authentication) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
-        Language systemLanguage = principal.userInterfaceLanguage();
-        FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(0, 10, false, systemLanguage));
+        FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(0, 10, false), authentication);
         model.addAttribute("attribute", attribute);
         return "vocabulary-page/base-page";
     }
@@ -45,9 +38,7 @@ public class VocabularyController {
                              @RequestParam(name = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                              Model model,
                              Authentication authentication) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
-        Language systemLanguage = principal.userInterfaceLanguage();
-        FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(familiarity, quantity, isPhrase, systemLanguage));
+        FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(familiarity, quantity, isPhrase), authentication);
         model.addAttribute("attribute", attribute);
         return "vocabulary-page/flashcard/flashcard-config";
     }
@@ -60,17 +51,13 @@ public class VocabularyController {
                                          Model model,
                                          Authentication authentication,
                                          HttpSession session) {
-        String username = ((UserProfile) authentication.getPrincipal()).getUsername();
-        Language systemLanguage = ((UserProfile) authentication.getPrincipal()).userInterfaceLanguage();
         try {
             BaseFlashcardAttribute attribute = translationService.getRandomTranslations(GetRandomTranslationsRequest.builder()
                     .familiarity(familiarity)
                     .quantity(quantity)
                     .isPhrase(isPhrase)
                     .id(id)
-                    .owner(username)
-                    .systemLanguage(systemLanguage)
-                    .build());
+                    .build(), authentication);
             model.addAttribute("attribute", attribute);
             session.removeAttribute("translations");
             session.setAttribute("translations", attribute.translations());
@@ -89,17 +76,12 @@ public class VocabularyController {
                                 Model model,
                                 HttpSession session,
                                 Authentication authentication) {
-        List<Translation> translations = sessionHelper.getList(session, "translations", Translation.class);
-        Language systemLanguage = ((UserProfile) authentication.getPrincipal()).userInterfaceLanguage();
         BaseFlashcardAttribute attribute = translationService.flipFlashcard(FlipFlashcardRequest.builder()
                 .id(id)
-                .size(translations.size())
                 .familiarity(familiarity)
                 .quantity(quantity)
                 .isPhrase(isPhrase)
-                .translations(translations)
-                .systemLanguage(systemLanguage)
-                .build());
+                .build(), authentication, session);
         model.addAttribute("attribute", attribute);
         return "vocabulary-page/flashcard/flashcard";
     }

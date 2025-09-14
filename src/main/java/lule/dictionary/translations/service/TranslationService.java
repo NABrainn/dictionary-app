@@ -270,8 +270,9 @@ public class TranslationService {
                 .build();
     }
 
-    public BaseFlashcardAttribute getRandomTranslations(GetRandomTranslationsRequest request) throws TranslationsNotFoundException {
-        List<Translation> translations = translationRepository.getRandomTranslations(request.isPhrase(), request.owner(), request.quantity(), request.familiarity());
+    public BaseFlashcardAttribute getRandomTranslations(GetRandomTranslationsRequest request, Authentication authentication) throws TranslationsNotFoundException {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        List<Translation> translations = translationRepository.getRandomTranslations(request.isPhrase(), principal.getUsername(), request.quantity(), request.familiarity());
         if(!translations.isEmpty()) {
             return BaseFlashcardAttribute.builder()
                     .id(request.id())
@@ -280,14 +281,14 @@ public class TranslationService {
                     .quantity(request.quantity())
                     .isPhrase(request.isPhrase())
                     .translations(translations)
-                    .localization(translationLocalization.get(request.systemLanguage()))
+                    .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                     .build();
         }
         throw new TranslationsNotFoundException("No translations found to review", FlashcardConfigAttribute.builder()
                 .familiarity(request.familiarity())
                 .quantity(request.quantity())
                 .isPhrase(request.isPhrase())
-                .localization(translationLocalization.get(request.systemLanguage()))
+                .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                 .build());
 
     }
@@ -317,21 +318,25 @@ public class TranslationService {
         return translationRepository.addTranslation(translation, request.documentId()).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
     }
 
-    public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request) {
+    public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Language systemLanguage = principal.userInterfaceLanguage();
         return FlashcardConfigAttribute.builder()
                 .familiarity(request.familiarity())
                 .quantity(request.quantity())
                 .isPhrase(request.isPhrase())
-                .localization(translationLocalization.get(request.systemLanguage()))
+                .localization(translationLocalization.get(systemLanguage))
                 .build();
     }
 
-    public BaseFlashcardAttribute flipFlashcard(FlipFlashcardRequest request) {
+    public BaseFlashcardAttribute flipFlashcard(@NonNull FlipFlashcardRequest request, @NonNull Authentication authentication, @NonNull HttpSession session) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        List<Translation> translations = sessionHelper.getList(session, "translations", Translation.class);
         return BaseFlashcardAttribute.builder()
-                .translations(request.translations())
-                .localization(translationLocalization.get(request.systemLanguage()))
+                .translations(translations)
+                .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                 .id(request.id())
-                .size(request.size())
+                .size(translations.size())
                 .familiarity(request.familiarity())
                 .quantity(request.quantity())
                 .isPhrase(request.isPhrase())
