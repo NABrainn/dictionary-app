@@ -117,7 +117,7 @@ public class JteControllerAdvice {
                             .languageCode(languageHelper.getCode(sourceLanguage))
                             .imgPath(languageHelper.getImagePath(sourceLanguage))
                             .build())
-                    .isProfileOpen((boolean) session.getAttribute("isProfileOpen"))
+                    .isProfileOpen(session.getAttribute("isProfileOpen") != null && (boolean) session.getAttribute("isProfileOpen"))
                     .settingsText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.SETTINGS))
                     .languageText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LANGUAGE))
                     .uiText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.USER_INTERFACE))

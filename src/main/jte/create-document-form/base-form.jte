@@ -15,7 +15,7 @@
     <div id="document-form-wrapper">
         @template.navbar.navbar(
         navbarAttribute = navbarAttribute,
-        isAuthenticated = baseAttribute.isAuthenticated())
+        baseAttribute = baseAttribute)
         <script>
             if (!customElements.get('static-textarea')) {
                 class StaticTextArea extends HTMLTextAreaElement {
@@ -37,10 +37,11 @@
         class="md:w-3/5
         w-9/10 flex flex-col gap-6 bg-tertiary mx-auto p-6 rounded mt-16"
         hx-post="/documents/new"
-        hx-params="title,url,content,strategy"
+        hx-params="title,url,content,strategy,_csrf"
         hx-target="#main"
         hx-swap="innerHTML"
         hx-push-url="true">
+            <input type="hidden" name="_csrf" value="${baseAttribute._csrf().getToken()}">
             <div class="flex flex-col gap-2">
                 <label class="text-accent font-bold text-2xl min-h-8" for="title">${attribute.localization().get(DocumentLocalizationKey.TITLE)}</label>
                 <textarea

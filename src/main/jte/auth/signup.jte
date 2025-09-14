@@ -12,7 +12,7 @@
 @template.layout.base(authView = @`
     @template.navbar.navbar(
     navbarAttribute = navbarAttribute,
-    isAuthenticated = baseAttribute.isAuthenticated())
+    baseAttribute = baseAttribute)
     <form
         hx-post="/auth/signup"
         hx-target="#main"
@@ -64,6 +64,7 @@
             hx-swap="outerHTML"
             hx-push-url="true">${localization.get(AuthText.LOG_IN)}</a>
         </div>
+        <input type="hidden" name="_csrf" value="${baseAttribute._csrf().getToken()}">
     </form>
 `,
 baseAttribute = baseAttribute)

@@ -11,6 +11,7 @@
 @param LanguageData userInterfaceLanguage
 @param LanguageData translationLanguage
 @param List<LanguageData> languages
+@param String _csrf
 
 <div class="flex justify-end items-center z-420 justify-center ${size}">
     <div>
@@ -37,20 +38,18 @@
                         <span>${uiText}:</span>
                         <div>
                             @template.navbar.language-picker(
-                                selectedLanguage = userInterfaceLanguage,
-                                languages = languages,
-                                type = "ui"
-                            )
+                            selectedLanguage = userInterfaceLanguage,
+                            languages = languages,
+                            type = "ui")
                         </div>
                     </div>
                     <div class="flex justify-between gap-2 text-neutral font-bold text-md">
                         <span>${translationsText}:</span>
                         <div>
                             @template.navbar.language-picker(
-                                selectedLanguage = translationLanguage,
-                                languages = languages,
-                                type = "source"
-                            )
+                            selectedLanguage = translationLanguage,
+                            languages = languages,
+                            type = "source")
                         </div>
                     </div>
                 </div>
@@ -62,7 +61,11 @@
             hx-post="/auth/logout"
             hx-target="#main"
             hx-swap="innerHTML"
-            hx-push-url="/auth/login">
+            hx-push-url="/auth/login"
+            hx-params="_csrf"
+            hx-vals='{
+                "_csrf": "${_csrf}"
+            }'>
                 ${logoutText}
             </a>
         </div>

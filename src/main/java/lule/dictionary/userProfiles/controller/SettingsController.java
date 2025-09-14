@@ -48,7 +48,7 @@ public class SettingsController {
     @GetMapping({"/profilePanel", "/profilePanel/"})
     public String profilePanel(HttpSession session,
                                Model model) {
-        boolean isProfileOpen = (boolean) session.getAttribute("isProfileOpen");
+        boolean isProfileOpen = session.getAttribute("isProfileOpen") != null && (boolean) session.getAttribute("isProfileOpen");
         session.setAttribute("isProfileOpen", !isProfileOpen);
         model.addAttribute("isProfileOpen", !isProfileOpen);
         return "navbar/profile-panel";

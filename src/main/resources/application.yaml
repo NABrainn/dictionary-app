@@ -3,8 +3,10 @@ spring:
     import: optional:file:.env[.properties]
   security:
     jwt:
-      public: ${JWT_PUBLIC}
-      private: ${JWT_PRIVATE}
+      secret: ${JWT_SECRET}
+      expiration: 86400000
+      refresh-token:
+        expiration: 604800000
   application:
     name: "dictionary"
   datasource:

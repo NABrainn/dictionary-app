@@ -2,19 +2,25 @@ package lule.dictionary.cookie.service;
 
 import jakarta.servlet.http.Cookie;
 import lombok.NonNull;
-import lule.dictionary.jwt.data.TokenPair;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CookieService {
 
-    public Cookie createJwtCookie(@NonNull String key, @NonNull TokenPair tokenPair) {
-        Cookie tokenCookie = new Cookie(key, tokenPair.accessToken());
+    @Value("${spring.security.jwt.expiration}")
+    private long expiration;
+
+    public Cookie createJwtCookie(@NonNull String key, @NonNull String token) {
+        if (token.trim().isEmpty()) {
+            throw new IllegalArgumentException("JWT token cannot be null or empty");
+        }
+        Cookie tokenCookie = new Cookie(key, token);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
         tokenCookie.setSecure(true);
-        tokenCookie.setMaxAge(24 * 60 * 60);
-        tokenCookie.setAttribute("SameSite", "Lax");
+        tokenCookie.setMaxAge((int) (expiration / 1000)); // Convert milliseconds to seconds
+        tokenCookie.setAttribute("SameSite", "Strict"); // Stronger CSRF protection
         return tokenCookie;
     }
 
@@ -23,8 +29,8 @@ public class CookieService {
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
         tokenCookie.setSecure(true);
-        tokenCookie.setMaxAge(0);
-        tokenCookie.setAttribute("SameSite", "Lax");
+        tokenCookie.setMaxAge(0); // Expire immediately
+        tokenCookie.setAttribute("SameSite", "Strict");
         return tokenCookie;
     }
 }

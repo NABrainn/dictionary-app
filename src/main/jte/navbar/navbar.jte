@@ -1,7 +1,8 @@
+@import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.controllerAdvice.data.NavbarAttribute
 
+@param BaseAttribute baseAttribute 
 @param NavbarAttribute navbarAttribute
-@param boolean isAuthenticated
 @param boolean isProfileToggleBtnVisible = true
 
 !{var navButtonsSize = "";}
@@ -22,7 +23,7 @@
         lessons = navbarAttribute.lessonsBtnText(),
         vocabulary = navbarAttribute.vocabularyBtnText(),
         size = navButtonsSize)
-        @if(isAuthenticated)
+        @if(baseAttribute.isAuthenticated())
             @if(isProfileToggleBtnVisible)
                 @template.navbar.panel-toggle-btn()
             @endif
@@ -35,14 +36,15 @@
             languageText = navbarAttribute.languageText(),
             uiText = navbarAttribute.uiText(),
             translationsText = navbarAttribute.translationsText(),
-            logoutText = navbarAttribute.logoutText())
+            logoutText = navbarAttribute.logoutText(),
+            _csrf = baseAttribute._csrf().getToken())
         @else
             @template.navbar.login-btn(
             text = navbarAttribute.loginBtnText(),
             size = authButtonsSize)
         @endif
     </nav>
-    @if(isAuthenticated)
+    @if(baseAttribute.isAuthenticated())
         <div
         id="profile-panel">
             @template.navbar.profile-panel(

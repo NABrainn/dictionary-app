@@ -1,6 +1,8 @@
+@import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 
+@param BaseAttribute baseAttribute
 @param TranslationAttribute attribute
 
 !{var processedWord = attribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
@@ -20,9 +22,9 @@ id="translation-form">
     <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().targetWord()}</span>
     <div id="translation-manager">
         @template.document-page.content.translation.update.translation-manager(
-            attribute = attribute,
-            translationLocalization = attribute.localization()
-        )
+        attribute = attribute,
+        translationLocalization = attribute.localization(),
+        _csrf = baseAttribute._csrf().getToken())
     </div>
     <div class="
     md:flex md:flex-col md:gap-0.25
@@ -47,7 +49,7 @@ id="translation-form">
             id="translation-form-${attribute.selectedWordId()}"
             hx-trigger="click"
             hx-put="/translations/familiarity/update"
-            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,_csrf"
             hx-vals='
             {
                 "targetWord": "${attribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}",
@@ -55,7 +57,8 @@ id="translation-form">
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
                 "selectedWordId": "${attribute.selectedWordId()}",
-                "isPhrase": "${attribute.isPhrase()}"
+                "isPhrase": "${attribute.isPhrase()}",
+                "_csrf": "${baseAttribute._csrf().getToken()}"
             }'
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()

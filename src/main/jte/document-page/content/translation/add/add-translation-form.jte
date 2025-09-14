@@ -1,7 +1,8 @@
-@import lule.dictionary.translations.data.Familiarity
+@import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 
+@param BaseAttribute baseAttribute 
 @param TranslationAttribute attribute
 
 !{var processedWord = attribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
@@ -22,7 +23,8 @@ id="translation-form">
     <div id="translation-manager">
         @template.document-page.content.translation.add.translation-manager(
         attribute = attribute,
-        localization = attribute.localization())
+        localization = attribute.localization(),
+        _csrf = baseAttribute._csrf().getToken())
     </div>
     <div class="
     md:flex md:flex-col md:gap-0.25

@@ -4,6 +4,7 @@
 
 @param TranslationAttribute attribute
 @param Map<TranslationLocalizationKey, String> translationLocalization
+@param String _csrf
 
 <div id="source-words-list">
     @template.document-page.content.translation.source-words-list(
@@ -16,6 +17,7 @@
     <div id="source-word-form" class="flex">
         @template.document-page.content.translation.update.update-source-words-form(
         placeholderText = translationLocalization.get(TranslationLocalizationKey.ADD_TRANSLATION),
-        translationAttribute = attribute)
+        translationAttribute = attribute,
+        _csrf = _csrf)
     </div>
 </div>

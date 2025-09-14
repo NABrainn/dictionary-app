@@ -4,6 +4,7 @@
 
 @param TranslationAttribute attribute
 @param Map<TranslationLocalizationKey, String> localization
+@param String _csrf
 
 <div id="source-words-list">
     @template.document-page.content.translation.source-words-list(
@@ -16,6 +17,7 @@
 <div class="flex flex-col gap-2">
     <div id="source-word-form" class="flex">
         @template.document-page.content.translation.add.add-source-words-form(
+        _csrf = _csrf,
         placeholderText = localization.get(TranslationLocalizationKey.ADD_TRANSLATION),
         sourceLanguage = attribute.translation().sourceLanguage().name(),
         targetLanguage = attribute.translation().targetLanguage().name(),

@@ -10,7 +10,7 @@
 @template.layout.base(content = @`
 @template.navbar.navbar(
 navbarAttribute = navbarAttribute,
-isAuthenticated = baseAttribute.isAuthenticated(),
+baseAttribute = baseAttribute,
 isProfileToggleBtnVisible = false)
 @template.vocabulary-page.flashcard.flashcard-config(
 attribute = attribute)`,

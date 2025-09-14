@@ -9,8 +9,8 @@
 
 @template.layout.base(content = @`
     @template.navbar.navbar(
-    navbarAttribute = navbarAttribute,
-    isAuthenticated = baseAttribute.isAuthenticated())
+    baseAttribute = baseAttribute,
+    navbarAttribute = navbarAttribute)
     @if(baseAttribute.isAuthenticated())
         <div
         class="md:w-3/5

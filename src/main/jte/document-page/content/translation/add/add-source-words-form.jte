@@ -7,10 +7,11 @@
 @param int documentId
 @param List<String> sourceWords
 @param String targetWord
+@param String _csrf
 
 <form
 class="flex gap-2"
-hx-params="selectedWordId,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords"
+hx-params="selectedWordId,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,_csrf"
 hx-vals='
 {
     "selectedWordId": "${selectedWordId}",
@@ -23,6 +24,7 @@ hx-vals='
 hx-post="/translations/new"
 hx-target="#translation-form-container-${selectedWordId}"
 hx-swap="innerHTML">
+    <input type="hidden" name="_csrf" value="${_csrf}">
     @for(String word : sourceWords)
         <input
         name="sourceWords"

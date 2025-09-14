@@ -7,7 +7,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.auth.data.exception.AuthServiceException;
-import lule.dictionary.auth.data.localization.AuthError;
 import lule.dictionary.auth.data.localization.AuthText;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
 import lule.dictionary.language.service.Language;
@@ -48,7 +47,6 @@ public class AuthService {
     private final AuthLocalizationService authLocalizationService;
     private final SessionHelper sessionHelper;
 
-
     public void login(@NonNull LoginRequest request,
                       @NonNull HttpServletResponse response,
                       @NonNull HttpSession session) {
@@ -57,14 +55,25 @@ public class AuthService {
             validationService.validate(request, uiLanguage);
             AuthenticationData authResult = authenticateUser(request);
             setAuthenticationContext(SessionContext.of(authResult, response, session));
+            log.info("User {} logged in successfully", request.login());
         } catch (ValidationException e) {
+            log.warn("Validation failed for login request: {}", e.getViolation());
             throw new AuthServiceException(e.getViolation());
         } catch (UserNotFoundException e) {
+            log.warn("User not found: {}", request.login());
             throw new AuthServiceException(Map.of("userNotFound", switch (uiLanguage) {
                 case PL -> "Użytkownik nie został znaleziony";
                 case EN -> "User not found";
                 case IT -> "Utente non trovato";
                 case NO -> "Bruker ikke funnet";
+            }));
+        } catch (AuthenticationException e) {
+            log.warn("Authentication failed for user {}: {}", request.login(), e.getMessage());
+            throw new AuthServiceException(Map.of("authenticationFailed", switch (uiLanguage) {
+                case PL -> "Nieprawidłowe dane logowania";
+                case EN -> "Invalid login credentials";
+                case IT -> "Credenziali di accesso non valide";
+                case NO -> "Ugyldige påloggingsdetaljer";
             }));
         }
     }
@@ -76,12 +85,15 @@ public class AuthService {
             validationService.validate(request, uiLanguage);
             userProfileService.findByUsernameOrEmail(request.login(), request.email())
                     .ifPresentOrElse(
-                        user -> { throw new UserExistsException("User with given username or email already exists"); },
-                        () -> userProfileService.addUserProfile(request)
+                            user -> { throw new UserExistsException("User with given username or email already exists"); },
+                            () -> userProfileService.addUserProfile(request)
                     );
+            log.info("User {} signed up successfully", request.login());
         } catch (ValidationException e) {
+            log.warn("Validation failed for signup request: {}", e.getViolation());
             throw new AuthServiceException(e.getViolation());
         } catch (UserExistsException e) {
+            log.warn("User already exists: {}", request.login());
             throw new AuthServiceException(Map.of("userExists", switch (uiLanguage) {
                 case PL -> "Użytkownik już istnieje";
                 case EN -> "User already exists";
@@ -92,17 +104,21 @@ public class AuthService {
     }
 
     public void logout(@NonNull HttpServletResponse httpServletResponse) {
+        String username = SecurityContextHolder.getContext().getAuthentication() != null
+                ? SecurityContextHolder.getContext().getAuthentication().getName()
+                : "unknown";
         clearAuthentication();
         deleteJwtCookie(httpServletResponse);
+        log.info("User {} logged out", username);
     }
 
-    private AuthenticationData authenticateUser(AuthRequest loginData) throws UserNotFoundException {
+    private AuthenticationData authenticateUser(AuthRequest loginData) throws UserNotFoundException, AuthenticationException {
         UserProfile user = getUserProfile(loginData);
         Authentication authentication = authenticate(user);
         return AuthenticationData.of(authentication, user);
     }
 
-    private void setAuthenticationContext(SessionContext sessionContext) throws AuthenticationException {
+    private void setAuthenticationContext(SessionContext sessionContext) {
         setAuthentication(sessionContext);
         sendJwtCookie(sessionContext);
         updateTimezoneOffset(getUsername(sessionContext), TimeZoneOffsetContext.get());
@@ -114,8 +130,7 @@ public class AuthService {
     }
 
     private void clearAuthentication() {
-        setAuthentication(null);
-        SecurityContextHolder.clearContext();
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     private void deleteJwtCookie(HttpServletResponse response) {
@@ -138,20 +153,19 @@ public class AuthService {
     }
 
     private Cookie createJwtCookie(String username) {
-        return cookieService.createJwtCookie("jwt", jwtService.generateTokenPair(username));
+        return cookieService.createJwtCookie("jwt", jwtService.generateToken(username));
     }
 
     private void setAuthentication(SessionContext sessionContext) {
-        if(sessionContext != null) {
-            Authentication authentication = sessionContext.authenticationData().authentication();
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            return;
-        }
-        SecurityContextHolder.getContext().setAuthentication(null);
+        Authentication authentication = sessionContext != null
+                ? sessionContext.authenticationData().authentication()
+                : null;
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     private Authentication authenticate(UserProfile userProfile) {
-        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userProfile.getUsername(), userProfile.getPassword()));
+        return authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userProfile.getUsername(), userProfile.getPassword()));
     }
 
     private UserProfile getUserProfile(AuthRequest request) throws UserNotFoundException {
@@ -162,5 +176,4 @@ public class AuthService {
         Language uiLanguage = sessionHelper.getUILanguage(session);
         return authLocalizationService.getTextLocalization(uiLanguage);
     }
-
 }

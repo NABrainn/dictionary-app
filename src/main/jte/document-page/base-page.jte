@@ -11,7 +11,7 @@
 @template.layout.base(content = @`
     @template.navbar.navbar(
     navbarAttribute = navbarAttribute.withIsProfileOpen(false),
-    isAuthenticated = baseAttribute.isAuthenticated(),
+    baseAttribute = baseAttribute,
     isProfileToggleBtnVisible = false)
     @template.document-page.content.content(
     attribute = attribute)`,
