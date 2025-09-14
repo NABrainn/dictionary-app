@@ -37,6 +37,10 @@ public class SessionHelper {
     }
 
     public Language getUILanguage(HttpSession httpSession) {
-        return httpSession.getAttribute("sourceLanguage") != null ? (Language) httpSession.getAttribute("sourceLanguage") : Language.EN;
+        return switch (httpSession.getAttribute("sourceLanguage")) {
+            case null -> Language.EN;
+            case Language language -> language;
+            default -> throw new IllegalStateException("Unexpected value: " + httpSession.getAttribute("sourceLanguage"));
+        };
     }
 }
