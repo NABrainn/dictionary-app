@@ -24,24 +24,21 @@ public class SettingsController {
     @GetMapping({"/changeLanguage/target", "/changeLanguage/target/"})
     public String changeTargetLanguage(@RequestParam("lang") String language,
                                        Authentication authentication) {
-        String username = extractUsername(authentication);
-        updateTargetLanguage(username, language);
+        userProfileService.updateTargetLanguage(language, authentication);
         return "redirect:/";
     }
 
     @GetMapping({"/changeLanguage/source", "/changeLanguage/source/"})
     public String changeSourceLanguage(@RequestParam("lang") String language,
                                        Authentication authentication) {
-        String username = extractUsername(authentication);
-        updateSourceLanguage(username, language);
+        userProfileService.updateSourceLanguage(language, authentication);
         return "redirect:/";
     }
 
     @GetMapping({"/changeLanguage/ui", "/changeLanguage/ui/"})
     public String changeUILanguage(@RequestParam("lang") String language,
                                    Authentication authentication) {
-        String username = extractUsername(authentication);
-        updateUILanguage(username, language);
+        userProfileService.updateUILanguage(language, authentication);
         return "redirect:/";
     }
 
@@ -52,22 +49,5 @@ public class SettingsController {
         session.setAttribute("isProfileOpen", !isProfileOpen);
         model.addAttribute("isProfileOpen", !isProfileOpen);
         return "navbar/profile-panel";
-    }
-
-    private void updateTargetLanguage(String username, String language) {
-        userProfileService.updateTargetLanguage(username, Language.valueOf(language));
-    }
-
-    private void updateSourceLanguage(String username, String language) {
-        userProfileService.updateSourceLanguage(username, Language.valueOf(language));
-    }
-
-    private void updateUILanguage(String username, String language) {
-        userProfileService.updateUILanguage(username, Language.valueOf(language));
-    }
-
-    private String extractUsername(Authentication authentication) {
-        UserProfile userDetails = (UserProfile) authentication.getPrincipal();
-        return userDetails.getUsername();
     }
 }
