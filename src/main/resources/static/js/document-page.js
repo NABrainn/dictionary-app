@@ -19,22 +19,14 @@ if (!window.FormAdjuster) {
                 // bottom: 0,
                 left: 8,
             })
-            let eOverflow, neOverflow, nwOverflow, seOverflow, swOverflow, sOverflow, wOverflow;
-            do {
-                neOverflow = this.#handleNorthEastOverflow(form);
-                nwOverflow = this.#handleNorthWestOverflow(form);
-                seOverflow = this.#handleSouthEastOverflow(form);
-                swOverflow = this.#handleSouthWestOverflow(form);
-                sOverflow = this.#handleSouthOverflow(form);
-            } while ([neOverflow, nwOverflow, seOverflow, swOverflow, sOverflow, eOverflow].some(result => result === true));
 
-            // for(let i = 0; i < 30; i++) {
-            //     neOverflow = this.#handleNorthEastOverflow(form);
-            //     nwOverflow = this.#handleNorthWestOverflow(form);
-            //     seOverflow = this.#handleSouthEastOverflow(form);
-            //     swOverflow = this.#handleSouthWestOverflow(form);
-            //     sOverflow = this.#handleSouthOverflow(form);
-            // }
+             for(let i = 0; i < 5; i++) {
+                this.#handleNorthEastOverflow(form);
+                this.#handleNorthWestOverflow(form);
+                this.#handleSouthEastOverflow(form);
+                this.#handleSouthWestOverflow(form);
+                this.#handleSouthOverflow(form);
+             }
         }
         #handleNorthEastOverflow(form) {
             if(!form) {
