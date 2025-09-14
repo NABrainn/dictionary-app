@@ -13,6 +13,9 @@ An application that makes language learning fun and engaging through reading.
 ### 2. Prefer constructing via static factory method over "new" keyword
 ### ~~3. Do describe public APIs with interfaces~~ 
 ### 3. Records ARE interfaces
+### 4. Each controller may depend on 1 injected service at most
+![di_rule](readme_resources/di_rule.png)
+
 ![Screenshot](readme_resources/img.png)
 
 ### 13/06/2025
