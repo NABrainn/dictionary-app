@@ -17,9 +17,7 @@ public record AddTranslationRequest(int documentId,
                                     String targetWord,
                                     @NonNull Language sourceLanguage,
                                     @NonNull Language targetLanguage,
-                                    @NonNull Language systemLanguage,
                                     @NonNull Familiarity familiarity,
-                                    @NonNull String owner,
                                     boolean isPhrase) implements TranslationsRequest, Validated {
     @Override
     public Set<Map<String, String>> validate(Language language) {

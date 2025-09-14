@@ -22,8 +22,10 @@ import lule.dictionary.translations.service.exception.TranslationServiceExceptio
 import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
 import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.validation.data.Rule;
 import lule.dictionary.validation.data.ValidationException;
 import lule.dictionary.validation.service.ValidationService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,16 +48,27 @@ public class TranslationService {
     private final SessionHelper sessionHelper;
 
     @Transactional
-    public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request) throws InvalidInputException {
+    public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request, @NonNull Authentication authentication) throws InvalidInputException {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord());
+        String sanitizedSourceWord = request.sourceWords().stream()
+                .findFirst()
+                .map(patternService::removeSpecialCharacters)
+                .orElse("");
         try {
-            validationService.validate(request, Language.EN);
+            validationService.validate(List.of(
+                    Rule.create("targetWord", sanitizedTargetWord.isBlank(), "blank"),
+                    Rule.create("targetWord", sanitizedTargetWord.length() > 150, "too long"),
+                    Rule.create("sourceWord", sanitizedSourceWord.length() > 150, "too long"),
+                    Rule.create("sourceWord", sanitizedSourceWord.isBlank(), "blank")
+            ));
             Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords())
                     .targetWord(request.targetWord())
                     .familiarity(request.familiarity())
                     .sourceLanguage(request.sourceLanguage())
                     .targetLanguage(request.targetLanguage())
-                    .owner(request.owner())
+                    .owner(principal.getUsername())
                     .isPhrase(request.isPhrase())
                     .build();
             int translationId = insertIntoDatabase(translation, request);
@@ -67,7 +80,7 @@ public class TranslationService {
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
-                    .localization(translationLocalization.get(request.systemLanguage()))
+                    .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                     .build();
         } catch (ValidationException e) {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
@@ -78,7 +91,7 @@ public class TranslationService {
                     .translationId(-1)
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
-                    .localization(translationLocalization.get(request.systemLanguage()))
+                    .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                     .build();
             throw new TranslationServiceException(translationAttribute, e.getViolation());
         }
@@ -228,9 +241,10 @@ public class TranslationService {
                 .toList();
     }
 
-    public TranslationAttribute translate(CreateTranslationRequest request) {
+    public TranslationAttribute translate(CreateTranslationRequest request, @NonNull Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(request.targetWord()).toLowerCase(), 3);
-        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord());
+        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), request.targetWord());
         List<String> sourceWords = Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                 .filter(word -> !word.isBlank())
                 .distinct()
@@ -244,15 +258,15 @@ public class TranslationService {
                         .sourceWords(sourceWords)
                         .targetWord(request.targetWord())
                         .familiarity(Familiarity.UNKNOWN)
-                        .sourceLanguage(request.sourceLanguage())
-                        .targetLanguage(request.targetLanguage())
-                        .owner(request.username())
+                        .sourceLanguage(principal.sourceLanguage())
+                        .targetLanguage(principal.targetLanguage())
+                        .owner(principal.username())
                         .isPhrase(request.isPhrase())
                         .build())
                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
                 .isPhrase(request.isPhrase())
                 .familiarityLevels(familiarityService.getFamiliarityTable())
-                .localization(translationLocalization.get(request.systemLanguage()))
+                .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                 .build();
     }
 
