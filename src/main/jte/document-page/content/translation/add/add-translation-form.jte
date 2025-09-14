@@ -10,7 +10,7 @@
 <div
 onclick="event.stopPropagation()"
 class="
-mg:gap-0.75
+md:gap-0.75
 bg-tertiary flex flex-col p-3 rounded pointer-events-auto animate-fade"
 id="translation-form">
     <div class="flex justify-end">
@@ -37,7 +37,7 @@ id="translation-form">
             id="translation-form-${attribute.selectedWordId()}"
             hx-trigger="click"
             hx-post="/translations/new"
-            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,sourceWords,documentId"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,sourceWords,documentId,_csrf"
             hx-vals='{
                 "targetWord": "${processedWord}",
                 "familiarity": "${level.getValue().name()}",
@@ -45,9 +45,9 @@ id="translation-form">
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
                 "documentId": "${attribute.documentId()}",
                 "selectedWordId": "${attribute.selectedWordId()}",
-                "isPhrase": "${attribute.isPhrase()}"
+                "isPhrase": "${attribute.isPhrase()}",
+                "_csrf": "${baseAttribute._csrf().getToken()}"
             }'
-            hx-disinherit="*"
             hx-target="closest #translation-form-container-${attribute.selectedWordId()}"
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()
@@ -162,63 +162,9 @@ id="translation-form">
                             ['ignored', ['bg-primary', 'text-neutral']]
                         ])
 
-                        util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
-                        .forEach(formContainer => util.removeInnerHTML(formContainer))
-
-                        //cleanup selected word
-                        util.findAllByData({ key: 'is-word', value: 'true' })
-                        .filter(word => data.get(word, 'is-selected') === 'true')
-                        .flatMap(selectedWord => [...selectedWord.children])
-                        .filter(child => child instanceof HTMLSpanElement)
-                        .forEach(selectedSpan => {
-                            data.set(selectedSpan.parentElement, { key: 'is-selected', value: 'false' })
-                            util.replaceClasses(selectedSpan, {
-                                toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
-                                toAdd: familiarityColors.get(data.get(selectedSpan.parentElement, 'familiarity'))
-                            })
-                        })
-                        //cleanup selected phrase
-                        util.findAllByData({ key: 'is-phrase', value: 'true' })
-                        .filter(node => data.get(node, 'is-selected') === 'true')
-                        .forEach(selectedPhrase => {
-                            data.set(selectedPhrase, { key: 'is-selected', value: 'false' })
-
-                            if(data.get(selectedPhrase, 'is-saved') === 'true') {
-                                util.replaceClasses(selectedPhrase, {
-                                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
-                                    toAdd: [...familiarityColors.get(data.get(selectedPhrase, 'familiarity'))]
-                                })
-                                const words = Array.from(selectedPhrase.children)
-                                .filter(child => data.get(child, 'is-word') === 'true')
-                                words.forEach(word => word.classList.add('pointer-events-none'))
-
-                                const spans = words
-                                .flatMap(word => [...word.children])
-                                .filter(word => word instanceof HTMLSpanElement)
-                                spans.forEach(span => {
-                                    util.replaceClasses(span, {
-                                        toRemove: ['text-accent', 'text-primary'],
-                                        toAdd: [familiarityColors.get(data.get(selectedPhrase, 'familiarity')).at(1)]
-                                    })
-                                })
-                            }
-                            else {
-                                selectedPhrase.firstElementChild.remove()
-                                const phraseNodes = util.unwrap(selectedPhrase).filter(node => data.get(node, 'is-word'))
-                                phraseNodes.forEach(node => {
-                                    htmx.process(node)
-                                    util.replaceClasses(node, {
-                                        toRemove: ['pointer-events-none'],
-                                        toAdd: ['border', 'border-2', 'border-transparent']
-                                    })
-                                    const span = [...node.children].filter(child => child instanceof HTMLSpanElement).at(0)
-                                    util.replaceClasses(span, {
-                                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary', 'bg-tertiary'],
-                                        toAdd: familiarityColors.get(data.get(node, 'familiarity'))
-                                    })
-                                })
-                            }
-                        })
+                        documentPage.closeAllTranslationForms()
+                        documentPage.cleanupSelectedWord()
+                        documentPage.cleanupSelectedPhrase()
 
                         //handle selection
                         util.findAllByData({ key: 'is-phrase', value: 'true' })

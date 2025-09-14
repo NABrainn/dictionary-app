@@ -10,7 +10,7 @@
 @param String _csrf
 
 <form
-class="flex gap-2"
+class="flex flex-col gap-2"
 hx-params="selectedWordId,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,_csrf"
 hx-vals='
 {
@@ -19,18 +19,19 @@ hx-vals='
     "familiarity": "UNKNOWN",
     "sourceLanguage": "${sourceLanguage}",
     "targetLanguage": "${targetLanguage}",
-    "documentId": "${documentId}"
+    "documentId": "${documentId}",
+    "_csrf": "${_csrf}"
 }'
 hx-post="/translations/new"
 hx-target="#translation-form-container-${selectedWordId}"
 hx-swap="innerHTML">
-    <input type="hidden" name="_csrf" value="${_csrf}">
     @for(String word : sourceWords)
         <input
         name="sourceWords"
         type="hidden"
         value="${word}">
     @endfor
+    <div class="flex gap-2">
         <input
         id="input-source-word"
         class="
@@ -43,4 +44,5 @@ hx-swap="innerHTML">
         id="submit-source-word"
         class="text-3xl cursor-pointer text-accent"
         type="submit">+</button>
+    </div>
 </form>

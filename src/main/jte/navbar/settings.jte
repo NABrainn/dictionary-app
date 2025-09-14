@@ -29,7 +29,7 @@
                 <span>${settingsText}</span>
             </div>
         </a>
-        <div class="absolute top-16 right-8 flex flex-col bg-tertiary rounded p-2 border border-2 border-secondary flex gap-4 hidden"
+        <div class="absolute top-16 right-8 flex flex-col bg-tertiary brightness-[90%] rounded p-2 flex gap-4 hidden"
              id="settings">
             <div>
                 <p class="font-bold text-md text-primary">${languageText}:</p>

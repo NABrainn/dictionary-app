@@ -23,17 +23,17 @@ hx-swap="innerHTML">
         value="${word}">
     @endfor
     <div class="flex gap-2">
-            <input
-            id="input-source-word"
-            class="
-            outline-none border border-2 rounded text-neutral text-md grow-1
-            focus:border-accent"
-            type="text"
-            placeholder="${placeholderText}"
-            name="sourceWords">
-            <button
-            id="submit-source-word"
-            class="text-3xl cursor-pointer text-accent"
-            type="submit">+</button>
+        <input
+        id="input-source-word"
+        class="
+        outline-none border border-2 border-primary rounded text-neutral text-md grow-1
+        focus:border-accent"
+        type="text"
+        placeholder="${placeholderText}"
+        name="sourceWords">
+        <button
+        id="submit-source-word"
+        class="text-3xl cursor-pointer text-accent"
+        type="submit">+</button>
     </div>
 </form>

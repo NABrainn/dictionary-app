@@ -8,11 +8,11 @@
 
 <div id="source-words-list">
     @template.document-page.content.translation.source-words-list(
-        sourceWords = attribute.translation().sourceWords(),
-        targetWord = attribute.translation().targetWord(),
-        isUpdateForm = false,
-        selectedWordId = attribute.selectedWordId()
-    )
+    sourceWords = attribute.translation().sourceWords(),
+    targetWord = attribute.translation().targetWord(),
+    isUpdateForm = false,
+    selectedWordId = attribute.selectedWordId(),
+    _csrf = _csrf)
 </div>
 <div class="flex flex-col gap-2">
     <div id="source-word-form" class="flex">
