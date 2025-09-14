@@ -13,7 +13,7 @@
     navbarAttribute = navbarAttribute)
     @if(baseAttribute.isAuthenticated())
         <div
-        class="md:w-3/5
+        class="md:w-1/2
         w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral">
                 @if(attribute.documents().isEmpty())
                     <div class="flex justify-center text-xl">
@@ -29,10 +29,10 @@
                 @else
                     <div
                     class="md:grid-cols-3
-                    grid-cols-1 grid gap-2">
+                    grid-cols-1 grid gap-8">
                         @for(var item : attribute.documents())
                             <div
-                            class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer"
+                            class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer max-w-70"
                             hx-get="/documents/${item.id()}"
                             hx-params="page"
                             hx-vals='{
@@ -42,7 +42,7 @@
                             hx-swap="innerHTML"
                             hx-push-url="/lessons/${item.id()}">
                                 <img
-                                class="border min-h-30"
+                                class="self-center size-60"
                                 src="/images/open-book.svg"
                                 alt="image of a document">
                                 <p
