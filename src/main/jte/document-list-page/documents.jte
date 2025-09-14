@@ -16,8 +16,8 @@
         class="md:w-3/5
         w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral">
                 @if(attribute.documents().isEmpty())
-                    <div class="flex justify-center">
-                        <span class="text-neutral font-bold">${attribute.localization().get(DocumentLocalizationKey.THERE_ARE_NO_DOCUMENTS_IN_THE_LIBRARY)}
+                    <div class="flex justify-center text-xl">
+                        <span class="text-neutral font-bold">${attribute.localization().get(DocumentLocalizationKey.THERE_ARE_NO_DOCUMENTS_IN_THE_LIBRARY)}.
                             <a
                             class="cursor-pointer text-accent underline"
                             hx-get="/documents/new"
@@ -58,16 +58,22 @@
                         @endfor
                     </div>
                 @endif
-                <div class="flex justify-end sticky bottom-8">
-                    <button
-                    class="cursor-pointer bg-secondary px-2 py-1 rounded text-lg font-bold text-neutral"
-                    hx-get="/documents/new"
-                    hx-target="#main"
-                    hx-swap="innerHTML"
-                    hx-push-url="/documents/new"
-                    type="button">${attribute.localization().get(DocumentLocalizationKey.ADD_BOOK)}</button>
-                </div>
+            <div class="flex items-center justify-end sticky bottom-8">
+                <button
+                class="
+                hover:bg-secondary hover:brightness-[110%]
+                flex items-center gap-2 cursor-pointer border border-3 border-rounded border-tertiary bg-secondary px-5 py-3 rounded text-lg font-bold text-neutral text-xl mr-2"
+                hx-get="/documents/new"
+                hx-target="#main"
+                hx-swap="innerHTML"
+                hx-push-url="/documents/new"
+                type="button">
+                    <span class="block text-2xl">+</span>
+                    <span class="block">${attribute.localization().get(DocumentLocalizationKey.ADD_BOOK)}</span>
+                </button>
             </div>
+            </div>
+
     @endif
 `,
 baseAttribute = baseAttribute)
