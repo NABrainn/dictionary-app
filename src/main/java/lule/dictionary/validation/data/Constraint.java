@@ -3,11 +3,11 @@ package lule.dictionary.validation.data;
 import lombok.NonNull;
 
 public record Constraint(@NonNull String name,
-                         @NonNull ValidationRunner validationRunner,
+                         @NonNull ViolationChecker violationChecker,
                          @NonNull String message) {
 
-    public static Constraint define(String name, ValidationRunner validationRunner, String message) {
-        return new Constraint(name, validationRunner, message);
+    public static Constraint define(String name, ViolationChecker violationChecker, String message) {
+        return new Constraint(name, violationChecker, message);
     }
 
     @Override
