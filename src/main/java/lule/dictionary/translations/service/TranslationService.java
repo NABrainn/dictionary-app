@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.familiarity.FamiliarityService;
+import lule.dictionary.familiarity.service.FamiliarityService;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.stringUtil.service.PatternService;
@@ -22,15 +22,14 @@ import lule.dictionary.translations.service.exception.TranslationServiceExceptio
 import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.validation.data.Rule;
+import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.ValidationException;
-import lule.dictionary.validation.service.ValidationService;
+import lule.dictionary.validation.service.Validator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,26 +40,27 @@ public class TranslationService {
 
     private final TranslationRepository translationRepository;
     private final TranslationFetchingExecutor translationFetchingService;
-    private final ValidationService validationService;
+    private final Validator validator;
     private final FamiliarityService familiarityService;
     private final PatternService patternService;
     private final TranslationLocalizationService translationLocalization;
     private final SessionHelper sessionHelper;
 
     @Transactional
-    public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request, @NonNull Authentication authentication) throws InvalidInputException {
+    public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request, @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord());
-        String sanitizedSourceWord = request.sourceWords().stream()
-                .findFirst()
-                .map(patternService::removeSpecialCharacters)
-                .orElse("");
         try {
-            validationService.validate(List.of(
-                    Rule.create("targetWord", sanitizedTargetWord.isBlank(), "blank"),
-                    Rule.create("targetWord", sanitizedTargetWord.length() > 150, "too long"),
-                    Rule.create("sourceWord", sanitizedSourceWord.length() > 150, "too long"),
-                    Rule.create("sourceWord", sanitizedSourceWord.isBlank(), "blank")
+            String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
+            String sanitizedSourceWord = request.sourceWords().stream()
+                    .findFirst()
+                    .map(String::trim)
+                    .map(patternService::removeSpecialCharacters)
+                    .orElse("");
+            validator.validate(List.of(
+                    Constraint.define("targetWord", sanitizedTargetWord::isBlank, "blank"),
+                    Constraint.define("targetWord", () -> sanitizedTargetWord.length() > 150, "too long"),
+                    Constraint.define("sourceWord", () -> sanitizedSourceWord.length() > 150, "too long"),
+                    Constraint.define("sourceWord", sanitizedSourceWord::isBlank, "blank")
             ));
             Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords())
@@ -71,7 +71,8 @@ public class TranslationService {
                     .owner(principal.getUsername())
                     .isPhrase(request.isPhrase())
                     .build();
-            int translationId = insertIntoDatabase(translation, request);
+            int translationId = translationRepository.addTranslation(translation, request.documentId())
+                    .orElseThrow();
             return TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translationId(translationId)
@@ -93,14 +94,19 @@ public class TranslationService {
                     .isPhrase(request.isPhrase())
                     .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                     .build();
-            throw new TranslationServiceException(translationAttribute, e.getViolation());
+            throw new TranslationServiceException(translationAttribute, e.getViolations());
         }
     }
 
     @Transactional
-    public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request)throws InvalidInputException {
-        validationService.validate(request, Language.EN);
-        Optional<Translation> optionalTranslation = getTranslationFromDatabase(request);
+    public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
+        validator.validate(List.of(
+                Constraint.define("targetWord", sanitizedTargetWord::isBlank, "blank"),
+                Constraint.define("targetWord", () -> sanitizedTargetWord.length() > 150, "too long")
+        ));
+        Optional<Translation> optionalTranslation = translationRepository.findByTargetWord(sanitizedTargetWord, principal.username());
         if(optionalTranslation.isPresent()) {
             Translation translation = optionalTranslation.get();
             return TranslationAttribute.builder()
@@ -111,11 +117,11 @@ public class TranslationService {
                     .translationId(-1)
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
-                    .localization(translationLocalization.get(request.systemLanguage()))
+                    .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                     .build();
         }
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
-        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(request.sourceLanguage(), request.targetLanguage(), request.targetWord());
+        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), request.targetWord());
         Translation translation = Translation.builder()
                 .sourceWords(Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                         .filter(word -> !word.isBlank())
@@ -124,9 +130,9 @@ public class TranslationService {
                         .toList())
                 .targetWord(request.targetWord())
                 .familiarity(Familiarity.UNKNOWN)
-                .sourceLanguage(request.sourceLanguage())
-                .targetLanguage(request.targetLanguage())
-                .owner(request.owner())
+                .sourceLanguage(principal.sourceLanguage())
+                .targetLanguage(principal.targetLanguage())
+                .owner(principal.username())
                 .isPhrase(request.isPhrase())
                 .build();
         return TranslationAttribute.builder()
@@ -137,14 +143,15 @@ public class TranslationService {
                 .translationId(-1)
                 .documentId(request.documentId())
                 .isPhrase(request.isPhrase())
-                .localization(translationLocalization.get(request.systemLanguage()))
+                .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                 .build();
 
     }
 
     @Transactional
-    public TranslationAttribute updateFamiliarity(UpdateTranslationFamiliarityRequest request) {
-        Translation translation = translationRepository.updateFamiliarity(request)
+    public TranslationAttribute updateFamiliarity(UpdateTranslationFamiliarityRequest request, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Translation translation = translationRepository.updateFamiliarity(request.familiarity(), request.targetWord(), principal.username())
                 .orElseThrow(() -> new RuntimeException("Failed to update familiarity for " + request.targetWord()));
         return TranslationAttribute.builder()
                 .selectedWordId(request.selectedWordId())
@@ -154,16 +161,27 @@ public class TranslationService {
                 .translationId(-1)
                 .documentId(-1)
                 .isPhrase(request.isPhrase())
-                .localization(translationLocalization.get(request.systemLanguage()))
+                .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                 .build();
     }
 
     @Transactional
-    public TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request, HttpSession session) throws InvalidInputException {
+    public TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request, HttpSession session, Authentication authentication) throws InvalidInputException {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
         try {
-            Language uiLanguage = sessionHelper.getUILanguage(session);
-            validationService.validate(request, uiLanguage);
-            return translationRepository.updateSourceWords(request)
+            String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
+            String sanitizedSourceWord = request.sourceWords().stream()
+                    .findFirst()
+                    .map(String::trim)
+                    .map(patternService::removeSpecialCharacters)
+                    .orElse("");
+            validator.validate(List.of(
+                    Constraint.define("targetWord", sanitizedTargetWord::isBlank, "blank"),
+                    Constraint.define("targetWord", () -> sanitizedTargetWord.length() > 150, "too long"),
+                    Constraint.define("sourceWord", () -> sanitizedSourceWord.length() > 150, "too long"),
+                    Constraint.define("sourceWord", sanitizedSourceWord::isBlank, "blank")
+            ));
+            return translationRepository.updateSourceWords(request.sourceWords(), request.targetWord(), principal.username())
                     .map(translation -> TranslationAttribute.builder()
                         .documentId(-1)
                         .selectedWordId(request.selectedWordId())
@@ -174,7 +192,7 @@ public class TranslationService {
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                         .familiarityLevels(familiarityService.getFamiliarityTable())
                         .isPhrase(request.isPhrase())
-                        .localization(translationLocalization.get(request.uiLanguage()))
+                        .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                     .build())
                     .orElseThrow(RuntimeException::new);
         } catch (ValidationException e) {
@@ -185,9 +203,9 @@ public class TranslationService {
                             .toList())
                     .targetWord(request.targetWord())
                     .familiarity(request.familiarity())
-                    .sourceLanguage(request.sourceLanguage())
-                    .targetLanguage(request.targetLanguage())
-                    .owner(request.owner())
+                    .sourceLanguage(principal.sourceLanguage())
+                    .targetLanguage(principal.targetLanguage())
+                    .owner(principal.username())
                     .isPhrase(request.isPhrase())
                     .build();
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
@@ -198,30 +216,35 @@ public class TranslationService {
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .isPhrase(request.isPhrase())
-                    .localization(translationLocalization.get(request.uiLanguage()))
+                    .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                     .build();
-            throw new TranslationServiceException(translationAttribute, e.getViolation());
+            throw new TranslationServiceException(translationAttribute, e.getViolations());
         }
     }
 
     @Transactional
-    public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request, HttpSession session) {
-        Language uiLanguage = sessionHelper.getUILanguage(session);
-        validationService.validate(request, uiLanguage);
-        Optional<Translation> optionalTranslation = translationRepository.deleteSourceWord(request);
-        if(optionalTranslation.isPresent()) {
-            return TranslationAttribute.builder()
-                    .documentId(-1)
-                    .selectedWordId(request.selectedWordId())
-                    .translationId(-1)
-                    .translation(optionalTranslation.get())
-                    .currentFamiliarity(familiarityService.getFamiliarityAsDigit(optionalTranslation.get().familiarity()))
-                    .familiarityLevels(familiarityService.getFamiliarityTable())
-                    .isPhrase(request.isPhrase())
-                    .localization(translationLocalization.get(request.systemLanguage()))
-                    .build();
-        }
-        throw new RuntimeException("Unknown exception");
+    public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request, HttpSession session, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
+        String sanitizedSourceWord = patternService.removeSpecialCharacters(request.sourceWord()).trim();
+        validator.validate(List.of(
+                Constraint.define("targetWord", sanitizedTargetWord::isBlank, "blank"),
+                Constraint.define("targetWord", () -> sanitizedTargetWord.length() > 150, "too long"),
+                Constraint.define("sourceWord", () -> sanitizedSourceWord.length() > 150, "too long"),
+                Constraint.define("sourceWord", sanitizedSourceWord::isBlank, "blank")
+        ));
+        return translationRepository.deleteSourceWord(request.sourceWord(), request.targetWord(), principal.username())
+                .map(translation -> TranslationAttribute.builder()
+                        .documentId(-1)
+                        .selectedWordId(request.selectedWordId())
+                        .translationId(-1)
+                        .translation(translation)
+                        .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
+                        .familiarityLevels(familiarityService.getFamiliarityTable())
+                        .isPhrase(request.isPhrase())
+                        .localization(translationLocalization.get(principal.userInterfaceLanguage()))
+                        .build())
+                .orElseThrow();
     }
 
     public int getWordsLearnedCount(UserProfile principal) {
@@ -229,16 +252,20 @@ public class TranslationService {
     }
 
     public Map<String, Translation> findTranslationsInDocument(FindTranslationsInDocumentRequest request) {
-        Pattern newLinePattern = Pattern.compile("\n+");
-        Pattern nonLetterNonNumberPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");
-        List<String> wordList = getContentAsWordList(request.contentBlob(), Map.of("newLine", newLinePattern, "nonLetterNonNumber", nonLetterNonNumberPattern));
-        return extractTranslationsFromDatabase(wordList, request.owner());
+        List<String> wordList = Arrays.stream(patternService.replaceNewlinesWithSpaces(request.contentBlob()).split(" "))
+                .map(patternService::removeSpecialCharacters)
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .filter(word -> !word.isEmpty())
+                .distinct()
+                .toList();
+        return translationRepository.findByTargetWords(wordList, request.owner()).stream()
+                .distinct()
+                .collect(Collectors.toUnmodifiableMap(Translation::targetWord, value -> value));
     }
 
     public List<Translation> extractPhrases(ExtractPhrasesRequest request) {
-        return translationRepository.extractPhrases(request.content(), request.owner()).stream()
-                .distinct()
-                .toList();
+        return translationRepository.extractPhrases(request.content(), request.owner());
     }
 
     public TranslationAttribute translate(CreateTranslationRequest request, @NonNull Authentication authentication) {
@@ -291,31 +318,6 @@ public class TranslationService {
                 .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                 .build());
 
-    }
-
-    private List<String> getContentAsWordList(String content, Map<String, Pattern> patternMap) {
-        return Arrays.stream(patternMap.get("newLine").matcher(content).replaceAll(" ")
-                .split(" "))
-                .map(word -> patternMap.get("nonLetterNonNumber").matcher(word).replaceAll("").replace("-", ""))
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .filter(word -> !word.isEmpty())
-                .distinct()
-                .toList();
-    }
-
-    private Optional<Translation> getTranslationFromDatabase(FindByTargetWordRequest request) {
-        return translationRepository.findByTargetWord(request);
-    }
-
-    private Map<String, Translation> extractTranslationsFromDatabase(List<String> wordList, String owner) {
-        return translationRepository.findByTargetWords(wordList, owner).stream()
-                .distinct()
-                .collect(Collectors.toUnmodifiableMap(Translation::targetWord, value -> value));
-    }
-
-    private int insertIntoDatabase(Translation translation,  AddTranslationRequest request) {
-        return translationRepository.addTranslation(translation, request.documentId()).orElseThrow(() -> new RuntimeException("Failed to add new translation"));
     }
 
     public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request, Authentication authentication) {

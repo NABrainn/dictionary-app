@@ -20,7 +20,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Controller
 @RequiredArgsConstructor
@@ -48,18 +47,13 @@ public class TranslationController {
             model.addAttribute("attribute", translationAttribute);
             return "document-page/content/translation/add/add-translation-form";
         }
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
         FindByTargetWordRequest request = FindByTargetWordRequest.builder()
                 .documentId(documentId)
                 .selectedWordId(selectedWordId)
                 .targetWord(targetWord)
-                .sourceLanguage(principal.sourceLanguage())
-                .targetLanguage(principal.targetLanguage())
-                .owner(principal.getUsername())
                 .isPhrase(isPhrase)
-                .systemLanguage(principal.userInterfaceLanguage())
                 .build();
-        TranslationAttribute attribute = translationService.findByTargetWord(request);
+        TranslationAttribute attribute = translationService.findByTargetWord(request, authentication);
         model.addAttribute("attribute", attribute);
         return "document-page/content/translation/update/update-translation-form";
     }
@@ -129,18 +123,15 @@ public class TranslationController {
                                     @RequestParam("targetLanguage") Language targetLanguage,
                                     @RequestParam("selectedWordId") int selectedWordId,
                                     @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
         UpdateTranslationFamiliarityRequest request = UpdateTranslationFamiliarityRequest.builder()
                 .selectedWordId(selectedWordId)
                 .targetWord(targetWord)
                 .sourceLanguage(sourceLanguage)
                 .targetLanguage(targetLanguage)
                 .familiarity(familiarity)
-                .owner(principal.getUsername())
                 .isPhrase(isPhrase)
-                .systemLanguage(principal.userInterfaceLanguage())
                 .build();
-        TranslationAttribute result = translationService.updateFamiliarity(request);
+        TranslationAttribute result = translationService.updateFamiliarity(request, authentication);
         model.addAttribute("attribute", result);
         return "document-page/content/translation/update/update-translation-form";
     }
@@ -154,26 +145,21 @@ public class TranslationController {
                                     @RequestParam("familiarity") String currentFamiliarity,
                                     @RequestParam("selectedWordId") int selectedWordId,
                                     @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
         try {
             UpdateSourceWordsRequest request = UpdateSourceWordsRequest.builder()
                     .sourceWords(sourceWords)
                     .familiarity(Familiarity.valueOf(currentFamiliarity.toUpperCase()))
-                    .sourceLanguage(principal.sourceLanguage())
-                    .targetLanguage(principal.targetLanguage())
-                    .owner(principal.getUsername())
                     .targetWord(targetWord)
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
-                    .uiLanguage(principal.userInterfaceLanguage())
                     .build();
-            TranslationAttribute attribute = translationService.updateSourceWords(request, session);
+            TranslationAttribute attribute = translationService.updateSourceWords(request, session, authentication);
             model.addAttribute("error", Map.of());
             model.addAttribute("attribute", attribute);
             return "document-page/content/translation/update/update-translation-form";
         } catch (TranslationServiceException e) {
-            log.warn("TranslationServiceException: {}", e.getViolation());
-            model.addAttribute("error", e.getViolation());
+            log.warn("TranslationServiceException: {}", e.getMessages());
+            model.addAttribute("error", e.getMessages());
             model.addAttribute("attribute", e.getAttribute());
             return "document-page/content/translation/update/update-translation-form";
         }
@@ -187,16 +173,13 @@ public class TranslationController {
                                    @RequestParam("targetWord") String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId,
                                    @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
         DeleteSourceWordRequest request = DeleteSourceWordRequest.builder()
                 .sourceWord(sourceWord)
                 .targetWord(targetWord)
-                .owner(principal.getUsername())
                 .selectedWordId(selectedWordId)
                 .isPhrase(isPhrase)
-                .systemLanguage(principal.userInterfaceLanguage())
                 .build();
-        TranslationAttribute result = translationService.deleteSourceWord(request, session);
+        TranslationAttribute result = translationService.deleteSourceWord(request, session, authentication);
         model.addAttribute("attribute", result);
         return "document-page/content/translation/update/update-translation-form";
     }

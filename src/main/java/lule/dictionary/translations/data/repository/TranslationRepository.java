@@ -98,7 +98,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateSourceWords(UpdateSourceWordsRequest request) {
+    public Optional<Translation> updateSourceWords(List<String> sourceWords, String targetWord, String owner) {
         String sql = """
                 UPDATE dictionary.translations
                 SET source_words = ?
@@ -109,9 +109,9 @@ public class TranslationRepository {
         try {
             return template.query(con -> {
                 var ps = con.prepareStatement(sql);
-                ps.setArray(1, con.createArrayOf("text", request.sourceWords().toArray()));
-                ps.setString(2, request.targetWord());
-                ps.setString(3, request.owner());
+                ps.setArray(1, con.createArrayOf("text", sourceWords.toArray()));
+                ps.setString(2, targetWord);
+                ps.setString(3, owner);
                 return ps;
             }, translationMapper).stream().findFirst();
         } catch (DataAccessException e) {
@@ -120,7 +120,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> updateFamiliarity(UpdateTranslationFamiliarityRequest request) {
+    public Optional<Translation> updateFamiliarity(Familiarity familiarity, String targetWord, String owner) {
         String sql = """
                 UPDATE dictionary.translations
                 SET familiarity = ?
@@ -131,9 +131,9 @@ public class TranslationRepository {
         try {
             return template.query(con -> {
                 var ps = con.prepareStatement(sql);
-                ps.setString(1, request.familiarity().name());
-                ps.setString(2, request.targetWord());
-                ps.setString(3, request.owner());
+                ps.setString(1, familiarity.name());
+                ps.setString(2, targetWord);
+                ps.setString(3, owner);
                 return ps;
             }, translationMapper).stream().findFirst();
         } catch (DataAccessException e) {
@@ -155,7 +155,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> findByTargetWord(FindByTargetWordRequest request) {
+    public Optional<Translation> findByTargetWord(String targetWord, String owner) {
         String sql = """
                 SELECT *
                 FROM dictionary.translations
@@ -165,8 +165,8 @@ public class TranslationRepository {
                 """;
         try {
             List<Translation> translation = template.query(sql, translationMapper,
-                    request.targetWord().toLowerCase(),
-                    request.owner());
+                    targetWord,
+                    owner);
             return translation.stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
@@ -205,7 +205,7 @@ public class TranslationRepository {
         }
     }
 
-    public Optional<Translation> deleteSourceWord(DeleteSourceWordRequest request) {
+    public Optional<Translation> deleteSourceWord(String sourceWord, String targetWord, String owner) {
         String sql = """
                 UPDATE dictionary.translations
                 SET source_words = array_remove(source_words, ?)
@@ -215,9 +215,9 @@ public class TranslationRepository {
                 """;
         try {
             return template.query(sql, translationMapper,
-                    request.sourceWord(),
-                    request.targetWord(),
-                    request.owner()
+                    sourceWord,
+                    targetWord,
+                    owner
             ).stream().findFirst();
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));

@@ -10,8 +10,6 @@ public record UpdateTranslationFamiliarityRequest(@NonNull String targetWord,
                                                   @NonNull Familiarity familiarity,
                                                   @NonNull Language sourceLanguage,
                                                   @NonNull Language targetLanguage,
-                                                  @NonNull Language systemLanguage,
-                                                  @NonNull String owner,
                                                   int selectedWordId,
                                                   boolean isPhrase) {
 }

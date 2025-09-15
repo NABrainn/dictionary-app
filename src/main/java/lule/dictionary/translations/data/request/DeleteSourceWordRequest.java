@@ -11,8 +11,6 @@ import java.util.Set;
 @Builder
 public record DeleteSourceWordRequest(@NonNull String sourceWord,
                                       @NonNull String targetWord,
-                                      @NonNull Language systemLanguage,
-                                      @NonNull String owner,
                                       int selectedWordId,
                                       boolean isPhrase) implements TranslationsRequest, Validated {
     @Override

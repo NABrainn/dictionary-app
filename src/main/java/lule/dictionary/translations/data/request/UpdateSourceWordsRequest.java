@@ -15,10 +15,6 @@ import java.util.Set;
 public record UpdateSourceWordsRequest(@NonNull List<String> sourceWords,
                                        @NonNull String targetWord,
                                        @NonNull Familiarity familiarity,
-                                       @NonNull Language sourceLanguage,
-                                       @NonNull Language targetLanguage,
-                                       @NonNull Language uiLanguage,
-                                       @NonNull String owner,
                                        int selectedWordId,
                                        boolean isPhrase) implements TranslationsRequest, Validated {
 
