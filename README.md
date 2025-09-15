@@ -6,7 +6,7 @@ An application that makes language learning fun and engaging through reading.
 - **Backend**: Java, Spring Boot
 - **Database**: PostgreSQL
 
-### How we work with the code:
+### Codebase rulebook:
 ### 1. Prefer immutable data:
 - **Use records over classes for data transfer**
 - **Classes are still fine for services and extending exceptions**
@@ -15,7 +15,9 @@ An application that makes language learning fun and engaging through reading.
 ### 3. Records ARE interfaces
 ### 4. Each controller may depend on 1 injected service at most
 ![di_rule](readme_resources/di_rule.png)
+### 5. No private methods, all implementations must be immediately visible (currently in process of removing them)
 
+### Screenshots
 ![Screenshot](readme_resources/img.png)
 
 ### 13/06/2025
