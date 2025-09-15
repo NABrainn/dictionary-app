@@ -12,10 +12,9 @@ import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
 import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
-import lule.dictionary.familiarity.FamiliarityService;
+import lule.dictionary.familiarity.service.FamiliarityService;
 import lule.dictionary.jsoup.service.exception.InvalidUriException;
 import lule.dictionary.language.service.Language;
-import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.documents.service.exception.DocumentNotFoundException;
@@ -30,8 +29,9 @@ import lule.dictionary.translations.data.request.ExtractPhrasesRequest;
 import lule.dictionary.translations.data.request.FindTranslationsInDocumentRequest;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.ValidationException;
-import lule.dictionary.validation.service.ValidationService;
+import lule.dictionary.validation.service.Validator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
-    private final ValidationService validationService;
+    private final Validator validator;
     private final PaginationService paginationService;
     private final JsoupService jsoupService;
     private final TranslationService translationService;
@@ -55,11 +55,11 @@ public class DocumentService {
     private final FamiliarityService familiarityService;
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
-    private final SessionHelper sessionHelper;
 
     @Transactional
     public int createDocument(CreateDocumentRequest request) {
         UserProfile principal = (UserProfile) request.authentication().getPrincipal();
+        Language uiLanguage = principal.userInterfaceLanguage();
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
         SubmissionStrategy submissionStrategy = switch (request.submissionStrategy()) {
             case "url_submit" -> UrlSubmissionStrategy.of(request.title(), request.url(), localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
@@ -69,7 +69,32 @@ public class DocumentService {
         try {
             switch (submissionStrategy) {
                 case UrlSubmissionStrategy urlSubmission -> {
-                    validationService.validate(urlSubmission, principal.userInterfaceLanguage());
+                    validator.validate(List.of(
+                            Constraint.define("title", request.title()::isBlank, switch(uiLanguage){
+                                case PL -> "Tytuł nie może być pusty";
+                                case EN -> "Title cannot be empty";
+                                case IT -> "Il titolo non può essere vuoto";
+                                case NO -> "Tittelen kan ikke være tom";
+                            }),
+                            Constraint.define("title", () -> request.title().length() > 500, switch(uiLanguage){
+                                case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
+                                case EN -> "Title cannot be longer than 500 characters";
+                                case IT -> "Il titolo non può essere più lungo di 500 caratteri";
+                                case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
+                            }),
+                            Constraint.define("url", () -> request.url().isBlank(), switch(uiLanguage){
+                                case PL -> "URL nie może być pusty";
+                                case EN -> "URL cannot be empty";
+                                case IT -> "L'URL non può essere vuoto";
+                                case NO -> "URL-en kan ikke være tom";
+                            }),
+                            Constraint.define("url", () -> request.url().length() > 500, switch(uiLanguage){
+                                case PL -> "URL nie może być dłuższy niż 500 znaków";
+                                case EN -> "URL cannot be longer than 500 characters";
+                                case IT -> "L'URL non può essere più lungo di 500 caratteri";
+                                case NO -> "URL-en kan ikke være lenger enn 500 tegn";
+                            })
+                    ));
                     String content = jsoupService.importDocumentContent(urlSubmission.url());
                     return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
                             .title(urlSubmission.title())
@@ -79,7 +104,32 @@ public class DocumentService {
                             .build());
                 }
                 case ContentSubmissionStrategy contentSubmission -> {
-                    validationService.validate(contentSubmission, principal.userInterfaceLanguage());
+                    validator.validate(List.of(
+                            Constraint.define("title", request.title()::isBlank, switch(uiLanguage){
+                                case PL -> "Tytuł nie może być pusty";
+                                case EN -> "Title cannot be empty";
+                                case IT -> "Il titolo non può essere vuoto";
+                                case NO -> "Tittelen kan ikke være tom";
+                            }),
+                            Constraint.define("title", () -> request.title().length() > 500, switch(uiLanguage){
+                                case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
+                                case EN -> "Title cannot be longer than 500 characters";
+                                case IT -> "Il titolo non può essere più lungo di 500 caratteri";
+                                case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
+                            }),
+                            Constraint.define("content", () -> request.content().isBlank(), switch(uiLanguage){
+                                case PL -> "Treść nie może być pusta";
+                                case EN -> "Content cannot be empty";
+                                case IT -> "Il contenuto non può essere vuoto";
+                                case NO -> "Innholdet kan ikke være tomt";
+                            }),
+                            Constraint.define("content", () -> request.content().length() > 100000, switch(uiLanguage){
+                                case PL -> "Treść nie może być dłuższa niż 100 000 znaków";
+                                case EN -> "Content cannot be longer than 100,000 characters";
+                                case IT -> "Il contenuto non può essere più lungo di 100.000 caratteri";
+                                case NO -> "Innholdet kan ikke være lenger enn 100 000 tegn";
+                            })
+                    ));
                     String content = contentSubmission.content();
                     return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
                             .title(contentSubmission.title())
@@ -91,8 +141,8 @@ public class DocumentService {
                 default -> throw new IllegalStateException("Unexpected value: " + request.submissionStrategy());
             }
         } catch (ValidationException e) {
-            log.warn("Validation exception: {}", e.getViolation());
-            throw new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), e.getViolation());
+            log.warn("Validation exception: {}", e.getViolations());
+            throw new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), e.getViolations());
         }
         catch (InvalidUriException e) {
             throw new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), Map.of("invalidUri", "Invalid uri exception"));
