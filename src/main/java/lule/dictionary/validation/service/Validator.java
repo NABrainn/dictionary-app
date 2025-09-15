@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class Validator {
     public void validate(List<Constraint> constraints) throws ValidationException {
         Map<String, String> violations = constraints.stream()
-                .filter(constraint -> constraint.validationRunner().run())
+                .filter(constraint -> constraint.violationChecker().run())
                 .distinct()
                 .collect(Collectors.toUnmodifiableMap(Constraint::name, Constraint::message));
         if(!violations.isEmpty()) {
