@@ -14,7 +14,7 @@
 @if(isSelectable)
     <div
     class="
-    ${isWrapped ? "pointer-events-none" : "border border-2  border-transparent"} inline-block rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg animate-fade-15"
+    ${isWrapped ? "pointer-events-none" : "border border-2  border-transparent"} inline-block rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg"
     id="word-${wordId}"
 
     data-id="${wordId}"

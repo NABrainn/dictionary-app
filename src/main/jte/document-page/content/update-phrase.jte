@@ -30,7 +30,7 @@
     default -> "text-neutral";
 };}
 <div
-class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${wordTextColor} ${wordBgColor} animate-fade-15"
+class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${wordTextColor} ${wordBgColor}"
 
 data-id="${selectableId}"
 data-value="${processedWord}"
