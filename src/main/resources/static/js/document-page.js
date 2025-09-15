@@ -284,7 +284,7 @@ window.documentPage = window.documentPage || {
             })
         })
     },
-    handlePhraseSelection: () => {
+    triggerPhraseSelection: (emitter) => {
         const focusId = parseInt(window.getSelection()?.focusNode?.parentElement?.parentElement?.dataset?.id);
         const anchorId = parseInt(window.getSelection()?.anchorNode?.parentElement?.parentElement?.dataset?.id);
         if(focusId === anchorId) {
@@ -317,7 +317,9 @@ window.documentPage = window.documentPage || {
         if(result.err) {
             return window.getSelection().removeAllRanges()
         }
-
+        emitter(phraseNodes)
+    },
+    handlePhraseSelection: (phraseNodes) => {
         const phraseText = phraseNodes
         .flatMap(node => [...node.children])
         .filter(child => child instanceof HTMLSpanElement)
@@ -350,10 +352,7 @@ window.documentPage = window.documentPage || {
         })
 
         wrappedPhrase.content.forEach(node => node.classList.remove('border', 'border-2', 'border-transparent'))
-        util.findAllByData({ key: 'is-translation-form-container', value: 'true' })
-        .forEach(formContainer => util.removeInnerHTML(formContainer))
-
-        document.dispatchEvent(new Event('createphrase'))
+        document.dispatchEvent(new Event('swapphrase'))
     },
     handlePhraseClick: (selectableId) => {
         util.findAllByData({ key: 'is-phrase', value: 'true' })
@@ -377,5 +376,6 @@ window.documentPage = window.documentPage || {
                 })
             })
         })
+
     }
 }

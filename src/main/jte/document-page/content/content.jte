@@ -15,7 +15,7 @@ id="page-content"
 class="flex flex-col gap-8 text-wrap"
 
 data-document-id="${attribute.documentContentData().documentId()}"
-hx-trigger="createphrase from:document"
+hx-trigger="swapphrase from:document"
 hx-get="/translations/create-phrase"
 hx-target="#new-phrase"
 hx-swap="outerHTML"
@@ -34,11 +34,13 @@ hx-vals='js:{
     w-full px-2
     md:w-3/5 mx-auto text-wrap min-h-165"
 
-    hx-on:mouseup="documentPage.handlePhraseSelection()"
-    hx-on::selectphrase="
+    hx-on:mouseup="
+    documentPage.triggerPhraseSelection((phraseNodes) => this.dispatchEvent(new CustomEvent('selectphrase', { detail: phraseNodes })))"
+    hx-on:selectphrase="
     documentPage.closeAllTranslationForms()
     documentPage.cleanupSelectedWord()
-    documentPage.cleanupSelectedPhrase()">
+    documentPage.cleanupSelectedPhrase()
+    documentPage.handlePhraseSelection(event.detail)">
         @if(attribute.paginationData().currentPageNumber() == 1)
             <span
             id="content-title"
