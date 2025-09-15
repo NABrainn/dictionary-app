@@ -8,5 +8,5 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Getter
 public class ValidationException extends RuntimeException {
-  private final Map<String, String> violation;
+  private final Map<String, String> violations;
 }
