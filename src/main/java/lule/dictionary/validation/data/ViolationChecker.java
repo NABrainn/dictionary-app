@@ -1,6 +1,6 @@
 package lule.dictionary.validation.data;
 
 @FunctionalInterface
-public interface ValidationRunner {
+public interface ViolationChecker {
     boolean run();
 }
