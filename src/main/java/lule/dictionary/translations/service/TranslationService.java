@@ -76,7 +76,11 @@ public class TranslationService {
             return TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
                     .translationId(translationId)
-                    .translation(translation)
+                    .translation(translation.withSourceWords(translation.sourceWords().stream()
+                            .filter(word -> !word.isBlank())
+                            .distinct()
+                            .limit(3)
+                            .toList()))
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .documentId(request.documentId())
@@ -106,46 +110,52 @@ public class TranslationService {
                 Constraint.define("targetWord", sanitizedTargetWord::isBlank, "blank"),
                 Constraint.define("targetWord", () -> sanitizedTargetWord.length() > 150, "too long")
         ));
-        Optional<Translation> optionalTranslation = translationRepository.findByTargetWord(sanitizedTargetWord, principal.username());
-        if(optionalTranslation.isPresent()) {
-            Translation translation = optionalTranslation.get();
-            return TranslationAttribute.builder()
-                    .selectedWordId(request.selectedWordId())
-                    .translation(translation)
-                    .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
-                    .familiarityLevels(familiarityService.getFamiliarityTable())
-                    .translationId(-1)
-                    .documentId(request.documentId())
-                    .isPhrase(request.isPhrase())
-                    .localization(translationLocalization.get(principal.userInterfaceLanguage()))
-                    .build();
-        }
-        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(request.targetWord(), 3);
-        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), request.targetWord());
-        Translation translation = Translation.builder()
-                .sourceWords(Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
-                        .filter(word -> !word.isBlank())
-                        .distinct()
-                        .limit(3)
-                        .toList())
-                .targetWord(request.targetWord())
-                .familiarity(Familiarity.UNKNOWN)
-                .sourceLanguage(principal.sourceLanguage())
-                .targetLanguage(principal.targetLanguage())
-                .owner(principal.username())
-                .isPhrase(request.isPhrase())
-                .build();
-        return TranslationAttribute.builder()
-                .selectedWordId(request.selectedWordId())
-                .translation(translation)
-                .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
-                .familiarityLevels(familiarityService.getFamiliarityTable())
-                .translationId(-1)
-                .documentId(request.documentId())
-                .isPhrase(request.isPhrase())
-                .localization(translationLocalization.get(principal.userInterfaceLanguage()))
-                .build();
-
+        return translationRepository.findByTargetWord(sanitizedTargetWord, principal.username())
+                .map(translation -> TranslationAttribute.builder()
+                        .selectedWordId(request.selectedWordId())
+                        .translation(translation.withSourceWords(translation.sourceWords().stream()
+                                .filter(word -> !word.isBlank())
+                                .distinct()
+                                .limit(3)
+                                .toList()))
+                        .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
+                        .familiarityLevels(familiarityService.getFamiliarityTable())
+                        .translationId(-1)
+                        .documentId(request.documentId())
+                        .isPhrase(request.isPhrase())
+                        .localization(translationLocalization.get(principal.userInterfaceLanguage()))
+                        .build())
+                .orElseGet(() ->
+                        Stream.of(
+                            translationRepository.findMostFrequentSourceWords(request.targetWord(), 3),
+                            translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), request.targetWord())
+                        )
+                        .map(sourceWords -> sourceWords.stream()
+                                .filter(word -> !word.isBlank())
+                                .distinct()
+                                .limit(3)
+                                .toList())
+                        .map(sourceWords -> Translation.builder()
+                                .sourceWords(sourceWords)
+                                .targetWord(request.targetWord())
+                                .familiarity(Familiarity.UNKNOWN)
+                                .sourceLanguage(principal.sourceLanguage())
+                                .targetLanguage(principal.targetLanguage())
+                                .owner(principal.username())
+                                .isPhrase(request.isPhrase())
+                                .build())
+                        .map(translation -> TranslationAttribute.builder()
+                                .selectedWordId(request.selectedWordId())
+                                .translation(translation)
+                                .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
+                                .familiarityLevels(familiarityService.getFamiliarityTable())
+                                .translationId(-1)
+                                .documentId(request.documentId())
+                                .isPhrase(request.isPhrase())
+                                .localization(translationLocalization.get(principal.userInterfaceLanguage()))
+                                .build())
+                        .findFirst()
+                        .get());
     }
 
     @Transactional
@@ -155,7 +165,11 @@ public class TranslationService {
                 .orElseThrow(() -> new RuntimeException("Failed to update familiarity for " + request.targetWord()));
         return TranslationAttribute.builder()
                 .selectedWordId(request.selectedWordId())
-                .translation(translation)
+                .translation(translation.withSourceWords(translation.sourceWords().stream()
+                        .filter(word -> !word.isBlank())
+                        .distinct()
+                        .limit(3)
+                        .toList()))
                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                 .familiarityLevels(familiarityService.getFamiliarityTable())
                 .translationId(-1)
@@ -188,6 +202,8 @@ public class TranslationService {
                         .translationId(-1)
                         .translation(translation.withSourceWords(translation.sourceWords().stream()
                                 .filter(word -> !word.isBlank())
+                                .distinct()
+                                .limit(3)
                                 .toList()))
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                         .familiarityLevels(familiarityService.getFamiliarityTable())
@@ -212,7 +228,11 @@ public class TranslationService {
                     .documentId(-1)
                     .selectedWordId(request.selectedWordId())
                     .translationId(-1)
-                    .translation(translation)
+                    .translation(translation.withSourceWords(translation.sourceWords().stream()
+                            .filter(word -> !word.isBlank())
+                            .distinct()
+                            .limit(3)
+                            .toList()))
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityTable())
                     .isPhrase(request.isPhrase())
@@ -238,7 +258,11 @@ public class TranslationService {
                         .documentId(-1)
                         .selectedWordId(request.selectedWordId())
                         .translationId(-1)
-                        .translation(translation)
+                        .translation(translation.withSourceWords(translation.sourceWords().stream()
+                                .filter(word -> !word.isBlank())
+                                .distinct()
+                                .limit(3)
+                                .toList()))
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                         .familiarityLevels(familiarityService.getFamiliarityTable())
                         .isPhrase(request.isPhrase())
@@ -322,12 +346,12 @@ public class TranslationService {
 
     public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        Language systemLanguage = principal.userInterfaceLanguage();
+        Language uiLanguage = principal.userInterfaceLanguage();
         return FlashcardConfigAttribute.builder()
                 .familiarity(request.familiarity())
                 .quantity(request.quantity())
                 .isPhrase(request.isPhrase())
-                .localization(translationLocalization.get(systemLanguage))
+                .localization(translationLocalization.get(uiLanguage))
                 .build();
     }
 
