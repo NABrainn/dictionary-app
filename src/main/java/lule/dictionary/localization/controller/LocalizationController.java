@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class LocalizationController {
 
+    //TODO wire up to a service to separate sanitization logic
     @GetMapping("/uiLanguage")
     public void setupInterfaceLanguage(@RequestHeader("uiLanguage") String systemLanguage, HttpSession httpSession) {
         Stream.of(systemLanguage)

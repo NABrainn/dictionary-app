@@ -115,7 +115,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void signup(@NonNull SignupRequest request, HttpSession httpSession) {
+    public void signup(@NonNull SignupRequest request,
+                       @NonNull HttpSession httpSession) {
         Language uiLanguage = sessionHelper.getUILanguage(httpSession);
         try {
             String sanitizedLogin = patternService.removeSpecialCharacters(request.login()).trim();
@@ -195,7 +196,7 @@ public class AuthService {
         log.info("User {} logged out", username);
     }
 
-    public Map<AuthText, String> getTextLocalization(HttpSession session) {
+    public Map<AuthText, String> getTextLocalization(@NonNull HttpSession session) {
         Language uiLanguage = sessionHelper.getUILanguage(session);
         return authLocalizationService.getTextLocalization(uiLanguage);
     }
