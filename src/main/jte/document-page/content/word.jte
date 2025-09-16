@@ -1,4 +1,5 @@
 @import lule.dictionary.translations.data.Familiarity
+
 @param int wordId
 @param int documentId
 @param String word
@@ -7,8 +8,7 @@
 @param String textColor = ""
 @param boolean isSelectable = true
 @param boolean isPhraseWord = false
-@param Familiarity familiarity = null
-@param Familiarity phraseFamiliarity = null
+@param Familiarity familiarity
 @param boolean isFound = false
 @param boolean isWrapped = false
 @if(isSelectable)

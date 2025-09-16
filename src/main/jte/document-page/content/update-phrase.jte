@@ -80,8 +80,7 @@ documentPage.handlePhraseClick(${selectableId})">
                 word = word,
                 familiarity = translations.get(cleanWord).familiarity(),
                 isSelectable = false,
-                isWrapped = true,
-                phraseFamiliarity = phrase.familiarity())
+                isWrapped = true)
             @else
                 @template.document-page.content.word(
                 wordId = -1,
@@ -90,7 +89,7 @@ documentPage.handlePhraseClick(${selectableId})">
                 word = word,
                 isSelectable = true,
                 isWrapped = true,
-                phraseFamiliarity = phrase.familiarity())
+                familiarity = phrase.familiarity())
             @endif
         @else
             @template.document-page.content.word(
@@ -101,7 +100,7 @@ documentPage.handlePhraseClick(${selectableId})">
             textColor = wordTextColor,
             isSelectable = false,
             isWrapped = true,
-            phraseFamiliarity = phrase.familiarity())
+            familiarity = phrase.familiarity())
         @endif
     @endfor
 </div>

@@ -2,6 +2,7 @@
 @import lule.dictionary.documents.data.selectable.Phrase
 @import lule.dictionary.documents.data.request.DocumentAttribute
 @import gg.jte.support.ForSupport
+@import lule.dictionary.translations.data.Familiarity
 @import java.util.regex.Pattern
 
 @param DocumentAttribute attribute
@@ -89,6 +90,7 @@ hx-vals='js:{
                                     processedWord = cleanWord,
                                     documentId = documentId,
                                     word = word,
+                                    familiarity = Familiarity.UNKNOWN,
                                     bgColor = "bg-accent",
                                     textColor = "text-primary")
                                 @endif
@@ -98,6 +100,7 @@ hx-vals='js:{
                                 processedWord = cleanWord,
                                 documentId = documentId,
                                 word = word,
+                                familiarity = Familiarity.IGNORED,
                                 bgColor = "bg-primary",
                                 textColor = "text-neutral",
                                 isSelectable = false)
