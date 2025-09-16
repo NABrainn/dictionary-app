@@ -1,4 +1,4 @@
-package lule.dictionary.familiarity;
+package lule.dictionary.familiarity.service;
 
 import lule.dictionary.translations.data.Familiarity;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class FamiliarityService {
         };
     }
 
-    public Map<Integer, Familiarity> getFamiliarityTable() {
+    public Map<Integer, Familiarity> getFamiliarityMap() {
         return new TreeMap<>(Map.of(
                 1, Familiarity.UNKNOWN,
                 2, Familiarity.RECOGNIZED,
