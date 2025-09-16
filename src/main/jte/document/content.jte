@@ -75,7 +75,7 @@ hx-vals='js:{
                                         case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
                                         default -> "text-neutral";
                                     };}
-                                    @template.document-page.content.word(
+                                    @template.document.word(
                                     wordId = selectable.id(),
                                     processedWord = cleanWord,
                                     documentId = documentId,
@@ -85,7 +85,7 @@ hx-vals='js:{
                                     familiarity = translations.get(cleanWord).familiarity(),
                                     isPersisted = true)
                                 @else
-                                    @template.document-page.content.word(
+                                    @template.document.word(
                                     wordId = selectable.id(),
                                     processedWord = cleanWord,
                                     documentId = documentId,
@@ -95,7 +95,7 @@ hx-vals='js:{
                                     textColor = "text-primary")
                                 @endif
                             @else
-                                @template.document-page.content.word(
+                                @template.document.word(
                                 wordId = selectable.id(),
                                 processedWord = cleanWord,
                                 documentId = documentId,
@@ -107,7 +107,7 @@ hx-vals='js:{
                             @endif
                         @else
                             !{var phrase = ((Phrase) selectable);}
-                            @template.document-page.content.update-phrase(
+                            @template.translation.update-phrase(
                             phrase = phrase,
                             cleanWordPattern = cleanWordPattern,
                             selectableId = selectable.id(),
@@ -123,7 +123,7 @@ hx-vals='js:{
     class="
     md:max-w-2/5 md:gap-4
     max-w-full flex justify-center gap-2  mx-auto items-center">
-        @template.document-page.content.paginator(
+        @template.document.paginator(
         id = attribute.documentContentData().documentId(),
         currentPage = attribute.paginationData().currentPageNumber(),
         pages = attribute.paginationData().numberOfPages(),

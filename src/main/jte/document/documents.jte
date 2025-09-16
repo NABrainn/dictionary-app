@@ -7,7 +7,7 @@
 @param BaseAttribute baseAttribute
 @param DocumentListAttribute attribute
 
-@template.layout.base(content = @`
+@template.base(content = @`
     @template.navbar.navbar(
     baseAttribute = baseAttribute,
     navbarAttribute = navbarAttribute)

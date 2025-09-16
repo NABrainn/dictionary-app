@@ -1,4 +1,4 @@
-package lule.dictionary.translations.service.exception;
+package lule.dictionary.translations.data.exception;
 
 
 public class InvalidInputException extends RuntimeException {

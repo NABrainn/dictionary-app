@@ -8,11 +8,11 @@
 
 <script src="/js/document-page.js" defer></script>
 
-@template.layout.base(content = @`
+@template.base(content = @`
     @template.navbar.navbar(
     navbarAttribute = navbarAttribute.withIsProfileOpen(false),
     baseAttribute = baseAttribute,
     isProfileToggleBtnVisible = false)
-    @template.document-page.content.content(
+    @template.document.content(
     attribute = attribute)`,
     baseAttribute = baseAttribute)

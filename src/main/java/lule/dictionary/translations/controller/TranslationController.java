@@ -4,12 +4,13 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.translations.data.TranslationLocalizationKey;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
-import lule.dictionary.translations.service.exception.TranslationServiceException;
+import lule.dictionary.translations.data.exception.TranslationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,21 +48,14 @@ public class TranslationController {
                         .isPhrase(isPhrase)
                         .targetWord(targetWord)
                         .build();
-
         TranslationAttribute attribute = translationService.findOrCreateTranslation(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        model.addAttribute("attribute", attribute);
+        model.addAttribute("messages", messages);
+        model.addAttribute("errors", Map.of());
         return switch (attribute.type()) {
-            case CREATE -> {
-                log.info("Translation not found, returning create form");
-                model.addAttribute("attribute", attribute);
-                model.addAttribute("errors", Map.of());
-                yield "document-page/content/translation/add/add-translation-form";
-            }
-            case FIND -> {
-                log.info("Translation found, returning update form");
-                model.addAttribute("attribute", attribute);
-                model.addAttribute("errors", Map.of());
-                yield "document-page/content/translation/update/update-translation-form";
-            }
+            case CREATE -> "document-page/content/translation/add/add-translation-form";
+            case FIND -> "document-page/content/translation/update/update-translation-form";
         };
     }
 
@@ -88,6 +82,7 @@ public class TranslationController {
         model.addAttribute("familiarities", familiarities);
         model.addAttribute("isSavedList", isSavedList);
         model.addAttribute("attribute", attribute);
+        model.addAttribute("errors", Map.of());
         return "document-page/content/new-phrase";
     }
 
@@ -114,7 +109,9 @@ public class TranslationController {
                     .isPhrase(isPhrase)
                     .build();
             TranslationAttribute attribute = translationService.createTranslation(request, authentication);
+            Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
             model.addAttribute("attribute", attribute);
+            model.addAttribute("messages", messages);
             model.addAttribute("errors", Map.of());
             return "document-page/content/translation/update/update-translation-form";
         } catch (TranslationServiceException e) {
@@ -141,8 +138,10 @@ public class TranslationController {
                 .familiarity(familiarity)
                 .isPhrase(isPhrase)
                 .build();
-        TranslationAttribute result = translationService.updateFamiliarity(request, authentication);
-        model.addAttribute("attribute", result);
+        TranslationAttribute attribute = translationService.updateFamiliarity(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        model.addAttribute("attribute", attribute);
+        model.addAttribute("messages", messages);
         model.addAttribute("errors", Map.of());
         return "document-page/content/translation/update/update-translation-form";
     }
@@ -163,9 +162,10 @@ public class TranslationController {
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
                     .build();
-            TranslationAttribute attribute = translationService.updateSourceWords(request,
-                    authentication);
+            TranslationAttribute attribute = translationService.updateSourceWords(request, authentication);
+            Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
             model.addAttribute("attribute", attribute);
+            model.addAttribute("messages", messages);
             model.addAttribute("errors", Map.of());
             return "document-page/content/translation/update/update-translation-form";
 
@@ -180,7 +180,6 @@ public class TranslationController {
     @DeleteMapping({"/sourceWords/delete", "/sourceWords/delete/"})
     public String deleteSourceWord(Model model,
                                    Authentication authentication,
-                                   HttpSession session,
                                    @RequestParam("sourceWord") String sourceWord,
                                    @RequestParam("targetWord") String targetWord,
                                    @RequestParam("selectedWordId") int selectedWordId,
@@ -191,8 +190,10 @@ public class TranslationController {
                 .selectedWordId(selectedWordId)
                 .isPhrase(isPhrase)
                 .build();
-        TranslationAttribute result = translationService.deleteSourceWord(request, session, authentication);
-        model.addAttribute("attribute", result);
+        TranslationAttribute attribute = translationService.deleteSourceWord(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        model.addAttribute("attribute", attribute);
+        model.addAttribute("messages", messages);
         model.addAttribute("errors", Map.of());
         return "document-page/content/translation/update/update-translation-form";
     }

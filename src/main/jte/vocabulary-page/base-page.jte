@@ -7,7 +7,7 @@
 @param FlashcardConfigAttribute attribute 
 
 
-@template.layout.base(content = @`
+@template.base(content = @`
 @template.navbar.navbar(
 navbarAttribute = navbarAttribute,
 baseAttribute = baseAttribute,

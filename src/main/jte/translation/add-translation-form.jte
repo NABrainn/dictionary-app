@@ -6,6 +6,7 @@
 @param BaseAttribute baseAttribute 
 @param TranslationAttribute attribute
 @param Map<String, String> errors
+@param Map<TranslationLocalizationKey, String> messages
 
 !{var processedWord = attribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
 
@@ -23,10 +24,59 @@ id="translation-form">
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${processedWord}</span>
     <div id="translation-manager">
-        @template.document-page.content.translation.add.translation-manager(
-        attribute = attribute,
-        errors = errors,
-        _csrf = baseAttribute._csrf().getToken())
+        <div class="flex flex-col gap-2 text-wrap">
+            @for(String word : attribute.translation().sourceWords())
+                <div
+                class="flex gap-2 items-center min-h-8">
+                    <input
+                    name="sourceWords"
+                    type="hidden"
+                    value="${word}">
+                    <span class="block text-center text-accent text-wrap">${word}</span>
+                </div>
+            @endfor
+        </div>
+        <div class="flex flex-col gap-2">
+            <div id="source-word-form" class="flex">
+                <form
+                class="flex flex-col gap-2"
+                hx-params="selectedWordId,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,_csrf"
+                hx-vals='
+                {
+                    "selectedWordId": "${attribute.selectedWordId()}",
+                    "targetWord": "${attribute.translation().targetWord()}",
+                    "familiarity": "UNKNOWN",
+                    "sourceLanguage": "${attribute.translation().sourceLanguage()}",
+                    "targetLanguage": "${attribute.translation().targetLanguage()}",
+                    "documentId": "${attribute.documentId()}",
+                    "_csrf": "${baseAttribute._csrf().getToken()}"
+                }'
+                hx-post="/translations/new"
+                hx-target="#translation-form-container-${attribute.selectedWordId()}"
+                hx-swap="innerHTML">
+                    @for(String word : attribute.translation().sourceWords())
+                        <input
+                        name="sourceWords"
+                        type="hidden"
+                        value="${word}">
+                    @endfor
+                    <div class="flex gap-2">
+                        <input
+                        id="input-source-word"
+                        class="
+                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
+                        focus:border-accent"
+                        type="text"
+                        placeholder=""
+                        name="sourceWords">
+                        <button
+                        id="submit-source-word"
+                        class="text-3xl cursor-pointer text-accent"
+                        type="submit">+</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     <div class="
     md:flex md:flex-col md:gap-0.25
@@ -222,7 +272,7 @@ id="translation-form">
                 <input
                 class="md:inline
                 hidden cursor-pointer"
-                value="${attribute.localization().get(TranslationLocalizationKey.valueOf(level.getValue().name().toUpperCase()))}"
+                value="${messages.get(TranslationLocalizationKey.valueOf(level.getValue().name().toUpperCase()))}"
                 type="submit">
             </form>
         @endfor

@@ -11,7 +11,7 @@
 @param BaseAttribute baseAttribute
 @param Map<String, String> violation
 
-@template.layout.base(content = @`
+@template.base(content = @`
     <div id="document-form-wrapper">
         @template.navbar.navbar(
         navbarAttribute = navbarAttribute,

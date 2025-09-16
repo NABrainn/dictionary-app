@@ -2,14 +2,16 @@
 @import lule.dictionary.translations.data.Familiarity
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 @import java.util.List
+@import java.util.Map
 
+@param BaseAttribute baseAttribute 
 @param int selectableId
 @param int documentId
 @param int phraseLength
 @param List<String> familiarities
 @param List<String> isSavedList
 @param TranslationAttribute attribute
-@param BaseAttribute baseAttribute 
+@param Map<String, String> errors
 
 !{var cleanWordPattern = java.util.regex.Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
 !{String[] unprocessedPhraseText = attribute.translation().targetWord().split(" ");}
@@ -65,6 +67,7 @@ hx-on::before-request="
 documentPage.closeAllTranslationForms()
 documentPage.cleanupSelectedWord()
 documentPage.cleanupSelectedPhrase()
+
 //handle selection
 util.findAllByData({ key: 'is-phrase', value: 'true' })
 .filter(node => data.get(node, 'is-selected') === 'false')
@@ -95,12 +98,13 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
 
     data-id="${selectableId}"
     data-is-translation-form-container="true">
-        @template.document-page.content.translation.add.add-translation-form(
+        @template.translation.add-translation-form(
         attribute = attribute,
-        baseAttribute = baseAttribute)
+        baseAttribute = baseAttribute,
+        errors = errors)
     </div>
     @for(int wordId = selectableId, phraseWordId = 0; wordId < selectableId + phraseLength; wordId++, phraseWordId++)
-        @template.document-page.content.word(
+        @template.document.word(
         wordId = wordId,
         documentId = documentId,
         word = unprocessedPhraseText[phraseWordId],

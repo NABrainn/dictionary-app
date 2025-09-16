@@ -73,7 +73,7 @@ documentPage.handlePhraseClick(${selectableId})">
                                                 .toLowerCase();}
         @if(!cleanWord.isEmpty())
             @if(translations.get(cleanWord) != null)
-                @template.document-page.content.word(
+                @template.document.word(
                 wordId = -1,
                 processedWord = cleanWord,
                 documentId = documentId,
@@ -82,7 +82,7 @@ documentPage.handlePhraseClick(${selectableId})">
                 isSelectable = false,
                 isWrapped = true)
             @else
-                @template.document-page.content.word(
+                @template.document.word(
                 wordId = -1,
                 processedWord = cleanWord,
                 documentId = documentId,
@@ -92,7 +92,7 @@ documentPage.handlePhraseClick(${selectableId})">
                 familiarity = phrase.familiarity())
             @endif
         @else
-            @template.document-page.content.word(
+            @template.document.word(
             wordId = -1,
             processedWord = cleanWord,
             documentId = documentId,
