@@ -33,8 +33,8 @@ public class TranslationController {
                                        @RequestParam String targetWord,
                                        @RequestParam("selectedWordId") int selectedWordId,
                                        @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
-                                       @RequestParam("isFound") boolean isFound) {
-        FindOrCreateTranslationRequest request = isFound ?
+                                       @RequestParam("isPersisted") boolean isPersisted) {
+        FindOrCreateTranslationRequest request = isPersisted ?
                 FindTranslationRequest.builder()
                         .documentId(documentId)
                         .selectedWordId(selectedWordId)

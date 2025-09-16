@@ -83,7 +83,7 @@ hx-vals='js:{
                                     bgColor = wordBgColor,
                                     textColor = wordTextColor,
                                     familiarity = translations.get(cleanWord).familiarity(),
-                                    isFound = true)
+                                    isPersisted = true)
                                 @else
                                     @template.document-page.content.word(
                                     wordId = selectable.id(),

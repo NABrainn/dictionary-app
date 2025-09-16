@@ -49,7 +49,7 @@ data-is-saved="false"
 data-is-selectable="true"
 data-is-selected="true"
 
-hx-params="documentId,targetWord,selectedWordId,isPhrase,isFound"
+hx-params="documentId,targetWord,selectedWordId,isPhrase,isPersisted"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
@@ -58,7 +58,7 @@ hx-vals='{
     "targetWord": "${String.join(" ", processedPhraseText)}",
     "selectedWordId": "${selectableId}",
     "isPhrase": "true",
-    "isFound": "true"
+    "isPersisted": "true"
 }'
 hx-trigger="click"
 hx-on::before-request="
@@ -106,7 +106,7 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
         word = unprocessedPhraseText[phraseWordId],
         processedWord = processedPhraseText[phraseWordId],
         familiarity = phraseWordFamiliarityList.get(phraseWordId),
-        isFound = phraseWordIsSavedList.get(phraseWordId),
+        isPersisted = phraseWordIsSavedList.get(phraseWordId),
         isWrapped = true)
     @endfor
 </div>

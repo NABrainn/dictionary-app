@@ -9,7 +9,7 @@
 @param boolean isSelectable = true
 @param boolean isPhraseWord = false
 @param Familiarity familiarity
-@param boolean isFound = false
+@param boolean isPersisted = false
 @param boolean isWrapped = false
 @if(isSelectable)
     <div
@@ -24,18 +24,18 @@
     data-is-selectable="true"
     data-is-selected="false"
     data-is-word="true"
-    data-is-saved="${isFound  ? "true" : "false"}"
+    data-is-saved="${isPersisted  ? "true" : "false"}"
     data-is-wrapped="${isWrapped  ? "true" : "false"}"
 
     hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
-    hx-params="documentId,targetWord,selectedWordId,isFound"
+    hx-params="documentId,targetWord,selectedWordId,isPersisted"
     hx-vals='js:{
         documentId: ${documentId},
         targetWord: "${processedWord}",
         selectedWordId: ${wordId},
-        isFound: data.get(htmx.find("#word-${wordId}"), "is-saved")
+        isPersisted: data.get(htmx.find("#word-${wordId}"), "is-saved")
     }'
     hx-on:click="
     documentPage.closeAllTranslationForms()

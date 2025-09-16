@@ -123,13 +123,13 @@ id="translation-form">
                         target: '#translation-form-container-' + data.get(phraseNodeList.at(0), 'id'),
                         swap: 'innerHTML',
                         trigger: 'click',
-                        params: 'documentId,targetWord,selectedWordId,isPhrase,isFound',
+                        params: 'documentId,targetWord,selectedWordId,isPhrase,isPersisted',
                         vals: {
                             documentId: data.get(phraseNodeList.at(0), 'document-id'),
                             targetWord: '${processedWord}',
                             selectedWordId: data.get(phraseNodeList.at(0), 'id'),
                             isPhrase: true,
-                            isFound: true
+                            isPersisted: true
                         }
                     })
 
