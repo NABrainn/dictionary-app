@@ -8,6 +8,7 @@ import lule.dictionary.familiarity.service.FamiliarityService;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.stringUtil.service.PatternService;
+import lule.dictionary.translations.data.TranslationFormType;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
 import lule.dictionary.translations.data.attribute.WordCardAttribute;
@@ -92,8 +93,8 @@ public class TranslationService {
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityMap())
                     .documentId(request.documentId())
-                    .isPhrase(request.isPhrase())
                     .localization(translationLocalization.get(principal.userInterfaceLanguage()))
+                    .isPhrase(request.isPhrase())
                     .build();
         } catch (ValidationException e) {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
@@ -119,7 +120,7 @@ public class TranslationService {
     }
 
     @Transactional
-    public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request,
+    public TranslationAttribute findByTargetWord(@NonNull FindTranslationRequest request,
                                                  @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
@@ -141,6 +142,7 @@ public class TranslationService {
                         .documentId(request.documentId())
                         .isPhrase(request.isPhrase())
                         .localization(translationLocalization.get(principal.userInterfaceLanguage()))
+                        .type(TranslationFormType.FIND)
                         .build())
                 .orElseGet(() ->
                         Stream.of(
@@ -170,6 +172,7 @@ public class TranslationService {
                                 .documentId(request.documentId())
                                 .isPhrase(request.isPhrase())
                                 .localization(translationLocalization.get(principal.userInterfaceLanguage()))
+                                .type(TranslationFormType.FIND)
                                 .build())
                         .findFirst()
                         .get());
@@ -353,6 +356,7 @@ public class TranslationService {
                 .isPhrase(request.isPhrase())
                 .familiarityLevels(familiarityService.getFamiliarityMap())
                 .localization(translationLocalization.get(principal.userInterfaceLanguage()))
+                .type(TranslationFormType.CREATE)
                 .build();
     }
 
@@ -406,5 +410,12 @@ public class TranslationService {
 
     public WordCardAttribute getCardAttribute(GetCardAttributeRequest request) {
         return WordCardAttribute.of(request.sourceWord(), request.targetWord());
+    }
+
+    public TranslationAttribute findOrCreateTranslation(FindOrCreateTranslationRequest request, Authentication authentication) {
+        return switch (request) {
+            case CreateTranslationRequest createTranslationRequest -> translate(createTranslationRequest, authentication);
+            case FindTranslationRequest findTranslationRequest -> findByTargetWord(findTranslationRequest, authentication);
+        };
     }
 }

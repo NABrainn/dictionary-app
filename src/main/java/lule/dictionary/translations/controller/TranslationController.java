@@ -34,28 +34,35 @@ public class TranslationController {
                                        @RequestParam("selectedWordId") int selectedWordId,
                                        @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                        @RequestParam("isFound") boolean isFound) {
-        if(!isFound) {
-            CreateTranslationRequest request = CreateTranslationRequest.builder()
-                    .documentId(documentId)
-                    .selectedWordId(selectedWordId)
-                    .isPhrase(isPhrase)
-                    .targetWord(targetWord)
-                    .build();
-            TranslationAttribute attribute = translationService.translate(request, authentication);
-            model.addAttribute("attribute", attribute);
-            model.addAttribute("errors", Map.of());
-            return "document-page/content/translation/add/add-translation-form";
-        }
-        FindByTargetWordRequest request = FindByTargetWordRequest.builder()
-                .documentId(documentId)
-                .selectedWordId(selectedWordId)
-                .targetWord(targetWord)
-                .isPhrase(isPhrase)
-                .build();
-        TranslationAttribute attribute = translationService.findByTargetWord(request, authentication);
-        model.addAttribute("attribute", attribute);
-        model.addAttribute("errors", Map.of());
-        return "document-page/content/translation/update/update-translation-form";
+        FindOrCreateTranslationRequest request = isFound ?
+                FindTranslationRequest.builder()
+                        .documentId(documentId)
+                        .selectedWordId(selectedWordId)
+                        .isPhrase(isPhrase)
+                        .targetWord(targetWord)
+                        .build() :
+                CreateTranslationRequest.builder()
+                        .documentId(documentId)
+                        .selectedWordId(selectedWordId)
+                        .isPhrase(isPhrase)
+                        .targetWord(targetWord)
+                        .build();
+
+        TranslationAttribute attribute = translationService.findOrCreateTranslation(request, authentication);
+        return switch (attribute.type()) {
+            case CREATE -> {
+                log.info("Translation not found, returning create form");
+                model.addAttribute("attribute", attribute);
+                model.addAttribute("errors", Map.of());
+                yield "document-page/content/translation/add/add-translation-form";
+            }
+            case FIND -> {
+                log.info("Translation found, returning update form");
+                model.addAttribute("attribute", attribute);
+                model.addAttribute("errors", Map.of());
+                yield "document-page/content/translation/update/update-translation-form";
+            }
+        };
     }
 
     @GetMapping({"/create-phrase", "/create-phrase/"})
