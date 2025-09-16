@@ -10,13 +10,10 @@ import lule.dictionary.language.service.Language;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
 import lule.dictionary.translations.service.exception.TranslationServiceException;
-import lule.dictionary.userProfiles.data.UserProfile;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -38,13 +35,15 @@ public class TranslationController {
                                        @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                        @RequestParam("isFound") boolean isFound) {
         if(!isFound) {
-            TranslationAttribute translationAttribute = translationService.translate(CreateTranslationRequest.builder()
+            CreateTranslationRequest request = CreateTranslationRequest.builder()
                     .documentId(documentId)
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
                     .targetWord(targetWord)
-                    .build(), authentication);
-            model.addAttribute("attribute", translationAttribute);
+                    .build();
+            TranslationAttribute attribute = translationService.translate(request, authentication);
+            model.addAttribute("attribute", attribute);
+            model.addAttribute("errors", Map.of());
             return "document-page/content/translation/add/add-translation-form";
         }
         FindByTargetWordRequest request = FindByTargetWordRequest.builder()
@@ -55,6 +54,7 @@ public class TranslationController {
                 .build();
         TranslationAttribute attribute = translationService.findByTargetWord(request, authentication);
         model.addAttribute("attribute", attribute);
+        model.addAttribute("errors", Map.of());
         return "document-page/content/translation/update/update-translation-form";
     }
 
@@ -67,19 +67,20 @@ public class TranslationController {
                                @RequestParam("phraseLength") int phraseLength,
                                @RequestParam("familiarities") List<String> familiarities,
                                @RequestParam("isSavedList") List<String> isSavedList) {
-        TranslationAttribute translationAttribute = translationService.translate(CreateTranslationRequest.builder()
+        CreateTranslationRequest request = CreateTranslationRequest.builder()
                 .targetWord(phraseText)
                 .documentId(documentId)
                 .selectedWordId(selectableId)
                 .isPhrase(true)
-                .build(), authentication);
+                .build();
+        TranslationAttribute attribute = translationService.translate(request, authentication);
         model.addAttribute("selectableId", selectableId);
         model.addAttribute("phraseText", phraseText);
         model.addAttribute("documentId", documentId);
         model.addAttribute("phraseLength", phraseLength);
         model.addAttribute("familiarities", familiarities);
         model.addAttribute("isSavedList", isSavedList);
-        model.addAttribute("attribute", translationAttribute);
+        model.addAttribute("attribute", attribute);
         return "document-page/content/new-phrase";
     }
 
@@ -107,10 +108,12 @@ public class TranslationController {
                     .build();
             TranslationAttribute attribute = translationService.createTranslation(request, authentication);
             model.addAttribute("attribute", attribute);
+            model.addAttribute("errors", Map.of());
             return "document-page/content/translation/update/update-translation-form";
         } catch (TranslationServiceException e) {
-            log.info(e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            model.addAttribute("attribute", e.getAttribute());
+            model.addAttribute("errors", e.getMessages());
+            return "document-page/content/translation/add/add-translation-form";
         }
     }
 
@@ -133,13 +136,13 @@ public class TranslationController {
                 .build();
         TranslationAttribute result = translationService.updateFamiliarity(request, authentication);
         model.addAttribute("attribute", result);
+        model.addAttribute("errors", Map.of());
         return "document-page/content/translation/update/update-translation-form";
     }
 
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
     public String updateSourceWords(Model model,
                                     Authentication authentication,
-                                    HttpSession session,
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord,
                                     @RequestParam("familiarity") String currentFamiliarity,
@@ -153,14 +156,16 @@ public class TranslationController {
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
                     .build();
-            TranslationAttribute attribute = translationService.updateSourceWords(request, session, authentication);
-            model.addAttribute("error", Map.of());
+            TranslationAttribute attribute = translationService.updateSourceWords(request,
+                    authentication);
             model.addAttribute("attribute", attribute);
+            model.addAttribute("errors", Map.of());
             return "document-page/content/translation/update/update-translation-form";
+
         } catch (TranslationServiceException e) {
             log.warn("TranslationServiceException: {}", e.getMessages());
-            model.addAttribute("error", e.getMessages());
             model.addAttribute("attribute", e.getAttribute());
+            model.addAttribute("errors", e.getMessages());
             return "document-page/content/translation/update/update-translation-form";
         }
     }
@@ -181,6 +186,7 @@ public class TranslationController {
                 .build();
         TranslationAttribute result = translationService.deleteSourceWord(request, session, authentication);
         model.addAttribute("attribute", result);
+        model.addAttribute("errors", Map.of());
         return "document-page/content/translation/update/update-translation-form";
     }
 }

@@ -1,9 +1,11 @@
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
+@import java.util.Map
 
 @param BaseAttribute baseAttribute
 @param TranslationAttribute attribute
+@param Map<String, String> errors
 
 !{var processedWord = attribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
 
@@ -23,7 +25,7 @@ id="translation-form">
     <div id="translation-manager">
         @template.document-page.content.translation.update.translation-manager(
         attribute = attribute,
-        translationLocalization = attribute.localization(),
+        errors = errors,
         _csrf = baseAttribute._csrf().getToken())
     </div>
     <div class="

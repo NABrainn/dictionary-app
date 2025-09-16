@@ -3,7 +3,7 @@
 @import java.util.Map
 
 @param TranslationAttribute attribute
-@param Map<TranslationLocalizationKey, String> localization
+@param Map<String, String> errors
 @param String _csrf
 
 <div id="source-words-list">
@@ -18,7 +18,8 @@
     <div id="source-word-form" class="flex">
         @template.document-page.content.translation.add.add-source-words-form(
         _csrf = _csrf,
-        placeholderText = localization.get(TranslationLocalizationKey.ADD_TRANSLATION),
+        errors = errors,
+        placeholderText = attribute.localization().get(TranslationLocalizationKey.ADD_TRANSLATION),
         sourceLanguage = attribute.translation().sourceLanguage().name(),
         targetLanguage = attribute.translation().targetLanguage().name(),
         documentId = attribute.documentId(),

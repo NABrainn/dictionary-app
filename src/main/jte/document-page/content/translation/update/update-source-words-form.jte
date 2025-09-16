@@ -1,6 +1,8 @@
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
+@import java.util.Map
 
 @param TranslationAttribute translationAttribute 
+@param Map<String, String> errors 
 @param String placeholderText
 @param String _csrf
 
@@ -26,7 +28,7 @@ hx-swap="innerHTML">
         <input
         id="input-source-word"
         class="
-        outline-none border border-2 border-primary rounded text-neutral text-md grow-1
+        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
         focus:border-accent"
         type="text"
         placeholder="${placeholderText}"

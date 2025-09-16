@@ -33,7 +33,6 @@
     --color-accent: #B2D8CE;
     --color-neutral: #B8CFCE;
     --color-error: #C03A3A;
-    --animate-fade-15: fadeIn .15s ease-in;
   }
 }
 @layer base {
@@ -335,9 +334,6 @@
   .basis-2\/5 {
     flex-basis: calc(2/5 * 100%);
   }
-  .animate-fade-15 {
-    animation: var(--animate-fade-15);
-  }
   .cursor-default {
     cursor: default;
   }
@@ -448,6 +444,9 @@
   .border-l-1 {
     border-left-style: var(--tw-border-style);
     border-left-width: 1px;
+  }
+  .border-error {
+    border-color: var(--color-error);
   }
   .border-primary {
     border-color: var(--color-primary);
@@ -902,38 +901,6 @@
 @property --tw-drop-shadow-size {
   syntax: "*";
   inherits: false;
-}
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
 }
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {

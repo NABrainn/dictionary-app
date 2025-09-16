@@ -10,6 +10,5 @@ import java.util.Map;
 @Getter
 public class TranslationServiceException extends RuntimeException {
     private final TranslationAttribute attribute;
-    private final Map<String, String> violation;
-
+    private final Map<String, String> messages;
 }

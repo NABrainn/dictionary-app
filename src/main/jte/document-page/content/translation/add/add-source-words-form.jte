@@ -1,4 +1,5 @@
 @import java.util.List
+@import java.util.Map
 
 @param String placeholderText
 @param String sourceLanguage
@@ -8,6 +9,7 @@
 @param List<String> sourceWords
 @param String targetWord
 @param String _csrf
+@param Map<String, String> errors
 
 <form
 class="flex flex-col gap-2"
@@ -35,7 +37,7 @@ hx-swap="innerHTML">
         <input
         id="input-source-word"
         class="
-        outline-none border border-2 border-primary rounded text-neutral text-md grow-1
+        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
         focus:border-accent"
         type="text"
         placeholder="${placeholderText}"

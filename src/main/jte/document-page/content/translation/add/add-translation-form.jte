@@ -1,9 +1,11 @@
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
+@import java.util.Map
 
 @param BaseAttribute baseAttribute 
 @param TranslationAttribute attribute
+@param Map<String, String> errors
 
 !{var processedWord = attribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
 
@@ -23,7 +25,7 @@ id="translation-form">
     <div id="translation-manager">
         @template.document-page.content.translation.add.translation-manager(
         attribute = attribute,
-        localization = attribute.localization(),
+        errors = errors,
         _csrf = baseAttribute._csrf().getToken())
     </div>
     <div class="
@@ -31,28 +33,6 @@ id="translation-form">
     flex flex-row justify-around">
         @for(var level : attribute.familiarityLevels().entrySet())
             <form
-            class="
-            md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
-            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8  justify-center items-center"
-            id="translation-form-${attribute.selectedWordId()}"
-            hx-trigger="click"
-            hx-post="/translations/new"
-            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,sourceWords,documentId,_csrf"
-            hx-vals='{
-                "targetWord": "${processedWord}",
-                "familiarity": "${level.getValue().name()}",
-                "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
-                "targetLanguage": "${attribute.translation().targetLanguage().name()}",
-                "documentId": "${attribute.documentId()}",
-                "selectedWordId": "${attribute.selectedWordId()}",
-                "isPhrase": "${attribute.isPhrase()}",
-                "_csrf": "${baseAttribute._csrf().getToken()}"
-            }'
-            hx-target="closest #translation-form-container-${attribute.selectedWordId()}"
-            hx-headers='js:{
-                timeZoneOffset: new Date().getTimezoneOffset()
-            }'
-            hx-swap="innerHTML"
             hx-on::before-request="
             const familiarityColors = new Map([
                 ['unknown', ['bg-accent', 'text-primary']],
@@ -212,7 +192,29 @@ id="translation-form">
                         })
                     }
                 })
-            }">
+            }"
+            class="
+            md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
+            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8  justify-center items-center"
+            id="translation-form-${attribute.selectedWordId()}"
+            hx-trigger="click"
+            hx-post="/translations/new"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,sourceWords,documentId,_csrf"
+            hx-vals='{
+                "targetWord": "${processedWord}",
+                "familiarity": "${level.getValue().name()}",
+                "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
+                "targetLanguage": "${attribute.translation().targetLanguage().name()}",
+                "documentId": "${attribute.documentId()}",
+                "selectedWordId": "${attribute.selectedWordId()}",
+                "isPhrase": "${attribute.isPhrase()}",
+                "_csrf": "${baseAttribute._csrf().getToken()}"
+            }'
+            hx-target="closest #translation-form-container-${attribute.selectedWordId()}"
+            hx-swap="innerHTML">
+                @if(attribute.translation().sourceWords().isEmpty())
+                    <input type="hidden" name="sourceWords" value="">
+                @endif
                 @for(var word : attribute.translation().sourceWords())
                     <input type="hidden" name="sourceWords" value="${word}">
                 @endfor

@@ -14,7 +14,6 @@ import lule.dictionary.translations.data.attribute.WordCardAttribute;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.request.*;
-import lule.dictionary.translations.service.exception.InvalidInputException;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.repository.TranslationRepository;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
@@ -47,20 +46,29 @@ public class TranslationService {
     private final SessionHelper sessionHelper;
 
     @Transactional
-    public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request, @NonNull Authentication authentication) {
+    public TranslationAttribute createTranslation(@NonNull AddTranslationRequest request,
+                                                  @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Language uiLanguage = principal.userInterfaceLanguage();
         try {
-            String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
             String sanitizedSourceWord = request.sourceWords().stream()
                     .findFirst()
                     .map(String::trim)
                     .map(patternService::removeSpecialCharacters)
                     .orElse("");
             validator.validate(List.of(
-                    Constraint.define("targetWord", sanitizedTargetWord::isBlank, "blank"),
-                    Constraint.define("targetWord", () -> sanitizedTargetWord.length() > 150, "too long"),
-                    Constraint.define("sourceWord", () -> sanitizedSourceWord.length() > 150, "too long"),
-                    Constraint.define("sourceWord", sanitizedSourceWord::isBlank, "blank")
+                    Constraint.define("sourceWord", () -> sanitizedSourceWord.length() > 150, switch(uiLanguage) {
+                        case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                        case EN -> "Source word cannot be longer than 150 characters";
+                        case IT -> "La parola sorgente non può superare i 150 caratteri";
+                        case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                    }),
+                    Constraint.define("sourceWord", sanitizedSourceWord::isBlank, switch(uiLanguage) {
+                        case PL -> "Słowo źródłowe nie może być puste";
+                        case EN -> "Source word cannot be empty";
+                        case IT -> "La parola sorgente non può essere vuota";
+                        case NO -> "Kildeordet kan ikke være tomt";
+                    })
             ));
             Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords())
@@ -82,7 +90,7 @@ public class TranslationService {
                             .limit(3)
                             .toList()))
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(request.familiarity()))
-                    .familiarityLevels(familiarityService.getFamiliarityTable())
+                    .familiarityLevels(familiarityService.getFamiliarityMap())
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
                     .localization(translationLocalization.get(principal.userInterfaceLanguage()))
@@ -90,9 +98,17 @@ public class TranslationService {
         } catch (ValidationException e) {
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .selectedWordId(request.selectedWordId())
-                    .translation(null)
+                    .translation(Translation.builder()
+                            .sourceWords(List.of())
+                            .targetWord(request.targetWord())
+                            .familiarity(request.familiarity())
+                            .sourceLanguage(request.sourceLanguage())
+                            .targetLanguage(request.targetLanguage())
+                            .owner(principal.username())
+                            .isPhrase(request.isPhrase())
+                            .build())
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(request.familiarity()))
-                    .familiarityLevels(familiarityService.getFamiliarityTable())
+                    .familiarityLevels(familiarityService.getFamiliarityMap())
                     .translationId(-1)
                     .documentId(request.documentId())
                     .isPhrase(request.isPhrase())
@@ -103,7 +119,8 @@ public class TranslationService {
     }
 
     @Transactional
-    public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request, Authentication authentication) {
+    public TranslationAttribute findByTargetWord(@NonNull FindByTargetWordRequest request,
+                                                 @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
         validator.validate(List.of(
@@ -119,7 +136,7 @@ public class TranslationService {
                                 .limit(3)
                                 .toList()))
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
-                        .familiarityLevels(familiarityService.getFamiliarityTable())
+                        .familiarityLevels(familiarityService.getFamiliarityMap())
                         .translationId(-1)
                         .documentId(request.documentId())
                         .isPhrase(request.isPhrase())
@@ -127,16 +144,16 @@ public class TranslationService {
                         .build())
                 .orElseGet(() ->
                         Stream.of(
-                            translationRepository.findMostFrequentSourceWords(request.targetWord(), 3),
-                            translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), request.targetWord())
+                                translationRepository.findMostFrequentSourceWords(request.targetWord(), 3),
+                                translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), request.targetWord())
                         )
-                        .map(sourceWords -> sourceWords.stream()
+                        .map(fetchedSourceWords -> fetchedSourceWords.stream()
                                 .filter(word -> !word.isBlank())
                                 .distinct()
                                 .limit(3)
                                 .toList())
-                        .map(sourceWords -> Translation.builder()
-                                .sourceWords(sourceWords)
+                        .map(fetchedSourceWords -> Translation.builder()
+                                .sourceWords(fetchedSourceWords)
                                 .targetWord(request.targetWord())
                                 .familiarity(Familiarity.UNKNOWN)
                                 .sourceLanguage(principal.sourceLanguage())
@@ -148,7 +165,7 @@ public class TranslationService {
                                 .selectedWordId(request.selectedWordId())
                                 .translation(translation)
                                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
-                                .familiarityLevels(familiarityService.getFamiliarityTable())
+                                .familiarityLevels(familiarityService.getFamiliarityMap())
                                 .translationId(-1)
                                 .documentId(request.documentId())
                                 .isPhrase(request.isPhrase())
@@ -159,7 +176,8 @@ public class TranslationService {
     }
 
     @Transactional
-    public TranslationAttribute updateFamiliarity(UpdateTranslationFamiliarityRequest request, Authentication authentication) {
+    public TranslationAttribute updateFamiliarity(@NonNull UpdateTranslationFamiliarityRequest request,
+                                                  @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Translation translation = translationRepository.updateFamiliarity(request.familiarity(), request.targetWord(), principal.username())
                 .orElseThrow(() -> new RuntimeException("Failed to update familiarity for " + request.targetWord()));
@@ -171,7 +189,7 @@ public class TranslationService {
                         .limit(3)
                         .toList()))
                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
-                .familiarityLevels(familiarityService.getFamiliarityTable())
+                .familiarityLevels(familiarityService.getFamiliarityMap())
                 .translationId(-1)
                 .documentId(-1)
                 .isPhrase(request.isPhrase())
@@ -180,20 +198,29 @@ public class TranslationService {
     }
 
     @Transactional
-    public TranslationAttribute updateSourceWords(UpdateSourceWordsRequest request, HttpSession session, Authentication authentication) throws InvalidInputException {
+    public TranslationAttribute updateSourceWords(@NonNull UpdateSourceWordsRequest request,
+                                                  @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Language uiLanguage = principal.userInterfaceLanguage();
         try {
-            String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
             String sanitizedSourceWord = request.sourceWords().stream()
                     .findFirst()
                     .map(String::trim)
                     .map(patternService::removeSpecialCharacters)
                     .orElse("");
             validator.validate(List.of(
-                    Constraint.define("targetWord", sanitizedTargetWord::isBlank, "blank"),
-                    Constraint.define("targetWord", () -> sanitizedTargetWord.length() > 150, "too long"),
-                    Constraint.define("sourceWord", () -> sanitizedSourceWord.length() > 150, "too long"),
-                    Constraint.define("sourceWord", sanitizedSourceWord::isBlank, "blank")
+                    Constraint.define("sourceWord", () -> sanitizedSourceWord.length() > 150, switch(uiLanguage) {
+                        case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                        case EN -> "Source word cannot be longer than 150 characters";
+                        case IT -> "La parola sorgente non può superare i 150 caratteri";
+                        case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                    }),
+                    Constraint.define("sourceWord", sanitizedSourceWord::isBlank, switch(uiLanguage) {
+                        case PL -> "Słowo źródłowe nie może być puste";
+                        case EN -> "Source word cannot be empty";
+                        case IT -> "La parola sorgente non può essere vuota";
+                        case NO -> "Kildeordet kan ikke være tomt";
+                    })
             ));
             return translationRepository.updateSourceWords(request.sourceWords(), request.targetWord(), principal.username())
                     .map(translation -> TranslationAttribute.builder()
@@ -206,11 +233,11 @@ public class TranslationService {
                                 .limit(3)
                                 .toList()))
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
-                        .familiarityLevels(familiarityService.getFamiliarityTable())
+                        .familiarityLevels(familiarityService.getFamiliarityMap())
                         .isPhrase(request.isPhrase())
                         .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                     .build())
-                    .orElseThrow(RuntimeException::new);
+                    .orElseThrow();
         } catch (ValidationException e) {
             Translation translation = Translation.builder()
                     .sourceWords(request.sourceWords().stream()
@@ -231,10 +258,10 @@ public class TranslationService {
                     .translation(translation.withSourceWords(translation.sourceWords().stream()
                             .filter(word -> !word.isBlank())
                             .distinct()
-                            .limit(3)
+                            .limit(  3)
                             .toList()))
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
-                    .familiarityLevels(familiarityService.getFamiliarityTable())
+                    .familiarityLevels(familiarityService.getFamiliarityMap())
                     .isPhrase(request.isPhrase())
                     .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                     .build();
@@ -245,13 +272,21 @@ public class TranslationService {
     @Transactional
     public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request, HttpSession session, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
+        Language uiLanguage = principal.userInterfaceLanguage();
         String sanitizedSourceWord = patternService.removeSpecialCharacters(request.sourceWord()).trim();
         validator.validate(List.of(
-                Constraint.define("targetWord", sanitizedTargetWord::isBlank, "blank"),
-                Constraint.define("targetWord", () -> sanitizedTargetWord.length() > 150, "too long"),
-                Constraint.define("sourceWord", () -> sanitizedSourceWord.length() > 150, "too long"),
-                Constraint.define("sourceWord", sanitizedSourceWord::isBlank, "blank")
+                Constraint.define("sourceWord", () -> sanitizedSourceWord.length() > 150, switch(uiLanguage) {
+                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.define("sourceWord", sanitizedSourceWord::isBlank, switch(uiLanguage) {
+                    case PL -> "Słowo źródłowe nie może być puste";
+                    case EN -> "Source word cannot be empty";
+                    case IT -> "La parola sorgente non può essere vuota";
+                    case NO -> "Kildeordet kan ikke være tomt";
+                })
         ));
         return translationRepository.deleteSourceWord(request.sourceWord(), request.targetWord(), principal.username())
                 .map(translation -> TranslationAttribute.builder()
@@ -264,7 +299,7 @@ public class TranslationService {
                                 .limit(3)
                                 .toList()))
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
-                        .familiarityLevels(familiarityService.getFamiliarityTable())
+                        .familiarityLevels(familiarityService.getFamiliarityMap())
                         .isPhrase(request.isPhrase())
                         .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                         .build())
@@ -316,7 +351,7 @@ public class TranslationService {
                         .build())
                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
                 .isPhrase(request.isPhrase())
-                .familiarityLevels(familiarityService.getFamiliarityTable())
+                .familiarityLevels(familiarityService.getFamiliarityMap())
                 .localization(translationLocalization.get(principal.userInterfaceLanguage()))
                 .build();
     }

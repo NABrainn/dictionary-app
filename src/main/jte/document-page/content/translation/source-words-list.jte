@@ -1,4 +1,5 @@
 @import java.util.List
+@import java.util.Map
 
 @param boolean isUpdateForm
 @param List<String> sourceWords
@@ -21,8 +22,9 @@
                 hx-delete="/translations/sourceWords/delete"
                 hx-target="#translation-form-container-${selectedWordId}"
                 hx-swap="innerHTML"
-                hx-params="sourceWord,selectedWordId,_csrf"
+                hx-params="sourceWord,targetWord,selectedWordId,_csrf"
                 hx-vals='{
+                    "targetWord": "${targetWord}",
                     "selectedWordId": "${selectedWordId}",
                     "sourceWord": "${word}",
                     "_csrf": "${_csrf}"

@@ -3,7 +3,7 @@
 @import java.util.Map
 
 @param TranslationAttribute attribute
-@param Map<TranslationLocalizationKey, String> translationLocalization
+@param Map<String, String> errors
 @param String _csrf
 
 <div id="source-words-list">
@@ -17,8 +17,9 @@
 <div class="flex flex-col gap-2">
     <div id="source-word-form" class="flex">
         @template.document-page.content.translation.update.update-source-words-form(
-        placeholderText = translationLocalization.get(TranslationLocalizationKey.ADD_TRANSLATION),
+        placeholderText = attribute.localization().get(TranslationLocalizationKey.ADD_TRANSLATION),
         translationAttribute = attribute,
+        errors = errors,
         _csrf = _csrf)
     </div>
 </div>
