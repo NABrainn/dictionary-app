@@ -1,49 +1,19 @@
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
-@import lule.dictionary.translations.data.Familiarity
-@import lule.dictionary.translations.data.attribute.TranslationAttribute
-@import java.util.List
+@import lule.dictionary.translations.data.TranslationLocalizationKey
+@import lule.dictionary.translations.data.attribute.PhraseAttribute
 @import java.util.Map
 
-@param BaseAttribute baseAttribute 
-@param int selectableId
-@param int documentId
-@param int phraseLength
-@param List<String> familiarities
-@param List<String> isSavedList
-@param TranslationAttribute attribute
+@param BaseAttribute baseAttribute
+@param PhraseAttribute attribute
+@param Map<TranslationLocalizationKey, String> messages
 @param Map<String, String> errors
-
-!{var cleanWordPattern = java.util.regex.Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
-!{String[] unprocessedPhraseText = attribute.translation().targetWord().split(" ");}
-!{String[] processedPhraseText = cleanWordPattern
-    .matcher(attribute.translation().targetWord())
-    .replaceAll("")
-    .toLowerCase()
-    .split(" ");}
-!{List<Familiarity> phraseWordFamiliarityList = familiarities.stream()
-    .map(String::toUpperCase)
-    .map(familiarity -> switch (familiarity) {
-        case "UNKNOWN" -> Familiarity.UNKNOWN;
-        case "RECOGNIZED" -> Familiarity.RECOGNIZED;
-        case "FAMILIAR" -> Familiarity.FAMILIAR;
-        case "KNOWN" -> Familiarity.KNOWN;
-        default -> Familiarity.IGNORED;
-    })
-    .toList();}
-!{List<Boolean> phraseWordIsSavedList = isSavedList.stream()
-    .map(bool -> switch (bool) {
-        case "true" -> Boolean.TRUE;
-        case "false" -> Boolean.FALSE;
-        default -> throw new RuntimeException("not implemented");
-    })
-    .toList();}
 
 <div
 class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary bg-tertiary text-accent"
-id="phrase-${selectableId}"
+id="phrase-${attribute.id()}"
 
-data-id="${selectableId}"
-data-value="${String.join(" ", processedPhraseText)}"
+data-id="${attribute.id()}"
+data-value="${attribute.phraseAttribute().translation().targetWord().toLowerCase()}"
 data-familiarity="unknown"
 
 data-is-phrase="true"
@@ -53,12 +23,12 @@ data-is-selected="true"
 
 hx-params="documentId,targetWord,selectedWordId,isPhrase,isPersisted"
 hx-get="/translations/find"
-hx-target="#translation-form-container-${selectableId}"
+hx-target="#translation-form-container-${attribute.id()}"
 hx-swap="innerHTML"
 hx-vals='{
-    "documentId": "${documentId}",
-    "targetWord": "${String.join(" ", processedPhraseText)}",
-    "selectedWordId": "${selectableId}",
+    "documentId": "${attribute.documentId()}",
+    "targetWord": "${attribute.phraseAttribute().translation().targetWord()}",
+    "selectedWordId": "${attribute.id()}",
     "isPhrase": "true",
     "isPersisted": "true"
 }'
@@ -71,7 +41,7 @@ documentPage.cleanupSelectedPhrase()
 //handle selection
 util.findAllByData({ key: 'is-phrase', value: 'true' })
 .filter(node => data.get(node, 'is-selected') === 'false')
-.filter(node => data.get(node, 'id') === '${selectableId}')
+.filter(node => data.get(node, 'id') === '${attribute.id()}')
 .forEach(node => {
     data.set(node, { key: 'is-selected', value: 'true' })
     util.replaceClasses(node, {
@@ -94,23 +64,24 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
     onclick="event.stopPropagation()"
     class="
     cursor-default z-2 absolute inline left-2 top-10"
-    id="translation-form-container-${selectableId}"
+    id="translation-form-container-${attribute.id()}"
 
-    data-id="${selectableId}"
+    data-id="${attribute.id()}"
     data-is-translation-form-container="true">
         @template.translation.add-translation-form(
-        attribute = attribute,
+        attribute = attribute.phraseAttribute(),
         baseAttribute = baseAttribute,
+        messages = messages,
         errors = errors)
     </div>
-    @for(int wordId = selectableId, phraseWordId = 0; wordId < selectableId + phraseLength; wordId++, phraseWordId++)
+    @for(int wordId = 0; wordId < attribute.phrasePartsAttribute().translations().size(); wordId++)
         @template.document.word(
-        wordId = wordId,
-        documentId = documentId,
-        word = unprocessedPhraseText[phraseWordId],
-        processedWord = processedPhraseText[phraseWordId],
-        familiarity = phraseWordFamiliarityList.get(phraseWordId),
-        isPersisted = phraseWordIsSavedList.get(phraseWordId),
+        wordId = attribute.phrasePartsAttribute().ids().get(wordId),
+        documentId = attribute.documentId(),
+        word = attribute.phrasePartsAttribute().translations().get(wordId).unprocessedTargetWord(),
+        processedWord = attribute.phrasePartsAttribute().translations().get(wordId).targetWord(),
+        familiarity = attribute.phrasePartsAttribute().translations().get(wordId).familiarity(),
+        isPersisted = attribute.phrasePartsAttribute().isPersisted().get(wordId),
         isWrapped = true)
     @endfor
 </div>

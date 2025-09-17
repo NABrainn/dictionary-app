@@ -34,6 +34,7 @@ public class TranslationRepository {
             .targetLanguage(Language.valueOf(rs.getString("target_lang")))
             .owner(rs.getString("translation_owner"))
             .isPhrase(rs.getBoolean("is_phrase"))
+            .unprocessedTargetWord("")
             .build();
     private final RowMapper<String> sourceWordsMapper = (rs, rowNum) -> rs.getString("word");
     private final RowMapper<Integer> translationIdMapper = (rs, rowNum) -> rs.getInt("translations_id");

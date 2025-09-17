@@ -10,15 +10,12 @@ import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.TranslationFormType;
 import lule.dictionary.translations.data.TranslationLocalizationKey;
-import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
-import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
-import lule.dictionary.translations.data.attribute.WordCardAttribute;
+import lule.dictionary.translations.data.attribute.*;
 import lule.dictionary.translations.data.request.GetRandomTranslationsRequest;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.repository.TranslationRepository;
-import lule.dictionary.translations.data.attribute.TranslationAttribute;
 import lule.dictionary.translations.data.exception.TranslationServiceException;
 import lule.dictionary.translations.data.exception.TranslationsNotFoundException;
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
@@ -32,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Service
@@ -80,6 +78,7 @@ public class TranslationService {
                     .targetLanguage(request.targetLanguage())
                     .owner(principal.getUsername())
                     .isPhrase(request.isPhrase())
+                    .unprocessedTargetWord("")
                     .build();
             int translationId = translationRepository.addTranslation(translation, request.documentId())
                     .orElseThrow();
@@ -107,6 +106,7 @@ public class TranslationService {
                             .targetLanguage(request.targetLanguage())
                             .owner(principal.username())
                             .isPhrase(request.isPhrase())
+                            .unprocessedTargetWord("")
                             .build())
                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(request.familiarity()))
                     .familiarityLevels(familiarityService.getFamiliarityMap())
@@ -119,10 +119,12 @@ public class TranslationService {
     }
 
     @Transactional
-    public TranslationAttribute findByTargetWord(@NonNull FindTranslationRequest request,
+    public TranslationAttribute findByTargetWord(@NonNull FindTranslationFormRequest request,
                                                  @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord()).trim();
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord())
+                .trim()
+                .toLowerCase();
         validator.validate(List.of(
                 Constraint.define("targetWord", sanitizedTargetWord::isBlank, "blank"),
                 Constraint.define("targetWord", () -> sanitizedTargetWord.length() > 150, "too long")
@@ -160,6 +162,7 @@ public class TranslationService {
                                 .targetLanguage(principal.targetLanguage())
                                 .owner(principal.username())
                                 .isPhrase(request.isPhrase())
+                                .unprocessedTargetWord("")
                                 .build())
                         .map(translation -> TranslationAttribute.builder()
                                 .selectedWordId(request.selectedWordId())
@@ -248,6 +251,7 @@ public class TranslationService {
                     .targetLanguage(principal.targetLanguage())
                     .owner(principal.username())
                     .isPhrase(request.isPhrase())
+                    .unprocessedTargetWord("")
                     .build();
             TranslationAttribute translationAttribute = TranslationAttribute.builder()
                     .documentId(-1)
@@ -323,7 +327,7 @@ public class TranslationService {
         return translationRepository.extractPhrases(request.content(), request.owner());
     }
 
-    public TranslationAttribute translate(CreateTranslationRequest request, @NonNull Authentication authentication) {
+    public TranslationAttribute translate(CreateTranslationFormRequest request, @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(request.targetWord()).toLowerCase(), 3);
         List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), request.targetWord());
@@ -344,6 +348,7 @@ public class TranslationService {
                         .targetLanguage(principal.targetLanguage())
                         .owner(principal.username())
                         .isPhrase(request.isPhrase())
+                        .unprocessedTargetWord("")
                         .build())
                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
                 .isPhrase(request.isPhrase())
@@ -404,15 +409,81 @@ public class TranslationService {
         return WordCardAttribute.of(request.sourceWord(), request.targetWord());
     }
 
-    public TranslationAttribute findOrCreateTranslation(FindOrCreateTranslationRequest request, Authentication authentication) {
+    public TranslationAttribute findOrCreateTranslation(GetTranslationFormRequest request, Authentication authentication) {
         return switch (request) {
-            case CreateTranslationRequest createTranslationRequest -> translate(createTranslationRequest, authentication);
-            case FindTranslationRequest findTranslationRequest -> findByTargetWord(findTranslationRequest, authentication);
+            case CreateTranslationFormRequest createTranslationRequest -> translate(createTranslationRequest, authentication);
+            case FindTranslationFormRequest findTranslationRequest -> findByTargetWord(findTranslationRequest, authentication);
         };
     }
 
     public Map<TranslationLocalizationKey, String> getTranslationFormMessages(Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         return translationLocalization.translationFormMessages(principal.userInterfaceLanguage());
+    }
+
+    public PhraseAttribute createPhraseAttribute(CreatePhraseAttributeRequest request, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(String.join(" ", request.unprocessedTargetWords().stream()
+                .map(patternService::removeSpecialCharacters)
+                .toList()))
+                .toLowerCase(), 3);
+        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), String.join(" ", request.unprocessedTargetWords()));
+        List<String> sourceWords = Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
+                .filter(word -> !word.isBlank())
+                .distinct()
+                .limit(3)
+                .toList();
+        List<Translation> phraseParts = IntStream.range(0, request.ids().size())
+                .mapToObj(id -> Translation.builder()
+                        .sourceWords(List.of())
+                        .targetWord(patternService.removeSpecialCharacters(request.unprocessedTargetWords().get(id)))
+                        .unprocessedTargetWord(request.unprocessedTargetWords().get(id))
+                        .familiarity(switch (request.familiarities().get(id).toUpperCase()) {
+                            case "UNKNOWN" -> Familiarity.UNKNOWN;
+                            case "RECOGNIZED" -> Familiarity.RECOGNIZED;
+                            case "FAMILIAR" -> Familiarity.FAMILIAR;
+                            case "KNOWN" -> Familiarity.KNOWN;
+                            default -> Familiarity.IGNORED;
+                        })
+                        .sourceLanguage(principal.sourceLanguage())
+                        .targetLanguage(principal.targetLanguage())
+                        .owner(principal.username())
+                        .isPhrase(false)
+                        .build())
+                .toList();
+        Translation phrase = Translation.builder()
+                .sourceWords(sourceWords)
+                .targetWord(String.join(" ", request.unprocessedTargetWords().stream()
+                        .map(patternService::removeSpecialCharacters)
+                        .toList()))
+                .unprocessedTargetWord(String.join(" ", request.unprocessedTargetWords()))
+                .familiarity(Familiarity.UNKNOWN)
+                .sourceLanguage(principal.sourceLanguage())
+                .targetLanguage(principal.targetLanguage())
+                .owner(principal.username())
+                .isPhrase(true)
+                .build();
+        TranslationAttribute attribute = TranslationAttribute.builder()
+                .documentId(request.documentId())
+                .selectedWordId(request.id())
+                .translationId(-1)
+                .translation(phrase)
+                .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
+                .isPhrase(true)
+                .familiarityLevels(familiarityService.getFamiliarityMap())
+                .type(TranslationFormType.CREATE)
+                .build();
+        return PhraseAttribute.builder()
+                .phrasePartsAttribute(PhrasePartsAttribute.of(phraseParts, request.ids(), request.isPersistedList().stream()
+                        .map(isPersisted -> switch (isPersisted){
+                            case "true" -> Boolean.TRUE;
+                            case "false" -> Boolean.FALSE;
+                            default -> throw new RuntimeException("not implemented");
+                        })
+                        .toList()))
+                .phraseAttribute(attribute)
+                .id(request.id())
+                .documentId(request.documentId())
+                .build();
     }
 }

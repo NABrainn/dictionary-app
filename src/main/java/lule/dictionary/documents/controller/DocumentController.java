@@ -29,11 +29,11 @@ public class DocumentController {
     private final DocumentService documentService;
 
     @GetMapping({"", "/"})
-    public String DocumentListPage(Authentication authentication,
+    public String documentListPage(Authentication authentication,
                                    Model model) {
         DocumentListAttribute attribute = documentService.findMany(authentication);
         model.addAttribute("attribute", attribute);
-        return "document-list-page/documents";
+        return "document/documents";
     }
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
@@ -45,7 +45,7 @@ public class DocumentController {
             DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
             model.addAttribute("attribute", documentAttribute);
             model.addAttribute("isProfileOpen", false);
-            return "document-page/base-page";
+            return "document/base-page";
         }
         catch (DocumentNotFoundException e) {
             log.warn("Document not found: {}", e.getMessage());
@@ -62,7 +62,7 @@ public class DocumentController {
             DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
             model.addAttribute("attribute", documentAttribute);
             model.addAttribute("isProfileOpen", false);
-            return "document-page/content/content";
+            return "document/content";
         }
         catch (InvalidUrlException | DocumentNotFoundException e) {
             log.warn("Invalid url: {}", e.getMessage());
@@ -77,7 +77,7 @@ public class DocumentController {
         DocumentFormAttribute attribute = documentService.getDocumentForm(strategy, authentication);
         model.addAttribute("violation", Map.of());
         model.addAttribute("attribute", attribute);
-        return "create-document-form/base-form";
+        return "document/base-form";
     }
 
     @PostMapping({"/new", "/new/"})
@@ -100,7 +100,7 @@ public class DocumentController {
         catch (DocumentServiceException e) {
             model.addAttribute("violation", e.getViolation());
             model.addAttribute("attribute", e.getAttribute());
-            return "create-document-form/base-form";
+            return "document/base-form";
         }
     }
 
@@ -109,7 +109,7 @@ public class DocumentController {
                           Authentication authentication) {
         Map<DocumentLocalizationKey, String> localization = documentService.getDocumentFormLocalization(authentication);
         model.addAttribute("urlPlaceholderText", localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
-        return "create-document-form/url-form";
+        return "document/url-form";
     }
 
     @GetMapping({"/textarea-form", "/textarea-form/"})
@@ -117,6 +117,6 @@ public class DocumentController {
                               Authentication authentication) {
         Map<DocumentLocalizationKey, String> localization = documentService.getDocumentFormLocalization(authentication);
         model.addAttribute("contentPlaceholderText", localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
-        return "create-document-form/content-form";
+        return "document/content-form";
     }
 }

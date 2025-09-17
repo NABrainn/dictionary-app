@@ -6,9 +6,10 @@ import lule.dictionary.language.service.Language;
 
 import java.util.List;
 
-@Builder(toBuilder = true)
+@Builder
 public record Translation(@NonNull List<String> sourceWords,
                           @NonNull String targetWord,
+                          @NonNull String unprocessedTargetWord,
                           @NonNull Familiarity familiarity,
                           @NonNull Language sourceLanguage,
                           @NonNull Language targetLanguage,
@@ -18,6 +19,7 @@ public record Translation(@NonNull List<String> sourceWords,
                 return Translation.builder()
                         .sourceWords(sourceWords)
                         .targetWord(targetWord)
+                        .unprocessedTargetWord(unprocessedTargetWord)
                         .familiarity(familiarity)
                         .sourceLanguage(sourceLanguage)
                         .targetLanguage(targetLanguage)

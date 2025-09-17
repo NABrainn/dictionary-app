@@ -1,10 +1,10 @@
 package lule.dictionary.translations.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.translations.data.TranslationLocalizationKey;
+import lule.dictionary.translations.data.attribute.PhraseAttribute;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
@@ -35,14 +35,14 @@ public class TranslationController {
                                        @RequestParam("selectedWordId") int selectedWordId,
                                        @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                        @RequestParam("isPersisted") boolean isPersisted) {
-        FindOrCreateTranslationRequest request = isPersisted ?
-                FindTranslationRequest.builder()
+        GetTranslationFormRequest request = isPersisted ?
+                FindTranslationFormRequest.builder()
                         .documentId(documentId)
                         .selectedWordId(selectedWordId)
                         .isPhrase(isPhrase)
                         .targetWord(targetWord)
                         .build() :
-                CreateTranslationRequest.builder()
+                CreateTranslationFormRequest.builder()
                         .documentId(documentId)
                         .selectedWordId(selectedWordId)
                         .isPhrase(isPhrase)
@@ -50,12 +50,15 @@ public class TranslationController {
                         .build();
         TranslationAttribute attribute = translationService.findOrCreateTranslation(request, authentication);
         Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-        model.addAttribute("attribute", attribute);
-        model.addAttribute("messages", messages);
-        model.addAttribute("errors", Map.of());
+        Map<String, Object> attributes = Map.of(
+                "attribute", attribute,
+                "messages", messages,
+                "errors", Map.of()
+        );
+        model.addAllAttributes(attributes);
         return switch (attribute.type()) {
-            case CREATE -> "document-page/content/translation/add/add-translation-form";
-            case FIND -> "document-page/content/translation/update/update-translation-form";
+            case CREATE -> "translation/add-translation-form";
+            case FIND -> "translation/update-translation-form";
         };
     }
 
@@ -63,27 +66,28 @@ public class TranslationController {
     public String createPhrase(Model model,
                                Authentication authentication,
                                @RequestParam("selectableId") int selectableId,
-                               @RequestParam("phraseText") String phraseText,
                                @RequestParam("documentId") int documentId,
-                               @RequestParam("phraseLength") int phraseLength,
+                               @RequestParam("ids") List<Integer> ids,
+                               @RequestParam("targetWords") List<String> targetWords,
                                @RequestParam("familiarities") List<String> familiarities,
-                               @RequestParam("isSavedList") List<String> isSavedList) {
-        CreateTranslationRequest request = CreateTranslationRequest.builder()
-                .targetWord(phraseText)
+                               @RequestParam("isPersistedList") List<String> isPersistedList) {
+        CreatePhraseAttributeRequest request = CreatePhraseAttributeRequest.builder()
+                .ids(ids)
+                .unprocessedTargetWords(targetWords)
+                .familiarities(familiarities)
+                .isPersistedList(isPersistedList)
+                .id(selectableId)
                 .documentId(documentId)
-                .selectedWordId(selectableId)
-                .isPhrase(true)
                 .build();
-        TranslationAttribute attribute = translationService.translate(request, authentication);
-        model.addAttribute("selectableId", selectableId);
-        model.addAttribute("phraseText", phraseText);
-        model.addAttribute("documentId", documentId);
-        model.addAttribute("phraseLength", phraseLength);
-        model.addAttribute("familiarities", familiarities);
-        model.addAttribute("isSavedList", isSavedList);
-        model.addAttribute("attribute", attribute);
-        model.addAttribute("errors", Map.of());
-        return "document-page/content/new-phrase";
+        PhraseAttribute attribute = translationService.createPhraseAttribute(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        Map<String, Object> attributes = Map.of(
+                "attribute", attribute,
+                "messages", messages,
+                "errors", Map.of()
+        );
+        model.addAllAttributes(attributes);
+        return "translation/new-phrase";
     }
 
     @PostMapping({"/new", "/new/"})
@@ -110,14 +114,22 @@ public class TranslationController {
                     .build();
             TranslationAttribute attribute = translationService.createTranslation(request, authentication);
             Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-            model.addAttribute("attribute", attribute);
-            model.addAttribute("messages", messages);
-            model.addAttribute("errors", Map.of());
-            return "document-page/content/translation/update/update-translation-form";
+            Map<String, Object> attributes = Map.of(
+                    "attribute", attribute,
+                    "messages", messages,
+                    "errors", Map.of()
+            );
+            model.addAllAttributes(attributes);
+            return "translation/update-translation-form";
         } catch (TranslationServiceException e) {
-            model.addAttribute("attribute", e.getAttribute());
-            model.addAttribute("errors", e.getMessages());
-            return "document-page/content/translation/add/add-translation-form";
+            Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+            Map<String, Object> attributes = Map.of(
+                    "attribute", e.getAttribute(),
+                    "messages", messages,
+                    "errors", Map.of()
+            );
+            model.addAllAttributes(attributes);
+            return "translation/add-translation-form";
         }
     }
 
@@ -140,10 +152,13 @@ public class TranslationController {
                 .build();
         TranslationAttribute attribute = translationService.updateFamiliarity(request, authentication);
         Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-        model.addAttribute("attribute", attribute);
-        model.addAttribute("messages", messages);
-        model.addAttribute("errors", Map.of());
-        return "document-page/content/translation/update/update-translation-form";
+        Map<String, Object> attributes = Map.of(
+                "attribute", attribute,
+                "messages", messages,
+                "errors", Map.of()
+        );
+        model.addAllAttributes(attributes);
+        return "translation/update-translation-form";
     }
 
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
@@ -164,16 +179,24 @@ public class TranslationController {
                     .build();
             TranslationAttribute attribute = translationService.updateSourceWords(request, authentication);
             Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-            model.addAttribute("attribute", attribute);
-            model.addAttribute("messages", messages);
-            model.addAttribute("errors", Map.of());
-            return "document-page/content/translation/update/update-translation-form";
+            Map<String, Object> attributes = Map.of(
+                    "attribute", attribute,
+                    "messages", messages,
+                    "errors", Map.of()
+            );
+            model.addAllAttributes(attributes);
+            return "translation/update-translation-form";
 
         } catch (TranslationServiceException e) {
             log.warn("TranslationServiceException: {}", e.getMessages());
-            model.addAttribute("attribute", e.getAttribute());
-            model.addAttribute("errors", e.getMessages());
-            return "document-page/content/translation/update/update-translation-form";
+            Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+            Map<String, Object> attributes = Map.of(
+                    "attribute", e.getAttribute(),
+                    "messages", messages,
+                    "errors", e.getMessages()
+            );
+            model.addAllAttributes(attributes);
+            return "translation/update-translation-form";
         }
     }
 
@@ -192,9 +215,12 @@ public class TranslationController {
                 .build();
         TranslationAttribute attribute = translationService.deleteSourceWord(request, authentication);
         Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-        model.addAttribute("attribute", attribute);
-        model.addAttribute("messages", messages);
-        model.addAttribute("errors", Map.of());
-        return "document-page/content/translation/update/update-translation-form";
+        Map<String, Object> attributes = Map.of(
+                "attribute", attribute,
+                "messages", messages,
+                "errors", Map.of()
+        );
+        model.addAllAttributes(attributes);
+        return "translation/update-translation-form";
     }
 }

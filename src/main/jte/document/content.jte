@@ -20,14 +20,14 @@ hx-trigger="swapphrase from:document"
 hx-get="/translations/create-phrase"
 hx-target="#new-phrase"
 hx-swap="outerHTML"
-hx-params="selectableId,phraseText,documentId,phraseLength,familiarities,isSavedList"
+hx-params="selectableId,targetWords,documentId,familiarities,isPersistedList,ids"
 hx-vals='js:{
     selectableId: data.get(htmx.find("#new-phrase"), "id"),
-    phraseText: data.get(htmx.find("#new-phrase"), "value"),
     documentId: ${documentId},
-    phraseLength: data.get(htmx.find("#new-phrase"), "length"),
     familiarities: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "familiarity")),
-    isSavedList: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "is-saved") ?? "false"),
+    isPersistedList: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "is-saved") ?? "false"),
+    ids: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "id")),
+    targetWords: data.get(htmx.find("#new-phrase"), "value")?.split(" ") ?? []
 }'>
     <div
     id="content-container"

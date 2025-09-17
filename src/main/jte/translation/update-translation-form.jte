@@ -8,8 +8,6 @@
 @param Map<String, String> errors
 @param Map<TranslationLocalizationKey, String> messages
 
-!{var processedWord = attribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
-
 <div
 onclick="event.stopPropagation()"
 class="
@@ -118,7 +116,7 @@ id="translation-form">
             hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,_csrf"
             hx-vals='
             {
-                "targetWord": "${attribute.translation().targetWord().replaceAll("\\p{P}", "").toLowerCase()}",
+                "targetWord": "${attribute.translation().targetWord().toLowerCase()}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
@@ -139,10 +137,9 @@ id="translation-form">
                 ['known', ['bg-primary', 'text-neutral']],
                 ['ignored', ['bg-primary', 'text-neutral']]
             ])
-
-            if('${processedWord}'.split(' ').length > 1) {
+            if('${attribute.translation().targetWord()}'.split(' ').length > 1) {
                 util.findAllByData({ key: 'is-phrase', value: 'true' })
-                .filter(phrase => data.get(phrase, 'value') === '${processedWord}')
+                .filter(phrase => data.get(phrase, 'value') === '${attribute.translation().targetWord()}')
                 .filter(phrase => data.get(phrase, 'is-saved') === 'true')
                 .forEach(savedPhrase => {
                     data.set(savedPhrase, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
@@ -183,7 +180,7 @@ id="translation-form">
             }
             else {
                 util.findAllByData({ key: 'is-word', value: 'true' })
-                .filter(word => data.get(word, 'value') === '${processedWord}')
+                .filter(word => data.get(word, 'value') === '${attribute.translation().targetWord()}')
                 .forEach(word => {
                     data.set(word, { key: 'familiarity', value: '${level.getValue().name().toLowerCase()}' })
                     if(data.get(word, 'is-selected') === 'true') {

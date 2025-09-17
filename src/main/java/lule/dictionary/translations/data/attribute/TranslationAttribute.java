@@ -10,24 +10,14 @@ import java.util.Collections;
 import java.util.Map;
 
 @Builder
-public record TranslationAttribute(int documentId,
+public record TranslationAttribute(@NonNull Map<Integer, Familiarity> familiarityLevels,
+                                   @NonNull Translation translation,
+                                   int documentId,
                                    int selectedWordId,
                                    int translationId,
                                    int currentFamiliarity,
                                    boolean isPhrase,
-                                   @NonNull Map<Integer, Familiarity> familiarityLevels,
-                                   @NonNull Translation translation,
                                    TranslationFormType type) {
-    public static final int UNINITIALIZED_ID = -1;
-
-    public TranslationAttribute {
-        if (translationId == 0) {
-            translationId = UNINITIALIZED_ID;
-        }
-
-        familiarityLevels = Collections.unmodifiableMap(familiarityLevels);
-    }
-
     @Override
     public Map<Integer, Familiarity> familiarityLevels() {
         return Collections.unmodifiableMap(familiarityLevels);

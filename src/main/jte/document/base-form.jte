@@ -121,12 +121,12 @@
 
                 </div>
                 @if(attribute.submissionStrategy() instanceof ContentSubmissionStrategy content)
-                    @template.create-document-form.content-form(
+                    @template.document.content-form(
                     contentPlaceholderText = content.contentPlaceholderText(),
                     violation = violation.getOrDefault("content", ""),
                     content = content.content())
                 @elseif(attribute.submissionStrategy() instanceof UrlSubmissionStrategy url)
-                    @template.create-document-form.url-form(
+                    @template.document.url-form(
                     urlPlaceholderText = url.urlPlaceholderText(),
                     violation = violation.getOrDefault("url", ""),
                     content = url.url())
