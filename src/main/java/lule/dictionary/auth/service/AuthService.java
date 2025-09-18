@@ -55,25 +55,25 @@ public class AuthService {
         try {
             String sanitizedLogin = patternService.removeSpecialCharacters(request.login()).trim();
             validator.validate(List.of(
-                    Constraint.define("login", sanitizedLogin::isBlank, switch(uiLanguage){
+                    Constraint.of("login", sanitizedLogin::isBlank, switch(uiLanguage){
                         case PL -> "Nazwa użytkownika nie może być pusta";
                         case EN -> "Username cannot be empty";
                         case IT -> "Il nome utente non può essere vuoto";
                         case NO -> "Brukernavnet kan ikke være tomt";
                     }),
-                    Constraint.define("login", () -> sanitizedLogin.length() > 50, switch(uiLanguage){
+                    Constraint.of("login", () -> sanitizedLogin.length() > 50, switch(uiLanguage){
                         case PL -> "Nazwa użytkownika nie może być dłuższa niż 50 znaków";
                         case EN -> "Username cannot be longer than 50 characters";
                         case IT -> "Il nome utente non può essere più lungo di 50 caratteri";
                         case NO -> "Brukernavnet kan ikke være lenger enn 50 tegn";
                     }),
-                    Constraint.define("password", () -> request.password().isBlank(), switch(uiLanguage){
+                    Constraint.of("password", () -> request.password().isBlank(), switch(uiLanguage){
                         case PL -> "Hasło nie może być puste";
                         case EN -> "Password cannot be empty";
                         case IT -> "La password non può essere vuota";
                         case NO -> "Passordet kan ikke være tomt";
                     }),
-                    Constraint.define("password", () -> request.password().length() > 500, switch(uiLanguage){
+                    Constraint.of("password", () -> request.password().length() > 500, switch(uiLanguage){
                         case PL -> "Hasło nie może być dłuższe niż 500 znaków";
                         case EN -> "Password cannot be longer than 500 characters";
                         case IT -> "La password non può essere più lunga di 500 caratteri";
@@ -121,43 +121,43 @@ public class AuthService {
         try {
             String sanitizedLogin = patternService.removeSpecialCharacters(request.login()).trim();
             validator.validate(List.of(
-                    Constraint.define("login", sanitizedLogin::isBlank, switch(uiLanguage){
+                    Constraint.of("login", sanitizedLogin::isBlank, switch(uiLanguage){
                         case PL -> "Nazwa użytkownika nie może być pusta";
                         case EN -> "Username cannot be empty";
                         case IT -> "Il nome utente non può essere vuoto";
                         case NO -> "Brukernavnet kan ikke være tomt";
                     }),
-                    Constraint.define("login", () -> sanitizedLogin.length() > 50, switch(uiLanguage){
+                    Constraint.of("login", () -> sanitizedLogin.length() > 50, switch(uiLanguage){
                         case PL -> "Nazwa użytkownika nie może być dłuższa niż 50 znaków";
                         case EN -> "Username cannot be longer than 50 characters";
                         case IT -> "Il nome utente non può essere più lungo di 50 caratteri";
                         case NO -> "Brukernavnet kan ikke være lenger enn 50 tegn";
                     }),
-                    Constraint.define("email", request.email()::isBlank, switch(uiLanguage){
+                    Constraint.of("email", request.email()::isBlank, switch(uiLanguage){
                         case PL -> "Adres e-mail nie może być pusty";
                         case EN -> "Email address cannot be empty";
                         case IT -> "L'indirizzo email non può essere vuoto";
                         case NO -> "E-postadressen kan ikke være tom";
                     }),
-                    Constraint.define("email", () -> request.email().length() > 200, switch(uiLanguage){
+                    Constraint.of("email", () -> request.email().length() > 200, switch(uiLanguage){
                         case PL -> "Adres e-mail nie może być dłuższy niż 200 znaków";
                         case EN -> "Email address cannot be longer than 200 characters";
                         case IT -> "L'indirizzo email non può essere più lungo di 200 caratteri";
                         case NO -> "E-postadressen kan ikke være lenger enn 200 tegn";
                     }),
-                    Constraint.define("email", () -> !patternService.isValidEmail(request.email()), switch(uiLanguage){
+                    Constraint.of("email", () -> !patternService.isValidEmail(request.email()), switch(uiLanguage){
                         case PL -> "Nieprawidłowy format adresu e-mail";
                         case EN -> "Invalid email address format";
                         case IT -> "Formato dell'indirizzo email non valido";
                         case NO -> "Ugyldig format for e-postadresse";
                     }),
-                    Constraint.define("password", () -> request.password().isBlank(), switch(uiLanguage){
+                    Constraint.of("password", () -> request.password().isBlank(), switch(uiLanguage){
                         case PL -> "Hasło nie może być puste";
                         case EN -> "Password cannot be empty";
                         case IT -> "La password non può essere vuota";
                         case NO -> "Passordet kan ikke være tomt";
                     }),
-                    Constraint.define("password", () -> request.password().length() > 500, switch(uiLanguage){
+                    Constraint.of("password", () -> request.password().length() > 500, switch(uiLanguage){
                         case PL -> "Hasło nie może być dłuższe niż 500 znaków";
                         case EN -> "Password cannot be longer than 500 characters";
                         case IT -> "La password non può essere più lunga di 500 caratteri";
