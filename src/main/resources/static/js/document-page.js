@@ -376,6 +376,165 @@ window.documentPage = window.documentPage || {
                 })
             })
         })
+    },
+    handlePersistWord: (word, familiarity) => {
+        word = word.trim()
+        const familiarityColors = new Map([
+            ['unknown', ['bg-accent', 'text-primary']],
+            ['recognized', ['bg-accent/80', 'text-primary']],
+            ['familiar', ['bg-accent/60', 'text-primary']],
+            ['known', ['bg-primary', 'text-neutral']],
+            ['ignored', ['bg-primary', 'text-neutral']]
+        ])
+        if(word.split(' ').length > 1) {
+            util.findAllByData({ key: 'is-phrase', value: 'true' })
+            .filter(phrase => data.get(phrase, 'is-saved') === 'false')
+            .filter(phrase => data.get(phrase, 'is-selected') === 'true')
+            .forEach(selectedPhrase => {
+                data.set(selectedPhrase, { key: 'familiarity', value: familiarity })
+                data.set(selectedPhrase, { key: 'is-saved', value: 'true' })
+                util.replaceClasses(selectedPhrase, {
+                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                    toAdd: ['bg-tertiary', 'text-accent']
+                })
+                const words = Array.from(selectedPhrase.children)
+                .filter(child => data.get(child, 'is-word') === 'true')
+                words.forEach(word => word.classList.add('pointer-events-none'))
 
+                const spans = words.flatMap(word => word.firstElementChild)
+                spans.forEach(span => {
+                    util.replaceClasses(span, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'text-primary'],
+                        toAdd: ['text-accent']
+                    })
+                })
+            })
+
+            //highlight phrases matched by text
+            const matchedPhraseNodes = util.findAllByText({ text: word, nodes: util.findAllByData({ key: 'is-word-span', value: 'true' }) })
+            .map(spanNodeList => spanNodeList.map(spanNode => spanNode.parentElement))
+            .filter(wordList => wordList.every(word => data.get(word, 'is-wrapped') === 'false'))
+            matchedPhraseNodes
+            .forEach(phraseNodeList => {
+                const wrapped = util.wrap({
+                    wrapper: util.define('div', {
+                        classList: ['inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary'],
+                        data: [
+                            { key: 'id', value: data.get(phraseNodeList.at(0), 'id') },
+                            { key: 'value', value: word },
+                            { key: 'is-phrase', value: 'true' },
+                            { key: 'is-saved', value: 'true' },
+                            { key: 'is-selected', value: 'false' },
+                            { key: 'length', value: word.split(' ').length }
+                        ],
+                    }),
+                    content: phraseNodeList
+                })
+
+                util.insertBefore({
+                    insert: util.define('div', {
+                        classList: ['cursor-default', 'z-2', 'absolute', 'inline', 'left-2', 'top-10'],
+                        id: phraseNodeList.at(0).firstElementChild.id,
+                        data: [
+                            { key: 'is-translation-form-container', value: 'true' }
+                        ]
+                    }),
+                    before: wrapped.content.at(0)
+                })
+                util.replaceClasses(wrapped.wrapper, {
+                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent'],
+                    toAdd: familiarityColors.get(familiarity)
+                })
+                wrapped.content.forEach(phraseNode => {
+                    data.set(phraseNode, { key: 'is-wrapped', value: 'true' });
+                    data.set(phraseNode, { key: 'is-selectable', value: 'false' });
+                    util.replaceClasses(phraseNode, {
+                        toRemove: ['border', 'border-2', 'border-transparent'],
+                        toAdd: ['pointer-events-none', 'text-accent']
+                    })
+                    phraseNode.firstElementChild.remove()
+
+                    const spans = [...phraseNode.children]
+                    .filter(child => child instanceof HTMLSpanElement)
+
+                    spans.forEach(span => util.replaceClasses(span, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
+                        toAdd: familiarityColors.get(familiarity).at(1)
+                    }))
+                })
+                util.setHx({
+                    element: wrapped.wrapper,
+                    method: { key: 'hx-get', value: '/translations/find' },
+                    target: '#translation-form-container-' + data.get(phraseNodeList.at(0), 'id'),
+                    swap: 'innerHTML',
+                    trigger: 'click',
+                    params: 'documentId,targetWord,id,isPhrase,isPersisted',
+                    vals: {
+                        documentId: data.get(phraseNodeList.at(0), 'document-id'),
+                        targetWord: word,
+                        id: data.get(phraseNodeList.at(0), 'id'),
+                        isPhrase: true,
+                        isPersisted: true
+                    }
+                })
+
+                htmx.on(wrapped.wrapper, 'click', () => {
+                    const familiarityColors = new Map([
+                        ['unknown', ['bg-accent', 'text-primary']],
+                        ['recognized', ['bg-accent/80', 'text-primary']],
+                        ['familiar', ['bg-accent/60', 'text-primary']],
+                        ['known', ['bg-primary', 'text-neutral']],
+                        ['ignored', ['bg-primary', 'text-neutral']]
+                    ])
+
+                    //handle selection
+                    util.findAllByData({ key: 'is-phrase', value: 'true' })
+                    .filter(node => data.get(node, 'is-selected') === 'false')
+                    .filter(node => data.get(node, 'id') === data.get(phraseNodeList.at(0), 'id'))
+                    .forEach(node => {
+                        data.set(node, { key: 'is-selected', value: 'true' })
+                        util.replaceClasses(node, {
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                            toAdd: ['bg-tertiary', 'text-accent']
+                        })
+
+                        Array.from(node.children)
+                        .filter(child => data.get(child, 'is-word') === 'true')
+                        .flatMap(word => [...word.children])
+                        .filter(child => child instanceof HTMLSpanElement)
+                        .forEach(span => {
+                            util.replaceClasses(span, {
+                                toRemove: ['text-primary', 'text-accent'],
+                                toAdd: ['text-accent']
+                            })
+                        })
+                    })
+                })
+            })
+        }
+        else {
+            util.findAllByData({ key: 'is-word', value: 'true' })
+            .filter(node =>
+                data.get(node, 'value') === word
+            )
+            .forEach(word => {
+                data.set(word, { key: 'familiarity', value: familiarity })
+                data.set(word, { key: 'is-saved', value: 'true' })
+                if(data.get(word, 'is-selected') === 'true') {
+                    const selectedSpan = word.firstElementChild.nextElementSibling
+                    util.replaceClasses(selectedSpan, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: ['bg-tertiary', 'text-accent']
+                    })
+                }
+                else {
+                    const selectedSpan = word.firstElementChild.nextElementSibling
+                    util.replaceClasses(selectedSpan, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: familiarityColors.get(familiarity)
+                    })
+                }
+            })
+        }
     }
 }

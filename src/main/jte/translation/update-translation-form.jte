@@ -76,7 +76,7 @@ id="translation-form">
                         <input
                         id="input-source-word"
                         class="
-                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-throwable" : "border-primary"} rounded text-neutral text-md grow-1
+                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
                         focus:border-accent"
                         type="text"
                         placeholder=""
