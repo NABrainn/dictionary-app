@@ -199,8 +199,17 @@ if (!window.FormAdjuster) {
 }
 
 window.documentPage = window.documentPage || {
-    closeAllTranslationForms: () => util.findAllByData({ key: 'is-translation-form-container', value: 'true' }).forEach(formContainer => util.removeInnerHTML(formContainer)),
-    cleanupSelectedWord: () => {
+    debug: false,
+    closeAllTranslationForms() {
+        if(this.debug) {
+            console.log('cleaning up translation forms')
+        }
+        util.findAllByData({ key: 'is-translation-form-container', value: 'true' }).forEach(formContainer => util.removeInnerHTML(formContainer))
+    },
+    cleanupSelectedWord() {
+        if(this.debug) {
+            console.log('cleaning up selected word')
+        }
         const familiarityColors = new Map([
             ['unknown', ['bg-accent', 'text-primary']],
             ['recognized', ['bg-accent/80', 'text-primary']],
@@ -220,7 +229,10 @@ window.documentPage = window.documentPage || {
             })
         })
     },
-    cleanupSelectedPhrase: () => {
+    cleanupSelectedPhrase() {
+        if(this.debug) {
+            console.log('cleaning up selected phrase')
+        }
         const familiarityColors = new Map([
             ['unknown', ['bg-accent', 'text-primary']],
             ['recognized', ['bg-accent/80', 'text-primary']],
@@ -410,6 +422,7 @@ window.documentPage = window.documentPage || {
                 })
             })
 
+
             //highlight phrases matched by text
             const matchedPhraseNodes = util.findAllByText({ text: word, nodes: util.findAllByData({ key: 'is-word-span', value: 'true' }) })
             .map(spanNodeList => spanNodeList.map(spanNode => spanNode.parentElement))
@@ -465,7 +478,7 @@ window.documentPage = window.documentPage || {
                 util.setHx({
                     element: wrapped.wrapper,
                     method: { key: 'hx-get', value: '/translations/find' },
-                    target: '#translation-form-container-' + data.get(phraseNodeList.at(0), 'id'),
+                    target: 'closest #translation-form-container-' + data.get(phraseNodeList.at(0), 'id'),
                     swap: 'innerHTML',
                     trigger: 'click',
                     params: 'documentId,targetWord,id,isPhrase,isPersisted',
