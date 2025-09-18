@@ -8,21 +8,20 @@
 @param Map<String, String> errors
 @param Map<TranslationLocalizationKey, String> messages
 
-!{var processedWord = attribute.translation().targetWord().replaceAll("[^\\p{L}\\p{N}\\s-]", "").toLowerCase();}
-
 <div
-onclick="event.stopPropagation()"
 class="
 md:gap-0.75
-bg-tertiary flex flex-col p-3 rounded pointer-events-auto"
+bg-tertiary flex flex-col p-3 rounded pointer-events-auto animate-fade-10"
 id="translation-form">
     <div class="flex justify-end">
         <span
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer"
-        hx-on:click="documentPage.closeAllTranslationForms()">❌</span>
+        hx-on:click="
+        event.stopPropagation()
+        documentPage.closeAllTranslationForms()">❌</span>
     </div>
-    <span class="font-bold text-lg text-accent text-wrap">${processedWord}</span>
+    <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().targetWord()}</span>
     <div id="translation-manager">
         <div class="flex flex-col gap-2 text-wrap">
             @if(attribute.translation().sourceWords().isEmpty())
@@ -64,7 +63,7 @@ id="translation-form">
                 hx-swap="innerHTML"
                 hx-on::before-request="
                 if(htmx.find('#no-source-words') === null) {
-                    documentPage.handlePersistWord('${processedWord}', 'unknown')
+                    documentPage.handlePersistWord('${attribute.translation().targetWord()}', 'unknown')
                 }">
                     @for(String word : attribute.translation().sourceWords())
                         <input
@@ -97,7 +96,7 @@ id="translation-form">
             <form
             hx-on::before-request="
             if(htmx.find('#no-source-words') === null) {
-                documentPage.handlePersistWord('${processedWord}', '${level.getValue().name().toLowerCase()}')
+                documentPage.handlePersistWord('${attribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')
             }"
             class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
@@ -107,7 +106,7 @@ id="translation-form">
             hx-post="/translations/new"
             hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase,sourceWords,documentId,_csrf"
             hx-vals='{
-                "targetWord": "${processedWord}",
+                "targetWord": "${attribute.translation().targetWord()}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
