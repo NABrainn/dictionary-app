@@ -47,7 +47,7 @@ id="translation-form">
             <div id="source-word-form" class="flex">
                 <form
                 class="flex flex-col gap-2"
-                hx-params="id,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,_csrf"
+                hx-params="id,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,isPhrase,_csrf"
                 hx-vals='
                 {
                     "id": "${attribute.id()}",
@@ -56,7 +56,8 @@ id="translation-form">
                     "sourceLanguage": "${attribute.translation().sourceLanguage()}",
                     "targetLanguage": "${attribute.translation().targetLanguage()}",
                     "documentId": "${attribute.documentId()}",
-                    "_csrf": "${baseAttribute._csrf().getToken()}"
+                    "_csrf": "${baseAttribute._csrf().getToken()}",
+                    "isPhrase": "${attribute.isPhrase()}"
                 }'
                 hx-post="/translations/new"
                 hx-target="#translation-form-container-${attribute.id()}"
