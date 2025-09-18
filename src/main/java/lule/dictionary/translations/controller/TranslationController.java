@@ -3,6 +3,9 @@ package lule.dictionary.translations.controller;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.result.data.Err;
+import lule.dictionary.result.data.Ok;
+import lule.dictionary.result.data.Result;
 import lule.dictionary.translations.data.TranslationLocalizationKey;
 import lule.dictionary.translations.data.attribute.PhraseAttribute;
 import lule.dictionary.translations.data.request.*;
@@ -32,7 +35,7 @@ public class TranslationController {
                                        Authentication authentication,
                                        @RequestParam int documentId,
                                        @RequestParam String targetWord,
-                                       @RequestParam("selectedWordId") int selectedWordId,
+                                       @RequestParam("id") int selectedWordId,
                                        @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                        @RequestParam("isPersisted") boolean isPersisted) {
         GetTranslationFormRequest request = isPersisted ?
@@ -48,18 +51,21 @@ public class TranslationController {
                         .isPhrase(isPhrase)
                         .targetWord(targetWord)
                         .build();
-        TranslationAttribute attribute = translationService.findOrCreateTranslation(request, authentication);
+        Result<TranslationAttribute> result = translationService.findOrCreateTranslation(request, authentication);
         Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-        Map<String, Object> attributes = Map.of(
-                "attribute", attribute,
-                "messages", messages,
-                "errors", Map.of()
-        );
-        model.addAllAttributes(attributes);
-        return switch (attribute.type()) {
-            case CREATE -> "translation/add-translation-form";
-            case FIND -> "translation/update-translation-form";
-        };
+        if (result instanceof Ok<TranslationAttribute>(TranslationAttribute value)) {
+            Map<String, Object> attributes = Map.of(
+                    "attribute", result,
+                    "messages", messages,
+                    "errors", Map.of()
+            );
+            model.addAllAttributes(attributes);
+            return switch (value.type()) {
+                case CREATE -> "translation/add-translation-form";
+                case FIND -> "translation/update-translation-form";
+            };
+        }
+        return "throwable";
     }
 
     @GetMapping({"/create-phrase", "/create-phrase/"})
@@ -99,38 +105,43 @@ public class TranslationController {
                                  @RequestParam("sourceLanguage") Language sourceLanguage,
                                  @RequestParam("targetLanguage") Language targetLanguage,
                                  @RequestParam("documentId") int documentId,
-                                 @RequestParam("selectedWordId") int selectedWordId,
+                                 @RequestParam("id") int selectedWordId,
                                  @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        try {
-            AddTranslationRequest request = AddTranslationRequest.builder()
-                    .documentId(documentId)
-                    .selectedWordId(selectedWordId)
-                    .sourceWords(sourceWords)
-                    .targetWord(targetWord)
-                    .sourceLanguage(sourceLanguage)
-                    .targetLanguage(targetLanguage)
-                    .familiarity(familiarity)
-                    .isPhrase(isPhrase)
-                    .build();
-            TranslationAttribute attribute = translationService.createTranslation(request, authentication);
-            Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-            Map<String, Object> attributes = Map.of(
-                    "attribute", attribute,
-                    "messages", messages,
-                    "errors", Map.of()
-            );
-            model.addAllAttributes(attributes);
-            return "translation/update-translation-form";
-        } catch (TranslationServiceException e) {
-            Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-            Map<String, Object> attributes = Map.of(
-                    "attribute", e.getAttribute(),
-                    "messages", messages,
-                    "errors", Map.of()
-            );
-            model.addAllAttributes(attributes);
-            return "translation/add-translation-form";
-        }
+        AddTranslationRequest request = AddTranslationRequest.builder()
+                .documentId(documentId)
+                .selectedWordId(selectedWordId)
+                .sourceWords(sourceWords)
+                .targetWord(targetWord)
+                .sourceLanguage(sourceLanguage)
+                .targetLanguage(targetLanguage)
+                .familiarity(familiarity)
+                .isPhrase(isPhrase)
+                .build();
+        Result<TranslationAttribute> result = translationService.createTranslation(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        return switch (result) {
+            case Ok<TranslationAttribute> ok -> {
+                Map<String, Object> attributes = Map.of(
+                        "attribute", ok.value(),
+                        "messages", messages,
+                        "errors", Map.of()
+                );
+                model.addAllAttributes(attributes);
+                yield  "translation/update-translation-form";
+            }
+            case Err<?> err -> {
+                if(err.throwable() instanceof TranslationServiceException e) {
+                    Map<String, Object> attributes = Map.of(
+                            "attribute", e.getAttribute(),
+                            "messages", messages,
+                            "errors", e.getMessages()
+                    );
+                    model.addAllAttributes(attributes);
+                    yield  "translation/add-translation-form";
+                }
+                yield  "throwable";
+            }
+        };
     }
 
     @PutMapping({"/familiarity/update", "/familiarity/update/"})
@@ -140,7 +151,7 @@ public class TranslationController {
                                     @RequestParam("familiarity") Familiarity familiarity,
                                     @RequestParam("sourceLanguage") Language sourceLanguage,
                                     @RequestParam("targetLanguage") Language targetLanguage,
-                                    @RequestParam("selectedWordId") int selectedWordId,
+                                    @RequestParam("id") int selectedWordId,
                                     @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         UpdateTranslationFamiliarityRequest request = UpdateTranslationFamiliarityRequest.builder()
                 .selectedWordId(selectedWordId)
@@ -167,9 +178,8 @@ public class TranslationController {
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord,
                                     @RequestParam("familiarity") String currentFamiliarity,
-                                    @RequestParam("selectedWordId") int selectedWordId,
+                                    @RequestParam("id") int selectedWordId,
                                     @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        try {
             UpdateSourceWordsRequest request = UpdateSourceWordsRequest.builder()
                     .sourceWords(sourceWords)
                     .familiarity(Familiarity.valueOf(currentFamiliarity.toUpperCase()))
@@ -177,27 +187,31 @@ public class TranslationController {
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
                     .build();
-            TranslationAttribute attribute = translationService.updateSourceWords(request, authentication);
+            Result<TranslationAttribute> result = translationService.updateSourceWords(request, authentication);
             Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-            Map<String, Object> attributes = Map.of(
-                    "attribute", attribute,
-                    "messages", messages,
-                    "errors", Map.of()
-            );
-            model.addAllAttributes(attributes);
-            return "translation/update-translation-form";
-
-        } catch (TranslationServiceException e) {
-            log.warn("TranslationServiceException: {}", e.getMessages());
-            Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-            Map<String, Object> attributes = Map.of(
-                    "attribute", e.getAttribute(),
-                    "messages", messages,
-                    "errors", e.getMessages()
-            );
-            model.addAllAttributes(attributes);
-            return "translation/update-translation-form";
-        }
+            switch (result) {
+                case Ok<TranslationAttribute> ok -> {
+                    Map<String, Object> attributes = Map.of(
+                            "attribute", ok.value(),
+                            "messages", messages,
+                            "errors", Map.of()
+                    );
+                    model.addAllAttributes(attributes);
+                    return "translation/update-translation-form";
+                }
+                case Err<TranslationAttribute> err -> {
+                    if(err.throwable() instanceof TranslationServiceException e) {
+                        Map<String, Object> attributes = Map.of(
+                                "attribute", e.getAttribute(),
+                                "messages", messages,
+                                "errors", e.getMessages()
+                        );
+                        model.addAllAttributes(attributes);
+                        return "translation/update-translation-form";
+                    }
+                    return "throwable";
+                }
+            }
     }
 
     @DeleteMapping({"/sourceWords/delete", "/sourceWords/delete/"})
@@ -205,7 +219,7 @@ public class TranslationController {
                                    Authentication authentication,
                                    @RequestParam("sourceWord") String sourceWord,
                                    @RequestParam("targetWord") String targetWord,
-                                   @RequestParam("selectedWordId") int selectedWordId,
+                                   @RequestParam("id") int selectedWordId,
                                    @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         DeleteSourceWordRequest request = DeleteSourceWordRequest.builder()
                 .sourceWord(sourceWord)
