@@ -10,9 +10,9 @@
 
 <div
 class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary bg-tertiary text-accent"
-id="phrase-${attribute.id()}"
+id="phrase-${attribute.phraseAttribute().id()}"
 
-data-id="${attribute.id()}"
+data-id="${attribute.phraseAttribute().id()}"
 data-value="${attribute.phraseAttribute().translation().targetWord().toLowerCase()}"
 data-familiarity="unknown"
 
@@ -23,12 +23,12 @@ data-is-selected="true"
 
 hx-params="documentId,targetWord,selectedWordId,isPhrase,isPersisted"
 hx-get="/translations/find"
-hx-target="#translation-form-container-${attribute.id()}"
+hx-target="#translation-form-container-${attribute.phraseAttribute().id()}"
 hx-swap="innerHTML"
 hx-vals='{
-    "documentId": "${attribute.documentId()}",
+    "documentId": "${attribute.phraseAttribute().documentId()}",
     "targetWord": "${attribute.phraseAttribute().translation().targetWord()}",
-    "selectedWordId": "${attribute.id()}",
+    "selectedWordId": "${attribute.phraseAttribute().id()}",
     "isPhrase": "true",
     "isPersisted": "true"
 }'
@@ -41,7 +41,7 @@ documentPage.cleanupSelectedPhrase()
 //handle selection
 util.findAllByData({ key: 'is-phrase', value: 'true' })
 .filter(node => data.get(node, 'is-selected') === 'false')
-.filter(node => data.get(node, 'id') === '${attribute.id()}')
+.filter(node => data.get(node, 'id') === '${attribute.phraseAttribute().id()}')
 .forEach(node => {
     data.set(node, { key: 'is-selected', value: 'true' })
     util.replaceClasses(node, {
@@ -64,9 +64,9 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
     onclick="event.stopPropagation()"
     class="
     cursor-default z-2 absolute inline left-2 top-10"
-    id="translation-form-container-${attribute.id()}"
+    id="translation-form-container-${attribute.phraseAttribute().id()}"
 
-    data-id="${attribute.id()}"
+    data-id="${attribute.phraseAttribute().id()}"
     data-is-translation-form-container="true">
         @template.translation.add-translation-form(
         attribute = attribute.phraseAttribute(),
@@ -74,14 +74,14 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
         messages = messages,
         errors = errors)
     </div>
-    @for(int wordId = 0; wordId < attribute.phrasePartsAttribute().translations().size(); wordId++)
+    @for(int wordId = 0; wordId < attribute.phrasePartsAttribute().size(); wordId++)
         @template.document.word(
-        wordId = attribute.phrasePartsAttribute().ids().get(wordId),
-        documentId = attribute.documentId(),
-        word = attribute.phrasePartsAttribute().translations().get(wordId).unprocessedTargetWord(),
-        processedWord = attribute.phrasePartsAttribute().translations().get(wordId).targetWord(),
-        familiarity = attribute.phrasePartsAttribute().translations().get(wordId).familiarity(),
-        isPersisted = attribute.phrasePartsAttribute().isPersisted().get(wordId),
+        wordId = attribute.phrasePartsAttribute().get(wordId).id(),
+        documentId = attribute.phraseAttribute().documentId(),
+        word = attribute.phrasePartsAttribute().get(wordId).translation().unprocessedTargetWord(),
+        processedWord = attribute.phrasePartsAttribute().get(wordId).translation().targetWord(),
+        familiarity = attribute.phrasePartsAttribute().get(wordId).translation().familiarity(),
+        isPersisted = attribute.phrasePartsAttribute().get(wordId).isPersisted(),
         isWrapped = true)
     @endfor
 </div>

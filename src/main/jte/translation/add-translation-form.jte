@@ -43,7 +43,7 @@ id="translation-form">
                 hx-params="selectedWordId,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,_csrf"
                 hx-vals='
                 {
-                    "selectedWordId": "${attribute.selectedWordId()}",
+                    "selectedWordId": "${attribute.id()}",
                     "targetWord": "${attribute.translation().targetWord()}",
                     "familiarity": "UNKNOWN",
                     "sourceLanguage": "${attribute.translation().sourceLanguage()}",
@@ -52,7 +52,7 @@ id="translation-form">
                     "_csrf": "${baseAttribute._csrf().getToken()}"
                 }'
                 hx-post="/translations/new"
-                hx-target="#translation-form-container-${attribute.selectedWordId()}"
+                hx-target="#translation-form-container-${attribute.id()}"
                 hx-swap="innerHTML">
                     @for(String word : attribute.translation().sourceWords())
                         <input
@@ -64,7 +64,7 @@ id="translation-form">
                         <input
                         id="input-source-word"
                         class="
-                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
+                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-throwable" : "border-primary"} rounded text-neutral text-md grow-1
                         focus:border-accent"
                         type="text"
                         placeholder=""
@@ -246,7 +246,7 @@ id="translation-form">
             class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
             cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8  justify-center items-center"
-            id="translation-form-${attribute.selectedWordId()}"
+            id="translation-form-${attribute.id()}"
             hx-trigger="click"
             hx-post="/translations/new"
             hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,sourceWords,documentId,_csrf"
@@ -256,11 +256,11 @@ id="translation-form">
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
                 "documentId": "${attribute.documentId()}",
-                "selectedWordId": "${attribute.selectedWordId()}",
+                "selectedWordId": "${attribute.id()}",
                 "isPhrase": "${attribute.isPhrase()}",
                 "_csrf": "${baseAttribute._csrf().getToken()}"
             }'
-            hx-target="closest #translation-form-container-${attribute.selectedWordId()}"
+            hx-target="closest #translation-form-container-${attribute.id()}"
             hx-swap="innerHTML">
                 @if(attribute.translation().sourceWords().isEmpty())
                     <input type="hidden" name="sourceWords" value="">

@@ -13,10 +13,10 @@ import java.util.Map;
 public record TranslationAttribute(@NonNull Map<Integer, Familiarity> familiarityLevels,
                                    @NonNull Translation translation,
                                    int documentId,
-                                   int selectedWordId,
-                                   int translationId,
+                                   int id,
                                    int currentFamiliarity,
                                    boolean isPhrase,
+                                   boolean isPersisted,
                                    TranslationFormType type) {
     @Override
     public Map<Integer, Familiarity> familiarityLevels() {

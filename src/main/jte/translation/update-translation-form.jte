@@ -35,12 +35,12 @@ id="translation-form">
                         <form
                         class="flex items-center"
                         hx-delete="/translations/sourceWords/delete"
-                        hx-target="#translation-form-container-${attribute.selectedWordId()}"
+                        hx-target="#translation-form-container-${attribute.id()}"
                         hx-swap="innerHTML"
                         hx-params="sourceWord,targetWord,selectedWordId,_csrf"
                         hx-vals='{
                             "targetWord": "${attribute.translation().targetWord()}",
-                            "selectedWordId": "${attribute.selectedWordId()}",
+                            "selectedWordId": "${attribute.id()}",
                             "sourceWord": "${word}",
                             "_csrf": "${baseAttribute._csrf().getToken()}"
                         }'>
@@ -60,11 +60,11 @@ id="translation-form">
                 hx-vals='{
                     "targetWord": "${attribute.translation().targetWord()}",
                     "familiarity": "${attribute.translation().familiarity()}",
-                    "selectedWordId": "${attribute.selectedWordId()}",
+                    "selectedWordId": "${attribute.id()}",
                     "_csrf": "${baseAttribute._csrf().getToken()}"
                 }'
                 hx-put="/translations/sourceWords/update"
-                hx-target="#translation-form-container-${attribute.selectedWordId()}"
+                hx-target="#translation-form-container-${attribute.id()}"
                 hx-swap="innerHTML">
                     @for(String word : attribute.translation().sourceWords())
                         <input
@@ -76,7 +76,7 @@ id="translation-form">
                         <input
                         id="input-source-word"
                         class="
-                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
+                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-throwable" : "border-primary"} rounded text-neutral text-md grow-1
                         focus:border-accent"
                         type="text"
                         placeholder=""
@@ -110,7 +110,7 @@ id="translation-form">
             class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
             cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8  justify-center items-center"
-            id="translation-form-${attribute.selectedWordId()}"
+            id="translation-form-${attribute.id()}"
             hx-trigger="click"
             hx-put="/translations/familiarity/update"
             hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,_csrf"
@@ -120,14 +120,14 @@ id="translation-form">
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
-                "selectedWordId": "${attribute.selectedWordId()}",
+                "selectedWordId": "${attribute.id()}",
                 "isPhrase": "${attribute.isPhrase()}",
                 "_csrf": "${baseAttribute._csrf().getToken()}"
             }'
             hx-headers='js:{
                 timeZoneOffset: new Date().getTimezoneOffset()
             }'
-            hx-target="#translation-form-container-${attribute.selectedWordId()}"
+            hx-target="#translation-form-container-${attribute.id()}"
             hx-swap="innerHTML"
             hx-on:click="
             const familiarityColors = new Map([
