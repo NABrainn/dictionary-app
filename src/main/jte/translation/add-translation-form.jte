@@ -62,7 +62,7 @@ id="translation-form">
                 hx-target="#translation-form-container-${attribute.id()}"
                 hx-swap="innerHTML"
                 hx-on::before-request="
-                if(!htmx.find('#no-source-words')) {
+                if(htmx.find('#no-source-words') === null) {
                     documentPage.handlePersistWord('${processedWord}', 'unknown')
                 }">
                     @for(String word : attribute.translation().sourceWords())
@@ -95,7 +95,7 @@ id="translation-form">
         @for(var level : attribute.familiarityLevels().entrySet())
             <form
             hx-on::before-request="
-            if(!htmx.find('#no-source-words')) {
+            if(htmx.find('#no-source-words') === null) {
                 documentPage.handlePersistWord('${processedWord}', '${level.getValue().name().toLowerCase()}')
             }"
             class="

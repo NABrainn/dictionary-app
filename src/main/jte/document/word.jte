@@ -37,7 +37,7 @@
         id: ${wordId},
         isPersisted: data.get(htmx.find("#word-${wordId}"), "is-saved")
     }'
-    hx-on:click="
+    hx-on::before-request="
     documentPage.closeAllTranslationForms()
     documentPage.cleanupSelectedWord()
     documentPage.cleanupSelectedPhrase()
