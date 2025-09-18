@@ -37,10 +37,10 @@ id="translation-form">
                         hx-delete="/translations/sourceWords/delete"
                         hx-target="#translation-form-container-${attribute.id()}"
                         hx-swap="innerHTML"
-                        hx-params="sourceWord,targetWord,selectedWordId,_csrf"
+                        hx-params="sourceWord,targetWord,id,_csrf"
                         hx-vals='{
                             "targetWord": "${attribute.translation().targetWord()}",
-                            "selectedWordId": "${attribute.id()}",
+                            "id": "${attribute.id()}",
                             "sourceWord": "${word}",
                             "_csrf": "${baseAttribute._csrf().getToken()}"
                         }'>
@@ -56,11 +56,11 @@ id="translation-form">
             <div id="source-word-form" class="flex">
                 <form
                 class="flex flex-col gap-2"
-                hx-params="selectedWordId,targetWord,familiarity,sourceWords,_csrf"
+                hx-params="id,targetWord,familiarity,sourceWords,_csrf"
                 hx-vals='{
                     "targetWord": "${attribute.translation().targetWord()}",
                     "familiarity": "${attribute.translation().familiarity()}",
-                    "selectedWordId": "${attribute.id()}",
+                    "id": "${attribute.id()}",
                     "_csrf": "${baseAttribute._csrf().getToken()}"
                 }'
                 hx-put="/translations/sourceWords/update"
@@ -113,14 +113,14 @@ id="translation-form">
             id="translation-form-${attribute.id()}"
             hx-trigger="click"
             hx-put="/translations/familiarity/update"
-            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,_csrf"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase,_csrf"
             hx-vals='
             {
                 "targetWord": "${attribute.translation().targetWord().toLowerCase()}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
-                "selectedWordId": "${attribute.id()}",
+                "id": "${attribute.id()}",
                 "isPhrase": "${attribute.isPhrase()}",
                 "_csrf": "${baseAttribute._csrf().getToken()}"
             }'

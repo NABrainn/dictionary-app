@@ -40,10 +40,10 @@ id="translation-form">
             <div id="source-word-form" class="flex">
                 <form
                 class="flex flex-col gap-2"
-                hx-params="selectedWordId,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,_csrf"
+                hx-params="id,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,_csrf"
                 hx-vals='
                 {
-                    "selectedWordId": "${attribute.id()}",
+                    "id": "${attribute.id()}",
                     "targetWord": "${attribute.translation().targetWord()}",
                     "familiarity": "UNKNOWN",
                     "sourceLanguage": "${attribute.translation().sourceLanguage()}",
@@ -173,11 +173,11 @@ id="translation-form">
                         target: '#translation-form-container-' + data.get(phraseNodeList.at(0), 'id'),
                         swap: 'innerHTML',
                         trigger: 'click',
-                        params: 'documentId,targetWord,selectedWordId,isPhrase,isPersisted',
+                        params: 'documentId,targetWord,id,isPhrase,isPersisted',
                         vals: {
                             documentId: data.get(phraseNodeList.at(0), 'document-id'),
                             targetWord: '${processedWord}',
-                            selectedWordId: data.get(phraseNodeList.at(0), 'id'),
+                            id: data.get(phraseNodeList.at(0), 'id'),
                             isPhrase: true,
                             isPersisted: true
                         }
@@ -249,14 +249,14 @@ id="translation-form">
             id="translation-form-${attribute.id()}"
             hx-trigger="click"
             hx-post="/translations/new"
-            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,selectedWordId,isPhrase,sourceWords,documentId,_csrf"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase,sourceWords,documentId,_csrf"
             hx-vals='{
                 "targetWord": "${processedWord}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
                 "documentId": "${attribute.documentId()}",
-                "selectedWordId": "${attribute.id()}",
+                "id": "${attribute.id()}",
                 "isPhrase": "${attribute.isPhrase()}",
                 "_csrf": "${baseAttribute._csrf().getToken()}"
             }'

@@ -21,14 +21,14 @@ data-is-saved="false"
 data-is-selectable="true"
 data-is-selected="true"
 
-hx-params="documentId,targetWord,selectedWordId,isPhrase,isPersisted"
+hx-params="documentId,targetWord,id,isPhrase,isPersisted"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${attribute.phraseAttribute().id()}"
 hx-swap="innerHTML"
 hx-vals='{
     "documentId": "${attribute.phraseAttribute().documentId()}",
     "targetWord": "${attribute.phraseAttribute().translation().targetWord()}",
-    "selectedWordId": "${attribute.phraseAttribute().id()}",
+    "id": "${attribute.phraseAttribute().id()}",
     "isPhrase": "true",
     "isPersisted": "true"
 }'

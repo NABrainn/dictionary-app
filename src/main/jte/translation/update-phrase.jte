@@ -44,11 +44,11 @@ data-is-selected="false"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
-hx-params="documentId,targetWord,selectedWordId,isPhrase,isPersisted"
+hx-params="documentId,targetWord,id,isPhrase,isPersisted"
 hx-vals='{
     "documentId": "${documentId}",
     "targetWord": "${processedWord}",
-    "selectedWordId": "${selectableId}",
+    "id": "${selectableId}",
     "isPhrase": "true",
     "isPersisted": "true"
 }'

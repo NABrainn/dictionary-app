@@ -35,19 +35,19 @@ public class TranslationController {
                                        Authentication authentication,
                                        @RequestParam int documentId,
                                        @RequestParam String targetWord,
-                                       @RequestParam("id") int selectedWordId,
+                                       @RequestParam("id") int id,
                                        @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                        @RequestParam("isPersisted") boolean isPersisted) {
         GetTranslationFormRequest request = isPersisted ?
                 FindTranslationFormRequest.builder()
                         .documentId(documentId)
-                        .selectedWordId(selectedWordId)
+                        .selectedWordId(id)
                         .isPhrase(isPhrase)
                         .targetWord(targetWord)
                         .build() :
                 CreateTranslationFormRequest.builder()
                         .documentId(documentId)
-                        .selectedWordId(selectedWordId)
+                        .selectedWordId(id)
                         .isPhrase(isPhrase)
                         .targetWord(targetWord)
                         .build();
@@ -55,7 +55,7 @@ public class TranslationController {
         Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
         if (result instanceof Ok<TranslationAttribute>(TranslationAttribute value)) {
             Map<String, Object> attributes = Map.of(
-                    "attribute", result,
+                    "attribute", value,
                     "messages", messages,
                     "errors", Map.of()
             );
@@ -65,7 +65,7 @@ public class TranslationController {
                 case FIND -> "translation/update-translation-form";
             };
         }
-        return "throwable";
+        return "error";
     }
 
     @GetMapping({"/create-phrase", "/create-phrase/"})
@@ -139,7 +139,7 @@ public class TranslationController {
                     model.addAllAttributes(attributes);
                     yield  "translation/add-translation-form";
                 }
-                yield  "throwable";
+                yield  "error";
             }
         };
     }
@@ -209,7 +209,7 @@ public class TranslationController {
                         model.addAllAttributes(attributes);
                         return "translation/update-translation-form";
                     }
-                    return "throwable";
+                    return "error";
                 }
             }
     }

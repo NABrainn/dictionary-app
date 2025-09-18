@@ -445,9 +445,6 @@
     border-left-style: var(--tw-border-style);
     border-left-width: 1px;
   }
-  .border-error {
-    border-color: var(--color-error);
-  }
   .border-primary {
     border-color: var(--color-primary);
   }

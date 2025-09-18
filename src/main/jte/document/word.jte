@@ -30,11 +30,11 @@
     hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
-    hx-params="documentId,targetWord,selectedWordId,isPersisted"
+    hx-params="documentId,targetWord,id,isPersisted"
     hx-vals='js:{
         documentId: ${documentId},
         targetWord: "${processedWord}",
-        selectedWordId: ${wordId},
+        id: ${wordId},
         isPersisted: data.get(htmx.find("#word-${wordId}"), "is-saved")
     }'
     hx-on:click="
