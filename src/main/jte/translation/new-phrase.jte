@@ -32,8 +32,9 @@ hx-vals='{
     "isPhrase": "true",
     "isPersisted": "true"
 }'
-hx-trigger="click"
-hx-on::before-request="
+hx-trigger="click from:closest div"
+hx-on:click="
+event.preventDefault()
 documentPage.closeAllTranslationForms()
 documentPage.cleanupSelectedWord()
 documentPage.cleanupSelectedPhrase()
@@ -61,7 +62,6 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
 })
 ">
     <div
-    onclick="event.stopPropagation()"
     class="
     cursor-default z-2 absolute inline left-2 top-10"
     id="translation-form-container-${attribute.phraseAttribute().id()}"
