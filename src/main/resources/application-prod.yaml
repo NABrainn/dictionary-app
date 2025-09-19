@@ -27,8 +27,6 @@ logging:
     org.springframework.web.servlet.DispatcherServlet: DEBUG
 
 server:
-  ssl:
-    enabled: true
   compression:
     enabled: true
     min-response-size: 2048
