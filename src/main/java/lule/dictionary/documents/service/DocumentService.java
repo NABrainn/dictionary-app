@@ -98,7 +98,7 @@ public class DocumentService {
                         })
                 ));
                 yield switch (result) {
-                    case Ok<?> v-> {
+                    case Ok<?> ignored -> {
                         String content = jsoupService.importDocumentContent(urlSubmission.url());
                         yield  Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
                                 .title(urlSubmission.title())
@@ -141,7 +141,7 @@ public class DocumentService {
                         })
                 ));
                 yield switch (result) {
-                    case Ok<?> v -> {
+                    case Ok<?> ignored -> {
                         String content = contentSubmission.content();
                         yield  Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
                                 .title(contentSubmission.title())

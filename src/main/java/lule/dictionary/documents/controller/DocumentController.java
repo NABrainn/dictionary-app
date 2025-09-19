@@ -49,7 +49,7 @@ public class DocumentController {
                 model.addAttribute("isProfileOpen", false);
                 return "document/base-page";
             }
-            case Err<DocumentAttribute> v -> {
+            case Err<DocumentAttribute> ignored -> {
                 return "error";
             }
         }
@@ -60,7 +60,7 @@ public class DocumentController {
                                      @RequestParam(name = "page", defaultValue = "1") int page,
                                      Model model,
                                      HttpSession session) {
-            Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
+        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
