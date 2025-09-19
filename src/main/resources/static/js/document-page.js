@@ -237,7 +237,7 @@ window.documentPage = window.documentPage || {
 
                 util.insertBefore({
                     insert: util.define('div', {
-                        classList: ['cursor-default', 'z-2', 'absolute', 'inline', 'left-2', 'top-10'],
+                        classList: ['cursor-default', 'z-2', 'absolute', 'inline'],
                         id: phraseNodeList.at(0).firstElementChild.id,
                         data: [
                             { key: 'is-translation-form-container', value: 'true' }
