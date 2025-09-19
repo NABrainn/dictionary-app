@@ -19,7 +19,6 @@ gg:
   jte:
     development-mode: false
     usePrecompiledTemplates: true
-    precompiled: gg.jte.generated.precompiled
 logging:
   level:
     gg:
