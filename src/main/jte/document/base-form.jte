@@ -34,8 +34,9 @@
             }
         </script>
         <form
-        class="md:w-3/5
-        w-9/10 flex flex-col gap-6 bg-tertiary mx-auto p-6 rounded mt-16"
+        class="
+        md:w-3/5 md:mt-16 md:p-6 md:gap-6
+        w-9/10 flex flex-col bg-tertiary mx-auto rounded p-3 mt-2 gap-5"
         hx-post="/documents/new"
         hx-params="title,url,content,strategy,_csrf"
         hx-target="#main"

@@ -10,7 +10,7 @@
         <textarea
         class="
         md:min-h-110
-        min-h-85 outline-none border border-2 border-primary rounded text-neutral resize-none
+        min-h-75 outline-none border border-2 border-primary rounded text-neutral resize-none
         focus:border-accent w-full"
         name="content"
         id="area"
