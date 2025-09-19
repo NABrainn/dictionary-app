@@ -1,0 +1,49 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration: 86400000
+      refresh-token:
+        expiration: 604800000
+  application:
+    name: "dictionary"
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+translation:
+  libreTranslate:
+    base:
+      url: "/translate"
+
+ollama:
+  api:
+    baseUrl: "http://localhost:11434"
+gg:
+  jte:
+    templateLocation: src/main/jte
+    templateSuffix: .jte
+    developmentMode: true
+    usePrecompiledTemplates: false
+flyway:
+  url: ${DB_URL}
+  user: ${DB_USER}
+  password: ${DB_PASS}
+logging:
+  level:
+    org:
+#      springframework.jdbc.core.JdbcTemplate: DEBUG
+#      org.springframework.security.web.FilterChainProxy: DEBUG
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+        http-only: true
+        same-site: strict
+      timeout: 1440m
+  compression:
+    enabled: true
+    min-response-size: 2048

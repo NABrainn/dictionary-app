@@ -1,0 +1,6 @@
+lule/dictionary/unit/entity/JsoupServiceTest.class
+lule/dictionary/unit/entity/TimezoneOffsetContextTest.class
+lule/dictionary/unit/service/TranslationFetchingServiceTest.class
+lule/dictionary/unit/service/LingvanexServiceTest.class
+lule/dictionary/unit/service/GoogleTranslateServiceTest.class
+lule/dictionary/unit/service/PaginationServiceTest.class
