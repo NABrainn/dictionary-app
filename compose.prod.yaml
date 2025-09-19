@@ -7,15 +7,12 @@ services:
     ports:
       - "8090:8080"
     depends_on:
-      - libretranslate
       - postgres
     environment:
-      JWT_PUBLIC: ${JWT_PUBLIC}
-      JWT_PRIVATE: ${JWT_PRIVATE}
+      JWT_SECRET: ${JWT_SECRET}
       DB_URL: ${DB_URL}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
-      LT_BASE_URL: http://libretranslate:5000
     networks:
       - backend
 
@@ -49,16 +46,6 @@ services:
     networks:
       - backend
 
-  libretranslate:
-    container_name: libretranslate-prod
-    image: libretranslate/libretranslate
-    ports:
-      - "5010:5000"
-    restart: unless-stopped
-    environment:
-      LT_LOAD_ONLY: "pl,en,nb"
-    networks:
-      - backend
 
 volumes:
   postgres_data: {}
