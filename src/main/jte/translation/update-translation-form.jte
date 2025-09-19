@@ -9,50 +9,50 @@
 @param Map<TranslationLocalizationKey, String> messages
 
 <div
+hx-on:click="event.stopPropagation()"
 class="
 md:gap-0.75
 gap-4 bg-tertiary flex flex-col p-3 rounded animate-fade-10"
 id="translation-form">
-    <div class="flex justify-end">
+    <div
+    class="flex justify-end">
         <span
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer"
-        hx-on:click="
-        event.preventDefault()
-        documentPage.closeAllTranslationForms()">❌</span>
+        hx-on:click="event.stopPropagation()
+        documentPage.closeAllTranslationForms()"
+        >❌</span>
     </div>
-    <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().targetWord()}</span>
-    <div id="translation-manager">
-        <div id="source-words-list">
-            <div class="flex flex-col gap-2 text-wrap">
-                @for(String word : attribute.translation().sourceWords())
-                    <div
-                    class="flex gap-2 items-center min-h-8">
-                        <input
-                        name="sourceWords"
-                        type="hidden"
-                        value="${word}">
-                        <span class="block text-center text-accent text-wrap">${word}</span>
-                        <form
-                        class="flex items-center"
-                        hx-delete="/translations/sourceWords/delete"
-                        hx-target="#translation-form-container-${attribute.id()}"
-                        hx-swap="innerHTML"
-                        hx-params="sourceWord,targetWord,id,_csrf"
-                        hx-vals='{
-                            "targetWord": "${attribute.translation().targetWord()}",
-                            "id": "${attribute.id()}",
-                            "sourceWord": "${word}",
-                            "_csrf": "${baseAttribute._csrf().getToken()}"
-                        }'>
-                            <button
-                            class="cursor-pointer text-md block"
-                            type="submit">🗑️</button>
-                        </form>
-                    </div>
-                @endfor
+    <span
+    class="font-bold text-lg text-accent text-wrap">${attribute.translation().targetWord()}</span>
+    <div
+    class="flex flex-col gap-2 text-wrap">
+        @for(String word : attribute.translation().sourceWords())
+            <div
+            class="flex gap-2 items-center min-h-8">
+                <input
+                name="sourceWords"
+                type="hidden"
+                value="${word}">
+                <span class="block text-center text-accent text-wrap">${word}</span>
+                <form
+                class="flex items-center"
+                hx-delete="/translations/sourceWords/delete"
+                hx-target="#translation-form-container-${attribute.id()}"
+                hx-swap="innerHTML"
+                hx-params="sourceWord,targetWord,id,_csrf"
+                hx-vals='{
+                    "targetWord": "${attribute.translation().targetWord()}",
+                    "id": "${attribute.id()}",
+                    "sourceWord": "${word}",
+                    "_csrf": "${baseAttribute._csrf().getToken()}"
+                }'>
+                    <button
+                    class="cursor-pointer text-md block"
+                    type="submit">🗑️</button>
+                </form>
             </div>
-        </div>
+        @endfor
         <div class="flex flex-col gap-2">
             <div id="source-word-form" class="flex">
                 <form
@@ -69,6 +69,7 @@ id="translation-form">
                 hx-swap="innerHTML">
                     @for(String word : attribute.translation().sourceWords())
                         <input
+                        hx-on:click="event.stopPropagation()"
                         name="sourceWords"
                         type="hidden"
                         value="${word}">
@@ -128,7 +129,7 @@ id="translation-form">
             hx-target="#translation-form-container-${attribute.id()}"
             hx-swap="innerHTML"
             hx-on:click="
-            event.preventDefault()
+            event.stopPropagation()
             documentPage.handlePersistWord('${attribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')
             ">
                 <span>${level.getKey()}<span class="md:inline hidden">: </span></span>

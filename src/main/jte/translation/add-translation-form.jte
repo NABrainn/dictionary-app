@@ -9,9 +9,10 @@
 @param Map<TranslationLocalizationKey, String> messages
 
 <div
+hx-on:click="event.stopPropagation()"
 class="
 md:gap-0.75
-bg-tertiary flex flex-col p-3 rounded pointer-events-auto animate-fade-10"
+bg-tertiary flex flex-col p-3 rounded animate-fade-10"
 id="translation-form">
     <div class="flex justify-end">
         <span
@@ -22,26 +23,24 @@ id="translation-form">
         documentPage.closeAllTranslationForms()">❌</span>
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().targetWord()}</span>
-    <div id="translation-manager">
-        <div class="flex flex-col gap-2 text-wrap">
-            @if(attribute.translation().sourceWords().isEmpty())
+    <div class="flex flex-col gap-2 text-wrap">
+        @if(attribute.translation().sourceWords().isEmpty())
+            <input
+            id="no-source-words"
+            type="hidden"
+            name="sourceWords"
+            value="">
+        @endif
+        @for(String word : attribute.translation().sourceWords())
+            <div
+            class="flex gap-2 items-center min-h-8">
                 <input
-                id="no-source-words"
-                type="hidden"
                 name="sourceWords"
-                value="">
-            @endif
-            @for(String word : attribute.translation().sourceWords())
-                <div
-                class="flex gap-2 items-center min-h-8">
-                    <input
-                    name="sourceWords"
-                    type="hidden"
-                    value="${word}">
-                    <span class="block text-center text-accent text-wrap">${word}</span>
-                </div>
-            @endfor
-        </div>
+                type="hidden"
+                value="${word}">
+                <span class="block text-center text-accent text-wrap">${word}</span>
+            </div>
+        @endfor
         <div class="flex flex-col gap-2">
             <div id="source-word-form" class="flex">
                 <form

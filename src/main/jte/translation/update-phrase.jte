@@ -1,6 +1,5 @@
 @import gg.jte.support.ForSupport
 @import lule.dictionary.translations.data.Translation
-@import lule.dictionary.translations.data.Familiarity
 @import lule.dictionary.documents.data.selectable.Phrase
 @import java.util.Map
 @import java.util.regex.Pattern
@@ -62,8 +61,7 @@ documentPage.handlePhraseClick(${selectableId})">
     class="
     cursor-default z-2 absolute inline"
     id="translation-form-container-${selectableId}"
-    data-is-translation-form-container="true"
-    hx-on::after-swap="formAdjuster.updatePositions(${selectableId})">
+    data-is-translation-form-container="true">
     </div>
     @for(var phraseEntry : ForSupport.of(phrase.targetWords()))
         !{var word = phraseEntry.get();}

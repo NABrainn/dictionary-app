@@ -37,7 +37,8 @@
         id: ${wordId},
         isPersisted: data.get(htmx.find("#word-${wordId}"), "is-saved")
     }'
-    hx-on::before-request="
+    hx-on:click="
+    event.stopPropagation()
     documentPage.closeAllTranslationForms()
     documentPage.cleanupSelectedWord()
     documentPage.cleanupSelectedPhrase()
@@ -46,8 +47,7 @@
         class="
         cursor-default z-2 absolute inline"
         id="translation-form-container-${wordId}"
-        data-is-translation-form-container="true"
-        hx-on::after-swap="formAdjuster.updatePositions(${wordId})"></div>
+        data-is-translation-form-container="true"></div>
         <span
         class="${bgColor} ${textColor} rounded"
         data-is-word-span="true">${word}</span>
