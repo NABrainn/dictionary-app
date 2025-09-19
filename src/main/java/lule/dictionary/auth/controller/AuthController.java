@@ -9,6 +9,9 @@ import lule.dictionary.auth.data.exception.AuthServiceException;
 import lule.dictionary.auth.data.request.LoginRequest;
 import lule.dictionary.auth.service.AuthService;
 import lule.dictionary.auth.data.request.SignupRequest;
+import lule.dictionary.result.data.Err;
+import lule.dictionary.result.data.Ok;
+import lule.dictionary.result.data.Result;
 import lule.dictionary.userProfiles.service.exception.UserExistsException;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
 import lule.dictionary.validation.data.ValidationException;
@@ -54,15 +57,18 @@ public class AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
-        try {
-            authService.login(LoginRequest.of(login, password), response, session);
-            return "redirect:/";
-        }
-        catch (AuthServiceException e) {
-            model.addAttribute("error", e.getViolation());
-            model.addAttribute("localization", authService.getTextLocalization(session));
-            return "auth/login";
-        }
+        Result<?> result = authService.login(LoginRequest.of(login, password), response, session);
+        return switch (result) {
+            case Ok<?> v -> "redirect:/";
+            case Err<?> v -> {
+                if(v.throwable() instanceof AuthServiceException authServiceException) {
+                    model.addAttribute("error", authServiceException.getViolation());
+                    model.addAttribute("localization", authService.getTextLocalization(session));
+                    yield  "auth/login";
+                }
+                yield  "error";
+            }
+        };
     }
 
     @GetMapping({"/signup", "/signup/"})
@@ -87,17 +93,22 @@ public class AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
-        try {
-            authService.signup(SignupRequest.of(login, email, password), session);
-            model.addAttribute("error", Map.of());
-            model.addAttribute("localization", authService.getTextLocalization(session));
-            return "redirect:/auth/login";
-        }
-        catch (AuthServiceException e) {
-            model.addAttribute("error", e.getViolation());
-            model.addAttribute("localization", authService.getTextLocalization(session));
-            return "auth/signup";
-        }
+        Result<?> result = authService.signup(SignupRequest.of(login, email, password), session);
+        return switch (result) {
+            case Ok<?> v -> {
+                model.addAttribute("error", Map.of());
+                model.addAttribute("localization", authService.getTextLocalization(session));
+                yield  "redirect:/auth/login";
+            }
+            case Err<?> v -> {
+                if(v.throwable() instanceof AuthServiceException authServiceException) {
+                    model.addAttribute("error", authServiceException.getViolation());
+                    model.addAttribute("localization", authService.getTextLocalization(session));
+                    yield  "auth/signup";
+                }
+                yield "error";
+            }
+        };
     }
 
     @PostMapping({"/logout", "/logout/"})
