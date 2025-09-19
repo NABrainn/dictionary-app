@@ -181,7 +181,6 @@ window.documentPage = window.documentPage || {
         })
     },
     handlePersistWord: (word, familiarity) => {
-        word = word.trim()
         const familiarityColors = new Map([
             ['unknown', ['bg-accent', 'text-primary']],
             ['recognized', ['bg-accent/80', 'text-primary']],
@@ -324,6 +323,78 @@ window.documentPage = window.documentPage || {
             .forEach(word => {
                 data.set(word, { key: 'familiarity', value: familiarity })
                 data.set(word, { key: 'is-saved', value: 'true' })
+                if(data.get(word, 'is-selected') === 'true') {
+                    const selectedSpan = word.firstElementChild.nextElementSibling
+                    util.replaceClasses(selectedSpan, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: ['bg-tertiary', 'text-accent']
+                    })
+                }
+                else {
+                    const selectedSpan = word.firstElementChild.nextElementSibling
+                    util.replaceClasses(selectedSpan, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: familiarityColors.get(familiarity)
+                    })
+                }
+            })
+        }
+    },
+    handleUpdateFamiliarity(inputWord, familiarity) {
+        const familiarityColors = new Map([
+            ['unknown', ['bg-accent', 'text-primary']],
+            ['recognized', ['bg-accent/80', 'text-primary']],
+            ['familiar', ['bg-accent/60', 'text-primary']],
+            ['known', ['bg-primary', 'text-neutral']],
+            ['ignored', ['bg-primary', 'text-neutral']]
+        ])
+
+        if(inputWord.split(' ').length > 1) {
+            util.findAllByData({ key: 'is-phrase', value: 'true' })
+            .filter(phrase => data.get(phrase, 'value') === inputWord)
+            .filter(phrase => data.get(phrase, 'is-saved') === 'true')
+            .forEach(savedPhrase => {
+                data.set(savedPhrase, { key: 'familiarity', value: familiarity })
+
+                if(data.get(savedPhrase, 'is-selected') === 'true') {
+                    util.replaceClasses(savedPhrase, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: ['bg-tertiary', 'text-accent']
+                    })
+                    Array.from(savedPhrase.children)
+                    .filter(child => data.get(child, 'is-word') === 'true')
+                    .flatMap(word => [...word.children])
+                    .filter(child => child instanceof HTMLSpanElement)
+                    .forEach(span => {
+                        util.replaceClasses(span, {
+                            toRemove: ['text-accent', 'text-primary'],
+                            toAdd: ['text-accent']
+                        })
+                    })
+                }
+                else {
+                    util.replaceClasses(savedPhrase, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent'],
+                        toAdd: familiarityColors.get(familiarity)
+                    })
+                    Array.from(savedPhrase.children)
+                    .filter(child => data.get(child, 'is-word') === 'true')
+                    .flatMap(word => [...word.children])
+                    .filter(child => child instanceof HTMLSpanElement)
+                    .forEach(span => {
+                        util.replaceClasses(span, {
+                            toRemove: ['text-accent', 'text-primary'],
+                            toAdd: familiarityColors.get(familiarity).at(1)
+                        })
+                    })
+                }
+            })
+        }
+        else {
+            util.findAllByData({ key: 'is-word', value: 'true' })
+            .filter(word => data.get(word, 'value') === inputWord)
+            .forEach(word => {
+                data.set(word, { key: 'familiarity', value: familiarity })
                 if(data.get(word, 'is-selected') === 'true') {
                     const selectedSpan = word.firstElementChild.nextElementSibling
                     util.replaceClasses(selectedSpan, {

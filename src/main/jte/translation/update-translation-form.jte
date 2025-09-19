@@ -131,7 +131,7 @@ id="translation-form">
             hx-swap="innerHTML"
             hx-on:click="
             event.stopPropagation()
-            documentPage.handlePersistWord('${attribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')
+            documentPage.handleUpdateFamiliarity('${attribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')
             ">
                 <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                 <input
