@@ -4,8 +4,10 @@ spring:
       match: true
   security:
     jwt:
-      public: ${JWT_PUBLIC}
-      private: ${JWT_PRIVATE}
+      secret: ${JWT_SECRET}
+      expiration: 86400000
+      refresh-token:
+        expiration: 604800000
   application:
     name: "dictionary"
   datasource:
@@ -21,11 +23,6 @@ gg:
     development-mode: false
     usePrecompiledTemplates: true
     precompiled: gg.jte.generated.precompiled
-
-flyway:
-  url: ${DB_URL}
-  user: ${DB_USER}
-  password: ${DB_PASS}
 logging:
   level:
     gg:
