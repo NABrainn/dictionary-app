@@ -6,10 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.translations.data.request.DeleteSourceWordRequest;
-import lule.dictionary.translations.data.request.FindByTargetWordRequest;
-import lule.dictionary.translations.data.request.UpdateSourceWordsRequest;
-import lule.dictionary.translations.data.request.UpdateTranslationFamiliarityRequest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,6 +34,7 @@ public class TranslationRepository {
             .targetLanguage(Language.valueOf(rs.getString("target_lang")))
             .owner(rs.getString("translation_owner"))
             .isPhrase(rs.getBoolean("is_phrase"))
+            .unprocessedTargetWord("")
             .build();
     private final RowMapper<String> sourceWordsMapper = (rs, rowNum) -> rs.getString("word");
     private final RowMapper<Integer> translationIdMapper = (rs, rowNum) -> rs.getInt("translations_id");

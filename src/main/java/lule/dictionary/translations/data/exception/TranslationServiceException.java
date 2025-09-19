@@ -1,4 +1,4 @@
-package lule.dictionary.translations.service.exception;
+package lule.dictionary.translations.data.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

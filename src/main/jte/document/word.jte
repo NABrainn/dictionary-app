@@ -9,7 +9,7 @@
 @param boolean isSelectable = true
 @param boolean isPhraseWord = false
 @param Familiarity familiarity
-@param boolean isFound = false
+@param boolean isPersisted = false
 @param boolean isWrapped = false
 @if(isSelectable)
     <div
@@ -24,20 +24,22 @@
     data-is-selectable="true"
     data-is-selected="false"
     data-is-word="true"
-    data-is-saved="${isFound  ? "true" : "false"}"
+    data-is-saved="${isPersisted  ? "true" : "false"}"
     data-is-wrapped="${isWrapped  ? "true" : "false"}"
 
     hx-get="/translations/find"
     hx-target="#translation-form-container-${wordId}"
     hx-swap="innerHTML"
-    hx-params="documentId,targetWord,selectedWordId,isFound"
+    hx-params="documentId,targetWord,id,isPersisted"
     hx-vals='js:{
         documentId: ${documentId},
         targetWord: "${processedWord}",
-        selectedWordId: ${wordId},
-        isFound: data.get(htmx.find("#word-${wordId}"), "is-saved")
+        id: ${wordId},
+        isPersisted: data.get(htmx.find("#word-${wordId}"), "is-saved")
     }'
+    hx-on::after-request="formPositioner.handleOverflow(htmx.find('#translation-form-container-${wordId}'), 3)"
     hx-on:click="
+    event.stopPropagation()
     documentPage.closeAllTranslationForms()
     documentPage.cleanupSelectedWord()
     documentPage.cleanupSelectedPhrase()
@@ -46,8 +48,7 @@
         class="
         cursor-default z-2 absolute inline"
         id="translation-form-container-${wordId}"
-        data-is-translation-form-container="true"
-        hx-on::after-swap="formAdjuster.updatePositions(${wordId})"></div>
+        data-is-translation-form-container="true"></div>
         <span
         class="${bgColor} ${textColor} rounded"
         data-is-word-span="true">${word}</span>

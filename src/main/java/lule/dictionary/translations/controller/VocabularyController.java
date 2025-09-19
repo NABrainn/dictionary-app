@@ -7,7 +7,7 @@ import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
 import lule.dictionary.translations.data.attribute.WordCardAttribute;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.translations.service.TranslationService;
-import lule.dictionary.translations.service.exception.TranslationsNotFoundException;
+import lule.dictionary.translations.data.exception.TranslationsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

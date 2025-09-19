@@ -10,8 +10,6 @@ import org.springframework.web.util.InvalidUrlException;
 public class DocumentSanitizer {
     public void validateNumberOfPages(SanitizeNumberOfPagesRequest request) {
         if(request.page() <= 0 || request.page() > request.numberOfPages()) {
-            System.out.println(request.page());
-            System.out.println(request.numberOfPages());
             throw new InvalidUrlException("Invalid url parameter provided");
         }
     }

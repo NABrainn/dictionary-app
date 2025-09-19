@@ -1,6 +1,5 @@
 @import gg.jte.support.ForSupport
 @import lule.dictionary.translations.data.Translation
-@import lule.dictionary.translations.data.Familiarity
 @import lule.dictionary.documents.data.selectable.Phrase
 @import java.util.Map
 @import java.util.regex.Pattern
@@ -44,13 +43,13 @@ data-is-selected="false"
 hx-get="/translations/find"
 hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
-hx-params="documentId,targetWord,selectedWordId,isPhrase,isFound"
+hx-params="documentId,targetWord,id,isPhrase,isPersisted"
 hx-vals='{
     "documentId": "${documentId}",
     "targetWord": "${processedWord}",
-    "selectedWordId": "${selectableId}",
+    "id": "${selectableId}",
     "isPhrase": "true",
-    "isFound": "true"
+    "isPersisted": "true"
 }'
 hx-trigger="click"
 hx-on:click="
@@ -62,8 +61,7 @@ documentPage.handlePhraseClick(${selectableId})">
     class="
     cursor-default z-2 absolute inline"
     id="translation-form-container-${selectableId}"
-    data-is-translation-form-container="true"
-    hx-on::after-swap="formAdjuster.updatePositions(${selectableId})">
+    data-is-translation-form-container="true">
     </div>
     @for(var phraseEntry : ForSupport.of(phrase.targetWords()))
         !{var word = phraseEntry.get();}
@@ -73,7 +71,7 @@ documentPage.handlePhraseClick(${selectableId})">
                                                 .toLowerCase();}
         @if(!cleanWord.isEmpty())
             @if(translations.get(cleanWord) != null)
-                @template.document-page.content.word(
+                @template.document.word(
                 wordId = -1,
                 processedWord = cleanWord,
                 documentId = documentId,
@@ -82,7 +80,7 @@ documentPage.handlePhraseClick(${selectableId})">
                 isSelectable = false,
                 isWrapped = true)
             @else
-                @template.document-page.content.word(
+                @template.document.word(
                 wordId = -1,
                 processedWord = cleanWord,
                 documentId = documentId,
@@ -92,7 +90,7 @@ documentPage.handlePhraseClick(${selectableId})">
                 familiarity = phrase.familiarity())
             @endif
         @else
-            @template.document-page.content.word(
+            @template.document.word(
             wordId = -1,
             processedWord = cleanWord,
             documentId = documentId,

@@ -9,7 +9,7 @@
 @param Map<AuthText, String> localization
 @param Map<String, String> error
 
-@template.layout.base(authView = @`
+@template.base(authView = @`
     @template.navbar.navbar(
     navbarAttribute = navbarAttribute,
     baseAttribute = baseAttribute)

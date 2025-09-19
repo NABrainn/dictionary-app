@@ -70,25 +70,25 @@ public class DocumentService {
             switch (submissionStrategy) {
                 case UrlSubmissionStrategy urlSubmission -> {
                     validator.validate(List.of(
-                            Constraint.define("title", request.title()::isBlank, switch(uiLanguage){
+                            Constraint.of("title", request.title()::isBlank, switch(uiLanguage){
                                 case PL -> "Tytuł nie może być pusty";
                                 case EN -> "Title cannot be empty";
                                 case IT -> "Il titolo non può essere vuoto";
                                 case NO -> "Tittelen kan ikke være tom";
                             }),
-                            Constraint.define("title", () -> request.title().length() > 500, switch(uiLanguage){
+                            Constraint.of("title", () -> request.title().length() > 500, switch(uiLanguage){
                                 case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
                                 case EN -> "Title cannot be longer than 500 characters";
                                 case IT -> "Il titolo non può essere più lungo di 500 caratteri";
                                 case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
                             }),
-                            Constraint.define("url", () -> request.url().isBlank(), switch(uiLanguage){
+                            Constraint.of("url", () -> request.url().isBlank(), switch(uiLanguage){
                                 case PL -> "URL nie może być pusty";
                                 case EN -> "URL cannot be empty";
                                 case IT -> "L'URL non può essere vuoto";
                                 case NO -> "URL-en kan ikke være tom";
                             }),
-                            Constraint.define("url", () -> request.url().length() > 500, switch(uiLanguage){
+                            Constraint.of("url", () -> request.url().length() > 500, switch(uiLanguage){
                                 case PL -> "URL nie może być dłuższy niż 500 znaków";
                                 case EN -> "URL cannot be longer than 500 characters";
                                 case IT -> "L'URL non può essere più lungo di 500 caratteri";
@@ -105,25 +105,25 @@ public class DocumentService {
                 }
                 case ContentSubmissionStrategy contentSubmission -> {
                     validator.validate(List.of(
-                            Constraint.define("title", request.title()::isBlank, switch(uiLanguage){
+                            Constraint.of("title", request.title()::isBlank, switch(uiLanguage){
                                 case PL -> "Tytuł nie może być pusty";
                                 case EN -> "Title cannot be empty";
                                 case IT -> "Il titolo non può essere vuoto";
                                 case NO -> "Tittelen kan ikke være tom";
                             }),
-                            Constraint.define("title", () -> request.title().length() > 500, switch(uiLanguage){
+                            Constraint.of("title", () -> request.title().length() > 500, switch(uiLanguage){
                                 case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
                                 case EN -> "Title cannot be longer than 500 characters";
                                 case IT -> "Il titolo non può essere più lungo di 500 caratteri";
                                 case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
                             }),
-                            Constraint.define("content", () -> request.content().isBlank(), switch(uiLanguage){
+                            Constraint.of("content", () -> request.content().isBlank(), switch(uiLanguage){
                                 case PL -> "Treść nie może być pusta";
                                 case EN -> "Content cannot be empty";
                                 case IT -> "Il contenuto non può essere vuoto";
                                 case NO -> "Innholdet kan ikke være tomt";
                             }),
-                            Constraint.define("content", () -> request.content().length() > 100000, switch(uiLanguage){
+                            Constraint.of("content", () -> request.content().length() > 100000, switch(uiLanguage){
                                 case PL -> "Treść nie może być dłuższa niż 100 000 znaków";
                                 case EN -> "Content cannot be longer than 100,000 characters";
                                 case IT -> "Il contenuto non può essere più lungo di 100.000 caratteri";

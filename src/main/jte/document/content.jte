@@ -20,14 +20,14 @@ hx-trigger="swapphrase from:document"
 hx-get="/translations/create-phrase"
 hx-target="#new-phrase"
 hx-swap="outerHTML"
-hx-params="selectableId,phraseText,documentId,phraseLength,familiarities,isSavedList"
+hx-params="selectableId,targetWords,documentId,familiarities,isPersistedList,ids"
 hx-vals='js:{
     selectableId: data.get(htmx.find("#new-phrase"), "id"),
-    phraseText: data.get(htmx.find("#new-phrase"), "value"),
     documentId: ${documentId},
-    phraseLength: data.get(htmx.find("#new-phrase"), "length"),
     familiarities: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "familiarity")),
-    isSavedList: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "is-saved") ?? "false"),
+    isPersistedList: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "is-saved") ?? "false"),
+    ids: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "id")),
+    targetWords: data.get(htmx.find("#new-phrase"), "value")?.split(" ") ?? []
 }'>
     <div
     id="content-container"
@@ -75,7 +75,7 @@ hx-vals='js:{
                                         case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
                                         default -> "text-neutral";
                                     };}
-                                    @template.document-page.content.word(
+                                    @template.document.word(
                                     wordId = selectable.id(),
                                     processedWord = cleanWord,
                                     documentId = documentId,
@@ -83,9 +83,9 @@ hx-vals='js:{
                                     bgColor = wordBgColor,
                                     textColor = wordTextColor,
                                     familiarity = translations.get(cleanWord).familiarity(),
-                                    isFound = true)
+                                    isPersisted = true)
                                 @else
-                                    @template.document-page.content.word(
+                                    @template.document.word(
                                     wordId = selectable.id(),
                                     processedWord = cleanWord,
                                     documentId = documentId,
@@ -95,7 +95,7 @@ hx-vals='js:{
                                     textColor = "text-primary")
                                 @endif
                             @else
-                                @template.document-page.content.word(
+                                @template.document.word(
                                 wordId = selectable.id(),
                                 processedWord = cleanWord,
                                 documentId = documentId,
@@ -107,7 +107,7 @@ hx-vals='js:{
                             @endif
                         @else
                             !{var phrase = ((Phrase) selectable);}
-                            @template.document-page.content.update-phrase(
+                            @template.translation.update-phrase(
                             phrase = phrase,
                             cleanWordPattern = cleanWordPattern,
                             selectableId = selectable.id(),
@@ -123,7 +123,7 @@ hx-vals='js:{
     class="
     md:max-w-2/5 md:gap-4
     max-w-full flex justify-center gap-2  mx-auto items-center">
-        @template.document-page.content.paginator(
+        @template.document.paginator(
         id = attribute.documentContentData().documentId(),
         currentPage = attribute.paginationData().currentPageNumber(),
         pages = attribute.paginationData().numberOfPages(),

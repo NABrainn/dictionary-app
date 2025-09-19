@@ -1,15 +1,19 @@
 package lule.dictionary.translations.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.result.data.Err;
+import lule.dictionary.result.data.Ok;
+import lule.dictionary.result.data.Result;
+import lule.dictionary.translations.data.TranslationLocalizationKey;
+import lule.dictionary.translations.data.attribute.PhraseAttribute;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.translations.data.attribute.TranslationAttribute;
-import lule.dictionary.translations.service.exception.TranslationServiceException;
+import lule.dictionary.translations.data.exception.TranslationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,57 +35,65 @@ public class TranslationController {
                                        Authentication authentication,
                                        @RequestParam int documentId,
                                        @RequestParam String targetWord,
-                                       @RequestParam("selectedWordId") int selectedWordId,
+                                       @RequestParam("id") int id,
                                        @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
-                                       @RequestParam("isFound") boolean isFound) {
-        if(!isFound) {
-            CreateTranslationRequest request = CreateTranslationRequest.builder()
-                    .documentId(documentId)
-                    .selectedWordId(selectedWordId)
-                    .isPhrase(isPhrase)
-                    .targetWord(targetWord)
-                    .build();
-            TranslationAttribute attribute = translationService.translate(request, authentication);
-            model.addAttribute("attribute", attribute);
-            model.addAttribute("errors", Map.of());
-            return "document-page/content/translation/add/add-translation-form";
+                                       @RequestParam("isPersisted") boolean isPersisted) {
+        GetTranslationFormRequest request = isPersisted ?
+                FindTranslationFormRequest.builder()
+                        .documentId(documentId)
+                        .selectedWordId(id)
+                        .isPhrase(isPhrase)
+                        .targetWord(targetWord)
+                        .build() :
+                CreateTranslationFormRequest.builder()
+                        .documentId(documentId)
+                        .selectedWordId(id)
+                        .isPhrase(isPhrase)
+                        .targetWord(targetWord)
+                        .build();
+        Result<TranslationAttribute> result = translationService.findOrCreateTranslation(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        if (result instanceof Ok<TranslationAttribute>(TranslationAttribute value)) {
+            Map<String, Object> attributes = Map.of(
+                    "attribute", value,
+                    "messages", messages,
+                    "errors", Map.of()
+            );
+            model.addAllAttributes(attributes);
+            return switch (value.type()) {
+                case CREATE -> "translation/add-translation-form";
+                case FIND -> "translation/update-translation-form";
+            };
         }
-        FindByTargetWordRequest request = FindByTargetWordRequest.builder()
-                .documentId(documentId)
-                .selectedWordId(selectedWordId)
-                .targetWord(targetWord)
-                .isPhrase(isPhrase)
-                .build();
-        TranslationAttribute attribute = translationService.findByTargetWord(request, authentication);
-        model.addAttribute("attribute", attribute);
-        model.addAttribute("errors", Map.of());
-        return "document-page/content/translation/update/update-translation-form";
+        return "error";
     }
 
     @GetMapping({"/create-phrase", "/create-phrase/"})
     public String createPhrase(Model model,
                                Authentication authentication,
                                @RequestParam("selectableId") int selectableId,
-                               @RequestParam("phraseText") String phraseText,
                                @RequestParam("documentId") int documentId,
-                               @RequestParam("phraseLength") int phraseLength,
+                               @RequestParam("ids") List<Integer> ids,
+                               @RequestParam("targetWords") List<String> targetWords,
                                @RequestParam("familiarities") List<String> familiarities,
-                               @RequestParam("isSavedList") List<String> isSavedList) {
-        CreateTranslationRequest request = CreateTranslationRequest.builder()
-                .targetWord(phraseText)
+                               @RequestParam("isPersistedList") List<String> isPersistedList) {
+        CreatePhraseAttributeRequest request = CreatePhraseAttributeRequest.builder()
+                .ids(ids)
+                .unprocessedTargetWords(targetWords)
+                .familiarities(familiarities)
+                .isPersistedList(isPersistedList)
+                .id(selectableId)
                 .documentId(documentId)
-                .selectedWordId(selectableId)
-                .isPhrase(true)
                 .build();
-        TranslationAttribute attribute = translationService.translate(request, authentication);
-        model.addAttribute("selectableId", selectableId);
-        model.addAttribute("phraseText", phraseText);
-        model.addAttribute("documentId", documentId);
-        model.addAttribute("phraseLength", phraseLength);
-        model.addAttribute("familiarities", familiarities);
-        model.addAttribute("isSavedList", isSavedList);
-        model.addAttribute("attribute", attribute);
-        return "document-page/content/new-phrase";
+        PhraseAttribute attribute = translationService.createPhraseAttribute(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        Map<String, Object> attributes = Map.of(
+                "attribute", attribute,
+                "messages", messages,
+                "errors", Map.of()
+        );
+        model.addAllAttributes(attributes);
+        return "translation/new-phrase";
     }
 
     @PostMapping({"/new", "/new/"})
@@ -93,28 +105,43 @@ public class TranslationController {
                                  @RequestParam("sourceLanguage") Language sourceLanguage,
                                  @RequestParam("targetLanguage") Language targetLanguage,
                                  @RequestParam("documentId") int documentId,
-                                 @RequestParam("selectedWordId") int selectedWordId,
+                                 @RequestParam("id") int selectedWordId,
                                  @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        try {
-            AddTranslationRequest request = AddTranslationRequest.builder()
-                    .documentId(documentId)
-                    .selectedWordId(selectedWordId)
-                    .sourceWords(sourceWords)
-                    .targetWord(targetWord)
-                    .sourceLanguage(sourceLanguage)
-                    .targetLanguage(targetLanguage)
-                    .familiarity(familiarity)
-                    .isPhrase(isPhrase)
-                    .build();
-            TranslationAttribute attribute = translationService.createTranslation(request, authentication);
-            model.addAttribute("attribute", attribute);
-            model.addAttribute("errors", Map.of());
-            return "document-page/content/translation/update/update-translation-form";
-        } catch (TranslationServiceException e) {
-            model.addAttribute("attribute", e.getAttribute());
-            model.addAttribute("errors", e.getMessages());
-            return "document-page/content/translation/add/add-translation-form";
-        }
+        AddTranslationRequest request = AddTranslationRequest.builder()
+                .documentId(documentId)
+                .selectedWordId(selectedWordId)
+                .sourceWords(sourceWords)
+                .targetWord(targetWord)
+                .sourceLanguage(sourceLanguage)
+                .targetLanguage(targetLanguage)
+                .familiarity(familiarity)
+                .isPhrase(isPhrase)
+                .build();
+        Result<TranslationAttribute> result = translationService.createTranslation(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        return switch (result) {
+            case Ok<TranslationAttribute> ok -> {
+                Map<String, Object> attributes = Map.of(
+                        "attribute", ok.value(),
+                        "messages", messages,
+                        "errors", Map.of()
+                );
+                model.addAllAttributes(attributes);
+                yield  "translation/update-translation-form";
+            }
+            case Err<?> err -> {
+                if(err.throwable() instanceof TranslationServiceException e) {
+                    Map<String, Object> attributes = Map.of(
+                            "attribute", e.getAttribute(),
+                            "messages", messages,
+                            "errors", e.getMessages()
+                    );
+                    model.addAllAttributes(attributes);
+                    yield  "translation/add-translation-form";
+                }
+                yield  "error";
+            }
+        };
     }
 
     @PutMapping({"/familiarity/update", "/familiarity/update/"})
@@ -124,7 +151,7 @@ public class TranslationController {
                                     @RequestParam("familiarity") Familiarity familiarity,
                                     @RequestParam("sourceLanguage") Language sourceLanguage,
                                     @RequestParam("targetLanguage") Language targetLanguage,
-                                    @RequestParam("selectedWordId") int selectedWordId,
+                                    @RequestParam("id") int selectedWordId,
                                     @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         UpdateTranslationFamiliarityRequest request = UpdateTranslationFamiliarityRequest.builder()
                 .selectedWordId(selectedWordId)
@@ -134,10 +161,15 @@ public class TranslationController {
                 .familiarity(familiarity)
                 .isPhrase(isPhrase)
                 .build();
-        TranslationAttribute result = translationService.updateFamiliarity(request, authentication);
-        model.addAttribute("attribute", result);
-        model.addAttribute("errors", Map.of());
-        return "document-page/content/translation/update/update-translation-form";
+        TranslationAttribute attribute = translationService.updateFamiliarity(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        Map<String, Object> attributes = Map.of(
+                "attribute", attribute,
+                "messages", messages,
+                "errors", Map.of()
+        );
+        model.addAllAttributes(attributes);
+        return "translation/update-translation-form";
     }
 
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
@@ -146,9 +178,8 @@ public class TranslationController {
                                     @RequestParam("sourceWords") List<String> sourceWords,
                                     @RequestParam("targetWord") String targetWord,
                                     @RequestParam("familiarity") String currentFamiliarity,
-                                    @RequestParam("selectedWordId") int selectedWordId,
+                                    @RequestParam("id") int selectedWordId,
                                     @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
-        try {
             UpdateSourceWordsRequest request = UpdateSourceWordsRequest.builder()
                     .sourceWords(sourceWords)
                     .familiarity(Familiarity.valueOf(currentFamiliarity.toUpperCase()))
@@ -156,27 +187,39 @@ public class TranslationController {
                     .selectedWordId(selectedWordId)
                     .isPhrase(isPhrase)
                     .build();
-            TranslationAttribute attribute = translationService.updateSourceWords(request,
-                    authentication);
-            model.addAttribute("attribute", attribute);
-            model.addAttribute("errors", Map.of());
-            return "document-page/content/translation/update/update-translation-form";
-
-        } catch (TranslationServiceException e) {
-            log.warn("TranslationServiceException: {}", e.getMessages());
-            model.addAttribute("attribute", e.getAttribute());
-            model.addAttribute("errors", e.getMessages());
-            return "document-page/content/translation/update/update-translation-form";
-        }
+            Result<TranslationAttribute> result = translationService.updateSourceWords(request, authentication);
+            Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+            switch (result) {
+                case Ok<TranslationAttribute> ok -> {
+                    Map<String, Object> attributes = Map.of(
+                            "attribute", ok.value(),
+                            "messages", messages,
+                            "errors", Map.of()
+                    );
+                    model.addAllAttributes(attributes);
+                    return "translation/update-translation-form";
+                }
+                case Err<TranslationAttribute> err -> {
+                    if(err.throwable() instanceof TranslationServiceException e) {
+                        Map<String, Object> attributes = Map.of(
+                                "attribute", e.getAttribute(),
+                                "messages", messages,
+                                "errors", e.getMessages()
+                        );
+                        model.addAllAttributes(attributes);
+                        return "translation/update-translation-form";
+                    }
+                    return "error";
+                }
+            }
     }
 
     @DeleteMapping({"/sourceWords/delete", "/sourceWords/delete/"})
     public String deleteSourceWord(Model model,
                                    Authentication authentication,
-                                   HttpSession session,
                                    @RequestParam("sourceWord") String sourceWord,
                                    @RequestParam("targetWord") String targetWord,
-                                   @RequestParam("selectedWordId") int selectedWordId,
+                                   @RequestParam("id") int selectedWordId,
                                    @RequestParam(value = "isPhrase", required = false) boolean isPhrase) {
         DeleteSourceWordRequest request = DeleteSourceWordRequest.builder()
                 .sourceWord(sourceWord)
@@ -184,9 +227,14 @@ public class TranslationController {
                 .selectedWordId(selectedWordId)
                 .isPhrase(isPhrase)
                 .build();
-        TranslationAttribute result = translationService.deleteSourceWord(request, session, authentication);
-        model.addAttribute("attribute", result);
-        model.addAttribute("errors", Map.of());
-        return "document-page/content/translation/update/update-translation-form";
+        TranslationAttribute attribute = translationService.deleteSourceWord(request, authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
+        Map<String, Object> attributes = Map.of(
+                "attribute", attribute,
+                "messages", messages,
+                "errors", Map.of()
+        );
+        model.addAllAttributes(attributes);
+        return "translation/update-translation-form";
     }
 }

@@ -1,206 +1,15 @@
-if (!window.FormAdjuster) {
-    class FormAdjuster {
-
-        debug = false
-
-        updatePositions(id) {
-            const form = this.#getTranslationForm(id);
-            this.#handleOverflow(form);
-        }
-        updateFormPosition(form) {
-            this.#handleOverflow(form);
-        }
-        #getTranslationForm(id) {
-            return htmx.find('#translation-form-container-' +  id);
-        }
-        #handleOverflow(form) {
-            this.#updateCords(form, {
-                top: 32,
-                // bottom: 0,
-                left: 8,
-            })
-
-             for(let i = 0; i < 5; i++) {
-                this.#handleNorthEastOverflow(form);
-                this.#handleNorthWestOverflow(form);
-                this.#handleSouthEastOverflow(form);
-                this.#handleSouthWestOverflow(form);
-                this.#handleSouthOverflow(form);
-             }
-        }
-        #handleNorthEastOverflow(form) {
-            if(!form) {
-                return
-            }
-            if (this.#isOverflowRight(form) && !this.#isOverflowBottom(form)) {
-                this.#updateCords(form, {
-                    top: 32,
-                    // bottom: 0,
-                    // left: 0,
-                    right: 8
-                })
-                if(this.debug) {
-                    console.log('overflow NE')
-                }
-                return true
-            }
-            return false
-
-        }
-        #handleNorthWestOverflow(form) {
-            if(!form) {
-                return
-            }
-            if (this.#isOverflowLeft(form) && !this.#isOverflowBottom(form)) {
-                this.#updateCords(form, {
-                    top: 32,
-                    // bottom: 0,
-                    // left: 0,
-                    right: 8
-                })
-                if(this.debug) {
-                    console.log('overflow NW')
-                }
-                return true
-            }
-            return false
-        }
-        #handleSouthEastOverflow(form) {
-            if(!form) {
-                return
-            }
-            if (this.#isOverflowRight(form) && this.#isOverflowBottom(form)) {
-                this.#updateCords(form, {
-                    // top: 0,
-                    bottom: 32,
-                    // left: 20,
-                    right: 10
-                })
-                if(this.debug) {
-                    console.log('overflow SE')
-                }
-                return true
-            }
-            return false
-        }
-        #handleSouthWestOverflow(form) {
-            if(!form) {
-                return
-            }
-            if (this.#isOverflowLeft(form) && this.#isOverflowBottom(form)) {
-                this.#updateCords(form, {
-                    // top: 30,
-                    bottom: 32,
-                    // left: 0,
-                    right: -44
-                })
-                if(this.debug) {
-                    console.log('overflow SW')
-                }
-                return true
-            }
-            return false
-        }
-        #handleSouthOverflow(form) {
-            if(!form) {
-                return
-            }
-            if (this.#isOverflowBottom(form)) {
-                this.#updateCords(form, {
-                    // top: 0,
-                    bottom: 32,
-                    left: 8,
-                    // right: -120
-                })
-                if(this.debug) {
-                    console.log('overflow S')
-                }
-                return true
-            }
-            return false
-        }
-        #handleWestOverflow(form) {
-            if(!form) {
-                return
-            }
-            if(this.#isOverflowLeft(form)) {
-                this.#updateCords(form, {
-                    top: 30,
-                    // bottom: 0,
-                    left: -50,
-                    // right: 0
-                })
-                if(this.debug) {
-                    console.log('overflow W')
-                }
-                return true
-            }
-            return false
-        }
-        #handleEastOverflow(form) {
-            if(!form) {
-                return
-            }
-            if(this.#isOverflowRight(form)) {
-                this.#updateCords(form, {
-                    // top: 30,
-                    bottom: 40,
-                    // left: 30,
-                    right: -30
-                })
-                if(this.debug) {
-                    console.log('overflow E')
-                }
-                return true
-            }
-            return false
-        }
-        #isOverflowLeft(form) {
-            if(!form) {
-                return
-            }
-            return form.getBoundingClientRect().left < 0;
-        }
-        #isOverflowRight(form) {
-            if(!form) {
-                return
-            }
-            return form.getBoundingClientRect().right > window.innerWidth;
-        }
-        #isOverflowBottom(form) {
-            if(!form) {
-                return
-            }
-            if(this.debug) {
-                console.log('BoundingClientRect: ', form.getBoundingClientRect().bottom, 'window innerHeight: ', window.innerHeight)
-            }
-            return form.getBoundingClientRect().bottom > window.innerHeight;
-        }
-        #updateCords(form, cords) {
-            form?.style?.removeProperty('left')
-            form?.style?.removeProperty('right')
-            form?.style?.removeProperty('top')
-            form?.style?.removeProperty('bottom')
-
-            if(this.debug) {
-                console.log('properties removed: ', form?.style)
-            }
-            for(const position in cords) {
-                if(form) {
-                    form.style[position] = cords[position]
-                }
-            }
-            if(this.debug) {
-                console.log('coords updated: ', form?.style)
-            }
-        }
-    }
-    window.formAdjuster = window.formAdjuster || new FormAdjuster()
-}
-
 window.documentPage = window.documentPage || {
-    closeAllTranslationForms: () => util.findAllByData({ key: 'is-translation-form-container', value: 'true' }).forEach(formContainer => util.removeInnerHTML(formContainer)),
-    cleanupSelectedWord: () => {
+    debug: false,
+    closeAllTranslationForms() {
+        if(this.debug) {
+            console.log('cleaning up translation forms')
+        }
+        util.findAllByData({ key: 'is-translation-form-container', value: 'true' }).forEach(formContainer => util.removeInnerHTML(formContainer))
+    },
+    cleanupSelectedWord() {
+        if(this.debug) {
+            console.log('cleaning up selected word')
+        }
         const familiarityColors = new Map([
             ['unknown', ['bg-accent', 'text-primary']],
             ['recognized', ['bg-accent/80', 'text-primary']],
@@ -220,7 +29,10 @@ window.documentPage = window.documentPage || {
             })
         })
     },
-    cleanupSelectedPhrase: () => {
+    cleanupSelectedPhrase() {
+        if(this.debug) {
+            console.log('cleaning up selected phrase')
+        }
         const familiarityColors = new Map([
             ['unknown', ['bg-accent', 'text-primary']],
             ['recognized', ['bg-accent/80', 'text-primary']],
@@ -341,15 +153,6 @@ window.documentPage = window.documentPage || {
             }),
             content: phraseNodes
         })
-        htmx.on('htmx:afterSwap', (e) => {
-            formAdjuster.updateFormPosition(e.target.firstElementChild)
-        })
-        htmx.on('htmx:load', (e) => {
-            formAdjuster.updateFormPosition(e.target.firstElementChild)
-        })
-        htmx.on('htmx:afterSettle', (e) => {
-            formAdjuster.updateFormPosition(e.target.firstElementChild)
-        })
 
         wrappedPhrase.content.forEach(node => node.classList.remove('border', 'border-2', 'border-transparent'))
         document.dispatchEvent(new Event('swapphrase'))
@@ -376,6 +179,237 @@ window.documentPage = window.documentPage || {
                 })
             })
         })
+    },
+    handlePersistWord: (word, familiarity) => {
+        const familiarityColors = new Map([
+            ['unknown', ['bg-accent', 'text-primary']],
+            ['recognized', ['bg-accent/80', 'text-primary']],
+            ['familiar', ['bg-accent/60', 'text-primary']],
+            ['known', ['bg-primary', 'text-neutral']],
+            ['ignored', ['bg-primary', 'text-neutral']]
+        ])
+        if(word.split(' ').length > 1) {
+            util.findAllByData({ key: 'is-phrase', value: 'true' })
+            .filter(phrase => data.get(phrase, 'is-saved') === 'false')
+            .filter(phrase => data.get(phrase, 'is-selected') === 'true')
+            .forEach(selectedPhrase => {
+                data.set(selectedPhrase, { key: 'familiarity', value: familiarity })
+                data.set(selectedPhrase, { key: 'is-saved', value: 'true' })
+                util.replaceClasses(selectedPhrase, {
+                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                    toAdd: ['bg-tertiary', 'text-accent']
+                })
+                const words = Array.from(selectedPhrase.children)
+                .filter(child => data.get(child, 'is-word') === 'true')
+                words.forEach(word => word.classList.add('pointer-events-none'))
 
+                const spans = words.flatMap(word => word.firstElementChild)
+                spans.forEach(span => {
+                    util.replaceClasses(span, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'text-primary'],
+                        toAdd: ['text-accent']
+                    })
+                })
+            })
+
+
+            //highlight phrases matched by text
+            const matchedPhraseNodes = util.findAllByText({ text: word, nodes: util.findAllByData({ key: 'is-word-span', value: 'true' }) })
+            .map(spanNodeList => spanNodeList.map(spanNode => spanNode.parentElement))
+            .filter(wordList => wordList.every(word => data.get(word, 'is-wrapped') === 'false'))
+            matchedPhraseNodes
+            .forEach(phraseNodeList => {
+                const wrapped = util.wrap({
+                    wrapper: util.define('div', {
+                        classList: ['inline-flex', 'relative', 'rounded', 'text-lg', 'gap-1', 'cursor-pointer', 'border', 'border-2', 'border-secondary'],
+                        data: [
+                            { key: 'id', value: data.get(phraseNodeList.at(0), 'id') },
+                            { key: 'value', value: word },
+                            { key: 'is-phrase', value: 'true' },
+                            { key: 'is-saved', value: 'true' },
+                            { key: 'is-selected', value: 'false' },
+                            { key: 'length', value: word.split(' ').length }
+                        ],
+                    }),
+                    content: phraseNodeList
+                })
+
+                util.insertBefore({
+                    insert: util.define('div', {
+                        classList: ['cursor-default', 'z-2', 'absolute', 'inline'],
+                        id: phraseNodeList.at(0).firstElementChild.id,
+                        data: [
+                            { key: 'is-translation-form-container', value: 'true' }
+                        ]
+                    }),
+                    before: wrapped.content.at(0)
+                })
+                util.replaceClasses(wrapped.wrapper, {
+                    toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent'],
+                    toAdd: familiarityColors.get(familiarity)
+                })
+                wrapped.content.forEach(phraseNode => {
+                    data.set(phraseNode, { key: 'is-wrapped', value: 'true' });
+                    data.set(phraseNode, { key: 'is-selectable', value: 'false' });
+                    util.replaceClasses(phraseNode, {
+                        toRemove: ['border', 'border-2', 'border-transparent'],
+                        toAdd: ['pointer-events-none', 'text-accent']
+                    })
+                    phraseNode.firstElementChild.remove()
+
+                    const spans = [...phraseNode.children]
+                    .filter(child => child instanceof HTMLSpanElement)
+
+                    spans.forEach(span => util.replaceClasses(span, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent', 'bg-tertiary'],
+                        toAdd: familiarityColors.get(familiarity).at(1)
+                    }))
+                })
+                util.setHx({
+                    element: wrapped.wrapper,
+                    method: { key: 'hx-get', value: '/translations/find' },
+                    target: 'closest #translation-form-container-' + data.get(phraseNodeList.at(0), 'id'),
+                    swap: 'innerHTML',
+                    trigger: 'click',
+                    params: 'documentId,targetWord,id,isPhrase,isPersisted',
+                    vals: {
+                        documentId: data.get(phraseNodeList.at(0), 'document-id'),
+                        targetWord: word,
+                        id: data.get(phraseNodeList.at(0), 'id'),
+                        isPhrase: true,
+                        isPersisted: true
+                    }
+                })
+
+                htmx.on(wrapped.wrapper, 'click', () => {
+                    const familiarityColors = new Map([
+                        ['unknown', ['bg-accent', 'text-primary']],
+                        ['recognized', ['bg-accent/80', 'text-primary']],
+                        ['familiar', ['bg-accent/60', 'text-primary']],
+                        ['known', ['bg-primary', 'text-neutral']],
+                        ['ignored', ['bg-primary', 'text-neutral']]
+                    ])
+
+                    //handle selection
+                    util.findAllByData({ key: 'is-phrase', value: 'true' })
+                    .filter(node => data.get(node, 'is-selected') === 'false')
+                    .filter(node => data.get(node, 'id') === data.get(phraseNodeList.at(0), 'id'))
+                    .forEach(node => {
+                        data.set(node, { key: 'is-selected', value: 'true' })
+                        util.replaceClasses(node, {
+                            toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                            toAdd: ['bg-tertiary', 'text-accent']
+                        })
+
+                        Array.from(node.children)
+                        .filter(child => data.get(child, 'is-word') === 'true')
+                        .flatMap(word => [...word.children])
+                        .filter(child => child instanceof HTMLSpanElement)
+                        .forEach(span => {
+                            util.replaceClasses(span, {
+                                toRemove: ['text-primary', 'text-accent'],
+                                toAdd: ['text-accent']
+                            })
+                        })
+                    })
+                })
+            })
+        }
+        else {
+            util.findAllByData({ key: 'is-word', value: 'true' })
+            .filter(node =>
+                data.get(node, 'value') === word
+            )
+            .forEach(word => {
+                data.set(word, { key: 'familiarity', value: familiarity })
+                data.set(word, { key: 'is-saved', value: 'true' })
+                if(data.get(word, 'is-selected') === 'true') {
+                    const selectedSpan = word.firstElementChild.nextElementSibling
+                    util.replaceClasses(selectedSpan, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: ['bg-tertiary', 'text-accent']
+                    })
+                }
+                else {
+                    const selectedSpan = word.firstElementChild.nextElementSibling
+                    util.replaceClasses(selectedSpan, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: familiarityColors.get(familiarity)
+                    })
+                }
+            })
+        }
+    },
+    handleUpdateFamiliarity(inputWord, familiarity) {
+        const familiarityColors = new Map([
+            ['unknown', ['bg-accent', 'text-primary']],
+            ['recognized', ['bg-accent/80', 'text-primary']],
+            ['familiar', ['bg-accent/60', 'text-primary']],
+            ['known', ['bg-primary', 'text-neutral']],
+            ['ignored', ['bg-primary', 'text-neutral']]
+        ])
+
+        if(inputWord.split(' ').length > 1) {
+            util.findAllByData({ key: 'is-phrase', value: 'true' })
+            .filter(phrase => data.get(phrase, 'value') === inputWord)
+            .filter(phrase => data.get(phrase, 'is-saved') === 'true')
+            .forEach(savedPhrase => {
+                data.set(savedPhrase, { key: 'familiarity', value: familiarity })
+
+                if(data.get(savedPhrase, 'is-selected') === 'true') {
+                    util.replaceClasses(savedPhrase, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: ['bg-tertiary', 'text-accent']
+                    })
+                    Array.from(savedPhrase.children)
+                    .filter(child => data.get(child, 'is-word') === 'true')
+                    .flatMap(word => [...word.children])
+                    .filter(child => child instanceof HTMLSpanElement)
+                    .forEach(span => {
+                        util.replaceClasses(span, {
+                            toRemove: ['text-accent', 'text-primary'],
+                            toAdd: ['text-accent']
+                        })
+                    })
+                }
+                else {
+                    util.replaceClasses(savedPhrase, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary', 'text-accent'],
+                        toAdd: familiarityColors.get(familiarity)
+                    })
+                    Array.from(savedPhrase.children)
+                    .filter(child => data.get(child, 'is-word') === 'true')
+                    .flatMap(word => [...word.children])
+                    .filter(child => child instanceof HTMLSpanElement)
+                    .forEach(span => {
+                        util.replaceClasses(span, {
+                            toRemove: ['text-accent', 'text-primary'],
+                            toAdd: familiarityColors.get(familiarity).at(1)
+                        })
+                    })
+                }
+            })
+        }
+        else {
+            util.findAllByData({ key: 'is-word', value: 'true' })
+            .filter(word => data.get(word, 'value') === inputWord)
+            .forEach(word => {
+                data.set(word, { key: 'familiarity', value: familiarity })
+                if(data.get(word, 'is-selected') === 'true') {
+                    const selectedSpan = word.firstElementChild.nextElementSibling
+                    util.replaceClasses(selectedSpan, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: ['bg-tertiary', 'text-accent']
+                    })
+                }
+                else {
+                    const selectedSpan = word.firstElementChild.nextElementSibling
+                    util.replaceClasses(selectedSpan, {
+                        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+                        toAdd: familiarityColors.get(familiarity)
+                    })
+                }
+            })
+        }
     }
 }

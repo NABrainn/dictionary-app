@@ -6,7 +6,7 @@ public record Constraint(@NonNull String name,
                          @NonNull ViolationChecker violationChecker,
                          @NonNull String message) {
 
-    public static Constraint define(String name, ViolationChecker violationChecker, String message) {
+    public static Constraint of(String name, ViolationChecker violationChecker, String message) {
         return new Constraint(name, violationChecker, message);
     }
 
