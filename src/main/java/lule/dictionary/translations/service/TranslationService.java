@@ -391,19 +391,16 @@ public class TranslationService {
                 .familiarity(request.familiarity())
                 .quantity(request.quantity())
                 .isPhrase(request.isPhrase())
-                .localization(translationLocalization.translationFormMessages(principal.userInterfaceLanguage()))
                 .build());
 
     }
 
     public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        Language uiLanguage = principal.userInterfaceLanguage();
         return FlashcardConfigAttribute.builder()
                 .familiarity(request.familiarity())
                 .quantity(request.quantity())
                 .isPhrase(request.isPhrase())
-                .localization(translationLocalization.translationFormMessages(uiLanguage))
                 .build();
     }
 
@@ -598,5 +595,10 @@ public class TranslationService {
                 .phrasePartsAttribute(phraseParts)
                 .phraseAttribute(attribute)
                 .build();
+    }
+
+    public Map<TranslationLocalizationKey, String> getVocabularyMessages(Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        return translationLocalization.vocabularyMessages(principal.userInterfaceLanguage());
     }
 }
