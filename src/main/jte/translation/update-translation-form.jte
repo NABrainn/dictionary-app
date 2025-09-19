@@ -80,7 +80,7 @@ id="translation-form">
                         id="input-source-word"
                         class="
                         outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
-                        focus:border-accent"
+                        focus:border-accent max-w-50"
                         type="text"
                         placeholder=""
                         name="sourceWords">
@@ -95,15 +95,14 @@ id="translation-form">
     </div>
     <div class="
     md:flex md:flex-col md:gap-0.25
-    flex flex-row justify-around">
+    flex flex-row justify-center gap-3">
         @for(var level : attribute.familiarityLevels().entrySet())
             @if(level.getKey() == attribute.currentFamiliarity())
                 <div class="
-                flex flex-row md:bg-tertiary md:text-primary md:size-auto md:justify-start
-                font-bold bg-primary text-accent gap-1  size-8 rounded justify-center items-center">
-                    <span class="
-                    md:inline
-                    block">${level.getKey()}<span class="md:inline hidden">: </span></span>
+                flex flex-row md:bg-tertiary md:text-primary md:gap-1 md:size-auto md:justify-start
+                font-bold bg-primary text-accent size-8 rounded justify-center items-center"
+                >
+                    <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                     <span class="
                     md:inline
                     hidden">${messages.get(TranslationLocalizationKey.valueOf(level.getValue().name().toUpperCase()))}</span>
@@ -112,7 +111,7 @@ id="translation-form">
             <form
             class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
-            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8  justify-center items-center"
+            cursor-pointer bg-accent text-primary flex hover:text-primary font-bold rounded size-8 justify-center items-center"
             id="translation-form-${attribute.id()}"
             hx-trigger="click"
             hx-put="/translations/familiarity/update"

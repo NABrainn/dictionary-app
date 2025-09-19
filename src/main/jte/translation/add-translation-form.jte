@@ -12,7 +12,7 @@
 hx-on:click="event.stopPropagation()"
 class="
 md:gap-0.75
-bg-tertiary flex flex-col p-3 rounded animate-fade-10"
+bg-tertiary flex flex-col p-3 rounded animate-fade-10 gap-4"
 id="translation-form">
     <div class="flex justify-end">
         <span
@@ -74,7 +74,7 @@ id="translation-form">
                         <input
                         id="input-source-word"
                         class="
-                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
+                        max-w-50 outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
                         focus:border-accent"
                         type="text"
                         placeholder=""
@@ -90,7 +90,7 @@ id="translation-form">
     </div>
     <div class="
     md:flex md:flex-col md:gap-0.25
-    flex flex-row justify-around">
+    flex flex-row justify-center gap-3">
         @for(var level : attribute.familiarityLevels().entrySet())
             <form
             hx-on::before-request="
