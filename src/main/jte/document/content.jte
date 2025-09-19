@@ -85,14 +85,26 @@ hx-vals='js:{
                                     familiarity = translations.get(cleanWord).familiarity(),
                                     isPersisted = true)
                                 @else
-                                    @template.document.word(
-                                    wordId = selectable.id(),
-                                    processedWord = cleanWord,
-                                    documentId = documentId,
-                                    word = word,
-                                    familiarity = Familiarity.UNKNOWN,
-                                    bgColor = "bg-accent",
-                                    textColor = "text-primary")
+                                    @if(cleanWord.length() <= 150)
+                                        @template.document.word(
+                                        wordId = selectable.id(),
+                                        processedWord = cleanWord,
+                                        documentId = documentId,
+                                        word = word,
+                                        familiarity = Familiarity.UNKNOWN,
+                                        bgColor = "bg-accent",
+                                        textColor = "text-primary")
+                                    @else
+                                        @template.document.word(
+                                        wordId = selectable.id(),
+                                        processedWord = cleanWord,
+                                        documentId = documentId,
+                                        word = word,
+                                        familiarity = Familiarity.IGNORED,
+                                        bgColor = "bg-primary",
+                                        textColor = "text-neutral",
+                                        isSelectable = false)
+                                    @endif
                                 @endif
                             @else
                                 @template.document.word(
