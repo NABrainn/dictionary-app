@@ -14,7 +14,7 @@
     @if(baseAttribute.isAuthenticated())
         <div
         class="md:w-1/2
-        w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral">
+        max-w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral">
                 @if(attribute.documents().isEmpty())
                     <div class="flex justify-center text-xl">
                         <span class="text-neutral font-bold">${attribute.localization().get(DocumentLocalizationKey.THERE_ARE_NO_DOCUMENTS_IN_THE_LIBRARY)}.
@@ -57,23 +57,25 @@
                             </div>
                         @endfor
                     </div>
-                @endif
-            <div class="flex items-center justify-end sticky bottom-8">
-                <button
-                class="
-                hover:bg-secondary hover:brightness-[110%]
-                flex items-center gap-2 cursor-pointer border border-3 border-rounded border-tertiary bg-secondary px-5 py-3 rounded text-lg font-bold text-neutral text-xl mr-2"
-                hx-get="/documents/new"
-                hx-target="#main"
-                hx-swap="innerHTML"
-                hx-push-url="/documents/new"
-                type="button">
-                    <span class="block text-2xl">+</span>
-                    <span class="block">${attribute.localization().get(DocumentLocalizationKey.ADD_BOOK)}</span>
-                </button>
-            </div>
-            </div>
 
+                @endif
+
+            </div>
+        <div class="flex items-center justify-end sticky bottom-8">
+            <button
+            class="
+            md:mr-36
+            flex items-center gap-2 cursor-pointer border border-3 border-rounded border-tertiary bg-secondary px-5 py-3 rounded text-lg font-bold text-neutral text-xl mr-2
+            hover:bg-secondary hover:brightness-[110%]"
+                    hx-get="/documents/new"
+                    hx-target="#main"
+                    hx-swap="innerHTML"
+                    hx-push-url="/documents/new"
+                    type="button">
+                <span class="block text-2xl">+</span>
+                <span class="block">${attribute.localization().get(DocumentLocalizationKey.ADD_BOOK)}</span>
+            </button>
+        </div>
     @endif
 `,
 baseAttribute = baseAttribute)

@@ -11,19 +11,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class Validator {
     public Result<?> validate(List<Constraint> constraints) {
-        Stream<Constraint> violationStream = constraints.stream()
+        Map<String, String> violations = constraints.stream()
                 .filter(constraint -> constraint.violationChecker().run())
-                .distinct();
-
-        Map<String, String> violations = violationStream
+                .distinct()
                 .collect(Collectors.toUnmodifiableMap(Constraint::name, Constraint::message, (v1, v2) -> v1));
-
         return violations.isEmpty()
                 ? Ok.empty()
                 : Err.of(new ValidationException(violations));

@@ -1,17 +1,22 @@
 @import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute
+@import java.util.Map
 
-@param java.util.Map<String, String> messages = java.util.Map.of()
 @param FlashcardConfigAttribute attribute
+@param Map<TranslationLocalizationKey, String> messages 
 
 <div
 id="flashcard-config-form"
-class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-between p-6">
+class="
+md:w-1/4
+bg-tertiary min-h-140 rounded-md w-4/5  mx-auto flex flex-col justify-between p-6">
     <div class="flex flex-col gap-10">
-        <p class="font-bold text-3xl text-primary">${attribute.localization().get(TranslationLocalizationKey.REVIEW_TRANSLATIONS)}</p>
+        <p class="font-bold text-3xl text-primary">${messages.get(TranslationLocalizationKey.REVIEW_TRANSLATIONS)}</p>
         <div class="flex flex-col gap-4">
-            <span class="font-bold text-xl text-secondary">${attribute.localization().get(TranslationLocalizationKey.FAMILIARITY)}</span>
-            <div class="flex gap-8 select-none">
+            <span class="font-bold text-xl text-secondary">${messages.get(TranslationLocalizationKey.FAMILIARITY)}</span>
+            <div class="
+            md:gap-8
+            flex gap-4 select-none">
                 @for(int i = 1; i <= 5; i++)
                     @if(attribute.familiarity() == i)
                         <div
@@ -49,7 +54,7 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
             </div>
         </div>
         <div class="flex flex-col gap-4">
-            <span class="font-bold text-xl text-secondary">${attribute.localization().get(TranslationLocalizationKey.HOW_MANY)}?</span>
+            <span class="font-bold text-xl text-secondary">${messages.get(TranslationLocalizationKey.HOW_MANY)}?</span>
             <div class="flex gap-8 select-none">
                 @if(attribute.quantity() == 10)
                     <div
@@ -101,7 +106,7 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
         <div class="flex gap-8 select-none">
             @if(attribute.isPhrase())
                 <div
-                class="basis-1/2 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${attribute.localization().get(TranslationLocalizationKey.PHRASES)}</div>
+                class="basis-1/2 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${messages.get(TranslationLocalizationKey.PHRASES)}</div>
                 <div
                 class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
                 hx-get="/vocabulary/config-form/"
@@ -111,7 +116,7 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                     "familiarity": "${attribute.familiarity()}",
                     "quantity": "${attribute.quantity()}",
                     "isPhrase": "false"
-                }'>${attribute.localization().get(TranslationLocalizationKey.WORDS)}</div>
+                }'>${messages.get(TranslationLocalizationKey.WORDS)}</div>
             @else
                 <div
                 class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
@@ -122,9 +127,9 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
                     "familiarity": "${attribute.familiarity()}",
                     "quantity": "${attribute.quantity()}",
                     "isPhrase": "true"
-                }'>${attribute.localization().get(TranslationLocalizationKey.PHRASES)}</div>
+                }'>${messages.get(TranslationLocalizationKey.PHRASES)}</div>
                 <div
-                class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${attribute.localization().get(TranslationLocalizationKey.WORDS)}</div>
+                class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">${messages.get(TranslationLocalizationKey.WORDS)}</div>
             @endif
         </div>
     </div>
@@ -143,10 +148,5 @@ class="bg-tertiary min-h-140 rounded-md w-1/4 mx-auto flex flex-col justify-betw
         type="submit"
         class="font-bold text-accent cursor-pointer bg-primary py-4 flex justify-center rounded cursor-pointer"
         >Start</button>
-        @if(messages.get("emptyList") != null)
-            <span class="font-bold text-error/90">${messages.get("emptyList")}</span>
-        @else
-            <span class="font-bold text-error/80 invisible">placeholder</span>
-        @endif
     </form>
 </div>

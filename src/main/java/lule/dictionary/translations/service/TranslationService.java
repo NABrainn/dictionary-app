@@ -58,15 +58,35 @@ public class TranslationService {
                 .map(String::trim)
                 .map(patternService::removeSpecialCharacters)
                 .orElse("");
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord())
+                .trim();
         Result<?> result = validator.validate(List.of(
-                Constraint.of("sourceWord", () -> sanitizedSourceWord.length() > 150, switch (uiLanguage) {
+                Constraint.of("sourceWord", () -> request.isPhrase() && sanitizedSourceWord.length() > 50, switch (uiLanguage) {
                     case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
                     case EN -> "Source word cannot be longer than 150 characters";
                     case IT -> "La parola sorgente non può superare i 150 caratteri";
                     case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
                 }),
+                Constraint.of("sourceWord", () -> !request.isPhrase() && sanitizedSourceWord.length() > 250, switch (uiLanguage) {
+                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.of("targetWord", () -> request.isPhrase() && sanitizedTargetWord.length() > 50, switch (uiLanguage) {
+                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.of("targetWord", () -> !request.isPhrase() && sanitizedTargetWord.length() > 250, switch (uiLanguage) {
+                    case PL -> "ttt źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
                 Constraint.of("sourceWord", sanitizedSourceWord::isBlank, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być puste";
+                    case PL -> "ttt źródłowe nie może być puste";
                     case EN -> "Source word cannot be empty";
                     case IT -> "La parola sorgente non può essere vuota";
                     case NO -> "Kildeordet kan ikke være tomt";
@@ -154,57 +174,50 @@ public class TranslationService {
                                                   @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language uiLanguage = principal.userInterfaceLanguage();
-            String sanitizedSourceWord = request.sourceWords().stream()
-                    .findFirst()
-                    .map(String::trim)
-                    .map(patternService::removeSpecialCharacters)
-                    .orElse("");
-            Result<?> result = validator.validate(List.of(
-                    Constraint.of("sourceWord", () -> sanitizedSourceWord.length() > 150, switch (uiLanguage) {
-                        case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                        case EN -> "Source word cannot be longer than 150 characters";
-                        case IT -> "La parola sorgente non può superare i 150 caratteri";
-                        case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                    }),
-                    Constraint.of("sourceWord", sanitizedSourceWord::isBlank, switch (uiLanguage) {
-                        case PL -> "Słowo źródłowe nie może być puste";
-                        case EN -> "Source word cannot be empty";
-                        case IT -> "La parola sorgente non può essere vuota";
-                        case NO -> "Kildeordet kan ikke være tomt";
-                    })
-            ));
-            return switch (result) {
-                case Ok<?> ignored -> translationRepository.updateSourceWords(request.sourceWords(), request.targetWord(), principal.username())
-                        .map(translation -> TranslationAttribute.builder()
-                                .documentId(-1)
-                                .id(request.selectedWordId())
-                                .translation(translation.withSourceWords(translation.sourceWords().stream()
-                                        .filter(word -> !word.isBlank())
-                                        .distinct()
-                                        .limit(3)
-                                        .toList()))
-                                .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
-                                .familiarityLevels(familiarityService.getFamiliarityMap())
-                                .isPhrase(request.isPhrase())
-                                .isPersisted(true)
-                                .build())
-                        .map(Ok::of)
-                        .orElseThrow();
-                case Err<?> err -> {
-                    Translation translation = Translation.builder()
-                            .sourceWords(request.sourceWords().stream()
-                                    .map(patternService::removeSpecialCharacters)
-                                    .filter(word -> !word.isBlank())
-                                    .toList())
-                            .targetWord(request.targetWord())
-                            .familiarity(request.familiarity())
-                            .sourceLanguage(principal.sourceLanguage())
-                            .targetLanguage(principal.targetLanguage())
-                            .owner(principal.username())
-                            .isPhrase(request.isPhrase())
-                            .unprocessedTargetWord("")
-                            .build();
-                    TranslationAttribute translationAttribute = TranslationAttribute.builder()
+
+        String sanitizedSourceWord = !request.sourceWords().isEmpty() ?
+                Optional.of(request.sourceWords().getLast())
+                .map(patternService::removeSpecialCharacters)
+                .map(String::trim)
+                .orElse("") :
+                "";
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord())
+                .trim();
+        Result<?> result = validator.validate(List.of(
+                Constraint.of("sourceWord", () -> request.isPhrase() && sanitizedSourceWord.length() > 50, switch (uiLanguage) {
+                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.of("sourceWord", () -> !request.isPhrase() && sanitizedSourceWord.length() > 250, switch (uiLanguage) {
+                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.of("targetWord", () -> request.isPhrase() && sanitizedTargetWord.length() > 50, switch (uiLanguage) {
+                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.of("targetWord", () -> !request.isPhrase() && sanitizedTargetWord.length() > 250, switch (uiLanguage) {
+                    case PL -> "ttt źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.of("sourceWord", sanitizedSourceWord::isBlank, switch (uiLanguage) {
+                    case PL -> "ttt źródłowe nie może być puste";
+                    case EN -> "Source word cannot be empty";
+                    case IT -> "La parola sorgente non può essere vuota";
+                    case NO -> "Kildeordet kan ikke være tomt";
+                })
+        ));
+        return switch (result) {
+            case Ok<?> ignored -> translationRepository.updateSourceWords(request.sourceWords(), request.targetWord(), principal.username())
+                    .map(translation -> TranslationAttribute.builder()
                             .documentId(-1)
                             .id(request.selectedWordId())
                             .translation(translation.withSourceWords(translation.sourceWords().stream()
@@ -216,13 +229,41 @@ public class TranslationService {
                             .familiarityLevels(familiarityService.getFamiliarityMap())
                             .isPhrase(request.isPhrase())
                             .isPersisted(true)
-                            .build();
-                    if(err.throwable() instanceof ValidationException exception) {
-                        throw new TranslationServiceException(translationAttribute, exception.getViolations());
-                    }
-                    throw new RuntimeException("Unknown exception");
-                }
-            };
+                            .build())
+                    .map(Ok::of)
+                    .orElseThrow();
+            case Err<?> err -> {
+                Translation translation = Translation.builder()
+                        .sourceWords(request.sourceWords().stream()
+                                .map(patternService::removeSpecialCharacters)
+                                .filter(word -> !word.isBlank())
+                                .toList())
+                        .targetWord(request.targetWord())
+                        .familiarity(request.familiarity())
+                        .sourceLanguage(principal.sourceLanguage())
+                        .targetLanguage(principal.targetLanguage())
+                        .owner(principal.username())
+                        .isPhrase(request.isPhrase())
+                        .unprocessedTargetWord("")
+                        .build();
+                TranslationAttribute translationAttribute = TranslationAttribute.builder()
+                        .documentId(-1)
+                        .id(request.selectedWordId())
+                        .translation(translation.withSourceWords(translation.sourceWords().stream()
+                                .filter(word -> !word.isBlank())
+                                .distinct()
+                                .limit(3)
+                                .toList()))
+                        .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
+                        .familiarityLevels(familiarityService.getFamiliarityMap())
+                        .isPhrase(request.isPhrase())
+                        .isPersisted(true)
+                        .build();
+                yield err.throwable() instanceof ValidationException exception
+                        ? Err.of(new TranslationServiceException(translationAttribute, exception.getViolations()))
+                        : Err.of(new RuntimeException("Unknown exception", err.throwable()));
+            }
+        };
     }
 
     @Transactional
@@ -230,15 +271,35 @@ public class TranslationService {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language uiLanguage = principal.userInterfaceLanguage();
         String sanitizedSourceWord = patternService.removeSpecialCharacters(request.sourceWord()).trim();
-        validator.validate(List.of(
-                Constraint.of("sourceWord", () -> sanitizedSourceWord.length() > 150, switch(uiLanguage) {
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord())
+                .trim();
+        Result<?> result = validator.validate(List.of(
+                Constraint.of("sourceWord", () -> request.isPhrase() && sanitizedSourceWord.length() > 50, switch (uiLanguage) {
                     case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
                     case EN -> "Source word cannot be longer than 150 characters";
                     case IT -> "La parola sorgente non può superare i 150 caratteri";
                     case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
                 }),
-                Constraint.of("sourceWord", sanitizedSourceWord::isBlank, switch(uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być puste";
+                Constraint.of("sourceWord", () -> !request.isPhrase() && sanitizedSourceWord.length() > 250, switch (uiLanguage) {
+                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.of("targetWord", () -> request.isPhrase() && sanitizedTargetWord.length() > 50, switch (uiLanguage) {
+                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.of("targetWord", () -> !request.isPhrase() && sanitizedTargetWord.length() > 250, switch (uiLanguage) {
+                    case PL -> "ttt źródłowe nie może być dłuższe niż 150 znaków";
+                    case EN -> "Source word cannot be longer than 150 characters";
+                    case IT -> "La parola sorgente non può superare i 150 caratteri";
+                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
+                }),
+                Constraint.of("sourceWord", sanitizedSourceWord::isBlank, switch (uiLanguage) {
+                    case PL -> "ttt źródłowe nie może być puste";
                     case EN -> "Source word cannot be empty";
                     case IT -> "La parola sorgente non può essere vuota";
                     case NO -> "Kildeordet kan ikke være tomt";
@@ -330,19 +391,16 @@ public class TranslationService {
                 .familiarity(request.familiarity())
                 .quantity(request.quantity())
                 .isPhrase(request.isPhrase())
-                .localization(translationLocalization.translationFormMessages(principal.userInterfaceLanguage()))
                 .build());
 
     }
 
     public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        Language uiLanguage = principal.userInterfaceLanguage();
         return FlashcardConfigAttribute.builder()
                 .familiarity(request.familiarity())
                 .quantity(request.quantity())
                 .isPhrase(request.isPhrase())
-                .localization(translationLocalization.translationFormMessages(uiLanguage))
                 .build();
     }
 
@@ -400,7 +458,10 @@ public class TranslationService {
                 String sanitizedTargetWord = patternService.removeSpecialCharacters(findTranslationRequest.targetWord())
                         .trim()
                         .toLowerCase();
-                Result<?> result = validator.validate(List.of(Constraint.of("targetWord", sanitizedTargetWord::isBlank, "blank"), Constraint.of("targetWord", () -> sanitizedTargetWord.length() > 150, "too long")));
+                Result<?> result = validator.validate(List.of(
+                        Constraint.of("targetWord", sanitizedTargetWord::isBlank, "blank"),
+                        Constraint.of("targetWord", () -> sanitizedTargetWord.length() > 150, "too long")
+                ));
                 yield switch (result) {
                     case Ok<?> ignored -> translationRepository.findByTargetWord(sanitizedTargetWord, principal.username())
                             .map(translation -> TranslationAttribute.builder()
@@ -479,7 +540,10 @@ public class TranslationService {
                         .familiarityLevels(Map.of())
                         .translation(Translation.builder()
                                 .sourceWords(List.of())
-                                .targetWord(patternService.removeSpecialCharacters(request.unprocessedTargetWords().get(id)))
+                                .targetWord(
+                                        patternService.removeSpecialCharacters(request.unprocessedTargetWords().get(id))
+                                                .toLowerCase()
+                                )
                                 .unprocessedTargetWord(request.unprocessedTargetWords().get(id))
                                 .familiarity(switch (request.familiarities().get(id).toUpperCase()) {
                                     case "UNKNOWN" -> Familiarity.UNKNOWN;
@@ -508,6 +572,7 @@ public class TranslationService {
                 .sourceWords(sourceWords)
                 .targetWord(String.join(" ", request.unprocessedTargetWords().stream()
                         .map(patternService::removeSpecialCharacters)
+                        .map(String::toLowerCase)
                         .toList()))
                 .unprocessedTargetWord(String.join(" ", request.unprocessedTargetWords()))
                 .familiarity(Familiarity.UNKNOWN)
@@ -530,5 +595,10 @@ public class TranslationService {
                 .phrasePartsAttribute(phraseParts)
                 .phraseAttribute(attribute)
                 .build();
+    }
+
+    public Map<TranslationLocalizationKey, String> getVocabularyMessages(Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        return translationLocalization.vocabularyMessages(principal.userInterfaceLanguage());
     }
 }

@@ -2,6 +2,7 @@ package lule.dictionary.translations.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.translations.data.TranslationLocalizationKey;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
 import lule.dictionary.translations.data.attribute.WordCardAttribute;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,7 +30,9 @@ public class VocabularyController {
     public String vocabularyPage(Model model,
                                  Authentication authentication) {
         FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(0, 10, false), authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getVocabularyMessages(authentication);
         model.addAttribute("attribute", attribute);
+        model.addAttribute("messages", messages);
         return "vocabulary-page/base-page";
     }
 
@@ -39,7 +43,9 @@ public class VocabularyController {
                              Model model,
                              Authentication authentication) {
         FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(familiarity, quantity, isPhrase), authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getVocabularyMessages(authentication);
         model.addAttribute("attribute", attribute);
+        model.addAttribute("messages", messages);
         return "vocabulary-page/flashcard/flashcard-config";
     }
 
@@ -58,7 +64,9 @@ public class VocabularyController {
                     .isPhrase(isPhrase)
                     .id(id)
                     .build(), authentication);
+            Map<TranslationLocalizationKey, String> messages = translationService.getVocabularyMessages(authentication);
             model.addAttribute("attribute", attribute);
+            model.addAttribute("messages", messages);
             session.removeAttribute("translations");
             session.setAttribute("translations", attribute.translations());
             return "vocabulary-page/flashcard/flashcard";
@@ -89,18 +97,24 @@ public class VocabularyController {
     @GetMapping({"/flashcard/flip-to-source-word", "/flashcard/flip-to-source-word/"})
     public String flipToSourceWord(@RequestParam("sourceWord") List<String> sourceWord,
                                    @RequestParam("targetWord") String targetWord,
-                                   Model model) {
+                                   Model model,
+                                   Authentication authentication) {
         WordCardAttribute attribute = translationService.getCardAttribute(GetCardAttributeRequest.of(sourceWord, targetWord));
+        Map<TranslationLocalizationKey, String> messages = translationService.getVocabularyMessages(authentication);
         model.addAttribute("attribute", attribute);
+        model.addAttribute("messages", messages);
         return "vocabulary-page/flashcard/source-word-card";
     }
 
     @GetMapping({"/flashcard/flip-to-target-word", "/flashcard/flip-to-target-word/"})
     public String flipToTargetWord(@RequestParam("sourceWord") List<String> sourceWord,
                                    @RequestParam("targetWord") String targetWord,
-                                   Model model) {
+                                   Model model,
+                                   Authentication authentication) {
         WordCardAttribute attribute = translationService.getCardAttribute(GetCardAttributeRequest.of(sourceWord, targetWord));
+        Map<TranslationLocalizationKey, String> messages = translationService.getVocabularyMessages(authentication);
         model.addAttribute("attribute", attribute);
+        model.addAttribute("messages", messages);
         return "vocabulary-page/flashcard/target-word-card";
     }
 }

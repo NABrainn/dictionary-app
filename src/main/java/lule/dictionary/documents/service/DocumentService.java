@@ -15,6 +15,9 @@ import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
 import lule.dictionary.familiarity.service.FamiliarityService;
 import lule.dictionary.jsoup.service.exception.InvalidUriException;
 import lule.dictionary.language.service.Language;
+import lule.dictionary.result.data.Err;
+import lule.dictionary.result.data.Ok;
+import lule.dictionary.result.data.Result;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.documents.service.exception.DocumentNotFoundException;
@@ -57,7 +60,7 @@ public class DocumentService {
     private final DocumentsLocalizationService documentsLocalization;
 
     @Transactional
-    public int createDocument(CreateDocumentRequest request) {
+    public Result<Integer> createDocument(CreateDocumentRequest request) {
         UserProfile principal = (UserProfile) request.authentication().getPrincipal();
         Language uiLanguage = principal.userInterfaceLanguage();
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
@@ -66,87 +69,93 @@ public class DocumentService {
             case "content_submit" -> ContentSubmissionStrategy.of(request.title(), request.content(), localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
             default -> throw new IllegalStateException("Unexpected value: " + request.submissionStrategy());
         };
-        try {
-            switch (submissionStrategy) {
-                case UrlSubmissionStrategy urlSubmission -> {
-                    validator.validate(List.of(
-                            Constraint.of("title", request.title()::isBlank, switch(uiLanguage){
-                                case PL -> "Tytuł nie może być pusty";
-                                case EN -> "Title cannot be empty";
-                                case IT -> "Il titolo non può essere vuoto";
-                                case NO -> "Tittelen kan ikke være tom";
-                            }),
-                            Constraint.of("title", () -> request.title().length() > 500, switch(uiLanguage){
-                                case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
-                                case EN -> "Title cannot be longer than 500 characters";
-                                case IT -> "Il titolo non può essere più lungo di 500 caratteri";
-                                case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
-                            }),
-                            Constraint.of("url", () -> request.url().isBlank(), switch(uiLanguage){
-                                case PL -> "URL nie może być pusty";
-                                case EN -> "URL cannot be empty";
-                                case IT -> "L'URL non può essere vuoto";
-                                case NO -> "URL-en kan ikke være tom";
-                            }),
-                            Constraint.of("url", () -> request.url().length() > 500, switch(uiLanguage){
-                                case PL -> "URL nie może być dłuższy niż 500 znaków";
-                                case EN -> "URL cannot be longer than 500 characters";
-                                case IT -> "L'URL non può essere più lungo di 500 caratteri";
-                                case NO -> "URL-en kan ikke være lenger enn 500 tegn";
-                            })
-                    ));
-                    String content = jsoupService.importDocumentContent(urlSubmission.url());
-                    return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
-                            .title(urlSubmission.title())
-                            .url(urlSubmission.url())
-                            .content(content)
-                            .userDetails(principal)
-                            .build());
-                }
-                case ContentSubmissionStrategy contentSubmission -> {
-                    validator.validate(List.of(
-                            Constraint.of("title", request.title()::isBlank, switch(uiLanguage){
-                                case PL -> "Tytuł nie może być pusty";
-                                case EN -> "Title cannot be empty";
-                                case IT -> "Il titolo non può essere vuoto";
-                                case NO -> "Tittelen kan ikke være tom";
-                            }),
-                            Constraint.of("title", () -> request.title().length() > 500, switch(uiLanguage){
-                                case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
-                                case EN -> "Title cannot be longer than 500 characters";
-                                case IT -> "Il titolo non può essere più lungo di 500 caratteri";
-                                case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
-                            }),
-                            Constraint.of("content", () -> request.content().isBlank(), switch(uiLanguage){
-                                case PL -> "Treść nie może być pusta";
-                                case EN -> "Content cannot be empty";
-                                case IT -> "Il contenuto non può essere vuoto";
-                                case NO -> "Innholdet kan ikke være tomt";
-                            }),
-                            Constraint.of("content", () -> request.content().length() > 100000, switch(uiLanguage){
-                                case PL -> "Treść nie może być dłuższa niż 100 000 znaków";
-                                case EN -> "Content cannot be longer than 100,000 characters";
-                                case IT -> "Il contenuto non può essere più lungo di 100.000 caratteri";
-                                case NO -> "Innholdet kan ikke være lenger enn 100 000 tegn";
-                            })
-                    ));
-                    String content = contentSubmission.content();
-                    return insertIntoDatabase(InsertIntoDatabaseRequest.builder()
-                            .title(contentSubmission.title())
-                            .url("")
-                            .content(content)
-                            .userDetails(principal)
-                            .build());
-                }
-                default -> throw new IllegalStateException("Unexpected value: " + request.submissionStrategy());
+        return switch (submissionStrategy) {
+            case UrlSubmissionStrategy urlSubmission -> {
+                Result<?> result = validator.validate(List.of(
+                        Constraint.of("title", request.title()::isBlank, switch (uiLanguage) {
+                            case PL -> "Tytuł nie może być pusty";
+                            case EN -> "Title cannot be empty";
+                            case IT -> "Il titolo non può essere vuoto";
+                            case NO -> "Tittelen kan ikke være tom";
+                        }),
+                        Constraint.of("title", () -> request.title().length() > 500, switch (uiLanguage) {
+                            case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
+                            case EN -> "Title cannot be longer than 500 characters";
+                            case IT -> "Il titolo non può essere più lungo di 500 caratteri";
+                            case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
+                        }),
+                        Constraint.of("url", () -> request.url().isBlank(), switch (uiLanguage) {
+                            case PL -> "URL nie może być pusty";
+                            case EN -> "URL cannot be empty";
+                            case IT -> "L'URL non può essere vuoto";
+                            case NO -> "URL-en kan ikke være tom";
+                        }),
+                        Constraint.of("url", () -> request.url().length() > 500, switch (uiLanguage) {
+                            case PL -> "URL nie może być dłuższy niż 500 znaków";
+                            case EN -> "URL cannot be longer than 500 characters";
+                            case IT -> "L'URL non può essere più lungo di 500 caratteri";
+                            case NO -> "URL-en kan ikke være lenger enn 500 tegn";
+                        })
+                ));
+                yield switch (result) {
+                    case Ok<?> v-> {
+                        String content = jsoupService.importDocumentContent(urlSubmission.url());
+                        yield  Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
+                                .title(urlSubmission.title())
+                                .url(urlSubmission.url())
+                                .content(content)
+                                .userDetails(principal)
+                                .build()));
+                    }
+                    case Err<?> v -> v.throwable() instanceof ValidationException validationException ?
+                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), validationException.getViolations())) :
+                            Err.of(new RuntimeException());
+                };
+
             }
-        } catch (ValidationException e) {
-            log.warn("Validation exception: {}", e.getViolations());
-            throw new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), e.getViolations());
-        }
-        catch (InvalidUriException e) {
-            throw new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), Map.of("invalidUri", "Invalid uri exception"));
-        }
+            case ContentSubmissionStrategy contentSubmission -> {
+                Result<?> result = validator.validate(List.of(
+                        Constraint.of("title", request.title()::isBlank, switch (uiLanguage) {
+                            case PL -> "Tytuł nie może być pusty";
+                            case EN -> "Title cannot be empty";
+                            case IT -> "Il titolo non può essere vuoto";
+                            case NO -> "Tittelen kan ikke være tom";
+                        }),
+                        Constraint.of("title", () -> request.title().length() > 500, switch (uiLanguage) {
+                            case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
+                            case EN -> "Title cannot be longer than 500 characters";
+                            case IT -> "Il titolo non può essere più lungo di 500 caratteri";
+                            case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
+                        }),
+                        Constraint.of("content", () -> request.content().isBlank(), switch (uiLanguage) {
+                            case PL -> "Treść nie może być pusta";
+                            case EN -> "Content cannot be empty";
+                            case IT -> "Il contenuto non può essere vuoto";
+                            case NO -> "Innholdet kan ikke være tomt";
+                        }),
+                        Constraint.of("content", () -> request.content().length() > 100000, switch (uiLanguage) {
+                            case PL -> "Treść nie może być dłuższa niż 100 000 znaków";
+                            case EN -> "Content cannot be longer than 100,000 characters";
+                            case IT -> "Il contenuto non può essere più lungo di 100.000 caratteri";
+                            case NO -> "Innholdet kan ikke være lenger enn 100 000 tegn";
+                        })
+                ));
+                yield switch (result) {
+                    case Ok<?> v -> {
+                        String content = contentSubmission.content();
+                        yield  Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
+                                .title(contentSubmission.title())
+                                .url("")
+                                .content(content)
+                                .userDetails(principal)
+                                .build()));
+                    }
+                    case Err<?> v -> v.throwable() instanceof ValidationException validationException ?
+                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), validationException.getViolations())) :
+                            Err.of(new RuntimeException());
+                };
+            }
+        };
     }
 
     public DocumentListAttribute findMany(Authentication authentication) {
@@ -156,20 +165,29 @@ public class DocumentService {
         return DocumentListAttribute.of(documents, localization);
     }
 
-    public DocumentAttribute loadDocumentContent(LoadDocumentContentRequest request) {
-        Document document = documentRepository.findById(request.documentId(), request.page())
-                .orElseThrow(() -> new DocumentNotFoundException("Document not found"));
-        documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(document.totalContentLength())));
-        AssembleDocumentContentData assembleContentRequest = AssembleDocumentContentData.builder()
-                .selectableId(request.wordId())
-                .documentId(request.documentId())
-                .contentBlob(document.pageContent())
-                .owner(document.owner())
-                .title(document.title())
-                .build();
-        DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
-        DocumentPaginationData paginationData = assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest.of(document.totalContentLength(), request.page()));
-        return DocumentAttribute.of(documentContentData, paginationData);
+    public Result<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest request) {
+        return (Result<DocumentAttribute>) documentRepository.findById(request.documentId(), request.page())
+                .map(found -> {
+                    Result<?> result = documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(found.totalContentLength())));
+                    switch (result) {
+                        case Ok<?> ignored -> {
+                            AssembleDocumentContentData assembleContentRequest = AssembleDocumentContentData.builder()
+                                    .selectableId(request.wordId())
+                                    .documentId(request.documentId())
+                                    .contentBlob(found.pageContent())
+                                    .owner(found.owner())
+                                    .title(found.title())
+                                    .build();
+                            DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
+                            DocumentPaginationData paginationData = assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest.of(found.totalContentLength(), request.page()));
+                            return Ok.of(DocumentAttribute.of(documentContentData, paginationData));
+                        }
+                        case Err<?> v -> {
+                            return Err.of(v.throwable());
+                        }
+                    }
+                })
+                .orElseGet(() -> Err.of(new DocumentNotFoundException("")));
     }
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest request) {
