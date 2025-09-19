@@ -7,6 +7,7 @@
 @param DocumentAttribute attribute
 
 <script src="/js/document-page.js" defer></script>
+<script src="/js/form-positioner.js"></script>
 
 @template.base(content = @`
     @template.navbar.navbar(
