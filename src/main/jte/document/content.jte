@@ -85,7 +85,7 @@ hx-vals='js:{
                                     familiarity = translations.get(cleanWord).familiarity(),
                                     isPersisted = true)
                                 @else
-                                    @if(cleanWord.length() <= 150)
+                                    @if(cleanWord.length() <= 50)
                                         @template.document.word(
                                         wordId = selectable.id(),
                                         processedWord = cleanWord,
