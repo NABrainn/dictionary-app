@@ -10,6 +10,7 @@
 
 <div
 hx-on:click="event.stopPropagation()"
+hx-on::load="formPositioner.handleOverflow(htmx.find('#translation-form-container-${attribute.id()}'), ${attribute.translation().sourceWords().size()})"
 class="
 md:gap-0.75
 gap-4 bg-tertiary flex flex-col p-3 rounded animate-fade-10"

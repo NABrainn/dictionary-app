@@ -37,6 +37,7 @@
         id: ${wordId},
         isPersisted: data.get(htmx.find("#word-${wordId}"), "is-saved")
     }'
+    hx-on::after-request="formPositioner.handleOverflow(htmx.find('#translation-form-container-${wordId}'), 3)"
     hx-on:click="
     event.stopPropagation()
     documentPage.closeAllTranslationForms()

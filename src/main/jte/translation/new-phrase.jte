@@ -7,7 +7,6 @@
 @param PhraseAttribute attribute
 @param Map<TranslationLocalizationKey, String> messages
 @param Map<String, String> errors
-
 <div
 class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary bg-tertiary text-accent"
 id="phrase-${attribute.phraseAttribute().id()}"
@@ -33,6 +32,7 @@ hx-vals='{
     "isPersisted": "true"
 }'
 hx-trigger="click from:closest div"
+hx-on::load="formPositioner.handleOverflow(htmx.find('#translation-form-container-${attribute.phraseAttribute().id()}'), 1)"
 hx-on:click="
 event.preventDefault()
 documentPage.closeAllTranslationForms()
@@ -63,11 +63,12 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
 ">
     <div
     class="
-    cursor-default z-2 absolute inline left-2 top-10"
+    cursor-default z-2 absolute inline"
     id="translation-form-container-${attribute.phraseAttribute().id()}"
 
     data-id="${attribute.phraseAttribute().id()}"
-    data-is-translation-form-container="true">
+    data-is-translation-form-container="true"
+    data-is-phrase-form-container="true">
         @template.translation.add-translation-form(
         attribute = attribute.phraseAttribute(),
         baseAttribute = baseAttribute,
