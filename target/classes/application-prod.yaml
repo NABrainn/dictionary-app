@@ -15,9 +15,6 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASS}
 translation:
-  libreTranslate:
-    base:
-      url: "/translate"
 gg:
   jte:
     development-mode: false
