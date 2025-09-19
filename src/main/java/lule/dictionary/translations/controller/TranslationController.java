@@ -199,7 +199,7 @@ public class TranslationController {
                     model.addAllAttributes(attributes);
                     return "translation/update-translation-form";
                 }
-                case Err<TranslationAttribute> err -> {
+                case Err<?> err -> {
                     if(err.throwable() instanceof TranslationServiceException e) {
                         Map<String, Object> attributes = Map.of(
                                 "attribute", e.getAttribute(),
