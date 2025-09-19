@@ -10,13 +10,14 @@ import lule.dictionary.documents.data.request.CreateDocumentRequest;
 import lule.dictionary.documents.data.request.DocumentAttribute;
 import lule.dictionary.documents.data.request.LoadDocumentContentRequest;
 import lule.dictionary.documents.data.attribute.DocumentFormAttribute;
-import lule.dictionary.documents.service.exception.DocumentNotFoundException;
 import lule.dictionary.documents.service.DocumentService;
+import lule.dictionary.result.data.Err;
+import lule.dictionary.result.data.Ok;
+import lule.dictionary.result.data.Result;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.InvalidUrlException;
 
 import java.util.Map;
 
@@ -41,15 +42,16 @@ public class DocumentController {
                                @RequestParam(name = "page", defaultValue = "1") int page,
                                Model model,
                                HttpSession session) {
-        try {
-            DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
-            model.addAttribute("attribute", documentAttribute);
-            model.addAttribute("isProfileOpen", false);
-            return "document/base-page";
-        }
-        catch (DocumentNotFoundException e) {
-            log.warn("Document not found: {}", e.getMessage());
-            return "error";
+        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
+        switch (result) {
+            case Ok<DocumentAttribute> v -> {
+                model.addAttribute("attribute", v.value());
+                model.addAttribute("isProfileOpen", false);
+                return "document/base-page";
+            }
+            case Err<DocumentAttribute> v -> {
+                return "error";
+            }
         }
     }
 
@@ -58,15 +60,16 @@ public class DocumentController {
                                      @RequestParam(name = "page", defaultValue = "1") int page,
                                      Model model,
                                      HttpSession session) {
-        try {
-            DocumentAttribute documentAttribute = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
-            model.addAttribute("attribute", documentAttribute);
-            model.addAttribute("isProfileOpen", false);
-            return "document/content";
-        }
-        catch (InvalidUrlException | DocumentNotFoundException e) {
-            log.warn("Invalid url: {}", e.getMessage());
-            return "error";
+            Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
+        switch (result) {
+            case Ok<DocumentAttribute> v -> {
+                model.addAttribute("attribute", v.value());
+                model.addAttribute("isProfileOpen", false);
+                return "document/content";
+            }
+            case Err<DocumentAttribute> v -> {
+                return "error";
+            }
         }
     }
 
@@ -75,7 +78,7 @@ public class DocumentController {
                                      Model model,
                                      Authentication authentication) {
         DocumentFormAttribute attribute = documentService.getDocumentForm(strategy, authentication);
-        model.addAttribute("violation", Map.of());
+        model.addAttribute("errors", Map.of());
         model.addAttribute("attribute", attribute);
         return "document/base-form";
     }
@@ -87,21 +90,24 @@ public class DocumentController {
                                  @RequestParam("strategy") String strategy,
                                  Model model,
                                  Authentication authentication) {
-        try {
-            int id = documentService.createDocument(CreateDocumentRequest.builder()
-                    .submissionStrategy(strategy)
-                    .authentication(authentication)
-                    .title(title)
-                    .content(content)
-                    .url(url)
-                    .build());
-            return "redirect:/lessons/" + id + "?page=1";
-        }
-        catch (DocumentServiceException e) {
-            model.addAttribute("violation", e.getViolation());
-            model.addAttribute("attribute", e.getAttribute());
-            return "document/base-form";
-        }
+        Result<Integer> result = documentService.createDocument(CreateDocumentRequest.builder()
+                .submissionStrategy(strategy)
+                .authentication(authentication)
+                .title(title)
+                .content(content)
+                .url(url)
+                .build());
+        return switch (result) {
+            case Ok<Integer> v -> "redirect:/lessons/" + v.value() + "?page=1";
+            case Err<Integer> v -> {
+                if (v.throwable() instanceof DocumentServiceException documentServiceException) {
+                    model.addAttribute("errors", documentServiceException.getViolation());
+                    model.addAttribute("attribute", documentServiceException.getAttribute());
+                    yield "document/base-form";
+                }
+                yield "error";
+            }
+        };
     }
 
     @GetMapping({"/url-form", "/url-form/"})

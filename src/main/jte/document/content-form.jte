@@ -1,6 +1,6 @@
 @param String contentPlaceholderText
 @param String content = ""
-@param String violation = ""
+@param String error = ""
 
 <div class="flex flex-col" id="content">
     <input type="hidden" name="url">
@@ -15,8 +15,8 @@
         name="content"
         id="area"
         placeholder="${contentPlaceholderText}">${content}</textarea>
-        @if(!violation.isBlank())
-            <span class="text-error font-bold">${violation}</span>
+        @if(!error.isBlank())
+            <span class="text-error font-bold">${error}</span>
         @endif
     </div>
 </div>

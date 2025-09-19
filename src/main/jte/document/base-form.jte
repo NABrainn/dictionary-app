@@ -9,7 +9,7 @@
 @param DocumentFormAttribute attribute
 @param NavbarAttribute navbarAttribute
 @param BaseAttribute baseAttribute
-@param Map<String, String> violation
+@param Map<String, String> errors
 
 @template.base(content = @`
     <div id="document-form-wrapper">
@@ -57,8 +57,8 @@
                     case ContentSubmissionStrategy content -> content.title();
                     case UrlSubmissionStrategy url -> url.title();
                 }}</textarea>
-                @if(violation.get("title") != null)
-                    <span class="text-error font-bold">${violation.get("title")}</span>
+                @if(errors.get("title") != null)
+                    <span class="text-error font-bold">${errors.get("title")}</span>
                 @endif
             </div>
             <div class="flex flex-col gap-4">
@@ -124,12 +124,12 @@
                 @if(attribute.submissionStrategy() instanceof ContentSubmissionStrategy content)
                     @template.document.content-form(
                     contentPlaceholderText = content.contentPlaceholderText(),
-                    violation = violation.getOrDefault("content", ""),
+                    error = errors.getOrDefault("content", ""),
                     content = content.content())
                 @elseif(attribute.submissionStrategy() instanceof UrlSubmissionStrategy url)
                     @template.document.url-form(
                     urlPlaceholderText = url.urlPlaceholderText(),
-                    violation = violation.getOrDefault("url", ""),
+                    error = errors.getOrDefault("url", ""),
                     content = url.url())
                 @endif
             </div>
