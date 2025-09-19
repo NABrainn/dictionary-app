@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS dictionary.user_profile_settings (
 	settings_id						SERIAL PRIMARY KEY,
     source_lang  					dictionary.lang,
     target_lang  					dictionary.lang,
+	ui_lang							dictionary.lang
 );
 
 CREATE TABLE IF NOT EXISTS dictionary.user_profiles (

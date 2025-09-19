@@ -1,8 +1,8 @@
 spring:
-  mvc:
-    trailing-slash:
-      match: true
   security:
+    http:
+      redirects:
+        same-site: strict
     jwt:
       secret: ${JWT_SECRET}
       expiration: 86400000
@@ -27,6 +27,8 @@ logging:
     org.springframework.web.servlet.DispatcherServlet: DEBUG
 
 server:
+  ssl:
+    enabled: true
   compression:
     enabled: true
     min-response-size: 2048
