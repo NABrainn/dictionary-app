@@ -110,24 +110,24 @@
 
 	<build>
 		<plugins>
-<!--			<plugin>-->
-<!--				<groupId>gg.jte</groupId>-->
-<!--				<artifactId>jte-maven-plugin</artifactId>-->
-<!--				<version>3.2.1</version>-->
-<!--				<configuration>-->
-<!--					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>-->
-<!--					<targetDirectory>${project.build.outputDirectory}</targetDirectory>-->
-<!--					<contentType>Html</contentType>-->
-<!--				</configuration>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<phase>process-classes</phase>-->
-<!--						<goals>-->
-<!--							<goal>precompile</goal>-->
-<!--						</goals>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--			</plugin>-->
+			<plugin>
+				<groupId>gg.jte</groupId>
+				<artifactId>jte-maven-plugin</artifactId>
+				<version>3.2.1</version>
+				<configuration>
+					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
+					<targetDirectory>${project.build.outputDirectory}</targetDirectory>
+					<contentType>Html</contentType>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>precompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
