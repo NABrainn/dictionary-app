@@ -1,6 +1,5 @@
 package lule.dictionary.translations.service;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +8,6 @@ import lule.dictionary.language.service.Language;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
-import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.TranslationFormType;
 import lule.dictionary.translations.data.TranslationLocalizationKey;
@@ -23,6 +21,7 @@ import lule.dictionary.translations.data.exception.TranslationServiceException;
 import lule.dictionary.translations.data.exception.TranslationsNotFoundException;
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
 import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.userProfiles.service.UserProfileService;
 import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.ValidationException;
 import lule.dictionary.validation.service.Validator;
@@ -46,7 +45,7 @@ public class TranslationService {
     private final FamiliarityService familiarityService;
     private final PatternService patternService;
     private final TranslationLocalizationService translationLocalization;
-    private final SessionHelper sessionHelper;
+    private final UserProfileService userProfileService;
 
     @Transactional
     public Result<TranslationAttribute> createTranslation(@NonNull AddTranslationRequest request,
@@ -373,11 +372,12 @@ public class TranslationService {
                 .build();
     }
 
-    public BaseFlashcardAttribute getRandomTranslations(GetRandomTranslationsRequest request, Authentication authentication) throws TranslationsNotFoundException {
+    public Result<BaseFlashcardAttribute> getRandomTranslations(GetRandomTranslationsRequest request, Authentication authentication) throws TranslationsNotFoundException {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         List<Translation> translations = translationRepository.getRandomTranslations(request.isPhrase(), principal.getUsername(), request.quantity(), request.familiarity());
-        if(!translations.isEmpty()) {
-            return BaseFlashcardAttribute.builder()
+        userProfileService.reauthenticate(principal.withTranslations(translations));
+        return !translations.isEmpty() ?
+                Ok.of(BaseFlashcardAttribute.builder()
                     .id(request.id())
                     .size(translations.size())
                     .familiarity(request.familiarity())
@@ -385,18 +385,17 @@ public class TranslationService {
                     .isPhrase(request.isPhrase())
                     .translations(translations)
                     .localization(translationLocalization.translationFormMessages(principal.userInterfaceLanguage()))
-                    .build();
-        }
-        throw new TranslationsNotFoundException("No translations found to review", FlashcardConfigAttribute.builder()
-                .familiarity(request.familiarity())
-                .quantity(request.quantity())
-                .isPhrase(request.isPhrase())
-                .build());
+                    .build()) :
+                Err.of(new TranslationsNotFoundException("No translations found to review", FlashcardConfigAttribute.builder()
+                        .familiarity(request.familiarity())
+                        .quantity(request.quantity())
+                        .isPhrase(request.isPhrase())
+                        .build()));
+
 
     }
 
-    public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request, Authentication authentication) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
+    public FlashcardConfigAttribute getFlashcardConfig(ConfigureFlashcardRequest request) {
         return FlashcardConfigAttribute.builder()
                 .familiarity(request.familiarity())
                 .quantity(request.quantity())
@@ -404,9 +403,11 @@ public class TranslationService {
                 .build();
     }
 
-    public BaseFlashcardAttribute flipFlashcard(@NonNull FlipFlashcardRequest request, @NonNull Authentication authentication, @NonNull HttpSession session) {
+    public BaseFlashcardAttribute flipFlashcard(@NonNull FlipFlashcardRequest request,
+                                                @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        List<Translation> translations = sessionHelper.getList(session, "translations", Translation.class);
+        List<Translation> translations = principal.translations();
+        System.out.println(translations);
         return BaseFlashcardAttribute.builder()
                 .translations(translations)
                 .localization(translationLocalization.translationFormMessages(principal.userInterfaceLanguage()))

@@ -1,10 +1,6 @@
 package lule.dictionary.userProfiles.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.language.service.Language;
-import lule.dictionary.session.service.SessionHelper;
-import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.userProfiles.service.UserProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -19,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SettingsController {
 
     private final UserProfileService userProfileService;
-    private final SessionHelper sessionHelper;
 
     @GetMapping({"/changeLanguage/target", "/changeLanguage/target/"})
     public String changeTargetLanguage(@RequestParam("lang") String language,
@@ -43,11 +38,8 @@ public class SettingsController {
     }
 
     @GetMapping({"/profilePanel", "/profilePanel/"})
-    public String profilePanel(HttpSession session,
-                               Model model) {
-        boolean isProfileOpen = session.getAttribute("isProfileOpen") != null && (boolean) session.getAttribute("isProfileOpen");
-        session.setAttribute("isProfileOpen", !isProfileOpen);
-        model.addAttribute("isProfileOpen", !isProfileOpen);
+    public String profilePanel(Model model) {
+        model.addAttribute("isProfileOpen", false);
         return "navbar/profile-panel";
     }
 }

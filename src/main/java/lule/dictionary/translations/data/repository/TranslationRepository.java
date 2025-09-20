@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.PreparedStatement;
@@ -284,6 +285,7 @@ public class TranslationRepository {
         }
     }
 
+    @Transactional
     public List<Translation> getRandomTranslations(boolean isPhrase, String owner, int limit, int familiarity) {
         if (familiarity > 0 && familiarity <= 5) {
             String sql = """

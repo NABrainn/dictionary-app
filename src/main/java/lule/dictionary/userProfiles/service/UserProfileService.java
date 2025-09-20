@@ -45,6 +45,8 @@ public class UserProfileService implements UserDetailsService {
                 .wordsAddedToday(0)
                 .dailyStreak(0)
                 .offset(TimeZoneOffsetContext.get())
+                .isProfileOpen(false)
+                .translations(List.of())
                 .build();
         userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new RuntimeException("Failed to add new user"));
     }
@@ -146,5 +148,9 @@ public class UserProfileService implements UserDetailsService {
                         },
                         () -> { throw new RuntimeException("Illegal value for language provided"); }
                 );
+    }
+
+    public void reauthenticate(UserProfile userProfile) {
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userProfile, null, userProfile.getAuthorities()));
     }
 }

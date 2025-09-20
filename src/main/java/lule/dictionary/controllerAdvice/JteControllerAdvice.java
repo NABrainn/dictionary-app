@@ -1,6 +1,5 @@
 package lule.dictionary.controllerAdvice;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.controllerAdvice.data.BaseAttribute;
@@ -11,7 +10,6 @@ import lule.dictionary.language.service.LanguageData;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.language.service.LanguageHelper;
-import lule.dictionary.session.service.SessionHelper;
 import lule.dictionary.userProfiles.data.UserProfile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -27,7 +25,6 @@ public class JteControllerAdvice {
     private final TranslationService translationService;
     private final LanguageHelper languageHelper;
     private final NavbarLocalizationService navbarLocalization;
-    private final SessionHelper sessionHelper;
 
     @ModelAttribute
     public void addBaseAttribute(Model model,
@@ -74,14 +71,12 @@ public class JteControllerAdvice {
     }
     @ModelAttribute
     public void addNavbarAttribute(Model model,
-                                   Authentication authentication,
-                                   HttpSession session) {
+                                   Authentication authentication) {
         if (authentication == null) {
-            Language sourceLanguage = sessionHelper.getUILanguage(session);
             model.addAttribute("navbarAttribute", NavbarAttribute.builder()
-                    .loginBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LOG_IN))
-                    .lessonsBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LESSONS))
-                    .vocabularyBtnText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.VOCABULARY))
+                    .loginBtnText(navbarLocalization.get(Language.EN).get(NavbarLocalizationKey.LOG_IN))
+                    .lessonsBtnText(navbarLocalization.get(Language.EN).get(NavbarLocalizationKey.LESSONS))
+                    .vocabularyBtnText(navbarLocalization.get(Language.EN).get(NavbarLocalizationKey.VOCABULARY))
                     .wordsLearned(0)
                     .dailyStreak(0)
                     .isProfileOpen(false)
@@ -117,7 +112,7 @@ public class JteControllerAdvice {
                             .languageCode(languageHelper.getCode(sourceLanguage))
                             .imgPath(languageHelper.getImagePath(sourceLanguage))
                             .build())
-                    .isProfileOpen(session.getAttribute("isProfileOpen") != null && (boolean) session.getAttribute("isProfileOpen"))
+                    .isProfileOpen(principal.isProfileOpen())
                     .settingsText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.SETTINGS))
                     .languageText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LANGUAGE))
                     .uiText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.USER_INTERFACE))

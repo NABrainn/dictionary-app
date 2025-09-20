@@ -33,6 +33,8 @@ public class UserProfileRepository {
                     .wordsAddedToday(rs.getInt("words_added_today"))
                     .offset(rs.getString("tz_offset"))
                     .dailyStreak(rs.getInt("day_count"))
+                    .translations(List.of())
+                    .isProfileOpen(false)
                     .build());
 
     public Optional<UserProfile> findByUsername(@NonNull String username) {

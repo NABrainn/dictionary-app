@@ -1,6 +1,5 @@
 package lule.dictionary.documents.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.DocumentLocalizationKey;
@@ -40,9 +39,8 @@ public class DocumentController {
     @GetMapping({"/{documentId}", "/{documentId}/"})
     public String documentPage(@PathVariable("documentId") int documentId,
                                @RequestParam(name = "page", defaultValue = "1") int page,
-                               Model model,
-                               HttpSession session) {
-        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
+                               Model model) {
+        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
@@ -58,9 +56,8 @@ public class DocumentController {
     @GetMapping({"/{documentId}/reload", "/{documentId}/reload/"})
     public String reloadDocumentPage(@PathVariable("documentId") int documentId,
                                      @RequestParam(name = "page", defaultValue = "1") int page,
-                                     Model model,
-                                     HttpSession session) {
-        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
+                                     Model model) {
+        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
