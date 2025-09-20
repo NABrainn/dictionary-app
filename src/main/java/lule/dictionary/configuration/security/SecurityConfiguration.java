@@ -37,6 +37,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .securityMatcher("/**")
                 .authorizeHttpRequests(conf -> conf
                         .requestMatchers("/htmx.min.js", "/util.js", "/output.css", "/images/icon.png", "/favicon.ico", "/error/**", "/auth/**", "/localization/**")
                         .permitAll()
@@ -57,10 +58,7 @@ public class SecurityConfiguration {
                         })
                         .permitAll())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
-                        .expiredUrl("/auth/login?timeout=true"))
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> response.sendRedirect("/auth/login?timeout=true")))
                 .addFilterBefore(systemLanguageFilter, UsernamePasswordAuthenticationFilter.class)
