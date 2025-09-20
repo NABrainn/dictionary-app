@@ -28,6 +28,8 @@ logging:
     org.springframework.jdbc: DEBUG
     com.zaxxer.hikari: DEBUG
     org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    gg.jte: DEBUG
 
 server:
   compression:

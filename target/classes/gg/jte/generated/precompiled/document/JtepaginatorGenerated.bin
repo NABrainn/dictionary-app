@@ -1,0 +1,60 @@
+
+
+    <div
+    class="text-2xl cursor-pointer select-none"
+    hx-params="page"
+    hx-get="/documents//reload?page="
+    hx-target="#page-content"
+    hx-swap="outerHTML"
+    hx-push-url="false">⬅️</div>
+
+    <div
+    class="text-2xl cursor-pointer select-none invisible"
+    hx-params="page"
+    hx-get="/documents//reload?page="
+    hx-target="#page-content"
+    hx-swap="outerHTML"
+    hx-push-url="false">➡️</div>
+
+
+    
+        <form
+        hx-params="page"
+        hx-get="/documents//reload?page="
+        hx-target="#page-content"
+        hx-swap="outerHTML"
+        hx-push-url="false">
+            <div class="bg-tertiary rounded text-primary font-bold text-xl">
+                <button class="px-2 cursor-pointer" type="submit"></button>
+            </div>
+        </form>
+    
+        <form
+        hx-params="page"
+        hx-get="/documents//reload?page="
+        hx-target="#page-content"
+        hx-swap="outerHTML"
+        hx-push-url="false">
+            <div class="bg-accent rounded text-primary font-bold text-xl">
+                <button class="px-2 cursor-pointer" type="submit"></button>
+            </div>
+        </form>
+    
+
+
+
+    <div
+    class="text-2xl cursor-pointer select-none"
+    hx-params="page"
+    hx-get="/documents//reload?page="
+    hx-target="#page-content"
+    hx-swap="outerHTML"
+    hx-push-url="false">➡️</div>
+
+    <div
+    class="text-2xl cursor-pointer select-none invisible"
+    hx-params="page"
+    hx-get="/documents//reload?page="
+    hx-target="#main"
+    hx-swap="outerHTML"
+    hx-push-url="false">➡️</div>

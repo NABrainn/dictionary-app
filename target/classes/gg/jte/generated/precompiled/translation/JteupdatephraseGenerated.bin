@@ -1,0 +1,50 @@
+
+
+
+
+<div
+class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary  "
+ data-id="" data-value="" data-familiarity=""
+
+data-is-phrase="true"
+data-is-saved="true"
+data-is-selectable="true"
+data-is-selected="false"
+
+hx-get="/translations/find"
+hx-target="#translation-form-container-"
+hx-swap="innerHTML"
+hx-params="documentId,targetWord,id,isPhrase,isPersisted"
+hx-vals='{
+    "documentId": "",
+    "targetWord": "",
+    "id": "",
+    "isPhrase": "true",
+    "isPersisted": "true"
+}'
+hx-trigger="click"
+hx-on:click="
+documentPage.closeAllTranslationForms()
+documentPage.cleanupSelectedWord()
+documentPage.cleanupSelectedPhrase()
+documentPage.handlePhraseClick()">
+    <div
+    class="
+    cursor-default z-2 absolute inline"
+    id="translation-form-container-"
+    data-is-translation-form-container="true">
+    </div>
+    
+        
+        
+        
+            
+                
+            
+                
+            
+        
+            
+        
+    
+</div>

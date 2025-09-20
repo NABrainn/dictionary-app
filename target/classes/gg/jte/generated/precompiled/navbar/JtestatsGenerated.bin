@@ -1,0 +1,32 @@
+<div class="flex gap-4">
+    <span
+    class="
+    md:text-lg
+    text-lg font-bold text-neutral text-accent">🧠
+        <span class="
+        md:inline
+        hidden">:</span>
+        <span></span>
+    </span>
+    
+        <span
+        class="
+        md:text-lg
+        text-lg font-bold text-neutral text-accent">💪
+            <span class="
+            md:inline
+            hidden">:</span>
+            <span></span>
+        </span>
+    
+    <span
+    class="
+    md:text-lg
+    text-lg font-bold text-neutral text-accent">💪
+        <span class="
+        md:inline
+        hidden">:</span>
+        <span></span>
+    </span>
+    
+</div>
