@@ -1,0 +1,48 @@
+
+    <div
+    class="
+     inline-block rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg"
+    id="word-"
+
+    data-id=""
+    data-value=""
+    data-familiarity=""
+
+    data-is-selectable="true"
+    data-is-selected="false"
+    data-is-word="true"
+    data-is-saved=""
+    data-is-wrapped=""
+
+    hx-get="/translations/find"
+    hx-target="#translation-form-container-"
+    hx-swap="innerHTML"
+    hx-params="documentId,targetWord,id,isPersisted"
+    hx-vals='js:{
+        documentId: ,
+        targetWord: "",
+        id: ,
+        isPersisted: data.get(htmx.find("#word-"), "is-saved")
+    }'
+    hx-on::after-request="formPositioner.handleOverflow(htmx.find('#translation-form-container-'), 3)"
+    hx-on:click="
+    event.stopPropagation()
+    documentPage.closeAllTranslationForms()
+    documentPage.cleanupSelectedWord()
+    documentPage.cleanupSelectedPhrase()
+    documentPage.handleWordClick()">
+        <div
+        class="
+        cursor-default z-2 absolute inline"
+        id="translation-form-container-"
+        data-is-translation-form-container="true"></div>
+        <span
+        class="  rounded"
+        data-is-word-span="true"></span>
+    </div>
+
+    <div
+    class="
+    inline-block relative rounded whitespace-nowrap text-lg pointer-events-none select-none">
+        <span class="  rounded"></span>
+    </div>

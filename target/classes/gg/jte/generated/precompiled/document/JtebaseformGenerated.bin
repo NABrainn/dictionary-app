@@ -1,0 +1,120 @@
+
+
+    <div id="document-form-wrapper">
+        
+        <script>
+            if (!customElements.get('static-textarea')) {
+                class StaticTextArea extends HTMLTextAreaElement {
+                    constructor() {
+                        super()
+                    }
+                    connectedCallback() {
+                        this.addEventListener('keydown', (event) => {
+                            if (event.key === 'Enter') {
+                                event.preventDefault();
+                            }
+                        });
+                    }
+                }
+                customElements.define('static-textarea', StaticTextArea, { extends: 'textarea' });
+            }
+        </script>
+        <form
+        class="
+        md:w-3/5 md:mt-16 md:p-6 md:gap-6
+        w-9/10 flex flex-col bg-tertiary mx-auto rounded p-3 mt-2 gap-5"
+        hx-post="/documents/new"
+        hx-params="title,url,content,strategy,_csrf"
+        hx-target="#main"
+        hx-swap="innerHTML"
+        hx-push-url="true">
+            <input type="hidden" name="_csrf" value="">
+            <div class="flex flex-col gap-2">
+                <label class="text-accent font-bold text-2xl min-h-8" for="title"></label>
+                <textarea
+                is="static-textarea"
+                maxlength="175"
+                class="
+                outline-none overflow-hidden resize-none border border-2 border-primary rounded text-neutral h-16 leading-8
+                focus:border-accent"
+                rows="2"
+                name="title"
+                id="title"></textarea>
+                
+                    <span class="text-error font-bold"></span>
+                
+            </div>
+            <div class="flex flex-col gap-4">
+                <span class="text-accent font-bold text-2xl"></span>
+                <div class="flex justify-center">
+                    
+                        <button class="
+                        bg-primary border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
+                        type="button"
+                        id="url"
+                        hx-get="/documents/new/"
+                        hx-params="strategy"
+                        hx-vals='{
+                            "strategy": "url_submit"
+                        }'
+                        hx-target="#document-form-wrapper"
+                        hx-swap="outerHTML"
+                        hx-push-url="false"
+                        autofocus></button>
+                        <button
+                        class="
+                        border border-2 border-l-1 border-primary text-accent px-4 py-1 grow-1"
+                        type="button"
+                        id="insert"
+                        hx-get="/documents/new/"
+                        hx-params="strategy"
+                        hx-vals='{
+                            "strategy": "content_submit"
+                        }'
+                        hx-target="#document-form-wrapper"
+                        hx-swap="outerHTML"
+                        hx-push-url="false"></button>
+                    
+                        <button class="
+                        border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
+                        type="button"
+                        id="url"
+                        hx-get="/documents/new/"
+                        hx-params="strategy"
+                        hx-vals='{
+                            "strategy": "url_submit"
+                        }'
+                        hx-target="#document-form-wrapper"
+                        hx-swap="outerHTML"
+                        hx-push-url="false"
+                        autofocus></button>
+                        <button
+                        class="
+                        bg-primary border border-2 border-l-1 border-primary text-accent px-4 py-1 grow-1"
+                        type="button"
+                        id="insert"
+                        hx-get="/documents/new/"
+                        hx-params="strategy"
+                        hx-vals='{
+                            "strategy": "content_submit"
+                        }'
+                        hx-target="#document-form-wrapper"
+                        hx-swap="outerHTML"
+                        hx-push-url="false"></button>
+                    
+
+                </div>
+                
+                    
+                
+                    
+                
+            </div>
+            <div>
+                <button
+                type="submit"
+                class="text-left px-2 py-1 bg-accent text-primary rounded cursor-pointer"></button>
+            </div>
+        </form>
+    </div>
+    

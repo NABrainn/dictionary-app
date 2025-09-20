@@ -1,0 +1,137 @@
+
+<div
+hx-on:click="event.stopPropagation()"
+hx-on::load="formPositioner.handleOverflow(htmx.find('#translation-form-container-'), )"
+class="
+md:gap-0.75
+gap-4 bg-tertiary flex flex-col p-3 rounded animate-fade-10"
+id="translation-form">
+    <div
+    class="flex justify-end">
+        <span
+        class="md:text-md
+        text-sm text-red-400 font-bold cursor-pointer"
+        hx-on:click="event.stopPropagation()
+        documentPage.closeAllTranslationForms()"
+        >❌</span>
+    </div>
+    <span
+    class="font-bold text-lg text-accent text-wrap"></span>
+    <div
+    class="flex flex-col gap-2 text-wrap">
+        
+            <div
+            class="flex gap-2 items-center min-h-8">
+                <input
+                name="sourceWords"
+                type="hidden"
+                value="">
+                <span class="block text-center text-accent text-wrap"></span>
+                <form
+                class="flex items-center"
+                hx-delete="/translations/sourceWords/delete"
+                hx-target="#translation-form-container-"
+                hx-swap="innerHTML"
+                hx-params="sourceWord,targetWord,id,_csrf"
+                hx-vals='{
+                    "targetWord": "",
+                    "id": "",
+                    "sourceWord": "",
+                    "_csrf": ""
+                }'>
+                    <button
+                    class="cursor-pointer text-md block"
+                    type="submit">🗑️</button>
+                </form>
+            </div>
+        
+        <div class="flex flex-col gap-2">
+            <div id="source-word-form" class="flex">
+                <form
+                class="flex flex-col gap-2"
+                hx-params="id,targetWord,familiarity,sourceWords,_csrf"
+                hx-vals='{
+                    "targetWord": "",
+                    "familiarity": "",
+                    "id": "",
+                    "_csrf": ""
+                }'
+                hx-put="/translations/sourceWords/update"
+                hx-target="#translation-form-container-"
+                hx-swap="innerHTML">
+                    
+                        <input
+                        hx-on:click="event.stopPropagation()"
+                        name="sourceWords"
+                        type="hidden"
+                        value="">
+                    
+                    <div class="flex gap-2">
+                        <input
+                        id="input-source-word"
+                        class="
+                        outline-none border border-2  rounded text-neutral text-md grow-1
+                        focus:border-accent max-w-50"
+                        type="text"
+                        placeholder=""
+                        name="sourceWords">
+                        <button
+                        id="submit-source-word"
+                        class="text-3xl cursor-pointer text-accent"
+                        type="submit">+</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="
+    md:flex md:flex-col md:gap-0.25
+    flex flex-row justify-center gap-3">
+        
+            
+                <div class="
+                flex flex-row md:bg-tertiary md:text-primary md:gap-1 md:size-auto md:justify-start
+                font-bold bg-primary text-accent size-8 rounded justify-center items-center"
+                >
+                    <span><span class="md:inline hidden">: </span></span>
+                    <span class="
+                    md:inline
+                    hidden"></span>
+                </div>
+            
+            <form
+            class="
+            md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
+            cursor-pointer bg-accent text-primary flex hover:text-primary font-bold rounded size-8 justify-center items-center"
+            id="translation-form-"
+            hx-trigger="click"
+            hx-put="/translations/familiarity/update"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase,_csrf"
+            hx-vals='
+            {
+                "targetWord": "",
+                "familiarity": "",
+                "sourceLanguage": "",
+                "targetLanguage": "",
+                "id": "",
+                "isPhrase": "",
+                "_csrf": ""
+            }'
+            hx-target="#translation-form-container-"
+            hx-swap="innerHTML"
+            hx-on:click="
+            event.stopPropagation()
+            documentPage.handleUpdateFamiliarity('', '')
+            ">
+                <span><span class="md:inline hidden">: </span></span>
+                <input
+                class="
+                md:inline
+                hidden cursor-pointer"
+                value=""
+                type="submit">
+            </form>
+            
+        
+    </div>
+</div>

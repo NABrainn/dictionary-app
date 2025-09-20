@@ -110,21 +110,41 @@
 
 	<build>
 		<plugins>
+<!--			<plugin>-->
+<!--				<groupId>gg.jte</groupId>-->
+<!--				<artifactId>jte-maven-plugin</artifactId>-->
+<!--				<version>3.2.1</version>-->
+<!--				<configuration>-->
+<!--					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>-->
+<!--					<targetDirectory>${project.build.outputDirectory}</targetDirectory>-->
+<!--					<contentType>Html</contentType>-->
+<!--				</configuration>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<phase>process-classes</phase>-->
+<!--						<goals>-->
+<!--							<goal>precompile</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
 			<plugin>
 				<groupId>gg.jte</groupId>
 				<artifactId>jte-maven-plugin</artifactId>
 				<version>3.2.1</version>
-				<configuration>
-					<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
-					<targetDirectory>${project.build.outputDirectory}</targetDirectory>
-					<contentType>Html</contentType>
-				</configuration>
 				<executions>
 					<execution>
-						<phase>process-classes</phase>
+						<id>jte-generate</id>
+						<phase>generate-sources</phase>
 						<goals>
-							<goal>precompile</goal>
+							<goal>generate</goal>
 						</goals>
+						<configuration>
+							<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
+							<contentType>Html</contentType>
+							<binaryStaticContent>true</binaryStaticContent>
+							<targetResourceDirectory>${project.build.outputDirectory}</targetResourceDirectory>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

@@ -1,0 +1,66 @@
+<div
+class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary bg-tertiary text-accent"
+id="phrase-"
+ data-id="" data-value=""
+data-familiarity="unknown"
+
+data-is-phrase="true"
+data-is-saved="false"
+data-is-selectable="true"
+data-is-selected="true"
+
+hx-params="documentId,targetWord,id,isPhrase,isPersisted"
+hx-get="/translations/find"
+hx-target="#translation-form-container-"
+hx-swap="innerHTML"
+hx-vals='{
+    "documentId": "",
+    "targetWord": "",
+    "id": "",
+    "isPhrase": "true",
+    "isPersisted": "true"
+}'
+hx-trigger="click from:closest div"
+hx-on::load="formPositioner.handleOverflow(htmx.find('#translation-form-container-'), 1)"
+hx-on:click="
+event.preventDefault()
+documentPage.closeAllTranslationForms()
+documentPage.cleanupSelectedWord()
+documentPage.cleanupSelectedPhrase()
+
+//handle selection
+util.findAllByData({ key: 'is-phrase', value: 'true' })
+.filter(node => data.get(node, 'is-selected') === 'false')
+.filter(node => data.get(node, 'id') === '')
+.forEach(node => {
+    data.set(node, { key: 'is-selected', value: 'true' })
+    util.replaceClasses(node, {
+        toRemove: ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-primary', 'text-primary'],
+        toAdd: ['bg-tertiary', 'text-accent']
+    })
+    Array.from(node.children)
+    .filter(child => data.get(child, 'is-word') === 'true')
+    .flatMap(word => [...word.children])
+    .filter(child => child instanceof HTMLSpanElement)
+    .forEach(span => {
+        util.replaceClasses(span, {
+            toRemove: ['text-primary'],
+            toAdd: ['text-accent']
+        })
+    })
+})
+">
+    <div
+    class="
+    cursor-default z-2 absolute inline"
+    id="translation-form-container-"
+
+    data-id=""
+    data-is-translation-form-container="true"
+    data-is-phrase-form-container="true">
+        
+    </div>
+    
+        
+    
+</div>

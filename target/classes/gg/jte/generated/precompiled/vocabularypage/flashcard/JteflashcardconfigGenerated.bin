@@ -1,0 +1,146 @@
+
+<div
+id="flashcard-config-form"
+class="
+md:w-1/4
+bg-tertiary min-h-140 rounded-md w-4/5  mx-auto flex flex-col justify-between p-6">
+    <div class="flex flex-col gap-10">
+        <p class="font-bold text-3xl text-primary"></p>
+        <div class="flex flex-col gap-4">
+            <span class="font-bold text-xl text-secondary"></span>
+            <div class="
+            md:gap-8
+            flex gap-4 select-none">
+                
+                    
+                        <div
+                        class="size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary"></div>
+                    
+                        <div
+                        class="p-0.5 flex justify-center items-center size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                        hx-get="/vocabulary/config-form/"
+                        hx-target="#flashcard-config-form"
+                        hx-swap="outerHTML"
+                        hx-params="familiarity,quantity,isPhrase"
+                        hx-vals='{
+                            "familiarity": "",
+                            "quantity": "",
+                            "isPhrase":""
+                        }'></div>
+                    
+                
+                
+                    <div
+                    class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">-</div>
+                
+                    <div
+                    class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                    hx-get="/vocabulary/config-form/"
+                    hx-target="#flashcard-config-form"
+                    hx-swap="outerHTML"
+                    hx-params="familiarity,quantity,isPhrase"
+                    hx-vals='{
+                        "familiarity": "0",
+                        "quantity": "",
+                        "isPhrase":""
+                    }'>-</div>
+                
+            </div>
+        </div>
+        <div class="flex flex-col gap-4">
+            <span class="font-bold text-xl text-secondary">?</span>
+            <div class="flex gap-8 select-none">
+                
+                    <div
+                    class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">10</div>
+                
+                    <div
+                    class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                    hx-get="/vocabulary/config-form/"
+                    hx-target="#flashcard-config-form"
+                    hx-swap="outerHTML"
+                    hx-vals='{
+                        "familiarity": "",
+                        "quantity": "10",
+                        "isPhrase":""
+                    }'>10</div>
+                
+                
+                    <div
+                    class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">50</div>
+                
+                    <div
+                    class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                    hx-get="/vocabulary/config-form/"
+                    hx-target="#flashcard-config-form"
+                    hx-swap="outerHTML"
+                    hx-vals='{
+                        "familiarity": "",
+                        "quantity": "50",
+                        "isPhrase":""
+                    }'>50</div>
+                
+                
+                    <div
+                    class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary">100</div>
+                
+                    <div
+                    class="p-0.5 flex justify-center items-center  size-8 rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                    hx-get="/vocabulary/config-form/"
+                    hx-target="#flashcard-config-form"
+                    hx-swap="outerHTML"
+                    hx-vals='{
+                        "familiarity": "",
+                        "quantity": "100",
+                        "isPhrase":""
+                    }'>100</div>
+                
+            </div>
+        </div>
+        <div class="flex gap-8 select-none">
+            
+                <div
+                class="basis-1/2 rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary"></div>
+                <div
+                class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                hx-get="/vocabulary/config-form/"
+                hx-target="#flashcard-config-form"
+                hx-swap="outerHTML"
+                hx-vals='{
+                    "familiarity": "",
+                    "quantity": "",
+                    "isPhrase": "false"
+                }'></div>
+            
+                <div
+                class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent cursor-pointer"
+                hx-get="/vocabulary/config-form/"
+                hx-target="#flashcard-config-form"
+                hx-swap="outerHTML"
+                hx-vals='{
+                    "familiarity": "",
+                    "quantity": "",
+                    "isPhrase": "true"
+                }'></div>
+                <div
+                class="basis-1/2  rounded-xl border border-2 border-secondary text-center text-lg text-accent bg-secondary"></div>
+            
+        </div>
+    </div>
+    <form
+    class="flex flex-col gap-1"
+    hx-get="/vocabulary/flashcard/"
+    hx-target="#flashcard-config-form"
+    hx-swap="outerHTML"
+    hx-vals='{
+        "familiarity": "",
+        "quantity": "",
+        "isPhrase":"",
+        "id": "1"
+    }'>
+        <button
+        type="submit"
+        class="font-bold text-accent cursor-pointer bg-primary py-4 flex justify-center rounded cursor-pointer"
+        >Start</button>
+    </form>
+</div>

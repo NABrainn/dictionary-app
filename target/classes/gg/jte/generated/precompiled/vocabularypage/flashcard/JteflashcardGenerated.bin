@@ -1,0 +1,72 @@
+
+
+
+
+    
+    
+
+    
+    
+
+
+<form
+id="flashcard-form"
+class="
+md:w-1/4
+min-h-140 rounded-md w-4/5 mx-auto flex flex-col">
+    
+    <div class="rounded-b-md flex py-10 items-center font-bold bg-secondary text-accent text-xl select-none">
+        
+            <form
+            class="cursor-pointer visible basis-1/4 text-center"
+            hx-get="/vocabulary/flashcard/flip"
+            hx-target="#flashcard-form"
+            hx-swap="outerHTML"
+            hx-trigger="click"
+            hx-vals='{
+                "id": ""
+            }'>⬅️
+                
+                    <input name="sourceWord" value="" type="hidden">
+                
+            </form>
+        
+            <div class="cursor-pointer invisible basis-1/4">⬅️</div>
+        
+        <span class="basis-1/2 text-center"> / </span>
+        
+            <form
+            class="cursor-pointer visible basis-1/4 text-center"
+            hx-get="/vocabulary/flashcard/flip"
+            hx-swap="outerHTML"
+            hx-target="#flashcard-form"
+            hx-trigger="click"
+            hx-vals='{
+                "id": ""
+            }'>➡️
+                
+                    <input name="sourceWord" value="" type="hidden">
+                
+            </form>
+        
+            <form
+            class="cursor-pointer visible basis-1/4 text-center"
+            hx-get="/vocabulary/flashcard/"
+            hx-swap="outerHTML"
+            hx-target="#flashcard-form"
+            hx-trigger="click"
+            hx-vals='{
+                "familiarity": "",
+                "quantity": "",
+                "isPhrase":"",
+                "id": "1"
+            }'>⟳
+                
+                    <input name="sourceWord" value="" type="hidden">
+                
+            </form>
+        
+    </div>
+</form>
+
+

@@ -9,6 +9,7 @@
 @param Map<TranslationLocalizationKey, String> messages
 
 <div
+hx-on::load="formPositioner.handleOverflow(htmx.find('#translation-form-container-${attribute.id()}'), 3)"
 hx-on:click="event.stopPropagation()"
 class="
 md:gap-0.75

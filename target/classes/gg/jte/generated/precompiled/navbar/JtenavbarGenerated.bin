@@ -1,0 +1,32 @@
+
+
+
+
+    
+    
+
+    
+    
+
+<div>
+    <nav
+    class="
+    md:p-4 md:py-2
+    gap-2 px-1.5 flex bg-secondary justify-between items-center min-h-18 select-none">
+        
+        
+            
+                
+            
+            
+        
+            
+        
+    </nav>
+    
+        <div
+        id="profile-panel">
+            
+        </div>
+    
+</div>
