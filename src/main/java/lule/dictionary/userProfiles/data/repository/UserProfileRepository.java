@@ -33,8 +33,8 @@ public class UserProfileRepository {
                     .wordsAddedToday(rs.getInt("words_added_today"))
                     .offset(rs.getString("tz_offset"))
                     .dailyStreak(rs.getInt("day_count"))
-                    .translations(List.of())
-                    .isProfileOpen(false)
+//                    .translations(List.of())
+//                    .isProfileOpen(false)
                     .build());
 
     public Optional<UserProfile> findByUsername(@NonNull String username) {
@@ -50,8 +50,8 @@ public class UserProfileRepository {
                         str.words_added_today,
                         str.tz_offset,
                         str.updated_at
-                    FROM dictionary.user_profiles p
-                    LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
+                    FROM dictionary.users p
+                    LEFT JOIN dictionary.profile_settings s ON p.settings_id=s.settings_id
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
                     WHERE p.username=?;
                 """;
@@ -77,8 +77,8 @@ public class UserProfileRepository {
                         str.words_added_today, 
                         str.tz_offset, 
                         str.updated_at
-                    FROM dictionary.user_profiles p
-                    LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
+                    FROM dictionary.users p
+                    LEFT JOIN dictionary.profile_settings s ON p.settings_id=s.settings_id
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
                     WHERE p.username=? OR p.email=?;
                 """;
@@ -94,7 +94,7 @@ public class UserProfileRepository {
     public Optional<UserProfile> addUserProfile(@NonNull UserProfile userProfile) {
         String sql = """
                     WITH settings AS (
-                        INSERT INTO dictionary.user_profile_settings (source_lang, target_lang, ui_lang)
+                        INSERT INTO dictionary.profile_settings (source_lang, target_lang, ui_lang)
                         VALUES (?, ?, ?)
                         RETURNING settings_id, source_lang, target_lang, ui_lang
                     ),
@@ -104,7 +104,7 @@ public class UserProfileRepository {
                         RETURNING day_count, words_added_today, streak_owner, tz_offset, updated_at
                     ),
                     user_insert AS (
-                        INSERT INTO dictionary.user_profiles (username, email, password, settings_id)
+                        INSERT INTO dictionary.users (username, email, password, settings_id)
                         SELECT ?, ?, ?, s.settings_id
                         FROM settings s
                         RETURNING username, email, password, settings_id
@@ -145,8 +145,8 @@ public class UserProfileRepository {
                         str.words_added_today,
                         str.tz_offset,
                         str.updated_at
-                    FROM dictionary.user_profiles as p
-                    LEFT JOIN dictionary.user_profile_settings s ON p.settings_id=s.settings_id
+                    FROM dictionary.users as p
+                    LEFT JOIN dictionary.profile_settings s ON p.settings_id=s.settings_id
                     LEFT JOIN dictionary.streaks str ON p.username=str.streak_owner
                 """;
         try {
@@ -175,27 +175,27 @@ public class UserProfileRepository {
 
     public void resetStreaksIfMidnight() {
         String resetSql = """
-                            UPDATE dictionary.streaks
-                            SET
-                                words_added_today = 0,
-                                day_count = 0,
-                                updated_at = now()
-                            WHERE
-                                date_trunc('day', updated_at + (tz_offset)::interval) <
-                                date_trunc('day', now() + (tz_offset)::interval)
-                                AND words_added_today < 50
-        """;
+                    UPDATE dictionary.streaks
+                    SET
+                        words_added_today = 0,
+                        day_count = 0,
+                        updated_at = now()
+                    WHERE
+                        date_trunc('day', updated_at + (tz_offset)::interval) <
+                        date_trunc('day', now() + (tz_offset)::interval)
+                        AND words_added_today < 50
+                    """;
 
         String incrementSql = """
-                            UPDATE dictionary.streaks
-                            SET
-                                words_added_today = 0,
-                                day_count = day_count + 1,
-                                updated_at = now()
-                            WHERE
-                                date_trunc('day', updated_at + (tz_offset)::interval) <
-                                date_trunc('day', now() + (tz_offset)::interval)
-                                AND words_added_today >= 50
+                UPDATE dictionary.streaks
+                SET
+                    words_added_today = 0,
+                    day_count = day_count + 1,
+                    updated_at = now()
+                WHERE
+                    date_trunc('day', updated_at + (tz_offset)::interval) <
+                    date_trunc('day', now() + (tz_offset)::interval)
+                    AND words_added_today >= 50
         """;
         template.update(resetSql);
         template.update(incrementSql);
@@ -219,11 +219,11 @@ public class UserProfileRepository {
 
     public void updateTargetLanguage(String owner, String targetLanguage) {
         String sql = """
-            UPDATE dictionary.user_profile_settings
+            UPDATE dictionary.profile_settings
             SET target_lang = ?
             WHERE settings_id = (
                 SELECT settings_id
-                FROM dictionary.user_profiles
+                FROM dictionary.users
                 WHERE username = ?
             )
         """;
@@ -239,11 +239,11 @@ public class UserProfileRepository {
 
     public void updateSourceLanguage(String owner, String targetLanguage) {
         String sql = """
-            UPDATE dictionary.user_profile_settings
+            UPDATE dictionary.profile_settings
             SET source_lang = ?
             WHERE settings_id = (
                 SELECT settings_id
-                FROM dictionary.user_profiles
+                FROM dictionary.users
                 WHERE username = ?
             )
         """;
@@ -259,11 +259,11 @@ public class UserProfileRepository {
 
     public void updateUILanguage(String owner, String uiLanguage) {
         String sql = """
-            UPDATE dictionary.user_profile_settings
+            UPDATE dictionary.profile_settings
             SET ui_lang = ?
             WHERE settings_id = (
                 SELECT settings_id
-                FROM dictionary.user_profiles
+                FROM dictionary.users
                 WHERE username = ?
             )
         """;
