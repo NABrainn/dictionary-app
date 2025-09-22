@@ -163,7 +163,8 @@ public class DocumentService {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(principal.getUsername(), principal.targetLanguage());
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
-        return DocumentListAttribute.of(documents, localization);
+        boolean isNavbarOpen = userProfileService.isNavbarToggled(authentication);
+        return DocumentListAttribute.of(documents, localization, isNavbarOpen);
     }
 
     public Result<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest request, Authentication authentication) {
@@ -181,7 +182,7 @@ public class DocumentService {
                                     .build();
                             DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
                             DocumentPaginationData paginationData = assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest.of(found.totalContentLength(), request.page()));
-                            boolean isNavbarOpen = userProfileService.toggleItem("navbar", authentication);
+                            boolean isNavbarOpen = userProfileService.hideNavbar(authentication);
                             return Ok.of(DocumentAttribute.of(documentContentData, paginationData, isNavbarOpen));
                         }
                         case Err<?> v -> {

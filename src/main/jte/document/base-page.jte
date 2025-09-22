@@ -11,7 +11,7 @@
 
 @template.base(content = @`
     @template.navbar.navbar(
-    navbarAttribute = navbarAttribute,
+    navbarAttribute = navbarAttribute.withIsNavbarOpen(attribute.isNavbarOpen()),
     baseAttribute = baseAttribute,
     isProfileToggleBtnVisible = false)
     @template.document.content(

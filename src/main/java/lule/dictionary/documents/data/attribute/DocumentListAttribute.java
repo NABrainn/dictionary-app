@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public record DocumentListAttribute(@NonNull List<DocumentWithTranslationData> documents,
-                                    @NonNull Map<DocumentLocalizationKey, String> localization) {
-    public static DocumentListAttribute of(List<DocumentWithTranslationData> documents, Map<DocumentLocalizationKey, String> localization) {
-        return new DocumentListAttribute(documents, localization);
+                                    @NonNull Map<DocumentLocalizationKey, String> localization,
+                                    boolean isNavbarOpen) {
+    public static DocumentListAttribute of(List<DocumentWithTranslationData> documents, Map<DocumentLocalizationKey, String> localization, boolean isNavbarOpen) {
+        return new DocumentListAttribute(documents, localization, isNavbarOpen);
     }
 }

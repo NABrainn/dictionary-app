@@ -324,4 +324,49 @@ public class UserProfileRepository {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not toggle navbar");
         }
     }
+
+    public boolean isNavbarToggled(String username) {
+        String sql = """
+            SELECT is_navbar_open
+            FROM dictionary.profile_settings
+            WHERE settings_id = (
+                SELECT settings_id
+                FROM dictionary.users
+                WHERE username = ?
+            )
+        """;
+        try {
+            return Optional.ofNullable(template.queryForObject(sql, Boolean.class, username))
+                    .orElseThrow();
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("No rows updated in isNavbarToggled for username: {}, cause: {}", username, e.getCause(), e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User or settings not found");
+        } catch (DataAccessException e) {
+            log.error("Error in isNavbarToggled for username: {}, cause: {}", username, e.getCause(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not get bool, fool");
+        }
+    }
+
+    public boolean hideNavbar(String username) {
+        String sql = """
+            UPDATE dictionary.profile_settings
+            SET is_navbar_open = false
+            WHERE settings_id = (
+                SELECT settings_id
+                FROM dictionary.users
+                WHERE username = ?
+            )
+            RETURNING is_navbar_open
+        """;
+        try {
+            return Optional.ofNullable(template.queryForObject(sql, Boolean.class, username))
+                    .orElseThrow();
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("No rows updated in hideNavbar for username: {}, cause: {}", username, e.getCause(), e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User or settings not found");
+        } catch (DataAccessException e) {
+            log.error("Error in hideNavbar for username: {}, cause: {}", username, e.getCause(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not hideNavbar navbar");
+        }
+    }
 }

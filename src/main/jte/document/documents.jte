@@ -10,7 +10,7 @@
 @template.base(content = @`
     @template.navbar.navbar(
     baseAttribute = baseAttribute,
-    navbarAttribute = navbarAttribute)
+    navbarAttribute = navbarAttribute.withIsNavbarOpen(attribute.isNavbarOpen()))
     @if(baseAttribute.isAuthenticated())
         <div
         class="md:w-1/2

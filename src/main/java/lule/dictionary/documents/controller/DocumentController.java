@@ -45,7 +45,6 @@ public class DocumentController {
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
-                model.addAttribute("isNavbarOpen", false);
                 return "document/base-page";
             }
             case Err<DocumentAttribute> ignored -> {
@@ -63,10 +62,9 @@ public class DocumentController {
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
-                model.addAttribute("isNavbarOpen", false);
                 return "document/content";
             }
-            case Err<DocumentAttribute> v -> {
+            case Err<DocumentAttribute> ignored -> {
                 return "error";
             }
         }

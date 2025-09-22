@@ -41,7 +41,7 @@ public class SettingsController {
     public String profilePanel(Model model,
                                Authentication authentication,
                                @RequestParam("item") String item) {
-        boolean isNavbarOpen = userProfileService.toggleItem(item, authentication);
+        boolean isNavbarOpen = userProfileService.toggleNavbar(item, authentication);
         model.addAttribute("isNavbarOpen", isNavbarOpen);
         return "navbar/profile-panel";
     }
