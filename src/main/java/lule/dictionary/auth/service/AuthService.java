@@ -24,9 +24,6 @@ import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.ValidationException;
 import lule.dictionary.validation.service.Validator;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +42,7 @@ public class AuthService {
     private final Validator validator;
     private final AuthLocalizationService authLocalizationService;
     private final PatternService patternService;
+    private final SecurityContextService securityContextService;
 
 
     public Result<?> login(@NonNull LoginRequest request,
@@ -77,12 +75,11 @@ public class AuthService {
                 })
         ));
         return switch (result) {
-            case Ok<?> v -> {
+            case Ok<?> ignored1 -> {
                 UserProfile user = ((UserProfile) userProfileService.loadUserByUsername(sanitizedLogin))
                         .withPassword(request.password())
-                        .withIsProfileOpen(false);
-                Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                        .withIsNavbarOpen(false);
+                securityContextService.authenticateAndSetContext(user, authenticationManager);
                 String token = jwtService.generateToken(user.getUsername());
                 Cookie jwtCookie = cookieService.createJwtCookie("jwt", token);
                 userProfileService.updateTimezoneOffset(user.getUsername(), TimeZoneOffsetContext.get());
@@ -182,13 +179,10 @@ public class AuthService {
     }
 
     public void logout(@NonNull HttpServletResponse response) {
-        String username = SecurityContextHolder.getContext().getAuthentication() != null
-                ? SecurityContextHolder.getContext().getAuthentication().getName()
-                : "unknown";
-        SecurityContextHolder.getContext().setAuthentication(null);
+        securityContextService.clearContext();
         Cookie cookie = cookieService.deleteJwtCookie("jwt");
         response.addCookie(cookie);
-        log.info("User {} logged out", username);
+        log.info("User logged out");
     }
 
     public Map<AuthText, String> getTextLocalization() {

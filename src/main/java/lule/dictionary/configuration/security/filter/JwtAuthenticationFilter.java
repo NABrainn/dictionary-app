@@ -8,12 +8,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.auth.service.SecurityContextService;
 import lule.dictionary.jwt.service.JwtService;
 import lule.dictionary.userProfiles.service.UserProfileService;
 import lule.dictionary.userProfiles.service.exception.UserNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserProfileService userProfileService;
+    private final SecurityContextService securityContextService;
 
     @Override
     protected void doFilterInternal(
@@ -50,15 +52,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         String jwt = optionalJwt.get();
         Optional<String> optionalUsername = jwtService.getUsernameFromToken(jwt);
-        if (optionalUsername.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (optionalUsername.isPresent() && !securityContextService.isAuthenticated()) {
             String username = optionalUsername.get();
             try {
                 UserDetails userDetails = userProfileService.loadUserByUsername(username);
                 if (jwtService.validateToken(jwt, username)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    WebAuthenticationDetails requestToken = new WebAuthenticationDetailsSource().buildDetails(request);
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                    securityContextService.setJwtContext(authToken, requestToken);
                     log.debug("Authenticated user: {}", username);
                 }
             } catch (UserNotFoundException e) {
