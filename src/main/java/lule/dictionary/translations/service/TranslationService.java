@@ -103,7 +103,7 @@ public class TranslationService {
                         .isPhrase(request.isPhrase())
                         .unprocessedTargetWord("")
                         .build();
-                translationRepository.addTranslation(translation, request.documentId())
+                translationRepository.addTranslation(translation)
                         .orElseThrow();
                 TranslationAttribute attribute = TranslationAttribute.builder()
                         .id(request.selectedWordId())
@@ -139,10 +139,9 @@ public class TranslationService {
                         .isPhrase(request.isPhrase())
                         .isPersisted(false)
                         .build();
-                if (err.throwable() instanceof ValidationException validationException) {
-                    yield Err.of(new TranslationServiceException(translationAttribute, validationException.getViolations()));
-                }
-                yield Err.of(new RuntimeException("Unknown exception"));
+                yield err.throwable() instanceof ValidationException validationException ?
+                        Err.of(new TranslationServiceException(translationAttribute, validationException.getViolations())) :
+                        Err.of(new RuntimeException("Unknown exception"));
             }
         };
     }
@@ -406,7 +405,8 @@ public class TranslationService {
     public BaseFlashcardAttribute flipFlashcard(@NonNull FlipFlashcardRequest request,
                                                 @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        List<Translation> translations = principal.translations();
+//        List<Translation> translations = principal.translations();
+        List<Translation> translations = List.of();
         System.out.println(translations);
         return BaseFlashcardAttribute.builder()
                 .translations(translations)
@@ -467,11 +467,7 @@ public class TranslationService {
                     case Ok<?> ignored -> translationRepository.findByTargetWord(sanitizedTargetWord, principal.username())
                             .map(translation -> TranslationAttribute.builder()
                                     .id(findTranslationRequest.selectedWordId())
-                                    .translation(translation.withSourceWords(translation.sourceWords().stream()
-                                            .filter(word -> !word.isBlank())
-                                            .distinct()
-                                            .limit(3)
-                                            .toList()))
+                                    .translation(translation.withSourceWords(translation.sourceWords()))
                                     .currentFamiliarity(familiarityService.getFamiliarityAsDigit(translation.familiarity()))
                                     .familiarityLevels(familiarityService.getFamiliarityMap())
                                     .documentId(findTranslationRequest.documentId())
@@ -485,11 +481,6 @@ public class TranslationService {
                                             translationRepository.findMostFrequentSourceWords(findTranslationRequest.targetWord(), 3),
                                             translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), findTranslationRequest.targetWord())
                                     )
-                                    .map(fetchedSourceWords -> fetchedSourceWords.stream()
-                                            .filter(word -> !word.isBlank())
-                                            .distinct()
-                                            .limit(3)
-                                            .toList())
                                     .map(fetchedSourceWords -> Translation.builder()
                                             .sourceWords(fetchedSourceWords)
                                             .targetWord(findTranslationRequest.targetWord())
@@ -541,10 +532,7 @@ public class TranslationService {
                         .familiarityLevels(Map.of())
                         .translation(Translation.builder()
                                 .sourceWords(List.of())
-                                .targetWord(
-                                        patternService.removeSpecialCharacters(request.unprocessedTargetWords().get(id))
-                                                .toLowerCase()
-                                )
+                                .targetWord(patternService.removeSpecialCharacters(request.unprocessedTargetWords().get(id)).toLowerCase())
                                 .unprocessedTargetWord(request.unprocessedTargetWords().get(id))
                                 .familiarity(switch (request.familiarities().get(id).toUpperCase()) {
                                     case "UNKNOWN" -> Familiarity.UNKNOWN;
