@@ -11,7 +11,7 @@ import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.language.service.LanguageHelper;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.userProfiles.service.UserProfileService;
+import lule.dictionary.userProfiles.service.UserInterfaceService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.ui.Model;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public class JteControllerAdvice {
 
     private final TranslationService translationService;
-    private final UserProfileService userProfileService;
+    private final UserInterfaceService userInterfaceService;
     private final LanguageHelper languageHelper;
     private final NavbarLocalizationService navbarLocalization;
 
@@ -115,7 +115,7 @@ public class JteControllerAdvice {
                             .imgPath(languageHelper.getImagePath(sourceLanguage))
                             .build())
 //                    .isNavbarOpen(principal.isNavbarOpen())
-                    .isNavbarOpen(userProfileService.isNavbarToggled(authentication))
+                    .isNavbarOpen(userInterfaceService.isNavbarToggled(authentication))
                     .settingsText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.SETTINGS))
                     .languageText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LANGUAGE))
                     .uiText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.USER_INTERFACE))

@@ -29,10 +29,10 @@ import java.util.Optional;
 @Slf4j
 public class UserProfileService implements UserDetailsService {
 
-    private final UserProfileRepository userProfileRepository;
     private final BCryptPasswordEncoder encoder;
     private final LanguageHelper languageHelper;
     private final SecurityContextService securityContextService;
+    private final UserProfileRepository userProfileRepository;
 
     @Transactional
     public void addUserProfile(@NonNull SignupRequest signupRequest) {
@@ -112,21 +112,5 @@ public class UserProfileService implements UserDetailsService {
                     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
                     securityContextService.setContext(token);
                 });
-    }
-
-    //navbar service thing
-    public boolean toggleNavbar(String item, Authentication authentication) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
-        return item.equals("navbar") && userProfileRepository.toggleNavbar(principal.getUsername());
-    }
-
-    public boolean isNavbarToggled(Authentication authentication) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
-        return userProfileRepository.isNavbarToggled(principal.getUsername());
-    }
-
-    public boolean hideNavbar(Authentication authentication) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
-        return userProfileRepository.hideNavbar(principal.getUsername());
     }
 }

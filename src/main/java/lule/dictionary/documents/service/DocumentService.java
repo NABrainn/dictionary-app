@@ -31,6 +31,7 @@ import lule.dictionary.translations.data.request.ExtractPhrasesRequest;
 import lule.dictionary.translations.data.request.FindTranslationsInDocumentRequest;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.userProfiles.service.UserInterfaceService;
 import lule.dictionary.userProfiles.service.UserProfileService;
 import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.ValidationException;
@@ -59,6 +60,7 @@ public class DocumentService {
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
     private final UserProfileService userProfileService;
+    private final UserInterfaceService userInterfaceService;
 
     @Transactional
     public Result<Integer> createDocument(CreateDocumentRequest request) {
@@ -163,7 +165,7 @@ public class DocumentService {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(principal.getUsername(), principal.targetLanguage());
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
-        boolean isNavbarOpen = userProfileService.isNavbarToggled(authentication);
+        boolean isNavbarOpen = userInterfaceService.isNavbarToggled(authentication);
         return DocumentListAttribute.of(documents, localization, isNavbarOpen);
     }
 
@@ -182,7 +184,7 @@ public class DocumentService {
                                     .build();
                             DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
                             DocumentPaginationData paginationData = assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest.of(found.totalContentLength(), request.page()));
-                            boolean isNavbarOpen = userProfileService.hideNavbar(authentication);
+                            boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
                             return Ok.of(DocumentAttribute.of(documentContentData, paginationData, isNavbarOpen));
                         }
                         case Err<?> v -> {

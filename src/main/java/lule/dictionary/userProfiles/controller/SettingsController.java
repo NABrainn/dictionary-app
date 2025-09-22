@@ -1,6 +1,7 @@
 package lule.dictionary.userProfiles.controller;
 
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.userProfiles.service.UserInterfaceService;
 import lule.dictionary.userProfiles.service.UserProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SettingsController {
 
     private final UserProfileService userProfileService;
+    private final UserInterfaceService userInterfaceService;
 
     @GetMapping({"/changeLanguage/target", "/changeLanguage/target/"})
     public String changeTargetLanguage(@RequestParam("lang") String language,
@@ -41,7 +43,7 @@ public class SettingsController {
     public String profilePanel(Model model,
                                Authentication authentication,
                                @RequestParam("item") String item) {
-        boolean isNavbarOpen = userProfileService.toggleNavbar(item, authentication);
+        boolean isNavbarOpen = userInterfaceService.toggleNavbar(item, authentication);
         model.addAttribute("isNavbarOpen", isNavbarOpen);
         return "navbar/profile-panel";
     }
