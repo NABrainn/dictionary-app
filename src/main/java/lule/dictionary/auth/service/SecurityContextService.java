@@ -29,6 +29,6 @@ public class SecurityContextService {
     }
 
     public boolean isAuthenticated() {
-        return SecurityContextHolder.getContext().getAuthentication() == null;
+        return SecurityContextHolder.getContext().getAuthentication() != null;
     }
 }

@@ -13,7 +13,7 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
                               LanguageData translationLanguage,
                               int wordsLearned,
                               int dailyStreak,
-                              boolean isProfileOpen,
+                              boolean isNavbarOpen,
                               String wordsLearnedText,
                               String daysSingularText,
                               String daysPluralText,
@@ -26,14 +26,14 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
                               String translationsText,
                               String logoutText) {
 
-    public NavbarAttribute withIsProfileOpen(boolean isProfileOpen) {
+    public NavbarAttribute withIsNavbarOpen(boolean isNavbarOpen) {
         return NavbarAttribute.builder()
                 .targetLanguage(this.targetLanguage)
                 .userInterfaceLanguage(this.userInterfaceLanguage)
                 .translationLanguage(this.translationLanguage)
                 .wordsLearned(this.wordsLearned)
                 .dailyStreak(this.dailyStreak)
-                .isProfileOpen(isProfileOpen)
+                .isNavbarOpen(isNavbarOpen)
                 .wordsLearnedText(this.wordsLearnedText)
                 .daysSingularText(this.daysSingularText)
                 .daysPluralText(this.daysPluralText)

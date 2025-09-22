@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class LanguageHelper {
@@ -37,7 +38,14 @@ public class LanguageHelper {
                     .imgPath(imageBasePath + "/poland.png")
                     .build()
     );
-
+    public Optional<Language> fromString(String languageString) {
+        try {
+            return Optional.of(Language.valueOf(languageString));
+        }
+        catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
+    }
     public String getFullName(Language language) {
         return languageFullNames().get(language);
     }
@@ -47,7 +55,6 @@ public class LanguageHelper {
     public String getImagePath(Language language) {
         return imagePaths().get(language);
     }
-
     public List<LanguageData> getAllLanguageData() {
         return List.copyOf(allLanguageData);
     }

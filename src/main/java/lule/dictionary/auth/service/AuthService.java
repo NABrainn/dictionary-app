@@ -77,8 +77,7 @@ public class AuthService {
         return switch (result) {
             case Ok<?> ignored1 -> {
                 UserProfile user = ((UserProfile) userProfileService.loadUserByUsername(sanitizedLogin))
-                        .withPassword(request.password())
-                        .withIsNavbarOpen(false);
+                        .withPassword(request.password());
                 securityContextService.authenticateAndSetContext(user, authenticationManager);
                 String token = jwtService.generateToken(user.getUsername());
                 Cookie jwtCookie = cookieService.createJwtCookie("jwt", token);
@@ -154,8 +153,8 @@ public class AuthService {
                 })
         ));
         return switch (result) {
-            case Ok<?> v -> {
-                userProfileService.findByUsernameOrEmail(request.login(), request.email())
+            case Ok<?> ignored -> {
+                userProfileService.loadByUsernameOrEmail(request.login(), request.email())
                         .ifPresentOrElse(
                                 user -> Err.of(new AuthServiceException(Map.of("userExists", switch (Language.EN) {
                                     case PL -> "Użytkownik już istnieje";

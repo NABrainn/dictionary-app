@@ -37,9 +37,12 @@ public class SettingsController {
         return "redirect:/";
     }
 
-    @GetMapping({"/profilePanel", "/profilePanel/"})
-    public String profilePanel(Model model) {
-        model.addAttribute("isProfileOpen", false);
+    @GetMapping({"/toggle", "/toggle/"})
+    public String profilePanel(Model model,
+                               Authentication authentication,
+                               @RequestParam("item") String item) {
+        boolean isNavbarOpen = userProfileService.toggleItem(item, authentication);
+        model.addAttribute("isNavbarOpen", isNavbarOpen);
         return "navbar/profile-panel";
     }
 }

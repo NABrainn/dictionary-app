@@ -61,7 +61,7 @@ public class UserProfileService implements UserDetailsService {
         return userProfileRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
-    public Optional<UserProfile> findByUsernameOrEmail(String username, String email) {
+    public Optional<UserProfile> loadByUsernameOrEmail(String username, String email) {
         return userProfileRepository.findByUsernameOrEmail(username, email);
     }
 
@@ -112,5 +112,10 @@ public class UserProfileService implements UserDetailsService {
                     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
                     securityContextService.setContext(token);
                 });
+    }
+
+    public boolean toggleItem(String item, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        return item.equals("navbar") && userProfileRepository.toggleNavbar(principal.getUsername());
     }
 }

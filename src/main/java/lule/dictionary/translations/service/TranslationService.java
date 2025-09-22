@@ -374,7 +374,7 @@ public class TranslationService {
     public Result<BaseFlashcardAttribute> getRandomTranslations(GetRandomTranslationsRequest request, Authentication authentication) throws TranslationsNotFoundException {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         List<Translation> translations = translationRepository.getRandomTranslations(request.isPhrase(), principal.getUsername(), request.quantity(), request.familiarity());
-        userProfileService.reauthenticate(principal.withTranslations(translations));
+//        userProfileService.authenticate(principal.withTranslations(translations));
         return !translations.isEmpty() ?
                 Ok.of(BaseFlashcardAttribute.builder()
                     .id(request.id())

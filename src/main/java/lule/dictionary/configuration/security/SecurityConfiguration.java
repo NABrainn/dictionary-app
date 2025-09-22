@@ -56,7 +56,10 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> response.sendRedirect("/auth/login?timeout=true")))
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            System.out.println(authException);
+                            response.sendRedirect("/auth/login?timeout=true");
+                        }))
                 .addFilterBefore(timezoneFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

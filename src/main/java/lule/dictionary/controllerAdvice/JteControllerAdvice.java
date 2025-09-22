@@ -79,7 +79,7 @@ public class JteControllerAdvice {
                     .vocabularyBtnText(navbarLocalization.get(Language.EN).get(NavbarLocalizationKey.VOCABULARY))
                     .wordsLearned(0)
                     .dailyStreak(0)
-                    .isProfileOpen(false)
+                    .isNavbarOpen(false)
                     .build());
         } else {
             UserProfile principal = (UserProfile) authentication.getPrincipal();
@@ -112,7 +112,8 @@ public class JteControllerAdvice {
                             .languageCode(languageHelper.getCode(sourceLanguage))
                             .imgPath(languageHelper.getImagePath(sourceLanguage))
                             .build())
-                    .isProfileOpen(principal.isProfileOpen())
+//                    .isNavbarOpen(principal.isNavbarOpen())
+                    .isNavbarOpen(false)
                     .settingsText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.SETTINGS))
                     .languageText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.LANGUAGE))
                     .uiText(navbarLocalization.get(sourceLanguage).get(NavbarLocalizationKey.USER_INTERFACE))

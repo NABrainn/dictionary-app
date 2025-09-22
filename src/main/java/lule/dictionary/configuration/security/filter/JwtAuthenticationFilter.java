@@ -37,13 +37,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        Optional<String> optionalJwt = switch (request.getCookies()) {
-            case Cookie[] cookies -> Arrays.stream(request.getCookies())
+        Optional<String> optionalJwt = (switch (request.getCookies()) {
+            case Cookie[] ignored -> Arrays.stream(request.getCookies())
                     .filter(cookie -> "jwt".equals(cookie.getName()))
                     .map(Cookie::getValue)
                     .findFirst();
             case null -> Optional.empty();
-        };
+        });
 
         if (optionalJwt.isEmpty()) {
             log.debug("No JWT cookie found, proceeding with filter chain");
@@ -52,28 +52,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         String jwt = optionalJwt.get();
         Optional<String> optionalUsername = jwtService.getUsernameFromToken(jwt);
-        if (optionalUsername.isPresent() && !securityContextService.isAuthenticated()) {
+        if (optionalUsername.isPresent()) {
             String username = optionalUsername.get();
-            try {
-                UserDetails userDetails = userProfileService.loadUserByUsername(username);
-                if (jwtService.validateToken(jwt, username)) {
-                    WebAuthenticationDetails requestToken = new WebAuthenticationDetailsSource().buildDetails(request);
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-                    securityContextService.setJwtContext(authToken, requestToken);
-                    log.debug("Authenticated user: {}", username);
+            if(!securityContextService.isAuthenticated()) {
+                try {
+                    UserDetails userDetails = userProfileService.loadUserByUsername(username);
+                    if (jwtService.validateToken(jwt, username)) {
+                        WebAuthenticationDetails requestToken = new WebAuthenticationDetailsSource().buildDetails(request);
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        securityContextService.setJwtContext(authToken, requestToken);
+                        log.debug("Authenticated user: {}", username);
+                    }
+                } catch (UserNotFoundException e) {
+                    log.warn("User not found for username: {}", username);
+                    filterChain.doFilter(request, response);
+                    return;
+                } catch (Exception e) {
+                    log.error("Error during JWT authentication: {}", e.getMessage());
+                    filterChain.doFilter(request, response);
+                    return;
                 }
-            } catch (UserNotFoundException e) {
-                log.warn("User not found for username: {}", username);
-                filterChain.doFilter(request, response);
-                return;
-            } catch (Exception e) {
-                log.error("Error during JWT authentication: {}", e.getMessage());
-                filterChain.doFilter(request, response);
-                return;
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }

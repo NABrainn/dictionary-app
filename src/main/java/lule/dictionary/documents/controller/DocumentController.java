@@ -39,12 +39,13 @@ public class DocumentController {
     @GetMapping({"/{documentId}", "/{documentId}/"})
     public String documentPage(@PathVariable("documentId") int documentId,
                                @RequestParam(name = "page", defaultValue = "1") int page,
-                               Model model) {
-        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
+                               Model model,
+                               Authentication authentication) {
+        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page), authentication);
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
-                model.addAttribute("isProfileOpen", false);
+                model.addAttribute("isNavbarOpen", false);
                 return "document/base-page";
             }
             case Err<DocumentAttribute> ignored -> {
@@ -56,12 +57,13 @@ public class DocumentController {
     @GetMapping({"/{documentId}/reload", "/{documentId}/reload/"})
     public String reloadDocumentPage(@PathVariable("documentId") int documentId,
                                      @RequestParam(name = "page", defaultValue = "1") int page,
-                                     Model model) {
-        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page));
+                                     Model model,
+                                     Authentication authentication) {
+        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page), authentication);
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
-                model.addAttribute("isProfileOpen", false);
+                model.addAttribute("isNavbarOpen", false);
                 return "document/content";
             }
             case Err<DocumentAttribute> v -> {
