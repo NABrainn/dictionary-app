@@ -38,23 +38,16 @@ public class TranslationRepository {
             .unprocessedTargetWord("")
             .build();
     private final RowMapper<String> sourceWordsMapper = (rs, rowNum) -> rs.getString("word");
-    private final RowMapper<Integer> translationIdMapper = (rs, rowNum) -> rs.getInt("translations_id");
+    private final RowMapper<Integer> translationIdMapper = (rs, rowNum) -> rs.getInt("translation_id");
 
-    public OptionalInt addTranslation(@NonNull Translation translation, int importId) {
+    public OptionalInt addTranslation(@NonNull Translation translation) {
         String insertSql = """
             WITH inserted_translation AS (
                 INSERT INTO dictionary.translations (
                     source_words, target_word, source_lang, target_lang, translation_owner, familiarity, is_phrase
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-                RETURNING translations_id, translation_owner
-            ),
-            inserted_import AS (
-                INSERT INTO dictionary.imports_translations (
-                    imports_id, translations_id, amount
-                )
-                VALUES (?, (SELECT translations_id FROM inserted_translation), ?)
-                RETURNING translations_id
+                RETURNING translation_id, translation_owner
             ),
             updated_streaks AS (
                 UPDATE dictionary.streaks
@@ -63,7 +56,7 @@ public class TranslationRepository {
                 WHERE streak_owner = (SELECT translation_owner FROM inserted_translation)
                 RETURNING words_added_today, streak_owner, tz_offset, updated_at
             )
-            SELECT translations_id FROM inserted_translation;
+            SELECT translation_id FROM inserted_translation;
             """;
         String updateSql = """
                 UPDATE dictionary.streaks
@@ -81,8 +74,6 @@ public class TranslationRepository {
                 ps.setString(5, translation.owner());
                 ps.setString(6, translation.familiarity().toString());
                 ps.setBoolean(7, translation.isPhrase());
-                ps.setInt(8, importId);
-                ps.setInt(9, 1);
                 return ps;
             }, translationIdMapper).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
             template.update(updateSql, translation.owner());
@@ -155,7 +146,18 @@ public class TranslationRepository {
 
     public Optional<Translation> findByTargetWord(String targetWord, String owner) {
         String sql = """
-                SELECT *
+                SELECT translation_id,
+                      (
+                          SELECT array_agg(DISTINCT word ORDER BY word)
+                          FROM unnest(source_words[1:3]) AS word
+                          LIMIT 3
+                      ) AS source_words,
+                      target_word,
+                      source_lang,
+                      target_lang,
+                      translation_owner,
+                      familiarity,
+                      is_phrase
                 FROM dictionary.translations
                 WHERE translations.target_word=?
                 AND translation_owner=?
@@ -247,7 +249,7 @@ public class TranslationRepository {
 
     public List<String> findMostFrequentSourceWords(String targetWord, int count) {
         String sql = """
-                    SELECT word, COUNT(*) AS cunt
+                    SELECT DISTINCT word, COUNT(*) AS cunt
                     FROM (
                         SELECT unnest(source_words) AS word
                         FROM dictionary.translations
