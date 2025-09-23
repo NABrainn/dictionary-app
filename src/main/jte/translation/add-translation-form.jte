@@ -106,7 +106,7 @@ id="translation-form">
             id="translation-form-${attribute.id()}"
             hx-trigger="click"
             hx-post="/translations/new"
-            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase,sourceWords,documentId,_csrf"
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase,sourceWords,documentId"
             hx-vals='{
                 "targetWord": "${attribute.translation().targetWord()}",
                 "familiarity": "${level.getValue().name()}",
@@ -114,8 +114,10 @@ id="translation-form">
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
                 "documentId": "${attribute.documentId()}",
                 "id": "${attribute.id()}",
-                "isPhrase": "${attribute.isPhrase()}",
-                "_csrf": "${baseAttribute._csrf().getToken()}"
+                "isPhrase": "${attribute.isPhrase()}"
+            }'
+            hx-headers='{
+                "X-XSRF-TOKEN": "${baseAttribute._csrf().getToken()}"
             }'
             hx-target="closest #translation-form-container-${attribute.id()}"
             hx-swap="innerHTML">
