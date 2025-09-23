@@ -49,7 +49,7 @@
         id="profile-panel">
             @template.navbar.profile-panel(
             navbarAttribute = navbarAttribute,
-            isProfileOpen = navbarAttribute.isProfileOpen())
+            isNavbarOpen = navbarAttribute.isNavbarOpen())
         </div>
     @endif
 </div>

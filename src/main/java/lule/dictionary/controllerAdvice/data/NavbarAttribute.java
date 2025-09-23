@@ -13,7 +13,7 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
                               LanguageData translationLanguage,
                               int wordsLearned,
                               int dailyStreak,
-                              boolean isProfileOpen,
+                              boolean isNavbarOpen,
                               String wordsLearnedText,
                               String daysSingularText,
                               String daysPluralText,
@@ -25,29 +25,6 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
                               String uiText,
                               String translationsText,
                               String logoutText) {
-
-    public NavbarAttribute withIsProfileOpen(boolean isProfileOpen) {
-        return NavbarAttribute.builder()
-                .targetLanguage(this.targetLanguage)
-                .userInterfaceLanguage(this.userInterfaceLanguage)
-                .translationLanguage(this.translationLanguage)
-                .wordsLearned(this.wordsLearned)
-                .dailyStreak(this.dailyStreak)
-                .isProfileOpen(isProfileOpen)
-                .wordsLearnedText(this.wordsLearnedText)
-                .daysSingularText(this.daysSingularText)
-                .daysPluralText(this.daysPluralText)
-                .loginBtnText(this.loginBtnText)
-                .lessonsBtnText(this.lessonsBtnText)
-                .vocabularyBtnText(this.vocabularyBtnText)
-                .settingsText(this.settingsText)
-                .languageText(this.languageText)
-                .uiText(this.uiText)
-                .translationsText(this.translationsText)
-                .logoutText(this.logoutText)
-                .languageDataList(this.languageDataList)
-                .build();
-    }
 
     @Override
     public List<LanguageData> languageDataList() {
@@ -121,4 +98,26 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
         return daysPluralText;
     }
 
+    public NavbarAttribute withIsNavbarOpen(boolean isNavbarOpen) {
+        return NavbarAttribute.builder()
+                .targetLanguage(this.targetLanguage)
+                .userInterfaceLanguage(this.userInterfaceLanguage)
+                .translationLanguage(this.translationLanguage)
+                .wordsLearned(this.wordsLearned)
+                .dailyStreak(this.dailyStreak)
+                .isNavbarOpen(isNavbarOpen)
+                .wordsLearnedText(this.wordsLearnedText)
+                .daysSingularText(this.daysSingularText)
+                .daysPluralText(this.daysPluralText)
+                .loginBtnText(this.loginBtnText)
+                .lessonsBtnText(this.lessonsBtnText)
+                .vocabularyBtnText(this.vocabularyBtnText)
+                .settingsText(this.settingsText)
+                .languageText(this.languageText)
+                .uiText(this.uiText)
+                .translationsText(this.translationsText)
+                .logoutText(this.logoutText)
+                .languageDataList(this.languageDataList)
+                .build();
+    }
 }

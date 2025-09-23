@@ -1,6 +1,5 @@
 package lule.dictionary.documents.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.DocumentLocalizationKey;
@@ -41,12 +40,11 @@ public class DocumentController {
     public String documentPage(@PathVariable("documentId") int documentId,
                                @RequestParam(name = "page", defaultValue = "1") int page,
                                Model model,
-                               HttpSession session) {
-        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
+                               Authentication authentication) {
+        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page), authentication);
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
-                model.addAttribute("isProfileOpen", false);
                 return "document/base-page";
             }
             case Err<DocumentAttribute> ignored -> {
@@ -59,15 +57,14 @@ public class DocumentController {
     public String reloadDocumentPage(@PathVariable("documentId") int documentId,
                                      @RequestParam(name = "page", defaultValue = "1") int page,
                                      Model model,
-                                     HttpSession session) {
-        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page, session));
+                                     Authentication authentication) {
+        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page), authentication);
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
-                model.addAttribute("isProfileOpen", false);
                 return "document/content";
             }
-            case Err<DocumentAttribute> v -> {
+            case Err<DocumentAttribute> ignored -> {
                 return "error";
             }
         }

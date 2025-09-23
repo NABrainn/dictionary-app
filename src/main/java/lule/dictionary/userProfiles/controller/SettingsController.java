@@ -1,10 +1,7 @@
 package lule.dictionary.userProfiles.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.language.service.Language;
-import lule.dictionary.session.service.SessionHelper;
-import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.userProfiles.service.UserInterfaceService;
 import lule.dictionary.userProfiles.service.UserProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -19,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SettingsController {
 
     private final UserProfileService userProfileService;
-    private final SessionHelper sessionHelper;
+    private final UserInterfaceService userInterfaceService;
 
     @GetMapping({"/changeLanguage/target", "/changeLanguage/target/"})
     public String changeTargetLanguage(@RequestParam("lang") String language,
@@ -42,12 +39,12 @@ public class SettingsController {
         return "redirect:/";
     }
 
-    @GetMapping({"/profilePanel", "/profilePanel/"})
-    public String profilePanel(HttpSession session,
-                               Model model) {
-        boolean isProfileOpen = session.getAttribute("isProfileOpen") != null && (boolean) session.getAttribute("isProfileOpen");
-        session.setAttribute("isProfileOpen", !isProfileOpen);
-        model.addAttribute("isProfileOpen", !isProfileOpen);
+    @GetMapping({"/toggle", "/toggle/"})
+    public String profilePanel(Model model,
+                               Authentication authentication,
+                               @RequestParam("item") String item) {
+        boolean isNavbarOpen = userInterfaceService.toggleNavbar(item, authentication);
+        model.addAttribute("isNavbarOpen", isNavbarOpen);
         return "navbar/profile-panel";
     }
 }

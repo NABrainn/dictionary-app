@@ -3,7 +3,9 @@ package lule.dictionary.userProfiles.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.auth.service.SecurityContextService;
 import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
+import lule.dictionary.language.service.LanguageHelper;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
@@ -13,7 +15,6 @@ import lule.dictionary.date.service.DateUtil;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,17 +22,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserProfileService implements UserDetailsService {
 
-    private final UserProfileRepository userProfileRepository;
     private final BCryptPasswordEncoder encoder;
+    private final LanguageHelper languageHelper;
+    private final SecurityContextService securityContextService;
+    private final UserProfileRepository userProfileRepository;
 
     @Transactional
     public void addUserProfile(@NonNull SignupRequest signupRequest) {
@@ -45,6 +46,7 @@ public class UserProfileService implements UserDetailsService {
                 .wordsAddedToday(0)
                 .dailyStreak(0)
                 .offset(TimeZoneOffsetContext.get())
+                .isNavbarOpen(false)
                 .build();
         userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new RuntimeException("Failed to add new user"));
     }
@@ -58,7 +60,7 @@ public class UserProfileService implements UserDetailsService {
         return userProfileRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
-    public Optional<UserProfile> findByUsernameOrEmail(String username, String email) {
+    public Optional<UserProfile> loadByUsernameOrEmail(String username, String email) {
         return userProfileRepository.findByUsernameOrEmail(username, email);
     }
 
@@ -67,84 +69,44 @@ public class UserProfileService implements UserDetailsService {
             userProfileRepository.updateTimezoneOffset(owner, DateUtil.stringToZoneOffset(offset).getId());
         }
     }
-    @Scheduled(cron = "0 0 * * * *")
-    public void resetStreaksIfMidnight() {
-        userProfileRepository.resetStreaksIfMidnight();
-    }
-
-    public int getDailyStreak(String owner) {
-        return userProfileRepository.getDailyStreak(owner).orElseThrow(() -> new RuntimeException("Failed to fetch daily streak"));
-    }
 
     //TODO merge below methods into one
     public void updateTargetLanguage(String languageString, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        Stream.of(languageString)
-                .map(lang -> {
-                    try {
-                        return Language.valueOf(lang);
-                    }
-                    catch (IllegalArgumentException e) {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .findFirst()
-                .ifPresentOrElse(
-                        value -> {
-                            userProfileRepository.updateTargetLanguage(principal.getUsername(), value.name());
-                            UserProfile userDetails = (UserProfile) loadUserByUsername(principal.getUsername());
-                            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
-                        },
-                        () -> { throw new RuntimeException("Illegal value for language provided"); }
-                );
+        languageHelper.fromString(languageString)
+                .ifPresent(value -> {
+                    userProfileRepository.updateTargetLanguage(principal.getUsername(), value.name());
+                    UserProfile user = (UserProfile) loadUserByUsername(principal.getUsername());
+                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+                    securityContextService.setContext(token);
+                });
 
     }
 
     public void updateSourceLanguage(String languageString, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        Stream.of(languageString)
-                .map(lang -> {
-                    try {
-                        return Language.valueOf(lang);
-                    }
-                    catch (IllegalArgumentException e) {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .findFirst()
-                .ifPresentOrElse(
-                        value -> {
-                            userProfileRepository.updateSourceLanguage(principal.getUsername(), value.name());
-                            UserProfile userDetails = (UserProfile) loadUserByUsername(principal.getUsername());
-                            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
-                        },
-                        () -> { throw new RuntimeException("Illegal value for language provided"); }
-                );
-
+        languageHelper.fromString(languageString)
+                .ifPresent(value -> {
+                    userProfileRepository.updateSourceLanguage(principal.getUsername(), value.name());
+                    UserProfile user = (UserProfile) loadUserByUsername(principal.getUsername());
+                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+                    securityContextService.setContext(token);
+                });
     }
 
     public void updateUILanguage(String languageString, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        Stream.of(languageString)
-                .map(lang -> {
-                    try {
-                        return Language.valueOf(lang);
-                    }
-                    catch (IllegalArgumentException e) {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .findFirst()
-                .ifPresentOrElse(
-                        value -> {
-                            userProfileRepository.updateUILanguage(principal.getUsername(), value.name());
-                            UserProfile userDetails = (UserProfile) loadUserByUsername(principal.getUsername());
-                            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
-                        },
-                        () -> { throw new RuntimeException("Illegal value for language provided"); }
-                );
+        languageHelper.fromString(languageString)
+                .ifPresent(value -> {
+                    userProfileRepository.updateUILanguage(principal.getUsername(), value.name());
+                    UserProfile user = (UserProfile) loadUserByUsername(principal.getUsername());
+                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+                    securityContextService.setContext(token);
+                });
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    public void resetStreaksIfMidnight() {
+        userProfileRepository.resetStreaksIfMidnight();
     }
 }

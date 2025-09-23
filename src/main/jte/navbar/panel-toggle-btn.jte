@@ -4,7 +4,11 @@ viewBox="0 0 32.055 32.055" xml:space="preserve"
 class="md:size-10
 size-8 cursor-pointer fill-accent basis-1/5"
 hx-trigger="click"
-hx-get="/settings/profilePanel"
+hx-get="/settings/toggle/"
+hx-params="item"
+hx-vals='{
+    "item": "navbar"
+}'
 hx-target="#profile-panel"
 hx-swap="innerHTML transition:true">
 	<g>

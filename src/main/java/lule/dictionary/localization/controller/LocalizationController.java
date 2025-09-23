@@ -1,6 +1,5 @@
 package lule.dictionary.localization.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.language.service.Language;
 import org.springframework.stereotype.Controller;
@@ -14,9 +13,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class LocalizationController {
 
-    //TODO wire up to a service to separate sanitization logic
     @GetMapping("/uiLanguage")
-    public void setupInterfaceLanguage(@RequestHeader("uiLanguage") String systemLanguage, HttpSession httpSession) {
+    public void setupInterfaceLanguage(@RequestHeader("uiLanguage") String systemLanguage) {
         Stream.of(systemLanguage)
                 .map(String::toUpperCase)
                 .map(header -> {
@@ -26,7 +24,6 @@ public class LocalizationController {
                         return Language.EN;
                     }
                 })
-                .findFirst()
-                .ifPresent(language -> httpSession.setAttribute("navbarLocalization", language));
+                .findFirst();
     }
 }

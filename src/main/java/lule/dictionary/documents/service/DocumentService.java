@@ -13,7 +13,6 @@ import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
 import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
 import lule.dictionary.familiarity.service.FamiliarityService;
-import lule.dictionary.jsoup.service.exception.InvalidUriException;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
@@ -32,6 +31,8 @@ import lule.dictionary.translations.data.request.ExtractPhrasesRequest;
 import lule.dictionary.translations.data.request.FindTranslationsInDocumentRequest;
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.userProfiles.data.UserProfile;
+import lule.dictionary.userProfiles.service.UserInterfaceService;
+import lule.dictionary.userProfiles.service.UserProfileService;
 import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.ValidationException;
 import lule.dictionary.validation.service.Validator;
@@ -58,6 +59,8 @@ public class DocumentService {
     private final FamiliarityService familiarityService;
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
+    private final UserProfileService userProfileService;
+    private final UserInterfaceService userInterfaceService;
 
     @Transactional
     public Result<Integer> createDocument(CreateDocumentRequest request) {
@@ -162,10 +165,11 @@ public class DocumentService {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(principal.getUsername(), principal.targetLanguage());
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
-        return DocumentListAttribute.of(documents, localization);
+        boolean isNavbarOpen = userInterfaceService.isNavbarToggled(authentication);
+        return DocumentListAttribute.of(documents, localization, isNavbarOpen);
     }
 
-    public Result<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest request) {
+    public Result<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest request, Authentication authentication) {
         return (Result<DocumentAttribute>) documentRepository.findById(request.documentId(), request.page())
                 .map(found -> {
                     Result<?> result = documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(found.totalContentLength())));
@@ -180,7 +184,8 @@ public class DocumentService {
                                     .build();
                             DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
                             DocumentPaginationData paginationData = assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest.of(found.totalContentLength(), request.page()));
-                            return Ok.of(DocumentAttribute.of(documentContentData, paginationData));
+                            boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
+                            return Ok.of(DocumentAttribute.of(documentContentData, paginationData, isNavbarOpen));
                         }
                         case Err<?> v -> {
                             return Err.of(v.throwable());

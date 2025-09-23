@@ -28,7 +28,7 @@ public class DocumentRepository {
             .url(rs.getString("url"))
             .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
             .targetLanguage(Language.valueOf(rs.getString("target_lang")))
-            .owner(rs.getString("import_owner"))
+            .owner(rs.getString("document_owner"))
             .pageContent(rs.getString("page_content"))
             .totalContentLength(rs.getInt("total_length"))
             .id(-1)
@@ -38,20 +38,20 @@ public class DocumentRepository {
             .url(rs.getString("url"))
             .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
             .targetLanguage(Language.valueOf(rs.getString("target_lang")))
-            .owner(rs.getString("import_owner"))
+            .owner(rs.getString("document_owner"))
             .totalContentLength(0)
-            .id(rs.getInt("imports_id"))
+            .id(rs.getInt("document_id"))
             .wordCount(rs.getInt("word_count"))
             .newWordCount(rs.getInt("new_word_count"))
             .translationCount(rs.getInt("translation_count"))
             .build();
-    private final RowMapper<Integer> documentIdMapper = (rs, rowNum) -> rs.getInt("imports_id");
+    private final RowMapper<Integer> documentIdMapper = (rs, rowNum) -> rs.getInt("document_id");
 
     public OptionalInt create(Document document) {
         final String sql = """
-                INSERT INTO dictionary.imports (title, content, url, source_lang, target_lang, import_owner, total_length)
+                INSERT INTO dictionary.documents (title, content, url, source_lang, target_lang, document_owner, total_length)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-                RETURNING imports_id
+                RETURNING document_id
                 """;
         try {
             List<Integer> documentId = template.query(sql, documentIdMapper,
@@ -76,20 +76,20 @@ public class DocumentRepository {
     public Optional<Document> findById(int id, int page) {
         String sql = """
                 SELECT
-                    imports_id,
+                    document_id,
                     title,
                     url,
                     source_lang,
                     target_lang,
-                    import_owner,
+                    document_owner,
                     substring(
                         content
                         FROM ((? - 1) * 1000 + 1)
                         FOR 1000
                     ) as page_content,
                     total_length
-                FROM dictionary.imports
-                WHERE imports.imports_id=?
+                FROM dictionary.documents
+                WHERE documents.document_id=?
                 """;
         try {
             List<Document> found = template.query(sql, documentMapper,
@@ -105,12 +105,12 @@ public class DocumentRepository {
         String sql = """
                 WITH cleaned_words AS (
                     SELECT
-                        i.imports_id,
+                        i.document_id,
                         i.title,
                         i.url,
                         i.source_lang,
                         i.target_lang,
-                        i.import_owner,
+                        i.document_owner,
                         ARRAY(
                             SELECT DISTINCT TRIM(LOWER(word))
                             FROM unnest(
@@ -121,8 +121,8 @@ public class DocumentRepository {
                             ) AS word
                             WHERE TRIM(word) != ''
                         ) AS word_array
-                    FROM dictionary.imports i
-                    WHERE i.import_owner = ?
+                    FROM dictionary.documents i
+                    WHERE i.document_owner = ?
                     AND i.target_lang = CAST(? AS dictionary.lang)
                 ),
                 relevant_translations AS (
@@ -137,8 +137,8 @@ public class DocumentRepository {
                     cw.url,
                     cw.source_lang,
                     cw.target_lang,
-                    cw.import_owner,
-                    cw.imports_id,
+                    cw.document_owner,
+                    cw.document_id,
                     COALESCE(ARRAY_LENGTH(cw.word_array, 1), 0) AS word_count,
                     COALESCE(
                         (SELECT COUNT(DISTINCT word)
@@ -155,7 +155,7 @@ public class DocumentRepository {
                         0
                     ) AS translation_count
                 FROM cleaned_words cw
-                GROUP BY cw.imports_id, cw.title, cw.url, cw.source_lang, cw.target_lang, cw.import_owner, cw.word_array;
+                GROUP BY cw.document_id, cw.title, cw.url, cw.source_lang, cw.target_lang, cw.document_owner, cw.word_array;
             """;
         try {
             return template.query(sql, documentWithTranslationDataMapper,

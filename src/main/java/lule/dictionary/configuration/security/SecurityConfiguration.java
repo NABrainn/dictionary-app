@@ -4,7 +4,6 @@ import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
-import lule.dictionary.configuration.security.filter.osLanguage.SystemLanguageFilter;
 import lule.dictionary.configuration.security.filter.timezone.TimezoneFilter;
 import lule.dictionary.cookie.service.CookieService;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +26,6 @@ public class SecurityConfiguration {
     private final CookieService cookieService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TimezoneFilter timezoneFilter;
-    private final SystemLanguageFilter systemLanguageFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
@@ -47,8 +45,6 @@ public class SecurityConfiguration {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/auth/login?logout=true")
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
                         .addLogoutHandler((request, response, authentication) -> {
                             log.info("Logging out user: {}", authentication != null ? authentication.getName() : "anonymous");
                             log.warn("for request: {}", request);
@@ -60,8 +56,10 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> response.sendRedirect("/auth/login?timeout=true")))
-                .addFilterBefore(systemLanguageFilter, UsernamePasswordAuthenticationFilter.class)
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            System.out.println(authException);
+                            response.sendRedirect("/auth/login?timeout=true");
+                        }))
                 .addFilterBefore(timezoneFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

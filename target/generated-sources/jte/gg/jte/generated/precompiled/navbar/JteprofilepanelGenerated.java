@@ -10,9 +10,9 @@ public final class JteprofilepanelGenerated {
 	private static final byte[] TEXT_PART_BINARY_2 = BINARY_CONTENT.get(2);
 	private static final byte[] TEXT_PART_BINARY_3 = BINARY_CONTENT.get(3);
 	private static final byte[] TEXT_PART_BINARY_4 = BINARY_CONTENT.get(4);
-	public static void render(gg.jte.html.HtmlTemplateOutput jteOutput, gg.jte.html.HtmlInterceptor jteHtmlInterceptor, NavbarAttribute navbarAttribute, boolean isProfileOpen) {
+	public static void render(gg.jte.html.HtmlTemplateOutput jteOutput, gg.jte.html.HtmlInterceptor jteHtmlInterceptor, NavbarAttribute navbarAttribute, boolean isNavbarOpen) {
 		jteOutput.writeBinaryContent(TEXT_PART_BINARY_0);
-		if (isProfileOpen) {
+		if (isNavbarOpen) {
 			jteOutput.writeBinaryContent(TEXT_PART_BINARY_1);
 			gg.jte.generated.precompiled.navbar.JtelanguagepickerGenerated.render(jteOutput, jteHtmlInterceptor, navbarAttribute.targetLanguage(), navbarAttribute.languageDataList(), "target");
 			jteOutput.writeBinaryContent(TEXT_PART_BINARY_2);
@@ -23,7 +23,7 @@ public final class JteprofilepanelGenerated {
 	}
 	public static void renderMap(gg.jte.html.HtmlTemplateOutput jteOutput, gg.jte.html.HtmlInterceptor jteHtmlInterceptor, java.util.Map<String, Object> params) {
 		NavbarAttribute navbarAttribute = (NavbarAttribute)params.get("navbarAttribute");
-		boolean isProfileOpen = (boolean)params.get("isProfileOpen");
-		render(jteOutput, jteHtmlInterceptor, navbarAttribute, isProfileOpen);
+		boolean isNavbarOpen = (boolean)params.get("isNavbarOpen");
+		render(jteOutput, jteHtmlInterceptor, navbarAttribute, isNavbarOpen);
 	}
 }

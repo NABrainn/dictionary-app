@@ -18,22 +18,10 @@ public record UserProfile(
         @NonNull Language sourceLanguage,
         @NonNull Language targetLanguage,
         @NonNull Language userInterfaceLanguage,
+        boolean isNavbarOpen,
         int wordsAddedToday,
         int dailyStreak,
         String offset) implements UserDetails {
-
-    public UserProfile withPassword(String password) {
-        return UserProfile.builder()
-            .username(this.getUsername())
-            .email(this.email())
-            .password(password)
-            .sourceLanguage(this.sourceLanguage())
-            .targetLanguage(this.targetLanguage())
-            .wordsAddedToday(this.wordsAddedToday())
-            .dailyStreak(this.dailyStreak())
-            .userInterfaceLanguage(this.userInterfaceLanguage())
-            .build();
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -50,23 +38,17 @@ public record UserProfile(
             return username;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-            return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-            return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-            return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-            return true;
+    public UserProfile withPassword(String password) {
+        return UserProfile.builder()
+                .username(this.getUsername())
+                .email(this.email())
+                .password(password)
+                .sourceLanguage(this.sourceLanguage())
+                .targetLanguage(this.targetLanguage())
+                .wordsAddedToday(this.wordsAddedToday())
+                .dailyStreak(this.dailyStreak())
+                .userInterfaceLanguage(this.userInterfaceLanguage())
+                .isNavbarOpen(this.isNavbarOpen())
+                .build();
     }
 }

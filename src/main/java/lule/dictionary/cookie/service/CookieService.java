@@ -19,8 +19,8 @@ public class CookieService {
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
         tokenCookie.setSecure(true);
-        tokenCookie.setMaxAge((int) (expiration / 1000)); // Convert milliseconds to seconds
-        tokenCookie.setAttribute("SameSite", "Strict"); // Stronger CSRF protection
+        tokenCookie.setMaxAge((int) expiration);
+        tokenCookie.setAttribute("SameSite", "Strict");
         return tokenCookie;
     }
 
@@ -29,7 +29,7 @@ public class CookieService {
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
         tokenCookie.setSecure(true);
-        tokenCookie.setMaxAge(0); // Expire immediately
+        tokenCookie.setMaxAge(0);
         tokenCookie.setAttribute("SameSite", "Strict");
         return tokenCookie;
     }

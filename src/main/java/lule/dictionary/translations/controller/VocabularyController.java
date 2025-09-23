@@ -1,7 +1,9 @@
 package lule.dictionary.translations.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lule.dictionary.result.data.Err;
+import lule.dictionary.result.data.Ok;
+import lule.dictionary.result.data.Result;
 import lule.dictionary.translations.data.TranslationLocalizationKey;
 import lule.dictionary.translations.data.attribute.BaseFlashcardAttribute;
 import lule.dictionary.translations.data.attribute.FlashcardConfigAttribute;
@@ -29,7 +31,7 @@ public class VocabularyController {
     @GetMapping({"", "/"})
     public String vocabularyPage(Model model,
                                  Authentication authentication) {
-        FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(0, 10, false), authentication);
+        FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(0, 10, false));
         Map<TranslationLocalizationKey, String> messages = translationService.getVocabularyMessages(authentication);
         model.addAttribute("attribute", attribute);
         model.addAttribute("messages", messages);
@@ -42,7 +44,7 @@ public class VocabularyController {
                              @RequestParam(name = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                              Model model,
                              Authentication authentication) {
-        FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(familiarity, quantity, isPhrase), authentication);
+        FlashcardConfigAttribute attribute = translationService.getFlashcardConfig(ConfigureFlashcardRequest.of(familiarity, quantity, isPhrase));
         Map<TranslationLocalizationKey, String> messages = translationService.getVocabularyMessages(authentication);
         model.addAttribute("attribute", attribute);
         model.addAttribute("messages", messages);
@@ -55,25 +57,29 @@ public class VocabularyController {
                                          @RequestParam(name = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                          @RequestParam(name = "id", required = false, defaultValue = "1") int id,
                                          Model model,
-                                         Authentication authentication,
-                                         HttpSession session) {
-        try {
-            BaseFlashcardAttribute attribute = translationService.getRandomTranslations(GetRandomTranslationsRequest.builder()
-                    .familiarity(familiarity)
-                    .quantity(quantity)
-                    .isPhrase(isPhrase)
-                    .id(id)
-                    .build(), authentication);
-            Map<TranslationLocalizationKey, String> messages = translationService.getVocabularyMessages(authentication);
-            model.addAttribute("attribute", attribute);
-            model.addAttribute("messages", messages);
-            session.removeAttribute("translations");
-            session.setAttribute("translations", attribute.translations());
-            return "vocabulary-page/flashcard/flashcard";
-        } catch (TranslationsNotFoundException e) {
-            model.addAttribute("attribute", e.getAttribute());
-            return "vocabulary-page/flashcard/flashcard-config";
-        }
+                                         Authentication authentication) {
+        Result<BaseFlashcardAttribute> result = translationService.startFlashcardSession(GetRandomTranslationsRequest.builder()
+                .familiarity(familiarity)
+                .quantity(quantity)
+                .isPhrase(isPhrase)
+                .id(id)
+                .build(), authentication);
+        Map<TranslationLocalizationKey, String> messages = translationService.getVocabularyMessages(authentication);
+        return switch (result) {
+            case Ok<BaseFlashcardAttribute> v -> {
+                model.addAttribute("attribute", v.value());
+                model.addAttribute("messages", messages);
+                yield  "vocabulary-page/flashcard/flashcard";
+            }
+            case Err<?> v -> {
+                if(v.throwable() instanceof TranslationsNotFoundException translationsNotFoundException) {
+                    model.addAttribute("attribute", translationsNotFoundException.getAttribute());
+                    model.addAttribute("messages", messages);
+                    yield  "vocabulary-page/flashcard/flashcard-config";
+                }
+                yield  "error";
+            }
+        };
     }
 
     @GetMapping({"/flashcard/flip", "/flashcard/flip/"})
@@ -82,14 +88,13 @@ public class VocabularyController {
                                 @RequestParam(name = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                 @RequestParam(name = "id", required = false, defaultValue = "1") int id,
                                 Model model,
-                                HttpSession session,
                                 Authentication authentication) {
         BaseFlashcardAttribute attribute = translationService.flipFlashcard(FlipFlashcardRequest.builder()
                 .id(id)
                 .familiarity(familiarity)
                 .quantity(quantity)
                 .isPhrase(isPhrase)
-                .build(), authentication, session);
+                .build(), authentication);
         model.addAttribute("attribute", attribute);
         return "vocabulary-page/flashcard/flashcard";
     }

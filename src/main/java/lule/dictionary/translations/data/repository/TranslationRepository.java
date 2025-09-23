@@ -11,13 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.PreparedStatement;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -37,23 +35,16 @@ public class TranslationRepository {
             .unprocessedTargetWord("")
             .build();
     private final RowMapper<String> sourceWordsMapper = (rs, rowNum) -> rs.getString("word");
-    private final RowMapper<Integer> translationIdMapper = (rs, rowNum) -> rs.getInt("translations_id");
+    private final RowMapper<Integer> translationIdMapper = (rs, rowNum) -> rs.getInt("translation_id");
 
-    public OptionalInt addTranslation(@NonNull Translation translation, int importId) {
+    public OptionalInt addTranslation(@NonNull Translation translation) {
         String insertSql = """
             WITH inserted_translation AS (
                 INSERT INTO dictionary.translations (
                     source_words, target_word, source_lang, target_lang, translation_owner, familiarity, is_phrase
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-                RETURNING translations_id, translation_owner
-            ),
-            inserted_import AS (
-                INSERT INTO dictionary.imports_translations (
-                    imports_id, translations_id, amount
-                )
-                VALUES (?, (SELECT translations_id FROM inserted_translation), ?)
-                RETURNING translations_id
+                RETURNING translation_id, translation_owner
             ),
             updated_streaks AS (
                 UPDATE dictionary.streaks
@@ -62,7 +53,7 @@ public class TranslationRepository {
                 WHERE streak_owner = (SELECT translation_owner FROM inserted_translation)
                 RETURNING words_added_today, streak_owner, tz_offset, updated_at
             )
-            SELECT translations_id FROM inserted_translation;
+            SELECT translation_id FROM inserted_translation;
             """;
         String updateSql = """
                 UPDATE dictionary.streaks
@@ -80,8 +71,6 @@ public class TranslationRepository {
                 ps.setString(5, translation.owner());
                 ps.setString(6, translation.familiarity().toString());
                 ps.setBoolean(7, translation.isPhrase());
-                ps.setInt(8, importId);
-                ps.setInt(9, 1);
                 return ps;
             }, translationIdMapper).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
             template.update(updateSql, translation.owner());
@@ -154,7 +143,18 @@ public class TranslationRepository {
 
     public Optional<Translation> findByTargetWord(String targetWord, String owner) {
         String sql = """
-                SELECT *
+                SELECT translation_id,
+                      (
+                          SELECT array_agg(DISTINCT word ORDER BY word)
+                          FROM unnest(source_words[1:3]) AS word
+                          LIMIT 3
+                      ) AS source_words,
+                      target_word,
+                      source_lang,
+                      target_lang,
+                      translation_owner,
+                      familiarity,
+                      is_phrase
                 FROM dictionary.translations
                 WHERE translations.target_word=?
                 AND translation_owner=?
@@ -246,7 +246,7 @@ public class TranslationRepository {
 
     public List<String> findMostFrequentSourceWords(String targetWord, int count) {
         String sql = """
-                    SELECT word, COUNT(*) AS cunt
+                    SELECT DISTINCT word, COUNT(*) AS cunt
                     FROM (
                         SELECT unnest(source_words) AS word
                         FROM dictionary.translations
@@ -284,41 +284,73 @@ public class TranslationRepository {
         }
     }
 
-    public List<Translation> getRandomTranslations(boolean isPhrase, String owner, int limit, int familiarity) {
+    @Transactional
+    public List<Translation> startFlashcardSession(boolean isPhrase, String owner, int limit, int familiarity) {
         if (familiarity > 0 && familiarity <= 5) {
-            String sql = """
-                SELECT *
-                FROM dictionary.translations
-                WHERE is_phrase = ?
-                AND translation_owner = ?
-                AND familiarity = CAST(? AS dictionary.familiarity)
-                ORDER BY RANDOM()
-                LIMIT ?
-                """;
+            String deleteSql = """
+            DELETE FROM dictionary.flashcard_session
+            WHERE session_owner = ?
+            """;
+
+            String insertSql = """
+            INSERT INTO dictionary.flashcard_session (session_owner, translation_id)
+            SELECT ?, translation_id
+            FROM dictionary.translations
+            WHERE is_phrase = ?
+              AND translation_owner = ?
+              AND familiarity = CAST(? AS dictionary.familiarity)
+            ORDER BY RANDOM()
+            LIMIT ?
+            RETURNING translation_id
+            """;
+
+            String selectSql = """
+            SELECT t.*
+            FROM dictionary.translations t
+            INNER JOIN dictionary.flashcard_session fs ON t.translation_id = fs.translation_id
+            WHERE fs.session_owner = ?
+            """;
+
             try {
-                return template.query(sql, translationMapper,
-                        isPhrase,
-                        owner,
-                        Familiarity.values()[familiarity - 1].name(),
-                        limit);
+                template.update(deleteSql, owner);
+
+                List<Long> insertedIds = template.queryForList(insertSql, Long.class,
+                        owner, isPhrase, owner, Familiarity.values()[familiarity - 1].name(), limit);
+
+                if (insertedIds.isEmpty()) {
+                    log.info("No translations found for owner: {}, isPhrase: {}, familiarity: {}",
+                            owner, isPhrase, Familiarity.values()[familiarity - 1].name());
+                    return Collections.emptyList();
+                }
+
+                return template.query(selectSql, translationMapper, owner);
+
             } catch (DataAccessException e) {
-                log.error(String.valueOf(e.getCause()));
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+                log.error("Database error: {}", e.getCause(), e);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to execute flashcard session query", e);
             }
         }
+        return List.of();
+    }
+
+    public List<Translation> getTranslationsFromSession(String username) {
         String sql = """
-                SELECT *
-                FROM dictionary.translations
-                WHERE is_phrase = ?
-                AND translation_owner = ?
-                ORDER BY RANDOM()
-                LIMIT ?
+                    SELECT
+                        t.translation_id,
+                        t.source_words,
+                        t.target_word,
+                        t.source_lang,
+                        t.target_lang,
+                        t.translation_owner,
+                        t.familiarity,
+                        t.is_phrase
+                    FROM dictionary.flashcard_session s
+                    LEFT JOIN dictionary.translations t ON t.translation_id = s.translation_id
+                    WHERE session_owner = ?
                 """;
         try {
             return template.query(sql, translationMapper,
-                    isPhrase,
-                    owner,
-                    limit);
+                    username);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);

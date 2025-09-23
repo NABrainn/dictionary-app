@@ -1,9 +1,9 @@
 @import lule.dictionary.controllerAdvice.data.NavbarAttribute
 
 @param NavbarAttribute navbarAttribute
-@param boolean isProfileOpen
+@param boolean isNavbarOpen
 
-@if(isProfileOpen)
+@if(isNavbarOpen)
     <div class="profile-panel-transition flex bg-secondary justify-center gap-4 pb-4">
         @template.navbar.language-picker(
             selectedLanguage = navbarAttribute.targetLanguage(),

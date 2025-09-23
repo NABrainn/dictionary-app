@@ -68,7 +68,7 @@ public final class JtenavbarGenerated {
 		jteOutput.writeBinaryContent(TEXT_PART_BINARY_18);
 		if (baseAttribute.isAuthenticated()) {
 			jteOutput.writeBinaryContent(TEXT_PART_BINARY_19);
-			gg.jte.generated.precompiled.navbar.JteprofilepanelGenerated.render(jteOutput, jteHtmlInterceptor, navbarAttribute, navbarAttribute.isProfileOpen());
+			gg.jte.generated.precompiled.navbar.JteprofilepanelGenerated.render(jteOutput, jteHtmlInterceptor, navbarAttribute, navbarAttribute.isNavbarOpen());
 			jteOutput.writeBinaryContent(TEXT_PART_BINARY_20);
 		}
 		jteOutput.writeBinaryContent(TEXT_PART_BINARY_21);

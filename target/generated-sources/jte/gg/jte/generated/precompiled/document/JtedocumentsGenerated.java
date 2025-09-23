@@ -39,7 +39,7 @@ public final class JtedocumentsGenerated {
 		gg.jte.generated.precompiled.JtebaseGenerated.render(jteOutput, jteHtmlInterceptor, null, new gg.jte.html.HtmlContent() {
 			public void writeTo(gg.jte.html.HtmlTemplateOutput jteOutput) {
 				jteOutput.writeBinaryContent(TEXT_PART_BINARY_1);
-				gg.jte.generated.precompiled.navbar.JtenavbarGenerated.render(jteOutput, jteHtmlInterceptor, baseAttribute, navbarAttribute, true);
+				gg.jte.generated.precompiled.navbar.JtenavbarGenerated.render(jteOutput, jteHtmlInterceptor, baseAttribute, navbarAttribute.withIsNavbarOpen(attribute.isNavbarOpen()), true);
 				jteOutput.writeBinaryContent(TEXT_PART_BINARY_2);
 				if (baseAttribute.isAuthenticated()) {
 					jteOutput.writeBinaryContent(TEXT_PART_BINARY_3);

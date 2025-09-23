@@ -33,19 +33,20 @@ public class TranslationFetchingExecutor {
         List<TranslationFetcher> sources = List.of(googleService, lingvanexService);
 
         List<CompletableFuture<List<String>>> futures = sources.stream()
-                .map(source -> CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return source.translate(sourceLanguage, targetLanguage, targetWord);
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, executor))
+                .map(source -> CompletableFuture
+                        .supplyAsync(() -> {
+                            try {
+                                return source.translate(sourceLanguage, targetLanguage, targetWord);
+                            } catch (JsonProcessingException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }, executor))
                 .toList();
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+        futures.forEach(future -> CompletableFuture.allOf(future)
                 .orTimeout(500, TimeUnit.MILLISECONDS)
                 .exceptionally(ex -> null)
-                .join();
+                .join());
 
         return futures.stream()
                 .filter(CompletableFuture::isDone)
