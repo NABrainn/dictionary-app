@@ -17,8 +17,8 @@
         hx-post="/auth/signup"
         hx-target="#main"
         hx-swap="outerHTML"
-        hx-headers='js:{
-            timeZoneOffset: new Date().getTimezoneOffset()
+        hx-headers='{
+            "X-XSRF-TOKEN": "${baseAttribute._csrf().getToken()}"
         }'
         class="md:w-2/5
         w-4/5 flex flex-col bg-secondary p-8 mx-auto gap-8">
@@ -64,7 +64,6 @@
             hx-swap="outerHTML"
             hx-push-url="true">${localization.get(AuthText.LOG_IN)}</a>
         </div>
-        <input type="hidden" name="_csrf" value="${baseAttribute._csrf().getToken()}">
     </form>
 `,
 baseAttribute = baseAttribute)
