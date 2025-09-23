@@ -44,10 +44,11 @@ public class AuthService {
     private final PatternService patternService;
     private final SecurityContextService securityContextService;
 
-
-    public Result<?> login(@NonNull LoginRequest request,
-                      @NonNull HttpServletResponse response) {
+    public Result<?> login(@NonNull LoginRequest request, @NonNull HttpServletResponse response) {
+        log.info("Processing login request for user: {}", request.login());
         String sanitizedLogin = patternService.removeSpecialCharacters(request.login()).trim();
+        log.debug("Sanitized login: {}", sanitizedLogin);
+
         Result<?> result = validator.validate(List.of(
                 Constraint.of("login", sanitizedLogin::isBlank, switch (Language.EN) {
                     case PL -> "Nazwa użytkownika nie może być pusta";
@@ -74,40 +75,54 @@ public class AuthService {
                     case NO -> "Passordet kan ikke være lenger enn 500 tegn";
                 })
         ));
+
         return switch (result) {
             case Ok<?> ignored1 -> {
-                UserProfile user = ((UserProfile) userProfileService.loadUserByUsername(sanitizedLogin))
-                        .withPassword(request.password());
-                securityContextService.authenticateAndSetContext(user, authenticationManager);
-                String token = jwtService.generateToken(user.getUsername());
-                Cookie jwtCookie = cookieService.createJwtCookie("jwt", token);
-                userProfileService.updateTimezoneOffset(user.getUsername(), TimeZoneOffsetContext.get());
-                response.addCookie(jwtCookie);
-                log.info("User {} logged in successfully", request.login());
-                yield Ok.empty();
-            }
-            case Err<?> v -> switch (v.throwable()) {
-                case ValidationException validationException -> {
-                    log.warn("Validation failed for login request: {}", validationException.getViolations());
-                    yield Err.of(new AuthServiceException(validationException.getViolations()));
-                }
-                case UserNotFoundException ignored -> {
-                    log.warn("User not found: {}", request.login());
+                try {
+                    log.debug("Loading user profile for: {}", sanitizedLogin);
+                    UserProfile user = ((UserProfile) userProfileService.loadUserByUsername(sanitizedLogin))
+                            .withPassword(request.password());
+                    log.debug("Authenticating user: {}", sanitizedLogin);
+                    securityContextService.authenticateAndSetContext(user, authenticationManager);
+                    String token = jwtService.generateToken(user.getUsername());
+                    log.info("Generated JWT for user: {}", sanitizedLogin);
+                    Cookie jwtCookie = cookieService.createJwtCookie("jwt", token);
+                    userProfileService.updateTimezoneOffset(user.getUsername(), TimeZoneOffsetContext.get());
+                    response.addCookie(jwtCookie);
+                    log.info("User {} logged in successfully, cookie set", sanitizedLogin);
+                    yield Ok.empty();
+                } catch (UserNotFoundException e) {
+                    log.warn("User not found: {}", sanitizedLogin, e);
                     yield Err.of(new AuthServiceException(Map.of("userNotFound", switch (Language.EN) {
                         case PL -> "Użytkownik nie został znaleziony";
                         case EN -> "User not found";
                         case IT -> "Utente non trovato";
                         case NO -> "Bruker ikke funnet";
                     })));
+                } catch (Exception e) {
+                    log.error("Unexpected error during login for user: {}", sanitizedLogin, e);
+                    throw e;
                 }
-                default -> throw new IllegalStateException("Unexpected value: " + v.throwable());
+            }
+            case Err<?> v -> switch (v.throwable()) {
+                case ValidationException validationException -> {
+                    log.warn("Validation failed for login request: {}", validationException.getViolations());
+                    yield Err.of(new AuthServiceException(validationException.getViolations()));
+                }
+                default -> {
+                    log.error("Unexpected error in login validation: {}", v.throwable(), v.throwable());
+                    throw new IllegalStateException("Unexpected value: " + v.throwable());
+                }
             };
         };
     }
 
     @Transactional
     public Result<?> signup(@NonNull SignupRequest request) {
+        log.info("Processing signup request for user: {}", request.login());
         String sanitizedLogin = patternService.removeSpecialCharacters(request.login()).trim();
+        log.debug("Sanitized login: {}", sanitizedLogin);
+
         Result<?> result = validator.validate(List.of(
                 Constraint.of("login", sanitizedLogin::isBlank, switch (Language.EN) {
                     case PL -> "Nazwa użytkownika nie może być pusta";
@@ -152,39 +167,51 @@ public class AuthService {
                     case NO -> "Passordet kan ikke være lenger enn 500 tegn";
                 })
         ));
+
         return switch (result) {
             case Ok<?> ignored -> {
+                log.debug("Checking if user exists: login={}, email={}", sanitizedLogin, request.email());
                 userProfileService.loadByUsernameOrEmail(request.login(), request.email())
                         .ifPresentOrElse(
-                                user -> Err.of(new AuthServiceException(Map.of("userExists", switch (Language.EN) {
-                                    case PL -> "Użytkownik już istnieje";
-                                    case EN -> "User already exists";
-                                    case IT -> "L'utente esiste già";
-                                    case NO -> "Brukeren finnes allerede";
-                                }))),
-                                () -> userProfileService.addUserProfile(request)
-                        );
-                log.info("User {} signed up successfully", request.login());
+                                user -> {
+                                    log.warn("User already exists: login={}, email={}", sanitizedLogin, request.email());
+                                    Err.of(new AuthServiceException(Map.of("userExists", switch (Language.EN) {
+                                        case PL -> "Użytkownik już istnieje";
+                                        case EN -> "User already exists";
+                                        case IT -> "L'utente esiste già";
+                                        case NO -> "Brukeren finnes allerede";
+                                    })));
+                                },
+                                () -> {
+                                    log.debug("Creating new user profile for: {}", sanitizedLogin);
+                                    userProfileService.addUserProfile(request);
+                                });
+                log.info("User {} signed up successfully", sanitizedLogin);
                 yield Ok.empty();
             }
-            case Err<?> v -> switch (v.throwable()){
+            case Err<?> v -> switch (v.throwable()) {
                 case ValidationException validationException -> {
                     log.warn("Validation failed for signup request: {}", validationException.getViolations());
                     yield Err.of(new AuthServiceException(validationException.getViolations()));
                 }
-                default -> throw new IllegalStateException("Unexpected value: " + v.throwable());
+                default -> {
+                    log.error("Unexpected error in signup validation: {}", v.throwable(), v.throwable());
+                    throw new IllegalStateException("Unexpected value: " + v.throwable());
+                }
             };
         };
     }
 
     public void logout(@NonNull HttpServletResponse response) {
+        log.info("Processing logout request");
         securityContextService.clearContext();
         Cookie cookie = cookieService.deleteJwtCookie("jwt");
         response.addCookie(cookie);
-        log.info("User logged out");
+        log.info("User logged out, JWT cookie cleared");
     }
 
     public Map<AuthText, String> getTextLocalization() {
+        log.debug("Fetching text localization for language: {}", Language.EN);
         return authLocalizationService.getTextLocalization(Language.EN);
     }
 }
