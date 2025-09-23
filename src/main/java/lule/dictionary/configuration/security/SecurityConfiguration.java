@@ -29,11 +29,13 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        log.debug("Creating AuthenticationManager");
         return authConfig.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        log.info("Configuring SecurityFilterChain");
         return http
                 .securityMatcher("/**")
                 .authorizeHttpRequests(conf -> conf
@@ -46,18 +48,21 @@ public class SecurityConfiguration {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/auth/login?logout=true")
                         .addLogoutHandler((request, response, authentication) -> {
-                            log.info("Logging out user: {}", authentication != null ? authentication.getName() : "anonymous");
-                            log.warn("for request: {}", request);
-                            log.warn("where response: {}", response);
+                            String username = authentication != null ? authentication.getName() : "anonymous";
+                            log.info("Logging out user: {}", username);
+                            log.debug("Logout request details: method={}, uri={}",
+                                    request.getMethod(), request.getRequestURI());
                             Cookie cookie = cookieService.deleteJwtCookie("jwt");
                             response.addCookie(cookie);
+                            log.info("JWT cookie cleared for user: {}", username);
                         })
                         .permitAll())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
-                            System.out.println(authException);
+                            log.warn("Authentication failed for request: uri={}, error={}",
+                                    request.getRequestURI(), authException.getMessage(), authException);
                             response.sendRedirect("/auth/login?timeout=true");
                         }))
                 .addFilterBefore(timezoneFilter, UsernamePasswordAuthenticationFilter.class)
