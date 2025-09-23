@@ -3,22 +3,25 @@
 @param Content authView = null
 @param Content content = null
 @param BaseAttribute baseAttribute
+
+!{String csrf = baseAttribute != null ? baseAttribute._csrf().getToken() : "";}
+
 <!DOCTYPE html>
 <html lang="en">
     <script>
-        @if(baseAttribute != null)
-            @if(!baseAttribute.isAuthenticated())
-                if (window.location.pathname.startsWith('/auth/')) {
-                    fetch('/localization/uiLanguage', {
-                        method: "GET",
-                        headers: {
-                            "uiLanguage": window.navigator.languages[1] || "en"
-                        }
-                    })
-                    .catch(error => console.error("Error setting system language:", error.message));
-                }
-            @endif
+    @if(baseAttribute != null)
+        @if(!baseAttribute.isAuthenticated())
+            if (window.location.pathname.startsWith('/auth/')) {
+                fetch('/localization/uiLanguage', {
+                    method: "GET",
+                    headers: {
+                        "uiLanguage": window.navigator.languages[1] || "en"
+                    }
+                })
+                .catch(error => console.error("Error setting system language:", error.message));
+            }
         @endif
+    @endif
     </script>
     <head>
         <meta charset="UTF-8">

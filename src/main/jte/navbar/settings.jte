@@ -58,13 +58,13 @@
             class="
             md:text-md
             text-md text-primary underline cursor-pointer font-bold"
+            hx-headers='{
+                "X-XSRF-TOKEN": "${_csrf}"
+            }'
             hx-post="/auth/logout"
             hx-target="#main"
             hx-swap="innerHTML"
-            hx-push-url="/auth/login"
-            hx-headers='{
-                "X-XSRF-TOKEN": "${_csrf}"
-            }'>
+            hx-push-url="/auth/login">
                 ${logoutText}
             </a>
         </div>

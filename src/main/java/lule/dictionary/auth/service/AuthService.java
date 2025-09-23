@@ -202,14 +202,6 @@ public class AuthService {
         };
     }
 
-    public void logout(@NonNull HttpServletResponse response) {
-        log.info("Processing logout request");
-        securityContextService.clearContext();
-        Cookie cookie = cookieService.deleteJwtCookie("jwt");
-        response.addCookie(cookie);
-        log.info("User logged out, JWT cookie cleared");
-    }
-
     public Map<AuthText, String> getTextLocalization() {
         log.debug("Fetching text localization for language: {}", Language.EN);
         return authLocalizationService.getTextLocalization(Language.EN);

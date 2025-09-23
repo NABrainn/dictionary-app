@@ -46,9 +46,6 @@ id="translation-form">
                     "targetWord": "${attribute.translation().targetWord()}",
                     "id": "${attribute.id()}",
                     "sourceWord": "${word}",
-                }'
-                hx-headers='{
-                    "X-XSRF-TOKEN": "${baseAttribute._csrf().getToken()}"
                 }'>
                     <button
                     class="cursor-pointer text-md block"

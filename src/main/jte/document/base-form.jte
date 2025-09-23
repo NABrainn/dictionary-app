@@ -37,9 +37,11 @@
         class="
         md:w-3/5 md:mt-16 md:p-6 md:gap-6
         w-9/10 flex flex-col bg-tertiary mx-auto rounded p-3 mt-2 gap-5"
+        hx-headers='{
+            "X-XSRF-TOKEN": "${baseAttribute._csrf().getToken()}"
+        }'
         hx-post="/documents/new"
         hx-params="title,url,content,strategy"
-        hx-headers='{"X-XSRF-TOKEN": "${baseAttribute._csrf().getToken()}"}'
         hx-target="#main"
         hx-swap="innerHTML"
         hx-push-url="true">
