@@ -41,12 +41,14 @@ id="translation-form">
                 hx-delete="/translations/sourceWords/delete"
                 hx-target="#translation-form-container-${attribute.id()}"
                 hx-swap="innerHTML"
-                hx-params="sourceWord,targetWord,id,_csrf"
+                hx-params="sourceWord,targetWord,id"
                 hx-vals='{
                     "targetWord": "${attribute.translation().targetWord()}",
                     "id": "${attribute.id()}",
                     "sourceWord": "${word}",
-                    "_csrf": "${baseAttribute._csrf().getToken()}"
+                }'
+                hx-headers='{
+                    "X-XSRF-TOKEN": "${baseAttribute._csrf().getToken()}"
                 }'>
                     <button
                     class="cursor-pointer text-md block"

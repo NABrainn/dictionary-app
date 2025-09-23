@@ -62,9 +62,8 @@
             hx-target="#main"
             hx-swap="innerHTML"
             hx-push-url="/auth/login"
-            hx-params="_csrf"
-            hx-vals='{
-                "_csrf": "${_csrf}"
+            hx-headers='{
+                "X-XSRF-TOKEN": "${_csrf}"
             }'>
                 ${logoutText}
             </a>
