@@ -69,14 +69,6 @@ public class UserProfileService implements UserDetailsService {
             userProfileRepository.updateTimezoneOffset(owner, DateUtil.stringToZoneOffset(offset).getId());
         }
     }
-    @Scheduled(cron = "0 0 * * * *")
-    public void resetStreaksIfMidnight() {
-        userProfileRepository.resetStreaksIfMidnight();
-    }
-
-    public int getDailyStreak(String owner) {
-        return userProfileRepository.getDailyStreak(owner).orElseThrow(() -> new RuntimeException("Failed to fetch daily streak"));
-    }
 
     //TODO merge below methods into one
     public void updateTargetLanguage(String languageString, Authentication authentication) {
@@ -111,5 +103,10 @@ public class UserProfileService implements UserDetailsService {
                     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
                     securityContextService.setContext(token);
                 });
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    public void resetStreaksIfMidnight() {
+        userProfileRepository.resetStreaksIfMidnight();
     }
 }
