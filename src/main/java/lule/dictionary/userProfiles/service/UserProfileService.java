@@ -47,7 +47,6 @@ public class UserProfileService implements UserDetailsService {
                 .dailyStreak(0)
                 .offset(TimeZoneOffsetContext.get())
                 .isNavbarOpen(false)
-//                .translations(List.of())
                 .build();
         userProfileRepository.addUserProfile(userProfile).orElseThrow(() -> new RuntimeException("Failed to add new user"));
     }

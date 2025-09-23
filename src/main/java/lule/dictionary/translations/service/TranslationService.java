@@ -371,10 +371,9 @@ public class TranslationService {
                 .build();
     }
 
-    public Result<BaseFlashcardAttribute> getRandomTranslations(GetRandomTranslationsRequest request, Authentication authentication) throws TranslationsNotFoundException {
+    public Result<BaseFlashcardAttribute> startFlashcardSession(GetRandomTranslationsRequest request, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        List<Translation> translations = translationRepository.getRandomTranslations(request.isPhrase(), principal.getUsername(), request.quantity(), request.familiarity());
-//        userProfileService.authenticate(principal.withTranslations(translations));
+        List<Translation> translations = translationRepository.startFlashcardSession(request.isPhrase(), principal.getUsername(), request.quantity(), request.familiarity());
         return !translations.isEmpty() ?
                 Ok.of(BaseFlashcardAttribute.builder()
                     .id(request.id())
@@ -405,9 +404,7 @@ public class TranslationService {
     public BaseFlashcardAttribute flipFlashcard(@NonNull FlipFlashcardRequest request,
                                                 @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-//        List<Translation> translations = principal.translations();
-        List<Translation> translations = List.of();
-        System.out.println(translations);
+        List<Translation> translations = translationRepository.getTranslationsFromSession(principal.getUsername());
         return BaseFlashcardAttribute.builder()
                 .translations(translations)
                 .localization(translationLocalization.translationFormMessages(principal.userInterfaceLanguage()))

@@ -58,7 +58,7 @@ public class VocabularyController {
                                          @RequestParam(name = "id", required = false, defaultValue = "1") int id,
                                          Model model,
                                          Authentication authentication) {
-        Result<BaseFlashcardAttribute> result = translationService.getRandomTranslations(GetRandomTranslationsRequest.builder()
+        Result<BaseFlashcardAttribute> result = translationService.startFlashcardSession(GetRandomTranslationsRequest.builder()
                 .familiarity(familiarity)
                 .quantity(quantity)
                 .isPhrase(isPhrase)
@@ -74,6 +74,7 @@ public class VocabularyController {
             case Err<?> v -> {
                 if(v.throwable() instanceof TranslationsNotFoundException translationsNotFoundException) {
                     model.addAttribute("attribute", translationsNotFoundException.getAttribute());
+                    model.addAttribute("messages", messages);
                     yield  "vocabulary-page/flashcard/flashcard-config";
                 }
                 yield  "error";

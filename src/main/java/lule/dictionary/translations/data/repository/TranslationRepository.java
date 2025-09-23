@@ -15,10 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.PreparedStatement;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -288,41 +285,72 @@ public class TranslationRepository {
     }
 
     @Transactional
-    public List<Translation> getRandomTranslations(boolean isPhrase, String owner, int limit, int familiarity) {
+    public List<Translation> startFlashcardSession(boolean isPhrase, String owner, int limit, int familiarity) {
         if (familiarity > 0 && familiarity <= 5) {
-            String sql = """
-                SELECT *
-                FROM dictionary.translations
-                WHERE is_phrase = ?
-                AND translation_owner = ?
-                AND familiarity = CAST(? AS dictionary.familiarity)
-                ORDER BY RANDOM()
-                LIMIT ?
-                """;
+            String deleteSql = """
+            DELETE FROM dictionary.flashcard_session
+            WHERE session_owner = ?
+            """;
+
+            String insertSql = """
+            INSERT INTO dictionary.flashcard_session (session_owner, translation_id)
+            SELECT ?, translation_id
+            FROM dictionary.translations
+            WHERE is_phrase = ?
+              AND translation_owner = ?
+              AND familiarity = CAST(? AS dictionary.familiarity)
+            ORDER BY RANDOM()
+            LIMIT ?
+            RETURNING translation_id
+            """;
+
+            String selectSql = """
+            SELECT t.*
+            FROM dictionary.translations t
+            INNER JOIN dictionary.flashcard_session fs ON t.translation_id = fs.translation_id
+            WHERE fs.session_owner = ?
+            """;
+
             try {
-                return template.query(sql, translationMapper,
-                        isPhrase,
-                        owner,
-                        Familiarity.values()[familiarity - 1].name(),
-                        limit);
+                template.update(deleteSql, owner);
+
+                List<Long> insertedIds = template.queryForList(insertSql, Long.class,
+                        owner, isPhrase, owner, Familiarity.values()[familiarity - 1].name(), limit);
+
+                if (insertedIds.isEmpty()) {
+                    log.info("No translations found for owner: {}, isPhrase: {}, familiarity: {}",
+                            owner, isPhrase, Familiarity.values()[familiarity - 1].name());
+                    return Collections.emptyList();
+                }
+
+                return template.query(selectSql, translationMapper, owner);
+
             } catch (DataAccessException e) {
-                log.error(String.valueOf(e.getCause()));
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+                log.error("Database error: {}", e.getCause(), e);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to execute flashcard session query", e);
             }
         }
+        return List.of();
+    }
+
+    public List<Translation> getTranslationsFromSession(String username) {
         String sql = """
-                SELECT *
-                FROM dictionary.translations
-                WHERE is_phrase = ?
-                AND translation_owner = ?
-                ORDER BY RANDOM()
-                LIMIT ?
+                    SELECT
+                        t.translation_id,
+                        t.source_words,
+                        t.target_word,
+                        t.source_lang,
+                        t.target_lang,
+                        t.translation_owner,
+                        t.familiarity,
+                        t.is_phrase
+                    FROM dictionary.flashcard_session s
+                    LEFT JOIN dictionary.translations t ON t.translation_id = s.translation_id
+                    WHERE session_owner = ?
                 """;
         try {
             return template.query(sql, translationMapper,
-                    isPhrase,
-                    owner,
-                    limit);
+                    username);
         } catch (DataAccessException e) {
             log.error(String.valueOf(e.getCause()));
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);

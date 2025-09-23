@@ -3,7 +3,6 @@ package lule.dictionary.userProfiles.data;
 import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.language.service.Language;
-import lule.dictionary.translations.data.Translation;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,26 +18,10 @@ public record UserProfile(
         @NonNull Language sourceLanguage,
         @NonNull Language targetLanguage,
         @NonNull Language userInterfaceLanguage,
-//        @NonNull List<Translation> translations,
         boolean isNavbarOpen,
         int wordsAddedToday,
         int dailyStreak,
         String offset) implements UserDetails {
-
-    public UserProfile withPassword(String password) {
-        return UserProfile.builder()
-                .username(this.getUsername())
-                .email(this.email())
-                .password(password)
-                .sourceLanguage(this.sourceLanguage())
-                .targetLanguage(this.targetLanguage())
-                .wordsAddedToday(this.wordsAddedToday())
-                .dailyStreak(this.dailyStreak())
-                .userInterfaceLanguage(this.userInterfaceLanguage())
-                .isNavbarOpen(this.isNavbarOpen())
-//                .translations(this.translations())
-                .build();
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -55,18 +38,17 @@ public record UserProfile(
             return username;
     }
 
-    public UserProfile withTranslations(List<Translation> translations) {
+    public UserProfile withPassword(String password) {
         return UserProfile.builder()
                 .username(this.getUsername())
                 .email(this.email())
-                .password(this.password())
+                .password(password)
                 .sourceLanguage(this.sourceLanguage())
                 .targetLanguage(this.targetLanguage())
                 .wordsAddedToday(this.wordsAddedToday())
                 .dailyStreak(this.dailyStreak())
                 .userInterfaceLanguage(this.userInterfaceLanguage())
                 .isNavbarOpen(this.isNavbarOpen())
-//                .translations(translations)
                 .build();
     }
 }
