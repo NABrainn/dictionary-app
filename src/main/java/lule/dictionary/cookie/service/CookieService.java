@@ -24,9 +24,9 @@ public class CookieService {
         Cookie tokenCookie = new Cookie(key, token);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
-        tokenCookie.setSecure(secure); // Consider making this configurable as per previous advice
+        tokenCookie.setSecure(secure);
         tokenCookie.setMaxAge((int) expiration);
-        tokenCookie.setAttribute("SameSite", "Strict");
+        tokenCookie.setAttribute("SameSite", "Lax");
         log.info("Created JWT cookie: key={}, secure={}, maxAge={}, sameSite={}",
                 key, tokenCookie.getSecure(), tokenCookie.getMaxAge(), tokenCookie.getAttribute("SameSite"));
         return tokenCookie;
@@ -38,7 +38,7 @@ public class CookieService {
         tokenCookie.setPath("/");
         tokenCookie.setSecure(secure);
         tokenCookie.setMaxAge(0);
-        tokenCookie.setAttribute("SameSite", "Strict");
+        tokenCookie.setAttribute("SameSite", "Lax");
         log.info("Deleted JWT cookie: key={}, secure={}, maxAge={}",
                 key, tokenCookie.getSecure(), tokenCookie.getMaxAge());
         return tokenCookie;
