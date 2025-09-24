@@ -18,7 +18,7 @@
         hx-target="#main"
         hx-swap="outerHTML"
         hx-headers='{
-            "X-XSRF-TOKEN": "${baseAttribute._csrf().getToken()}"
+            "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
         }'
         class="md:w-2/5
         w-4/5 flex flex-col bg-secondary p-8 mx-auto gap-8">

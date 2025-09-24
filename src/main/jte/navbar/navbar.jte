@@ -37,7 +37,7 @@
             uiText = navbarAttribute.uiText(),
             translationsText = navbarAttribute.translationsText(),
             logoutText = navbarAttribute.logoutText(),
-            _csrf = baseAttribute._csrf().getToken())
+            csrf = baseAttribute.csrf())
         @else
             @template.navbar.login-btn(
             text = navbarAttribute.loginBtnText(),

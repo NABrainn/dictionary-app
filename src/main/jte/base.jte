@@ -1,10 +1,11 @@
 @import gg.jte.Content
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
+
 @param Content authView = null
 @param Content content = null
 @param BaseAttribute baseAttribute
 
-!{String csrf = baseAttribute != null ? baseAttribute._csrf().getToken() : "";}
+!{String csrf = baseAttribute != null ? baseAttribute.csrf() : "";}
 
 <!DOCTYPE html>
 <html lang="en">

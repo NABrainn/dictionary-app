@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
 import lule.dictionary.configuration.security.filter.timezone.TimezoneFilter;
-import lule.dictionary.cookie.service.CookieService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +16,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
-import org.springframework.security.web.csrf.*;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
 @EnableWebSecurity
@@ -26,11 +27,10 @@ import org.springframework.security.web.savedrequest.NullRequestCache;
 @Slf4j
 public class SecurityConfiguration {
 
-    private final CookieService cookieService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TimezoneFilter timezoneFilter;
 
-    @Value("${app.security.cookie-secure:true}")
+    @Value("${app.security.cookie-secure}")
     private boolean secure;
 
     @Value("${spring.security.jwt.expiration}")
@@ -38,46 +38,39 @@ public class SecurityConfiguration {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        log.debug("Creating AuthenticationManager");
         return authConfig.getAuthenticationManager();
     }
 
     @Bean
-    public CsrfTokenRepository csrfTokenRepository() {
-        CookieCsrfTokenRepository csrfTokenRepository = new CookieCsrfTokenRepository();
-        csrfTokenRepository.setCookieCustomizer(cookie -> cookie
-                .sameSite("Lax")
-                .httpOnly(true)
-                .secure(secure)
-                .maxAge(expiration)
-                .path("/"));
-        csrfTokenRepository.setCookieName("XSRF-TOKEN");
-        return csrfTokenRepository;
-    }
-
-    @Bean
-    public XorCsrfTokenRequestAttributeHandler csrfHandler() {
-        XorCsrfTokenRequestAttributeHandler requestHandler = new XorCsrfTokenRequestAttributeHandler();
-        requestHandler.setCsrfRequestAttributeName(null);
-        return requestHandler;
+    public SecurityFilterChain staticResourcesFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/js/**", "/images/**", "/htmx.min.js", "/output.css", "/util.js")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .build();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        XorCsrfTokenRequestAttributeHandler requestHandler = new XorCsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName(null);
         return http
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(csrfTokenRepository())
-                        .csrfTokenRequestHandler(csrfHandler()))
+                        .csrfTokenRepository(new CookieCsrfTokenRepository())
+                        .csrfTokenRequestHandler(requestHandler))
                 .securityMatcher("/**")
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/htmx.min.js", "/util.js", "/output.css", "/images/icon.png", "/favicon.ico", "/error/**", "/auth/**", "/localization/**")
+                        .requestMatchers("/htmx.min.js", "/util.js", "/output.css", "/images/icon.png", "/favicon.ico", "/error/**", "/auth/**", "/localization/**", "/api/csrf")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .addLogoutHandler(new CookieClearingLogoutHandler("jwt", "X-XSRF"))
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                        .addLogoutHandler(new CookieClearingLogoutHandler("jwt", "X-XSRF", "XSRF-TOKEN"))
                         .logoutSuccessHandler((request, response, authentication) -> response.sendRedirect("/auth/login")))
                 .requestCache(cache -> cache.requestCache(new NullRequestCache()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -86,8 +79,6 @@ public class SecurityConfiguration {
                             log.warn("Authentication failed for request: uri={}, error={}",
                                     request.getRequestURI(), authException.getMessage(), authException);
                             response.sendRedirect("/auth/login?timeout=true");
-                            CsrfToken csrfToken = csrfTokenRepository().generateToken(request);
-                            csrfTokenRepository().saveToken(csrfToken, request, response);
                         }))
                 .addFilterBefore(timezoneFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

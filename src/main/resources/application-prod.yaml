@@ -32,6 +32,14 @@ logging:
     gg.jte: DEBUG
 
 server:
+  servlet:
+    session:
+      create-session: never
+      tracking-modes: cookie
+      cookie:
+        secure: true
+        http-only: true
+        same-site: lax
   compression:
     enabled: true
     min-response-size: 2048
