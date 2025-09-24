@@ -11,7 +11,7 @@
 @param LanguageData userInterfaceLanguage
 @param LanguageData translationLanguage
 @param List<LanguageData> languages
-@param String _csrf
+@param String csrf
 
 <div class="flex justify-end items-center z-420 justify-center ${size}">
     <div>
@@ -63,7 +63,7 @@
             hx-swap="innerHTML"
             hx-push-url="/auth/login"
             hx-headers='{
-                "X-XSRF-TOKEN": "${_csrf}"
+                "X-XSRF-TOKEN": "${csrf}"
             }'>
                 ${logoutText}
             </a>

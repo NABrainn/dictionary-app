@@ -39,10 +39,12 @@
         w-9/10 flex flex-col bg-tertiary mx-auto rounded p-3 mt-2 gap-5"
         hx-post="/documents/new"
         hx-params="title,url,content,strategy"
-        hx-headers='{"X-XSRF-TOKEN": "${baseAttribute._csrf().getToken()}"}'
         hx-target="#main"
         hx-swap="innerHTML"
-        hx-push-url="true">
+        hx-push-url="true"
+        hx-headers='{
+            "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+        }'>
             <div class="flex flex-col gap-2">
                 <label class="text-accent font-bold text-2xl min-h-8" for="title">${attribute.localization().get(DocumentLocalizationKey.TITLE)}</label>
                 <textarea

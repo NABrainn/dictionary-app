@@ -1,11 +1,10 @@
 package lule.dictionary.configuration.security;
 
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
 import lule.dictionary.configuration.security.filter.timezone.TimezoneFilter;
-import lule.dictionary.cookie.service.CookieService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +15,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 
 @EnableWebSecurity
 @Configuration
@@ -24,45 +27,53 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @Slf4j
 public class SecurityConfiguration {
 
-    private final CookieService cookieService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TimezoneFilter timezoneFilter;
 
+    @Value("${app.security.cookie-secure}")
+    private boolean secure;
+
+    @Value("${spring.security.jwt.expiration}")
+    private long expiration;
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        log.debug("Creating AuthenticationManager");
         return authConfig.getAuthenticationManager();
     }
 
     @Bean
+    public SecurityFilterChain staticResourcesFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/js/**", "/images/**", "/htmx.min.js", "/output.css", "/util.js")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .build();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        log.info("Configuring SecurityFilterChain");
+        XorCsrfTokenRequestAttributeHandler requestHandler = new XorCsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName(null);
         return http
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/auth/logout"))
+                        .csrfTokenRepository(new CookieCsrfTokenRepository())
+                        .csrfTokenRequestHandler(requestHandler))
                 .securityMatcher("/**")
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/htmx.min.js", "/util.js", "/output.css", "/images/icon.png", "/favicon.ico", "/error/**", "/auth/**", "/localization/**")
+                        .requestMatchers("/htmx.min.js", "/util.js", "/output.css", "/images/icon.png", "/favicon.ico", "/error/**", "/auth/**", "/localization/**", "/api/csrf")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/auth/login?logout=true")
-                        .addLogoutHandler((request, response, authentication) -> {
-                            String username = authentication != null ? authentication.getName() : "anonymous";
-                            log.info("Logging out user: {}", username);
-                            log.debug("Logout request details: method={}, uri={}",
-                                    request.getMethod(), request.getRequestURI());
-                            Cookie cookie = cookieService.deleteJwtCookie("jwt");
-                            response.addCookie(cookie);
-                            log.info("JWT cookie cleared for user: {}", username);
-                        })
-                        .permitAll())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .logoutUrl("/auth/logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                        .addLogoutHandler(new CookieClearingLogoutHandler("jwt", "X-XSRF", "XSRF-TOKEN"))
+                        .logoutSuccessHandler((request, response, authentication) -> response.sendRedirect("/auth/login")))
+                .requestCache(cache -> cache.requestCache(new NullRequestCache()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             log.warn("Authentication failed for request: uri={}, error={}",

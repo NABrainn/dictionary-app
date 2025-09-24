@@ -101,14 +101,4 @@ public class AuthController {
             }
         };
     }
-
-    @PostMapping({"/logout", "/logout/"})
-    public String logout(RedirectAttributes redirectAttributes,
-                         Model model,
-                         HttpServletResponse response) {
-        authService.logout(response);
-        model.addAttribute("error", Map.of());
-        redirectAttributes.addFlashAttribute("localization", authService.getTextLocalization());
-        return "redirect:/auth/login";
-    }
 }

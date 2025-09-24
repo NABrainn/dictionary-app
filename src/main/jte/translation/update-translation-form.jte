@@ -41,14 +41,14 @@ id="translation-form">
                 hx-delete="/translations/sourceWords/delete"
                 hx-target="#translation-form-container-${attribute.id()}"
                 hx-swap="innerHTML"
+                hx-headers='{
+                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                }'
                 hx-params="sourceWord,targetWord,id"
                 hx-vals='{
                     "targetWord": "${attribute.translation().targetWord()}",
                     "id": "${attribute.id()}",
-                    "sourceWord": "${word}",
-                }'
-                hx-headers='{
-                    "X-XSRF-TOKEN": "${baseAttribute._csrf().getToken()}"
+                    "sourceWord": "${word}"
                 }'>
                     <button
                     class="cursor-pointer text-md block"
@@ -60,12 +60,14 @@ id="translation-form">
             <div id="source-word-form" class="flex">
                 <form
                 class="flex flex-col gap-2"
-                hx-params="id,targetWord,familiarity,sourceWords,_csrf"
+                hx-headers='{
+                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                }'
+                hx-params="id,targetWord,familiarity,sourceWords"
                 hx-vals='{
                     "targetWord": "${attribute.translation().targetWord()}",
                     "familiarity": "${attribute.translation().familiarity()}",
-                    "id": "${attribute.id()}",
-                    "_csrf": "${baseAttribute._csrf().getToken()}"
+                    "id": "${attribute.id()}"
                 }'
                 hx-put="/translations/sourceWords/update"
                 hx-target="#translation-form-container-${attribute.id()}"
@@ -117,7 +119,10 @@ id="translation-form">
             id="translation-form-${attribute.id()}"
             hx-trigger="click"
             hx-put="/translations/familiarity/update"
-            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase,_csrf"
+            hx-headers='{
+                "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+            }'
+            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase"
             hx-vals='
             {
                 "targetWord": "${attribute.translation().targetWord().toLowerCase()}",
@@ -125,8 +130,7 @@ id="translation-form">
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
                 "id": "${attribute.id()}",
-                "isPhrase": "${attribute.isPhrase()}",
-                "_csrf": "${baseAttribute._csrf().getToken()}"
+                "isPhrase": "${attribute.isPhrase()}"
             }'
             hx-target="#translation-form-container-${attribute.id()}"
             hx-swap="innerHTML"
