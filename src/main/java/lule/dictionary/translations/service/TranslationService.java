@@ -21,7 +21,6 @@ import lule.dictionary.translations.data.exception.TranslationServiceException;
 import lule.dictionary.translations.data.exception.TranslationsNotFoundException;
 import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.userProfiles.service.UserProfileService;
 import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.ValidationException;
 import lule.dictionary.validation.service.Validator;
@@ -30,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -45,7 +45,6 @@ public class TranslationService {
     private final FamiliarityService familiarityService;
     private final PatternService patternService;
     private final TranslationLocalizationService translationLocalization;
-    private final UserProfileService userProfileService;
 
     @Transactional
     public Result<TranslationAttribute> createTranslation(@NonNull AddTranslationRequest request,
@@ -53,6 +52,7 @@ public class TranslationService {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language uiLanguage = principal.userInterfaceLanguage();
         String sanitizedSourceWord = request.sourceWords().stream()
+                .filter(Predicate.not(String::isBlank))
                 .findFirst()
                 .map(String::trim)
                 .map(patternService::removeSpecialCharacters)
@@ -108,7 +108,7 @@ public class TranslationService {
                 TranslationAttribute attribute = TranslationAttribute.builder()
                         .id(request.selectedWordId())
                         .translation(translation.withSourceWords(translation.sourceWords().stream()
-                                .filter(word -> !word.isBlank())
+                                .filter(Predicate.not(String::isBlank))
                                 .distinct()
                                 .limit(3)
                                 .toList()))
@@ -155,7 +155,7 @@ public class TranslationService {
         return TranslationAttribute.builder()
                 .id(request.selectedWordId())
                 .translation(translation.withSourceWords(translation.sourceWords().stream()
-                        .filter(word -> !word.isBlank())
+                        .filter(Predicate.not(String::isBlank))
                         .distinct()
                         .limit(3)
                         .toList()))
@@ -427,7 +427,7 @@ public class TranslationService {
                 List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(createTranslationRequest.targetWord()).toLowerCase(), 3);
                 List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), createTranslationRequest.targetWord());
                 List<String> sourceWords = Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
-                        .filter(word -> !word.isBlank())
+                        .filter(Predicate.not(String::isBlank))
                         .distinct()
                         .limit(3)
                         .toList();

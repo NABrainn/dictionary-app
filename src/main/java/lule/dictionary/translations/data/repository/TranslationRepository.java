@@ -39,21 +39,35 @@ public class TranslationRepository {
 
     public OptionalInt addTranslation(@NonNull Translation translation) {
         String insertSql = """
-            WITH inserted_translation AS (
-                INSERT INTO dictionary.translations (
-                    source_words, target_word, source_lang, target_lang, translation_owner, familiarity, is_phrase
+                WITH inserted_translation AS (
+                    INSERT INTO dictionary.translations (
+                        source_words,
+                        target_word,
+                        source_lang,
+                        target_lang,
+                        translation_owner,
+                        familiarity,
+                        is_phrase
+                    )
+                    VALUES (
+                        (SELECT ARRAY_AGG(word) FROM unnest(?) AS word WHERE word IS NOT NULL AND word <> ''),
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?
+                    )
+                    RETURNING translation_id, translation_owner
+                ),
+                updated_streaks AS (
+                    UPDATE dictionary.streaks
+                    SET words_added_today = words_added_today + 1,
+                        updated_at = NOW()
+                    WHERE streak_owner = (SELECT translation_owner FROM inserted_translation)
+                    RETURNING words_added_today, streak_owner, tz_offset, updated_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                RETURNING translation_id, translation_owner
-            ),
-            updated_streaks AS (
-                UPDATE dictionary.streaks
-                SET words_added_today = words_added_today + 1,
-                    updated_at = now()
-                WHERE streak_owner = (SELECT translation_owner FROM inserted_translation)
-                RETURNING words_added_today, streak_owner, tz_offset, updated_at
-            )
-            SELECT translation_id FROM inserted_translation;
+                SELECT translation_id FROM inserted_translation;
             """;
         String updateSql = """
                 UPDATE dictionary.streaks
