@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class GoogleTranslateFetcher implements TranslationFetcher {
 
     @Override
     public List<String> translate(Language sourceLanguage, Language targetLanguage, String targetWord) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
         String sourceLanguageCode = languageHelper.getCode(sourceLanguage);
         String targetLanguageCode = languageHelper.getCode(targetLanguage);
         String response =  RestClient.builder()
@@ -37,28 +39,19 @@ public class GoogleTranslateFetcher implements TranslationFetcher {
                         .build())
                 .retrieve()
                 .body(String.class);
-        return extractTranslation(targetWord, response);
-    }
-
-    private List<String> extractTranslation(String targetWord, String response) throws JsonProcessingException {
-        if(response != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                JsonNode json = mapper.readTree(response);
-                String trimmedJson = leftRightTrim(targetWord, json.toString());
-                return List.of(trimmedJson);
-            } catch (JsonProcessingException e) {
-                return List.of();
-            }
-
-        }
-        return List.of();
-    }
-
-    private String leftRightTrim(String searchTarget, String text) {
-        int indexOfSearchTarget = text.indexOf(searchTarget) ;
-        if(indexOfSearchTarget == -1)
-            return "";
-        return text.substring(4, indexOfSearchTarget - 3);
+        return Optional.ofNullable(response)
+                .map(responseBlob -> {
+                    try {
+                        return mapper.readTree(responseBlob);
+                    } catch (JsonProcessingException e) {
+                        return List.of();
+                    }
+                })
+                .map(Object::toString)
+                .map(json -> !json.contains(targetWord) ?
+                        "" :
+                        json.substring(4, json.indexOf(targetWord) - 3))
+                .map(List::of)
+                .orElse(List.of());
     }
 }
