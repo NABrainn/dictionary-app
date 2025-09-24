@@ -15,14 +15,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoogleTranslateFetcher implements TranslationFetcher {
 
-    private final RestClient googleTranslateClient;
     private final LanguageHelper languageHelper;
 
     @Override
     public List<String> translate(Language sourceLanguage, Language targetLanguage, String targetWord) throws JsonProcessingException {
         String sourceLanguageCode = languageHelper.getCode(sourceLanguage);
         String targetLanguageCode = languageHelper.getCode(targetLanguage);
-        String response =  googleTranslateClient
+        String response =  RestClient.builder()
+                .build()
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")

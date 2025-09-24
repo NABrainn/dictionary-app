@@ -17,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LingvanexFetcher implements TranslationFetcher {
 
-    private final RestClient lingvanexClient;
     private final LanguageHelper languageHelper;
 
     @Override
@@ -25,7 +24,8 @@ public class LingvanexFetcher implements TranslationFetcher {
         String sourceLanguageCode = languageHelper.getCode(sourceLanguage);
         String targetLanguageCode = languageHelper.getCode(targetLanguage);
         var formData = assembleFormData(targetWord, targetLanguageCode, sourceLanguageCode);
-        String response = lingvanexClient
+        String response = RestClient.builder()
+                .build()
                 .post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
