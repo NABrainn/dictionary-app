@@ -1,4 +1,4 @@
-package lule.dictionary.configuration.security.filter;
+package lule.dictionary.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

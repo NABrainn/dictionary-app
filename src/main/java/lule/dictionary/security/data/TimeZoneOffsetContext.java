@@ -1,4 +1,4 @@
-package lule.dictionary.configuration.security.filter.timezone;
+package lule.dictionary.security.data;
 
 public class TimeZoneOffsetContext {
     private static final ThreadLocal<String> timeZoneOffsetHolder = new ThreadLocal<>();

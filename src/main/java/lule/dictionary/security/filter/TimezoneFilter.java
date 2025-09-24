@@ -1,9 +1,10 @@
-package lule.dictionary.configuration.security.filter.timezone;
+package lule.dictionary.security.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import lule.dictionary.security.data.TimeZoneOffsetContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 

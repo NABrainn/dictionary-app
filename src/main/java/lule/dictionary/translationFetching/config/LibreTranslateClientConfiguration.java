@@ -1,14 +1,16 @@
-package lule.dictionary.configuration;
+package lule.dictionary.translationFetching.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
 @Configuration
-public class LingvanexClientConfiguration {
+public class LibreTranslateClientConfiguration {
+
     @Bean
-    public RestClient lingvanexClient() {
+    public RestClient libreTranslateClient() {
         return RestClient.builder()
+                .baseUrl("http://localhost:5000")
                 .build();
     }
 }

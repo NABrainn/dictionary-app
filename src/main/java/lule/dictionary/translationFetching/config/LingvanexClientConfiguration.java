@@ -1,13 +1,13 @@
-package lule.dictionary.configuration;
+package lule.dictionary.translationFetching.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
 @Configuration
-public class GoogleTranslateClientConfiguration {
+public class LingvanexClientConfiguration {
     @Bean
-    public RestClient googleTranslateClient() {
+    public RestClient lingvanexClient() {
         return RestClient.builder()
                 .build();
     }

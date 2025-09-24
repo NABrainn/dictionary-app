@@ -1,9 +1,9 @@
-package lule.dictionary.configuration.security;
+package lule.dictionary.security.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.configuration.security.filter.JwtAuthenticationFilter;
-import lule.dictionary.configuration.security.filter.timezone.TimezoneFilter;
+import lule.dictionary.security.filter.JwtAuthenticationFilter;
+import lule.dictionary.security.filter.TimezoneFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
@@ -69,15 +68,14 @@ public class SecurityConfiguration {
                         .logoutUrl("/auth/logout")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
-                        .addLogoutHandler(new CookieClearingLogoutHandler("jwt", "X-XSRF", "XSRF-TOKEN"))
+                        .addLogoutHandler(new CookieClearingLogoutHandler("jwt", "X-XSRF", "XSRF-TOKEN", "JSESSIONID"))
                         .logoutSuccessHandler((request, response, authentication) -> response.sendRedirect("/auth/login")))
                 .requestCache(cache -> cache.requestCache(new NullRequestCache()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             log.warn("Authentication failed for request: uri={}, error={}",
-                                    request.getRequestURI(), authException.getMessage(), authException);
+                                    request.getRequestURI(), authException.getMessage());
                             response.sendRedirect("/auth/login?timeout=true");
                         }))
                 .addFilterBefore(timezoneFilter, UsernamePasswordAuthenticationFilter.class)
