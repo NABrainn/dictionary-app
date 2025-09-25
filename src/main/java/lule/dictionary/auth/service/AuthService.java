@@ -22,6 +22,9 @@ import lule.dictionary.jwt.service.JwtService;
 import lule.dictionary.userProfiles.service.UserProfileService;
 import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.ValidationException;
+import lule.dictionary.validation.data.rule.Email;
+import lule.dictionary.validation.data.rule.NotEmpty;
+import lule.dictionary.validation.data.rule.Size;
 import lule.dictionary.validation.service.Validator;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
@@ -46,35 +49,33 @@ public class AuthService {
 
     public Result<?> login(@NonNull LoginRequest request, @NonNull HttpServletResponse response) {
         log.info("Processing login request for user: {}", request.login());
-        String sanitizedLogin = patternService.removeSpecialCharacters(request.login()).trim();
-        log.debug("Sanitized login: {}", sanitizedLogin);
-
-        Result<?> result = validator.validate(List.of(
-                Constraint.of("login", sanitizedLogin::isBlank, switch (Language.EN) {
+        String sanitizedLogin = patternService.removeSpecialCharacters(request.login());
+        Result<?> result = validator.validate(
+                Constraint.of("login", NotEmpty.of(sanitizedLogin), switch (Language.EN) {
                     case PL -> "Nazwa użytkownika nie może być pusta";
                     case EN -> "Username cannot be empty";
                     case IT -> "Il nome utente non può essere vuoto";
                     case NO -> "Brukernavnet kan ikke være tomt";
                 }),
-                Constraint.of("login", () -> sanitizedLogin.length() > 50, switch (Language.EN) {
+                Constraint.of("login", Size.of(sanitizedLogin, 0, 50), switch (Language.EN) {
                     case PL -> "Nazwa użytkownika nie może być dłuższa niż 50 znaków";
                     case EN -> "Username cannot be longer than 50 characters";
                     case IT -> "Il nome utente non può essere più lungo di 50 caratteri";
                     case NO -> "Brukernavnet kan ikke være lenger enn 50 tegn";
                 }),
-                Constraint.of("password", () -> request.password().isBlank(), switch (Language.EN) {
+                Constraint.of("password", NotEmpty.of(request.password()), switch (Language.EN) {
                     case PL -> "Hasło nie może być puste";
                     case EN -> "Password cannot be empty";
                     case IT -> "La password non può essere vuota";
                     case NO -> "Passordet kan ikke være tomt";
                 }),
-                Constraint.of("password", () -> request.password().length() > 500, switch (Language.EN) {
+                Constraint.of("password", Size.of(request.password(), 0, 500), switch (Language.EN) {
                     case PL -> "Hasło nie może być dłuższe niż 500 znaków";
                     case EN -> "Password cannot be longer than 500 characters";
                     case IT -> "La password non può essere più lunga di 500 caratteri";
                     case NO -> "Passordet kan ikke være lenger enn 500 tegn";
                 })
-        ));
+        );
 
         return switch (result) {
             case Ok<?> ignored1 -> {
@@ -123,50 +124,50 @@ public class AuthService {
         String sanitizedLogin = patternService.removeSpecialCharacters(request.login()).trim();
         log.debug("Sanitized login: {}", sanitizedLogin);
 
-        Result<?> result = validator.validate(List.of(
-                Constraint.of("login", sanitizedLogin::isBlank, switch (Language.EN) {
+        Result<?> result = validator.validate(
+                Constraint.of("login", NotEmpty.of(sanitizedLogin), switch (Language.EN) {
                     case PL -> "Nazwa użytkownika nie może być pusta";
                     case EN -> "Username cannot be empty";
                     case IT -> "Il nome utente non può essere vuoto";
                     case NO -> "Brukernavnet kan ikke være tomt";
                 }),
-                Constraint.of("login", () -> sanitizedLogin.length() > 50, switch (Language.EN) {
+                Constraint.of("login", Size.of(sanitizedLogin, 0, 50), switch (Language.EN) {
                     case PL -> "Nazwa użytkownika nie może być dłuższa niż 50 znaków";
                     case EN -> "Username cannot be longer than 50 characters";
                     case IT -> "Il nome utente non può essere più lungo di 50 caratteri";
                     case NO -> "Brukernavnet kan ikke være lenger enn 50 tegn";
                 }),
-                Constraint.of("email", request.email()::isBlank, switch (Language.EN) {
+                Constraint.of("email", NotEmpty.of(request.email()), switch (Language.EN) {
                     case PL -> "Adres e-mail nie może być pusty";
                     case EN -> "Email address cannot be empty";
                     case IT -> "L'indirizzo email non può essere vuoto";
                     case NO -> "E-postadressen kan ikke være tom";
                 }),
-                Constraint.of("email", () -> request.email().length() > 200, switch (Language.EN) {
+                Constraint.of("email", Size.of(request.email(), 0, 200), switch (Language.EN) {
                     case PL -> "Adres e-mail nie może być dłuższy niż 200 znaków";
                     case EN -> "Email address cannot be longer than 200 characters";
                     case IT -> "L'indirizzo email non può essere più lungo di 200 caratteri";
                     case NO -> "E-postadressen kan ikke være lenger enn 200 tegn";
                 }),
-                Constraint.of("email", () -> !patternService.isValidEmail(request.email()), switch (Language.EN) {
+                Constraint.of("email", Email.of(request.email()), switch (Language.EN) {
                     case PL -> "Nieprawidłowy format adresu e-mail";
                     case EN -> "Invalid email address format";
                     case IT -> "Formato dell'indirizzo email non valido";
                     case NO -> "Ugyldig format for e-postadresse";
                 }),
-                Constraint.of("password", () -> request.password().isBlank(), switch (Language.EN) {
+                Constraint.of("password", NotEmpty.of(request.password()), switch (Language.EN) {
                     case PL -> "Hasło nie może być puste";
                     case EN -> "Password cannot be empty";
                     case IT -> "La password non può essere vuota";
                     case NO -> "Passordet kan ikke være tomt";
                 }),
-                Constraint.of("password", () -> request.password().length() > 500, switch (Language.EN) {
+                Constraint.of("password", Size.of(request.password(), 0, 500), switch (Language.EN) {
                     case PL -> "Hasło nie może być dłuższe niż 500 znaków";
                     case EN -> "Password cannot be longer than 500 characters";
                     case IT -> "La password non può essere più lunga di 500 caratteri";
                     case NO -> "Passordet kan ikke være lenger enn 500 tegn";
                 })
-        ));
+        );
 
         return switch (result) {
             case Ok<?> ignored -> {

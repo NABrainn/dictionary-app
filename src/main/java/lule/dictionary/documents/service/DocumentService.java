@@ -32,9 +32,10 @@ import lule.dictionary.translations.data.request.FindTranslationsInDocumentReque
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.userProfiles.service.UserInterfaceService;
-import lule.dictionary.userProfiles.service.UserProfileService;
 import lule.dictionary.validation.data.Constraint;
+import lule.dictionary.validation.data.rule.NotEmpty;
 import lule.dictionary.validation.data.ValidationException;
+import lule.dictionary.validation.data.rule.Size;
 import lule.dictionary.validation.service.Validator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -59,7 +60,6 @@ public class DocumentService {
     private final FamiliarityService familiarityService;
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
-    private final UserProfileService userProfileService;
     private final UserInterfaceService userInterfaceService;
 
     @Transactional
@@ -74,32 +74,32 @@ public class DocumentService {
         };
         return switch (submissionStrategy) {
             case UrlSubmissionStrategy urlSubmission -> {
-                Result<?> result = validator.validate(List.of(
-                        Constraint.of("title", request.title()::isBlank, switch (uiLanguage) {
+                Result<?> result = validator.validate(
+                        Constraint.of("title", NotEmpty.of(request.title()), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być pusty";
                             case EN -> "Title cannot be empty";
                             case IT -> "Il titolo non può essere vuoto";
                             case NO -> "Tittelen kan ikke være tom";
                         }),
-                        Constraint.of("title", () -> request.title().length() > 500, switch (uiLanguage) {
+                        Constraint.of("title", Size.of(request.title(), 0, 500), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
                             case EN -> "Title cannot be longer than 500 characters";
                             case IT -> "Il titolo non può essere più lungo di 500 caratteri";
                             case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
                         }),
-                        Constraint.of("url", () -> request.url().isBlank(), switch (uiLanguage) {
+                        Constraint.of("url", NotEmpty.of(request.url()), switch (uiLanguage) {
                             case PL -> "URL nie może być pusty";
                             case EN -> "URL cannot be empty";
                             case IT -> "L'URL non può essere vuoto";
                             case NO -> "URL-en kan ikke være tom";
                         }),
-                        Constraint.of("url", () -> request.url().length() > 500, switch (uiLanguage) {
+                        Constraint.of("url", Size.of(request.url(), 0, 500), switch (uiLanguage) {
                             case PL -> "URL nie może być dłuższy niż 500 znaków";
                             case EN -> "URL cannot be longer than 500 characters";
                             case IT -> "L'URL non può essere più lungo di 500 caratteri";
                             case NO -> "URL-en kan ikke være lenger enn 500 tegn";
                         })
-                ));
+                );
                 yield switch (result) {
                     case Ok<?> ignored -> {
                         String content = jsoupService.importDocumentContent(urlSubmission.url());
@@ -117,32 +117,32 @@ public class DocumentService {
 
             }
             case ContentSubmissionStrategy contentSubmission -> {
-                Result<?> result = validator.validate(List.of(
-                        Constraint.of("title", request.title()::isBlank, switch (uiLanguage) {
+                Result<?> result = validator.validate(
+                        Constraint.of("title", NotEmpty.of(request.title()), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być pusty";
                             case EN -> "Title cannot be empty";
                             case IT -> "Il titolo non può essere vuoto";
                             case NO -> "Tittelen kan ikke være tom";
                         }),
-                        Constraint.of("title", () -> request.title().length() > 500, switch (uiLanguage) {
+                        Constraint.of("title", Size.of(request.title(), 0, 500), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
                             case EN -> "Title cannot be longer than 500 characters";
                             case IT -> "Il titolo non può essere più lungo di 500 caratteri";
                             case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
                         }),
-                        Constraint.of("content", () -> request.content().isBlank(), switch (uiLanguage) {
+                        Constraint.of("content", NotEmpty.of(request.content()), switch (uiLanguage) {
                             case PL -> "Treść nie może być pusta";
                             case EN -> "Content cannot be empty";
                             case IT -> "Il contenuto non può essere vuoto";
                             case NO -> "Innholdet kan ikke være tomt";
                         }),
-                        Constraint.of("content", () -> request.content().length() > 100000, switch (uiLanguage) {
+                        Constraint.of("content", Size.of(request.content(), 0, 100000), switch (uiLanguage) {
                             case PL -> "Treść nie może być dłuższa niż 100 000 znaków";
                             case EN -> "Content cannot be longer than 100,000 characters";
                             case IT -> "Il contenuto non può essere più lungo di 100.000 caratteri";
                             case NO -> "Innholdet kan ikke være lenger enn 100 000 tegn";
                         })
-                ));
+                );
                 yield switch (result) {
                     case Ok<?> ignored -> {
                         String content = contentSubmission.content();
