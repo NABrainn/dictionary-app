@@ -71,10 +71,10 @@ public class DocumentController {
     }
 
     @GetMapping({"/new", "/new/"})
-    public String createDocumentForm(@RequestParam(name = "strategy", defaultValue = "url_submit") String strategy,
+    public String createDocumentForm(@RequestParam(name = "form_type", defaultValue = "url_form") String formType,
                                      Model model,
                                      Authentication authentication) {
-        DocumentFormAttribute attribute = documentService.getDocumentForm(strategy, authentication);
+        DocumentFormAttribute attribute = documentService.getDocumentForm(formType, authentication);
         model.addAttribute("errors", Map.of());
         model.addAttribute("attribute", attribute);
         return "document/base-form";
@@ -84,11 +84,11 @@ public class DocumentController {
     public String createDocument(@RequestParam("title") String title,
                                  @RequestParam("content") String content,
                                  @RequestParam("url") String url,
-                                 @RequestParam("strategy") String strategy,
+                                 @RequestParam("form_type") String formType,
                                  Model model,
                                  Authentication authentication) {
         Result<Integer> result = documentService.createDocument(CreateDocumentRequest.builder()
-                .submissionStrategy(strategy)
+                .documentFormType(formType)
                 .authentication(authentication)
                 .title(title)
                 .content(content)

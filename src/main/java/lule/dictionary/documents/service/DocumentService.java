@@ -5,13 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.*;
 import lule.dictionary.documents.data.attribute.DocumentFormAttribute;
 import lule.dictionary.documents.data.attribute.DocumentListAttribute;
-import lule.dictionary.documents.data.documentSubmission.SubmissionStrategy;
+import lule.dictionary.documents.data.documentSubmission.DocumentFormType;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.exception.DocumentServiceException;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
-import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
-import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
+import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent;
+import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl;
 import lule.dictionary.familiarity.service.FamiliarityService;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.result.data.Err;
@@ -67,13 +67,13 @@ public class DocumentService {
         UserProfile principal = (UserProfile) request.authentication().getPrincipal();
         Language uiLanguage = principal.userInterfaceLanguage();
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
-        SubmissionStrategy submissionStrategy = switch (request.submissionStrategy()) {
-            case "url_submit" -> UrlSubmissionStrategy.of(request.title(), request.url(), localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
-            case "content_submit" -> ContentSubmissionStrategy.of(request.title(), request.content(), localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
-            default -> throw new IllegalStateException("Unexpected value: " + request.submissionStrategy());
+        DocumentFormType documentFormType = switch (request.documentFormType()) {
+            case "url_form" -> DocumentFormWithUrl.of(request.title(), request.url(), localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
+            case "content_form" -> DocumentFormWithContent.of(request.title(), request.content(), localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
+            default -> throw new IllegalStateException("Unexpected value: " + request.documentFormType());
         };
-        return switch (submissionStrategy) {
-            case UrlSubmissionStrategy urlSubmission -> {
+        return switch (documentFormType) {
+            case DocumentFormWithUrl documentFormWithUrl -> {
                 Result<?> result = validator.validate(
                         Constraint.of("title", NotEmpty.of(request.title()), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być pusty";
@@ -102,21 +102,21 @@ public class DocumentService {
                 );
                 yield switch (result) {
                     case Ok<?> ignored -> {
-                        String content = jsoupService.importDocumentContent(urlSubmission.url());
-                        yield  Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
-                                .title(urlSubmission.title())
-                                .url(urlSubmission.url())
+                        String content = jsoupService.importDocumentContent(documentFormWithUrl.url());
+                        yield Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
+                                .title(documentFormWithUrl.title())
+                                .url(documentFormWithUrl.url())
                                 .content(content)
                                 .userDetails(principal)
                                 .build()));
                     }
                     case Err<?> v -> v.throwable() instanceof ValidationException validationException ?
-                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), validationException.getViolations())) :
+                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(documentFormType, localization), validationException.getViolations())) :
                             Err.of(new RuntimeException());
                 };
 
             }
-            case ContentSubmissionStrategy contentSubmission -> {
+            case DocumentFormWithContent contentSubmission -> {
                 Result<?> result = validator.validate(
                         Constraint.of("title", NotEmpty.of(request.title()), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być pusty";
@@ -154,7 +154,7 @@ public class DocumentService {
                                 .build()));
                     }
                     case Err<?> v -> v.throwable() instanceof ValidationException validationException ?
-                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), validationException.getViolations())) :
+                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(documentFormType, localization), validationException.getViolations())) :
                             Err.of(new RuntimeException());
                 };
             }
@@ -192,7 +192,7 @@ public class DocumentService {
                         }
                     }
                 })
-                .orElseGet(() -> Err.of(new DocumentNotFoundException("")));
+                .orElse(Err.of(new DocumentNotFoundException("")));
     }
 
     private int insertIntoDatabase(InsertIntoDatabaseRequest request) {
@@ -333,11 +333,11 @@ public class DocumentService {
     public DocumentFormAttribute getDocumentForm(String strategy, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
-        SubmissionStrategy submissionStrategy = switch (strategy) {
-            case "url_submit" -> UrlSubmissionStrategy.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
-            case "content_submit" -> ContentSubmissionStrategy.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
+        DocumentFormType documentFormType = switch (strategy) {
+            case "url_form" -> DocumentFormWithUrl.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
+            case "content_form" -> DocumentFormWithContent.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
             default -> throw new IllegalStateException("Unexpected value: " + strategy);
         };
-        return DocumentFormAttribute.of(submissionStrategy, localization);
+        return DocumentFormAttribute.of(documentFormType, localization);
     }
 }
