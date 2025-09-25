@@ -17,11 +17,6 @@ public class JsoupServiceTest {
         this.jsoupService = new JsoupService();
     }
 
-    @Test
-    void shouldImportDocument() throws IOException {
-        Document document = jsoupService.importDocument("https://www.nrk.no/sport/audun-gronvold-er-dod-1.17494151");
-        log.info("whole text, separated: {}", formatDocumentContent(document));
-    }
 
     private String formatDocumentContent(Document document) {
         return Arrays.stream(document.wholeText().split(" "))
