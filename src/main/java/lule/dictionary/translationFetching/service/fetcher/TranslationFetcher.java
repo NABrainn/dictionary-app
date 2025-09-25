@@ -1,4 +1,4 @@
-package lule.dictionary.translationFetching.service;
+package lule.dictionary.translationFetching.service.fetcher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lule.dictionary.language.service.Language;

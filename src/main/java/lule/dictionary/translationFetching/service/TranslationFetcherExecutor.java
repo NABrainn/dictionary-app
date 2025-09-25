@@ -3,23 +3,27 @@ package lule.dictionary.translationFetching.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.language.service.Language;
+import lule.dictionary.translationFetching.service.fetcher.GoogleTranslateFetcher;
+import lule.dictionary.translationFetching.service.fetcher.LingvanexFetcher;
+import lule.dictionary.translationFetching.service.fetcher.TranslationFetcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.function.Predicate;
 
 @Service
 @Slf4j
-public class TranslationFetchingExecutor {
+public class TranslationFetcherExecutor {
 
     private final LingvanexFetcher lingvanexService;
     private final GoogleTranslateFetcher googleService;
     private final ExecutorService executor;
 
     @Autowired
-    public TranslationFetchingExecutor(LingvanexFetcher lingvanexService, GoogleTranslateFetcher googleService) {
+    public TranslationFetcherExecutor(LingvanexFetcher lingvanexService, GoogleTranslateFetcher googleService) {
         this.lingvanexService = lingvanexService;
         this.googleService = googleService;
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -50,7 +54,7 @@ public class TranslationFetchingExecutor {
 
         return futures.stream()
                 .filter(CompletableFuture::isDone)
-                .filter(future -> !future.isCompletedExceptionally())
+                .filter(Predicate.not(CompletableFuture::isCompletedExceptionally))
                 .flatMap(future -> {
                     try {
                         return future.get().stream();
