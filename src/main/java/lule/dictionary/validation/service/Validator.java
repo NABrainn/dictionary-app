@@ -21,7 +21,6 @@ public class Validator {
                 .filter(Predicate.not(constraint -> constraint.rule().isValid()))
                 .distinct()
                 .collect(Collectors.toUnmodifiableMap(Constraint::name, Constraint::message, (v1, v2) -> v1));
-        System.out.println(violations);
         return violations.isEmpty()
                 ? Ok.empty()
                 : Err.of(new ValidationException(violations));
