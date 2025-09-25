@@ -16,10 +16,4 @@ public class PatternService {
     public String replaceNewlinesWithSpaces(@NonNull String input) {
         return Pattern.compile("\n+").matcher(input).replaceAll(" ");
     }
-
-    public boolean isValidEmail(@NonNull String input) {
-        return Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
-                .matcher(input)
-                .matches();
-    }
 }
