@@ -101,14 +101,20 @@ public class DocumentService {
                         })
                 );
                 yield switch (result) {
-                    case Ok<?> ignored -> {
+                    case Ok<?> v -> {
                         String content = jsoupService.importDocumentContent(documentFormWithUrl.url());
-                        yield Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
+                        Document document = Document.builder()
+                                .id(-1)
                                 .title(documentFormWithUrl.title())
+                                .pageContent(content)
                                 .url(documentFormWithUrl.url())
-                                .content(content)
-                                .userDetails(principal)
-                                .build()));
+                                .sourceLanguage(principal.sourceLanguage())
+                                .targetLanguage(principal.targetLanguage())
+                                .owner(principal.getUsername())
+                                .totalContentLength(content.length())
+                                .build();
+                        int documentId = documentRepository.create(document).orElseThrow();
+                        yield Ok.of(documentId);
                     }
                     case Err<?> v -> v.throwable() instanceof ValidationException validationException ?
                             Err.of(new DocumentServiceException(DocumentFormAttribute.of(documentFormType, localization), validationException.getViolations())) :
@@ -146,12 +152,17 @@ public class DocumentService {
                 yield switch (result) {
                     case Ok<?> ignored -> {
                         String content = contentSubmission.content();
-                        yield  Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
+                        Document document = Document.builder()
+                                .id(-1)
                                 .title(contentSubmission.title())
+                                .pageContent(content)
                                 .url("")
-                                .content(content)
-                                .userDetails(principal)
-                                .build()));
+                                .sourceLanguage(principal.sourceLanguage())
+                                .targetLanguage(principal.targetLanguage())
+                                .owner(principal.getUsername())
+                                .totalContentLength(content.length())
+                                .build();
+                        yield Ok.of(documentRepository.create(document).orElseThrow());
                     }
                     case Err<?> v -> v.throwable() instanceof ValidationException validationException ?
                             Err.of(new DocumentServiceException(DocumentFormAttribute.of(documentFormType, localization), validationException.getViolations())) :
@@ -163,50 +174,43 @@ public class DocumentService {
 
     public DocumentListAttribute findMany(Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(principal.getUsername(), principal.targetLanguage());
-        Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
+        Language uiLanguage = principal.userInterfaceLanguage();
+        Language targetLanguage = principal.targetLanguage();
+        String username = principal.getUsername();
+
+        List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(username, targetLanguage);
+        Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(uiLanguage);
         boolean isNavbarOpen = userInterfaceService.isNavbarToggled(authentication);
         return DocumentListAttribute.of(documents, localization, isNavbarOpen);
     }
 
     public Result<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest request, Authentication authentication) {
-        return (Result<DocumentAttribute>) documentRepository.findById(request.documentId(), request.page())
-                .map(found -> {
-                    Result<?> result = documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(found.totalContentLength())));
-                    switch (result) {
-                        case Ok<?> ignored -> {
-                            AssembleDocumentContentData assembleContentRequest = AssembleDocumentContentData.builder()
-                                    .selectableId(request.wordId())
-                                    .documentId(request.documentId())
-                                    .contentBlob(found.pageContent())
-                                    .owner(found.owner())
-                                    .title(found.title())
-                                    .build();
-                            DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
-                            DocumentPaginationData paginationData = assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest.of(found.totalContentLength(), request.page()));
-                            boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
-                            return Ok.of(DocumentAttribute.of(documentContentData, paginationData, isNavbarOpen));
-                        }
-                        case Err<?> v -> {
-                            return Err.of(v.throwable());
-                        }
-                    }
-                })
-                .orElse(Err.of(new DocumentNotFoundException("")));
-    }
-
-    private int insertIntoDatabase(InsertIntoDatabaseRequest request) {
-        return documentRepository.create(Document.builder()
-                .id(-1)
-                .title(request.title())
-                .pageContent(request.content())
-                .url(request.url())
-                .sourceLanguage(request.userDetails().sourceLanguage())
-                .targetLanguage(request.userDetails().targetLanguage())
-                .owner(request.userDetails().getUsername())
-                .totalContentLength(request.content().length())
-                .build())
-                .orElseThrow(() -> new RuntimeException("Failed to add a new import"));
+        Result<Document> result = documentRepository.findById(request.documentId(), request.page())
+                .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(found.totalContentLength()), found)))
+                .orElseThrow();
+        return switch (result) {
+            case Ok<Document> ok -> {
+                Document document = ok.value();
+                AssembleDocumentContentData assembleContentRequest = AssembleDocumentContentData.builder()
+                        .selectableId(request.wordId())
+                        .documentId(request.documentId())
+                        .contentBlob(document.pageContent())
+                        .owner(document.owner())
+                        .title(document.title())
+                        .build();
+                DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
+                DocumentPaginationData paginationData = DocumentPaginationData.builder()
+                        .currentPageNumber(request.page())
+                        .numberOfPages(paginationService.getNumberOfPages(document.totalContentLength()))
+                        .currentRowNumber(paginationService.getCurrentRow(request.page(), paginationService.getMAX_ROW_SIZE()))
+                        .firstPageOfRowNumber(paginationService.getFirstPageOfRow(request.page(), paginationService.getMAX_ROW_SIZE()))
+                        .rows(paginationService.getRows(paginationService.getNumberOfPages(document.totalContentLength())))
+                        .build();
+                boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
+                yield Ok.of(DocumentAttribute.of(documentContentData, paginationData, isNavbarOpen));
+            }
+            case Err<Document> v -> Err.of(v.throwable());
+        };
     }
 
     private DocumentContentData assembleDocumentContentData(AssembleDocumentContentData request) {
@@ -311,18 +315,6 @@ public class DocumentService {
                 .filter(paragraphAsList -> !paragraphAsList.isEmpty())
                 .map(paragraphAsList -> Paragraph.of(paragraphAsList, 0))
                 .toList();
-    }
-
-    private DocumentPaginationData assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest request) {
-        int currentPage = request.currentPage();
-        int pagesTotal = paginationService.getNumberOfPages(request.totalLength());
-        return DocumentPaginationData.builder()
-                .currentPageNumber(currentPage)
-                .numberOfPages(pagesTotal)
-                .currentRowNumber(paginationService.getCurrentRow(currentPage, paginationService.getMAX_ROW_SIZE()))
-                .firstPageOfRowNumber(paginationService.getFirstPageOfRow(currentPage, paginationService.getMAX_ROW_SIZE()))
-                .rows(paginationService.getRows(pagesTotal))
-                .build();
     }
 
     public Map<DocumentLocalizationKey, String> getDocumentFormLocalization(Authentication authentication) {
