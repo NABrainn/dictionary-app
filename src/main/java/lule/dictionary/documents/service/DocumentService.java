@@ -13,13 +13,13 @@ import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl;
 import lule.dictionary.familiarity.service.FamiliarityService;
+import lule.dictionary.jsoup.data.Token;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.documents.service.exception.DocumentNotFoundException;
 import lule.dictionary.documents.data.selectable.Phrase;
 import lule.dictionary.documents.data.selectable.Selectable;
 import lule.dictionary.documents.data.selectable.Word;
@@ -43,6 +43,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -102,16 +104,28 @@ public class DocumentService {
                 );
                 yield switch (result) {
                     case Ok<?> v -> {
-                        String content = jsoupService.importDocumentContent(documentFormWithUrl.url());
+                        String[] documentAsArray = jsoupService.fetchDocument(documentFormWithUrl.url())
+                                .wholeText()
+                                .split("(?<=\\n)(?=\\w)");
+                        String formattedDocument = Arrays.stream(documentAsArray)
+                                .map(tokenBlob -> Token.of(tokenBlob, (int) tokenBlob.chars().filter(ch -> ch == '\n').count()))
+                                .map(token -> switch (token.newlineCount()) {
+                                    case 0 -> token;
+                                    case 1 -> token.withContent(patternService.replaceNewline(token.content(), " "));
+                                    default -> token.withContent(patternService.replaceAllNewlines(token.content(), '\n', 30));
+                                })
+                                .map(Token::content)
+                                .filter(Predicate.not(String::isBlank))
+                                .collect(Collectors.joining());
                         Document document = Document.builder()
                                 .id(-1)
                                 .title(documentFormWithUrl.title())
-                                .pageContent(content)
+                                .pageContent(formattedDocument)
                                 .url(documentFormWithUrl.url())
                                 .sourceLanguage(principal.sourceLanguage())
                                 .targetLanguage(principal.targetLanguage())
                                 .owner(principal.getUsername())
-                                .totalContentLength(content.length())
+                                .totalContentLength(formattedDocument.length())
                                 .build();
                         int documentId = documentRepository.create(document).orElseThrow();
                         yield Ok.of(documentId);
