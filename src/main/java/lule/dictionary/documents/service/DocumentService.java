@@ -3,6 +3,7 @@ package lule.dictionary.documents.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.*;
+import lule.dictionary.documents.data.documentProcessing.*;
 import lule.dictionary.documents.data.attribute.DocumentFormAttribute;
 import lule.dictionary.documents.data.attribute.DocumentListAttribute;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormType;
@@ -19,10 +20,9 @@ import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
 import lule.dictionary.stringUtil.service.PatternService;
+import lule.dictionary.stringUtil.service.StringUtils;
+import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.documents.data.selectable.Phrase;
-import lule.dictionary.documents.data.selectable.Selectable;
-import lule.dictionary.documents.data.selectable.Word;
 import lule.dictionary.documents.data.repository.DocumentRepository;
 import lule.dictionary.jsoup.service.JsoupService;
 import lule.dictionary.pagination.service.PaginationService;
@@ -42,11 +42,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -63,6 +61,7 @@ public class DocumentService {
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
     private final UserInterfaceService userInterfaceService;
+    private final StringUtils stringUtils;
 
     @Transactional
     public Result<Integer> createDocument(CreateDocumentRequest request) {
@@ -103,12 +102,12 @@ public class DocumentService {
                         })
                 );
                 yield switch (result) {
-                    case Ok<?> v -> {
+                    case Ok<?> ignored -> {
                         String[] documentAsArray = jsoupService.fetchDocument(documentFormWithUrl.url())
                                 .wholeText()
                                 .split("(?<=\\n)(?=\\w)");
                         String formattedDocument = Arrays.stream(documentAsArray)
-                                .map(tokenBlob -> Token.of(tokenBlob, (int) tokenBlob.chars().filter(ch -> ch == '\n').count()))
+                                .map(tokenBlob -> Token.of(tokenBlob, stringUtils.getCharQuantity(tokenBlob, '\n')))
                                 .map(token -> switch (token.newlineCount()) {
                                     case 0 -> token;
                                     case 1 -> token.withContent(patternService.replaceNewline(token.content(), " "));
@@ -176,7 +175,8 @@ public class DocumentService {
                                 .owner(principal.getUsername())
                                 .totalContentLength(content.length())
                                 .build();
-                        yield Ok.of(documentRepository.create(document).orElseThrow());
+                        int documentId = documentRepository.create(document).orElseThrow();
+                        yield Ok.of(documentId);
                     }
                     case Err<?> v -> v.throwable() instanceof ValidationException validationException ?
                             Err.of(new DocumentServiceException(DocumentFormAttribute.of(documentFormType, localization), validationException.getViolations())) :
@@ -199,6 +199,9 @@ public class DocumentService {
     }
 
     public Result<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest request, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Language sourceLanguage = principal.sourceLanguage();
+        Language targetLanguage = principal.targetLanguage();
         Result<Document> result = documentRepository.findById(request.documentId(), request.page())
                 .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(found.totalContentLength()), found)))
                 .orElseThrow();
@@ -212,7 +215,57 @@ public class DocumentService {
                         .owner(document.owner())
                         .title(document.title())
                         .build();
-                DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
+                Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(document.pageContent(), document.owner()));
+                Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(document.pageContent(), document.owner())));
+                DocumentUnitStore processedContent = Arrays.stream(document.pageContent().split("\\s+"))
+                        .sequential()
+                        .map(word -> switch (translations.get(word.toLowerCase().trim())) {
+                            case Translation translation -> TranslationUnit.of(translation, phrases.containsWord(translation.targetWord()));
+                            case null -> WordUnit.of(Translation.builder()
+                                    .sourceWords(List.of())
+                                    .targetWord(patternService.removeSpecialCharacters(word.toLowerCase().trim()))
+                                    .unprocessedTargetWord(word)
+                                    .familiarity(Familiarity.UNKNOWN)
+                                    .sourceLanguage(sourceLanguage)
+                                    .targetLanguage(targetLanguage)
+                                    .owner(document.owner())
+                                    .isPhrase(false)
+                                    .build(),
+                                    phrases.containsWord(word.toLowerCase().trim()));
+                            })
+                        .map(unit -> (DocumentUnit) unit)
+                        .collect(Collector.of(
+                                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>()),
+                                (counter, documentUnit) -> {
+                                    if (!documentUnit.isPhrasePart()) {
+                                        counter.addDocumentUnit(documentUnit);
+                                        counter.clearPhraseParts();
+                                    }
+                                    else {
+                                        counter.addDocumentUnit(documentUnit);
+                                        counter.addPhrasePart(documentUnit);
+                                    }
+                                    if (phrases.findPhrase(counter.bufferValue()).isPresent()) {
+                                        Translation translation = phrases.findPhrase(counter.bufferValue()).get();
+                                        counter.wrapToPhrase(translation);
+                                        counter.clearPhraseParts();
+                                    }
+                                },
+                                (left, right) -> {
+                                    List<DocumentUnit> leftUnits = left.documentUnits();
+                                    List<DocumentUnit> rightUnits = right.documentUnits();
+                                    leftUnits.addAll(rightUnits);
+                                    return left;
+                                },
+                                Collector.Characteristics.IDENTITY_FINISH
+                        ));
+                DocumentContentData contentData = DocumentContentData.builder()
+                        .title(document.title())
+                        .content(processedContent.documentUnits())
+                        .translations(translations)
+                        .documentId(request.documentId())
+                        .selectedWordId(request.wordId())
+                        .build();
                 DocumentPaginationData paginationData = DocumentPaginationData.builder()
                         .currentPageNumber(request.page())
                         .numberOfPages(paginationService.getNumberOfPages(document.totalContentLength()))
@@ -221,114 +274,10 @@ public class DocumentService {
                         .rows(paginationService.getRows(paginationService.getNumberOfPages(document.totalContentLength())))
                         .build();
                 boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
-                yield Ok.of(DocumentAttribute.of(documentContentData, paginationData, isNavbarOpen));
+                yield Ok.of(DocumentAttribute.of(contentData, paginationData, isNavbarOpen));
             }
             case Err<Document> v -> Err.of(v.throwable());
         };
-    }
-
-    private DocumentContentData assembleDocumentContentData(AssembleDocumentContentData request) {
-        List<Translation> phrases = translationService.extractPhrases(ExtractPhrasesRequest.of(request.contentBlob(), request.owner()));
-        String mappedContent = mapPhrases(MapPhrasesRequest.of(request.contentBlob(), phrases));
-        List<Paragraph> content = mapToSelectables(MapToSelectablesRequest.of(mappedContent, new AtomicInteger(0)));
-        Map<String, Translation> translations = translationService.findTranslationsInDocument(FindTranslationsInDocumentRequest.of(request.contentBlob(), request.owner()));
-        return DocumentContentData.builder()
-                .selectedWordId(request.selectableId())
-                .documentId(request.documentId())
-                .title(request.title())
-                .content(content)
-                .translations(translations)
-                .build();
-    }
-
-    public String mapPhrases(MapPhrasesRequest request) {
-        List<String> contentAsList = Stream.of(request.contentBlob().split("((?<=\\n)|(?=\\n))| "))
-                .map(word -> !word.contains("\n") ? word.trim() : word)
-                .filter(word -> !word.isEmpty())
-                .toList();
-        List<String> formattedContentAsList = Arrays.stream(request.contentBlob().split("((?<=\\n)|(?=\\n))| "))
-                .filter(word -> !word.isEmpty())
-                .map(word -> !word.contains("\n") ? word.trim() : word)
-                .map(String::toLowerCase)
-                .map(patternService::removeSpecialCharacters)
-                .toList();
-        List<PhraseNode> phrasesFound = new ArrayList<>();
-        for(Translation phrase : request.phrases()) {
-            List<String> searchedPhrase = List.of(patternService.removeSpecialCharacters(phrase.targetWord())
-                    .toLowerCase()
-                    .split(" "));
-            List<WordNode> matchingNodes = IntStream.range(0, contentAsList.size())
-                    .mapToObj(i -> WordNode.of(i, formattedContentAsList.get(i), contentAsList.get(i)))
-                    .filter(node -> searchedPhrase.contains(node.formattedText()))
-                    .distinct()
-                    .sorted(Comparator.comparingInt(WordNode::id))
-                    .toList();
-            List<WordNode> buffer = new ArrayList<>();
-            int pointer = 0;
-            for(WordNode node : matchingNodes) {
-                if(!buffer.isEmpty()) {
-                    WordNode lastInBuffer = buffer.getLast();
-                    if(node.id() - lastInBuffer.id() != 1) {
-                        buffer.clear();
-                        pointer = 0;
-                    }
-                }
-                if(!node.formattedText().equals(searchedPhrase.get(pointer))) {
-                    buffer.clear();
-                    pointer = 0;
-                }
-                buffer.add(node);
-                pointer++;
-                String bufferValue = String.join(" ", buffer.stream()
-                        .map(WordNode::formattedText)
-                        .toList());
-                String phraseValue = String.join(" ", searchedPhrase);
-                if(bufferValue.equals(phraseValue)) {
-                    phrasesFound.add(PhraseNode.fromWordNodes(buffer, phrase));
-                    buffer.clear();
-                    pointer = 0;
-                }
-            }
-        }
-        List<WordNode> phrasesAsWordNodes = phrasesFound.stream()
-                .flatMap(phrase -> phrase.wordNodes().stream())
-                .sorted(Comparator.comparingInt(WordNode::id))
-                .toList();
-
-        List<String> outputContentAsList = new ArrayList<>();
-        int wordId = 0;
-        int pointer = 0;
-
-        while (wordId < contentAsList.size()) {
-            if (pointer < phrasesAsWordNodes.size() && wordId == phrasesAsWordNodes.get(pointer).id()) {
-                List<String> phraseParts = new ArrayList<>();
-                while (pointer < phrasesAsWordNodes.size() && wordId == phrasesAsWordNodes.get(pointer).id()) {
-                    phraseParts.add(phrasesAsWordNodes.get(pointer).renderedText());
-                    pointer++;
-                    wordId++;
-                    if (phraseParts.getLast().endsWith(">>")) {
-                        break;
-                    }
-                }
-                outputContentAsList.add(String.join("-", phraseParts));
-            } else {
-                outputContentAsList.add(contentAsList.get(wordId));
-                wordId++;
-            }
-        }
-        return String.join(" ", outputContentAsList);
-    }
-
-    private List<Paragraph> mapToSelectables(MapToSelectablesRequest request) {
-        return Stream.of(request.contentBlob().split("\n+"))
-                .map(paragraphAsString -> Arrays.stream(paragraphAsString.split("\\s+"))
-                        .map(selectable -> selectable.startsWith("ph<") && selectable.endsWith(">>") ?
-                                Phrase.fromString(selectable, familiarityService.getFamiliarity(selectable), request.idCounter().getAndIncrement()) :
-                                (Selectable) Word.of(selectable, request.idCounter().getAndIncrement()))
-                        .toList())
-                .filter(paragraphAsList -> !paragraphAsList.isEmpty())
-                .map(paragraphAsList -> Paragraph.of(paragraphAsList, 0))
-                .toList();
     }
 
     public Map<DocumentLocalizationKey, String> getDocumentFormLocalization(Authentication authentication) {

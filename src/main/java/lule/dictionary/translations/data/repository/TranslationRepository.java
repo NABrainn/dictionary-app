@@ -280,7 +280,7 @@ public class TranslationRepository {
         }
     }
 
-    public List<Translation> extractPhrases(String content, String owner) {
+    public List<Translation> findPhrases(String content, String owner) {
         String sql = """
                 SELECT DISTINCT *
                 FROM dictionary.translations

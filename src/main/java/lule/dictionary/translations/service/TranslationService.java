@@ -350,7 +350,7 @@ public class TranslationService {
         return translationRepository.getWordsLearnedCount(principal.getUsername(), principal.targetLanguage());
     }
 
-    public Map<String, Translation> findTranslationsInDocument(FindTranslationsInDocumentRequest request) {
+    public Map<String, Translation> findTranslations(FindTranslationsInDocumentRequest request) {
         List<String> wordList = Arrays.stream(patternService.replaceNewlinesWithSpaces(request.contentBlob()).split(" "))
                 .map(patternService::removeSpecialCharacters)
                 .map(String::trim)
@@ -363,8 +363,8 @@ public class TranslationService {
                 .collect(Collectors.toUnmodifiableMap(Translation::targetWord, value -> value));
     }
 
-    public List<Translation> extractPhrases(ExtractPhrasesRequest request) {
-        return translationRepository.extractPhrases(request.content(), request.owner());
+    public List<Translation> findPhrases(ExtractPhrasesRequest request) {
+        return translationRepository.findPhrases(request.content(), request.owner());
     }
 
     public TranslationAttribute translate(CreateTranslationFormRequest request, @NonNull Authentication authentication) {

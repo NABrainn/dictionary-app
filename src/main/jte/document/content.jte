@@ -1,15 +1,12 @@
-@import lule.dictionary.documents.data.selectable.Word
-@import lule.dictionary.documents.data.selectable.Phrase
+@import lule.dictionary.documents.data.documentProcessing.DocumentUnit
+@import lule.dictionary.documents.data.documentProcessing.PhraseUnit
+@import lule.dictionary.documents.data.documentProcessing.TranslationUnit
+@import lule.dictionary.documents.data.documentProcessing.WordUnit
 @import lule.dictionary.documents.data.request.DocumentAttribute
 @import gg.jte.support.ForSupport
 @import lule.dictionary.translations.data.Familiarity
-@import java.util.regex.Pattern
 
 @param DocumentAttribute attribute
-
-!{var translations = attribute.documentContentData().translations();}
-!{var content = attribute.documentContentData().content();}
-!{var documentId = attribute.documentContentData().documentId();}
 
 <form
 id="page-content"
@@ -23,7 +20,7 @@ hx-swap="outerHTML"
 hx-params="selectableId,targetWords,documentId,familiarities,isPersistedList,ids"
 hx-vals='js:{
     selectableId: data.get(htmx.find("#new-phrase"), "id"),
-    documentId: ${documentId},
+    documentId: ${attribute.documentContentData().documentId()},
     familiarities: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "familiarity")),
     isPersistedList: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "is-saved") ?? "false"),
     ids: util.findAllByData({ key: "is-wrapped", value: "true" }).filter(word => word.parentElement.id === "new-phrase").map(word => data.get(word, "id")),
@@ -51,83 +48,61 @@ hx-vals='js:{
         @endif
         <div
         id="content-main"
-        class="leading-9 flex flex-col">
-            !{var cleanWordPattern = Pattern.compile("[^\\p{L}\\p{N}\\s-]");}
-            @for(var paragraphEntry :  ForSupport.of(content))
-                !{var paragraph = paragraphEntry.get();}
-                <div class="inline-flex flex-wrap">
-                    @for(var selectableEntry : ForSupport.of(paragraphEntry.get().selectables()))
-                        !{var selectable = selectableEntry.get();}
-                        @if(selectable instanceof Word)
-                            !{var word = ((Word) selectable).value();}
-                            !{var cleanWord = cleanWordPattern.matcher(word).replaceAll("")
-                                                    .replace("-", "")
-                                                    .toLowerCase();}
-                            @if(!cleanWord.isEmpty())
-                                @if(translations.get(cleanWord) != null)
-                                    !{String wordBgColor = switch(translations.get(cleanWord).familiarity()){
-                                        case UNKNOWN -> "bg-accent";
-                                        case RECOGNIZED -> "bg-accent/80";
-                                        case FAMILIAR -> "bg-accent/60";
-                                        default -> "bg-primary";
-                                    };}
-                                    !{String wordTextColor = switch(translations.get(cleanWord).familiarity()){
-                                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
-                                        default -> "text-neutral";
-                                    };}
-                                    @template.document.word(
-                                    wordId = selectable.id(),
-                                    processedWord = cleanWord,
-                                    documentId = documentId,
-                                    word = word,
-                                    bgColor = wordBgColor,
-                                    textColor = wordTextColor,
-                                    familiarity = translations.get(cleanWord).familiarity(),
-                                    isPersisted = true)
-                                @else
-                                    @if(cleanWord.length() <= 50)
-                                        @template.document.word(
-                                        wordId = selectable.id(),
-                                        processedWord = cleanWord,
-                                        documentId = documentId,
-                                        word = word,
-                                        familiarity = Familiarity.UNKNOWN,
-                                        bgColor = "bg-accent",
-                                        textColor = "text-primary")
-                                    @else
-                                        @template.document.word(
-                                        wordId = selectable.id(),
-                                        processedWord = cleanWord,
-                                        documentId = documentId,
-                                        word = word,
-                                        familiarity = Familiarity.IGNORED,
-                                        bgColor = "bg-primary",
-                                        textColor = "text-neutral",
-                                        isSelectable = false)
-                                    @endif
-                                @endif
-                            @else
-                                @template.document.word(
-                                wordId = selectable.id(),
-                                processedWord = cleanWord,
-                                documentId = documentId,
-                                word = word,
-                                familiarity = Familiarity.IGNORED,
-                                bgColor = "bg-primary",
-                                textColor = "text-neutral",
-                                isSelectable = false)
-                            @endif
-                        @else
-                            !{var phrase = ((Phrase) selectable);}
-                            @template.translation.update-phrase(
-                            phrase = phrase,
-                            cleanWordPattern = cleanWordPattern,
-                            selectableId = selectable.id(),
-                            documentId = documentId,
-                            translations = translations)
+        class="leading-9">
+            @for(var entry :  ForSupport.of(attribute.documentContentData().content()))
+                !{DocumentUnit unit = entry.get();}
+                @if(unit instanceof PhraseUnit)
+                    @template.translation.update-phrase(
+                    translation = unit.translation(),
+                    selectableId = entry.getIndex())
+                @elseif(unit instanceof TranslationUnit)
+                    !{String wordBgColor = switch(unit.translation().familiarity()){
+                        case UNKNOWN -> "bg-accent";
+                        case RECOGNIZED -> "bg-accent/80";
+                        case FAMILIAR -> "bg-accent/60";
+                        default -> "bg-primary";
+                    };}
+                    !{String wordTextColor = switch(unit.translation().familiarity()){
+                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                        default -> "text-neutral";
+                    };}
+                    @template.document.word(
+                    wordId = entry.getIndex(),
+                    processedWord = unit.translation().targetWord(),
+                    word = unit.translation().unprocessedTargetWord(),
+                    bgColor = wordBgColor,
+                    textColor = wordTextColor,
+                    familiarity = unit.translation().familiarity(),
+                    isPersisted = true)
+                @elseif(unit instanceof WordUnit)
+                    @if(unit.translation().targetWord().length() <= 50)
+                        @template.document.word(
+                        wordId = entry.getIndex(),
+                        processedWord = unit.translation().targetWord(),
+                        word = unit.translation().unprocessedTargetWord(),
+                        familiarity = Familiarity.UNKNOWN,
+                        bgColor = "bg-accent",
+                        textColor = "text-primary")
+                    @else
+                        @template.document.word(
+                        wordId = entry.getIndex(),
+                        processedWord = unit.translation().targetWord(),
+                        word = unit.translation().unprocessedTargetWord(),
+                        familiarity = Familiarity.IGNORED,
+                        bgColor = "bg-primary",
+                        textColor = "text-neutral",
+                        isSelectable = false)
                     @endif
-                @endfor
-                </div>
+                @else
+                    @template.document.word(
+                    wordId = entry.getIndex(),
+                    processedWord = unit.translation().targetWord(),
+                    word = unit.translation().unprocessedTargetWord(),
+                    familiarity = Familiarity.IGNORED,
+                    bgColor = "bg-primary",
+                    textColor = "text-neutral",
+                    isSelectable = false)
+                @endif
             @endfor
         </div>
     </div>
