@@ -30,12 +30,12 @@ public class TranslationController {
 
     private final TranslationService translationService;
 
-    @GetMapping({"/find", "/find/"})
+    @GetMapping({"", "/"})
     public String findOrAddTranslation(Model model,
                                        Authentication authentication,
-                                       @RequestParam int documentId,
-                                       @RequestParam String targetWord,
                                        @RequestParam("id") int id,
+                                       @RequestParam("documentId") int documentId,
+                                       @RequestParam("targetWord") String targetWord,
                                        @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
                                        @RequestParam("isPersisted") boolean isPersisted) {
         GetTranslationFormRequest request = isPersisted ?
@@ -43,13 +43,13 @@ public class TranslationController {
                         .documentId(documentId)
                         .selectedWordId(id)
                         .isPhrase(isPhrase)
-                        .targetWord(targetWord)
+                        .unprocessedTargetWord(targetWord)
                         .build() :
                 CreateTranslationFormRequest.builder()
                         .documentId(documentId)
                         .selectedWordId(id)
                         .isPhrase(isPhrase)
-                        .targetWord(targetWord)
+                        .unprocessedTargetWord(targetWord)
                         .build();
         Result<TranslationAttribute> result = translationService.findOrCreateTranslation(request, authentication);
         Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
@@ -96,8 +96,8 @@ public class TranslationController {
         return "translation/new-phrase";
     }
 
-    @PostMapping({"/new", "/new/"})
-    public String newTranslation(Model model,
+    @PostMapping({"", "/"})
+    public String createTranslation(Model model,
                                  Authentication authentication,
                                  @RequestParam("sourceWords") List<String> sourceWords,
                                  @RequestParam("targetWord") String targetWord,

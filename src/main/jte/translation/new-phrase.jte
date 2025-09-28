@@ -12,7 +12,7 @@ class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2
 id="phrase-${attribute.phraseAttribute().id()}"
 
 data-id="${attribute.phraseAttribute().id()}"
-data-value="${attribute.phraseAttribute().translation().targetWord().toLowerCase()}"
+data-value="${attribute.phraseAttribute().translation().processedTargetWord().toLowerCase()}"
 data-familiarity="unknown"
 
 data-is-phrase="true"
@@ -26,7 +26,7 @@ hx-target="#translation-form-container-${attribute.phraseAttribute().id()}"
 hx-swap="innerHTML"
 hx-vals='{
     "documentId": "${attribute.phraseAttribute().documentId()}",
-    "targetWord": "${attribute.phraseAttribute().translation().targetWord()}",
+    "targetWord": "${attribute.phraseAttribute().translation().processedTargetWord()}",
     "id": "${attribute.phraseAttribute().id()}",
     "isPhrase": "true",
     "isPersisted": "true"
@@ -76,13 +76,13 @@ util.findAllByData({ key: 'is-phrase', value: 'true' })
         errors = errors)
     </div>
     @for(int wordId = 0; wordId < attribute.phrasePartsAttribute().size(); wordId++)
-        @template.document.word(
-        wordId = attribute.phrasePartsAttribute().get(wordId).id(),
-        documentId = attribute.phraseAttribute().documentId(),
-        word = attribute.phrasePartsAttribute().get(wordId).translation().unprocessedTargetWord(),
-        processedWord = attribute.phrasePartsAttribute().get(wordId).translation().targetWord(),
-        familiarity = attribute.phrasePartsAttribute().get(wordId).translation().familiarity(),
-        isPersisted = attribute.phrasePartsAttribute().get(wordId).isPersisted(),
-        isWrapped = true)
+<%--        @template.document.word(--%>
+<%--        wordId = attribute.phrasePartsAttribute().get(wordId).id(),--%>
+<%--        documentId = attribute.phraseAttribute().documentId(),--%>
+<%--        word = attribute.phrasePartsAttribute().get(wordId).translation().unprocessedTargetWord(),--%>
+<%--        processedWord = attribute.phrasePartsAttribute().get(wordId).translation().processedTargetWord(),--%>
+<%--        familiarity = attribute.phrasePartsAttribute().get(wordId).translation().familiarity(),--%>
+<%--        isPersisted = attribute.phrasePartsAttribute().get(wordId).isPersisted(),--%>
+<%--        isWrapped = true)--%>
     @endfor
 </div>

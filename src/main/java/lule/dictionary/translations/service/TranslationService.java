@@ -59,7 +59,7 @@ public class TranslationService {
                 .map(String::trim)
                 .map(patternService::removeSpecialCharacters)
                 .orElse("");
-        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord());
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord().toLowerCase().trim());
         Result<?> result = request.isPhrase() ?
                 validator.validate(
                         Constraint.of("sourceWord", Size.of(sanitizedSourceWord, 0, 250), switch (uiLanguage) {
@@ -68,7 +68,7 @@ public class TranslationService {
                             case IT -> "La parola sorgente non può superare i 250 caratteri";
                             case NO -> "Kildeordet kan ikke være lengre enn 250 tegn";
                         }),
-                        Constraint.of("targetWord", Size.of(sanitizedTargetWord, 0, 250), switch (uiLanguage) {
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 250), switch (uiLanguage) {
                             case PL -> "Słowo docelowe nie może być dłuższe niż 250 znaków";
                             case EN -> "Target word cannot be longer than 250 characters";
                             case IT -> "La parola di destinazione non può superare i 250 caratteri";
@@ -88,7 +88,7 @@ public class TranslationService {
                             case IT -> "La parola sorgente non può superare i 50 caratteri";
                             case NO -> "Kildeordet kan ikke være lengre enn 50 tegn";
                         }),
-                        Constraint.of("targetWord", Size.of(sanitizedTargetWord, 0, 50), switch (uiLanguage) {
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 50), switch (uiLanguage) {
                             case PL -> "Słowo docelowe nie może być dłuższe niż 50 znaków";
                             case EN -> "Target word cannot be longer than 50 characters";
                             case IT -> "La parola di destinazione non può superare i 50 caratteri";
@@ -105,13 +105,12 @@ public class TranslationService {
             case Ok<?> ignored -> {
                 Translation translation = Translation.builder()
                         .sourceWords(request.sourceWords())
-                        .targetWord(request.targetWord())
+                        .processedTargetWord(request.targetWord())
                         .familiarity(request.familiarity())
                         .sourceLanguage(request.sourceLanguage())
                         .targetLanguage(request.targetLanguage())
                         .owner(principal.getUsername())
                         .isPhrase(request.isPhrase())
-                        .unprocessedTargetWord("")
                         .build();
                 translationRepository.addTranslation(translation)
                         .orElseThrow();
@@ -135,13 +134,12 @@ public class TranslationService {
                         .id(request.selectedWordId())
                         .translation(Translation.builder()
                                 .sourceWords(List.of())
-                                .targetWord(request.targetWord())
+                                .processedTargetWord(request.targetWord())
                                 .familiarity(request.familiarity())
                                 .sourceLanguage(request.sourceLanguage())
                                 .targetLanguage(request.targetLanguage())
                                 .owner(principal.username())
                                 .isPhrase(request.isPhrase())
-                                .unprocessedTargetWord("")
                                 .build())
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(request.familiarity()))
                         .familiarityLevels(familiarityService.getFamiliarityMap())
@@ -198,7 +196,7 @@ public class TranslationService {
                             case IT -> "La parola sorgente non può superare i 250 caratteri";
                             case NO -> "Kildeordet kan ikke være lengre enn 250 tegn";
                         }),
-                        Constraint.of("targetWord", Size.of(sanitizedTargetWord, 0, 250), switch (uiLanguage) {
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 250), switch (uiLanguage) {
                             case PL -> "Słowo docelowe nie może być dłuższe niż 250 znaków";
                             case EN -> "Target word cannot be longer than 250 characters";
                             case IT -> "La parola di destinazione non può superare i 250 caratteri";
@@ -218,7 +216,7 @@ public class TranslationService {
                             case IT -> "La parola sorgente non può superare i 50 caratteri";
                             case NO -> "Kildeordet kan ikke være lengre enn 50 tegn";
                         }),
-                        Constraint.of("targetWord", Size.of(sanitizedTargetWord, 0, 50), switch (uiLanguage) {
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 50), switch (uiLanguage) {
                             case PL -> "Słowo docelowe nie może być dłuższe niż 50 znaków";
                             case EN -> "Target word cannot be longer than 50 characters";
                             case IT -> "La parola di destinazione non può superare i 50 caratteri";
@@ -254,13 +252,12 @@ public class TranslationService {
                                 .map(patternService::removeSpecialCharacters)
                                 .filter(word -> !word.isBlank())
                                 .toList())
-                        .targetWord(request.targetWord())
+                        .processedTargetWord(request.targetWord())
                         .familiarity(request.familiarity())
                         .sourceLanguage(principal.sourceLanguage())
                         .targetLanguage(principal.targetLanguage())
                         .owner(principal.username())
                         .isPhrase(request.isPhrase())
-                        .unprocessedTargetWord("")
                         .build();
                 TranslationAttribute translationAttribute = TranslationAttribute.builder()
                         .documentId(-1)
@@ -296,7 +293,7 @@ public class TranslationService {
                             case IT -> "La parola sorgente non può superare i 250 caratteri";
                             case NO -> "Kildeordet kan ikke være lengre enn 250 tegn";
                         }),
-                        Constraint.of("targetWord", Size.of(sanitizedTargetWord, 0, 250), switch (uiLanguage) {
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 250), switch (uiLanguage) {
                             case PL -> "Słowo docelowe nie może być dłuższe niż 250 znaków";
                             case EN -> "Target word cannot be longer than 250 characters";
                             case IT -> "La parola di destinazione non può superare i 250 caratteri";
@@ -316,7 +313,7 @@ public class TranslationService {
                             case IT -> "La parola sorgente non può superare i 50 caratteri";
                             case NO -> "Kildeordet kan ikke være lengre enn 50 tegn";
                         }),
-                        Constraint.of("targetWord", Size.of(sanitizedTargetWord, 0, 50), switch (uiLanguage) {
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 50), switch (uiLanguage) {
                             case PL -> "Słowo docelowe nie może być dłuższe niż 50 znaków";
                             case EN -> "Target word cannot be longer than 50 characters";
                             case IT -> "La parola di destinazione non può superare i 50 caratteri";
@@ -360,7 +357,7 @@ public class TranslationService {
                 .toList();
         return translationRepository.findByTargetWords(wordList, request.owner()).stream()
                 .distinct()
-                .collect(Collectors.toUnmodifiableMap(Translation::targetWord, value -> value));
+                .collect(Collectors.toUnmodifiableMap(Translation::processedTargetWord, value -> value));
     }
 
     public List<Translation> findPhrases(ExtractPhrasesRequest request) {
@@ -369,8 +366,11 @@ public class TranslationService {
 
     public TranslationAttribute translate(CreateTranslationFormRequest request, @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(request.targetWord()).toLowerCase(), 3);
-        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), request.targetWord());
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.unprocessedTargetWord())
+                .trim()
+                .toLowerCase();
+        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(sanitizedTargetWord).toLowerCase(), 3);
+        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), sanitizedTargetWord);
         List<String> sourceWords = Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                 .filter(word -> !word.isBlank())
                 .distinct()
@@ -381,13 +381,12 @@ public class TranslationService {
                 .id(request.selectedWordId())
                 .translation(Translation.builder()
                         .sourceWords(sourceWords)
-                        .targetWord(request.targetWord())
+                        .processedTargetWord(sanitizedTargetWord)
                         .familiarity(Familiarity.UNKNOWN)
                         .sourceLanguage(principal.sourceLanguage())
                         .targetLanguage(principal.targetLanguage())
                         .owner(principal.username())
                         .isPhrase(request.isPhrase())
-                        .unprocessedTargetWord("")
                         .build())
                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
                 .isPhrase(request.isPhrase())
@@ -450,8 +449,11 @@ public class TranslationService {
         return switch (request) {
             case CreateTranslationFormRequest createTranslationRequest -> {
                 UserProfile principal = (UserProfile) authentication.getPrincipal();
-                List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(createTranslationRequest.targetWord()).toLowerCase(), 3);
-                List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), createTranslationRequest.targetWord());
+                String sanitizedTargetWord = patternService.removeSpecialCharacters(createTranslationRequest.unprocessedTargetWord())
+                        .trim()
+                        .toLowerCase();
+                List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(sanitizedTargetWord, 3);
+                List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), sanitizedTargetWord);
                 List<String> sourceWords = Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                         .filter(Predicate.not(String::isBlank))
                         .distinct()
@@ -462,13 +464,12 @@ public class TranslationService {
                         .id(createTranslationRequest.selectedWordId())
                         .translation(Translation.builder()
                                 .sourceWords(sourceWords)
-                                .targetWord(createTranslationRequest.targetWord())
+                                .processedTargetWord(sanitizedTargetWord)
                                 .familiarity(Familiarity.UNKNOWN)
                                 .sourceLanguage(principal.sourceLanguage())
                                 .targetLanguage(principal.targetLanguage())
                                 .owner(principal.username())
                                 .isPhrase(createTranslationRequest.isPhrase())
-                                .unprocessedTargetWord("")
                                 .build())
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
                         .isPhrase(createTranslationRequest.isPhrase())
@@ -479,11 +480,12 @@ public class TranslationService {
             }
             case FindTranslationFormRequest findTranslationRequest -> {
                 UserProfile principal = (UserProfile) authentication.getPrincipal();
-                String sanitizedTargetWord = patternService.removeSpecialCharacters(findTranslationRequest.targetWord())
+                String sanitizedTargetWord = patternService.removeSpecialCharacters(findTranslationRequest.unprocessedTargetWord())
+                        .trim()
                         .toLowerCase();
                 Result<?> result = findTranslationRequest.isPhrase() ?
                         validator.validate(
-                                Constraint.of("targetWord", Size.of(sanitizedTargetWord, 0, 250), switch (principal.userInterfaceLanguage()) {
+                                Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 250), switch (principal.userInterfaceLanguage()) {
                                     case PL -> "Docelowe słowo nie może mieć więcej niż 250 znaków";
                                     case EN -> "Target word cannot exceed 250 characters";
                                     case IT -> "La parola target non può superare i 250 caratteri";
@@ -491,7 +493,7 @@ public class TranslationService {
                                 })
                         ) :
                         validator.validate(
-                                Constraint.of("targetWord", Size.of(sanitizedTargetWord, 0, 50), switch (principal.userInterfaceLanguage()) {
+                                Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 50), switch (principal.userInterfaceLanguage()) {
                                     case PL -> "Docelowe słowo nie może mieć więcej niż 50 znaków";
                                     case EN -> "Target word cannot exceed 50 characters";
                                     case IT -> "La parola target non può superare i 50 caratteri";
@@ -514,18 +516,17 @@ public class TranslationService {
                             .map(Ok::of)
                             .orElseGet(() ->
                                     Stream.of(
-                                            translationRepository.findMostFrequentSourceWords(findTranslationRequest.targetWord(), 3),
-                                            translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), findTranslationRequest.targetWord())
+                                            translationRepository.findMostFrequentSourceWords(sanitizedTargetWord, 3),
+                                            translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), sanitizedTargetWord)
                                     )
                                     .map(fetchedSourceWords -> Translation.builder()
                                             .sourceWords(fetchedSourceWords)
-                                            .targetWord(findTranslationRequest.targetWord())
+                                            .processedTargetWord(sanitizedTargetWord)
                                             .familiarity(Familiarity.UNKNOWN)
                                             .sourceLanguage(principal.sourceLanguage())
                                             .targetLanguage(principal.targetLanguage())
                                             .owner(principal.username())
                                             .isPhrase(findTranslationRequest.isPhrase())
-                                            .unprocessedTargetWord("")
                                             .build())
                                     .map(translation -> TranslationAttribute.builder()
                                             .id(findTranslationRequest.selectedWordId())
@@ -570,8 +571,7 @@ public class TranslationService {
                         .familiarityLevels(Map.of())
                         .translation(Translation.builder()
                                 .sourceWords(List.of())
-                                .targetWord(patternService.removeSpecialCharacters(request.unprocessedTargetWords().get(id)).toLowerCase())
-                                .unprocessedTargetWord(request.unprocessedTargetWords().get(id))
+                                .processedTargetWord(patternService.removeSpecialCharacters(request.unprocessedTargetWords().get(id)).toLowerCase())
                                 .familiarity(switch (request.familiarities().get(id).toUpperCase()) {
                                     case "UNKNOWN" -> Familiarity.UNKNOWN;
                                     case "RECOGNIZED" -> Familiarity.RECOGNIZED;
@@ -597,11 +597,10 @@ public class TranslationService {
                 .toList();
         Translation phrase = Translation.builder()
                 .sourceWords(sourceWords)
-                .targetWord(String.join(" ", request.unprocessedTargetWords().stream()
+                .processedTargetWord(String.join(" ", request.unprocessedTargetWords().stream()
                         .map(patternService::removeSpecialCharacters)
                         .map(String::toLowerCase)
                         .toList()))
-                .unprocessedTargetWord(String.join(" ", request.unprocessedTargetWords()))
                 .familiarity(Familiarity.UNKNOWN)
                 .sourceLanguage(principal.sourceLanguage())
                 .targetLanguage(principal.targetLanguage())

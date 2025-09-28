@@ -3,9 +3,8 @@ package lule.dictionary.documents.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.*;
+import lule.dictionary.documents.data.attribute.*;
 import lule.dictionary.documents.data.documentProcessing.*;
-import lule.dictionary.documents.data.attribute.DocumentFormAttribute;
-import lule.dictionary.documents.data.attribute.DocumentListAttribute;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormType;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.exception.DocumentServiceException;
@@ -219,36 +218,36 @@ public class DocumentService {
                 Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(document.pageContent(), document.owner())));
                 DocumentUnitStore processedContent = Arrays.stream(document.pageContent().split("\\s+"))
                         .sequential()
-                        .map(word -> switch (translations.get(word.toLowerCase().trim())) {
-                            case Translation translation -> TranslationUnit.of(translation, phrases.containsWord(translation.targetWord()));
+                        .map(word -> switch (translations.get(patternService.removeSpecialCharacters(word.toLowerCase().trim()))) {
+                            case Translation translation -> TranslationUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
                             case null -> WordUnit.of(Translation.builder()
                                     .sourceWords(List.of())
-                                    .targetWord(patternService.removeSpecialCharacters(word.toLowerCase().trim()))
-                                    .unprocessedTargetWord(word)
+                                    .processedTargetWord(patternService.removeSpecialCharacters(word.toLowerCase().trim()))
                                     .familiarity(Familiarity.UNKNOWN)
                                     .sourceLanguage(sourceLanguage)
                                     .targetLanguage(targetLanguage)
                                     .owner(document.owner())
                                     .isPhrase(false)
                                     .build(),
+                                    word,
                                     phrases.containsWord(word.toLowerCase().trim()));
                             })
                         .map(unit -> (DocumentUnit) unit)
                         .collect(Collector.of(
                                 () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>()),
-                                (counter, documentUnit) -> {
+                                (store, documentUnit) -> {
                                     if (!documentUnit.isPhrasePart()) {
-                                        counter.addDocumentUnit(documentUnit);
-                                        counter.clearPhraseParts();
+                                        store.addDocumentUnit(documentUnit);
+                                        store.clearPhraseParts();
                                     }
                                     else {
-                                        counter.addDocumentUnit(documentUnit);
-                                        counter.addPhrasePart(documentUnit);
+                                        store.addDocumentUnit(documentUnit);
+                                        store.addPhrasePart(documentUnit);
                                     }
-                                    if (phrases.findPhrase(counter.bufferValue()).isPresent()) {
-                                        Translation translation = phrases.findPhrase(counter.bufferValue()).get();
-                                        counter.wrapToPhrase(translation);
-                                        counter.clearPhraseParts();
+                                    if (phrases.findPhrase(store.bufferValue()).isPresent()) {
+                                        Translation translation = phrases.findPhrase(store.bufferValue()).get();
+                                        store.wrapToPhrase(translation);
+                                        store.clearPhraseParts();
                                     }
                                 },
                                 (left, right) -> {
@@ -274,7 +273,27 @@ public class DocumentService {
                         .rows(paginationService.getRows(paginationService.getNumberOfPages(document.totalContentLength())))
                         .build();
                 boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
-                yield Ok.of(DocumentAttribute.of(contentData, paginationData, isNavbarOpen));
+                yield switch (request.type()) {
+                    case "firstLoad" -> Ok.of(DocumentFirstLoadAttribute.builder()
+                            .documentContentData(contentData)
+                            .paginationData(paginationData)
+                            .isNavbarOpen(isNavbarOpen)
+                            .build());
+                    case "reload" -> Ok.of(DocumentReloadAttribute.builder()
+                            .documentContentData(contentData)
+                            .paginationData(paginationData)
+                            .isNavbarOpen(isNavbarOpen)
+                            .selectedId(request.wordId())
+                            .targetWord(request.selectedTargetWord())
+                            .isSelectablePersisted(request.isSelectedPersisted())
+                            .build());
+                    case "pageChange" -> Ok.of(DocumentPageChangeAttribute.builder()
+                            .documentContentData(contentData)
+                            .paginationData(paginationData)
+                            .isNavbarOpen(isNavbarOpen)
+                            .build());
+                    default -> throw new IllegalStateException("Unexpected value: " + request.type());
+                };
             }
             case Err<Document> v -> Err.of(v.throwable());
         };

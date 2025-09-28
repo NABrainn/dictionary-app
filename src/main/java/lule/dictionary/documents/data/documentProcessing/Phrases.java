@@ -13,13 +13,13 @@ public record Phrases(List<Translation> phrases) {
     public boolean containsWord(String input) {
         return phrases.stream()
                 .anyMatch(phrase -> phrase
-                        .targetWord()
+                        .processedTargetWord()
                         .contains(input));
     }
 
     public Optional<Translation> findPhrase(String phrase) {
         return phrases.stream()
-                .filter(dbPhrases -> dbPhrases.targetWord().equalsIgnoreCase(phrase))
+                .filter(dbPhrases -> dbPhrases.processedTargetWord().equalsIgnoreCase(phrase))
                 .findFirst();
     }
 }

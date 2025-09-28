@@ -10,10 +10,9 @@
 
 <div
 hx-on:click="event.stopPropagation()"
-hx-on::load="formPositioner.handleOverflow(htmx.find('#translation-form-container-${attribute.id()}'), ${attribute.translation().sourceWords().size()})"
 class="
 md:gap-0.75
-gap-4 bg-tertiary flex flex-col p-3 rounded animate-fade-10"
+gap-4 bg-tertiary flex flex-col p-3 rounded"
 id="translation-form">
     <div
     class="flex justify-end">
@@ -25,7 +24,7 @@ id="translation-form">
         >❌</span>
     </div>
     <span
-    class="font-bold text-lg text-accent text-wrap">${attribute.translation().targetWord()}</span>
+    class="font-bold text-lg text-accent text-wrap">${attribute.translation().processedTargetWord()}</span>
     <div
     class="flex flex-col gap-2 text-wrap">
         @for(String word : attribute.translation().sourceWords())
@@ -46,7 +45,7 @@ id="translation-form">
                 }'
                 hx-params="sourceWord,targetWord,id"
                 hx-vals='{
-                    "targetWord": "${attribute.translation().targetWord()}",
+                    "targetWord": "${attribute.translation().processedTargetWord()}",
                     "id": "${attribute.id()}",
                     "sourceWord": "${word}"
                 }'>
@@ -65,13 +64,12 @@ id="translation-form">
                 }'
                 hx-params="id,targetWord,familiarity,sourceWords"
                 hx-vals='{
-                    "targetWord": "${attribute.translation().targetWord()}",
+                    "targetWord": "${attribute.translation().processedTargetWord()}",
                     "familiarity": "${attribute.translation().familiarity()}",
                     "id": "${attribute.id()}"
                 }'
                 hx-put="/translations/sourceWords/update"
-                hx-target="#translation-form-container-${attribute.id()}"
-                hx-swap="innerHTML">
+                hx-swap="none">
                     @for(String word : attribute.translation().sourceWords())
                         <input
                         hx-on:click="event.stopPropagation()"
@@ -125,19 +123,16 @@ id="translation-form">
             hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase"
             hx-vals='
             {
-                "targetWord": "${attribute.translation().targetWord().toLowerCase()}",
+                "targetWord": "${attribute.translation().processedTargetWord().toLowerCase()}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
                 "id": "${attribute.id()}",
                 "isPhrase": "${attribute.isPhrase()}"
             }'
-            hx-target="#translation-form-container-${attribute.id()}"
-            hx-swap="innerHTML"
+            hx-swap="none"
             hx-on:click="
-            event.stopPropagation()
-            documentPage.handleUpdateFamiliarity('${attribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')
-            ">
+            event.stopPropagation()">
                 <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                 <input
                 class="

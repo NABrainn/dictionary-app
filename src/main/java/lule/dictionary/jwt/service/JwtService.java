@@ -64,8 +64,7 @@ public class JwtService {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-            return claims.getSubject().equals(username) &&
-                    !claims.getExpiration().toInstant().isBefore(Instant.now());
+            return claims.getSubject().equals(username) && !claims.getExpiration().toInstant().isBefore(Instant.now());
         } catch (Exception e) {
             log.warn("Invalid token: {}", e.getMessage());
             return false;

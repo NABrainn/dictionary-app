@@ -1,10 +1,9 @@
+@import lule.dictionary.documents.data.attribute.DocumentAttribute
 @import lule.dictionary.documents.data.documentProcessing.DocumentUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
 @import lule.dictionary.documents.data.documentProcessing.TranslationUnit
 @import lule.dictionary.documents.data.documentProcessing.WordUnit
-@import lule.dictionary.documents.data.request.DocumentAttribute
 @import gg.jte.support.ForSupport
-@import lule.dictionary.translations.data.Familiarity
 
 @param DocumentAttribute attribute
 
@@ -48,7 +47,7 @@ hx-vals='js:{
         @endif
         <div
         id="content-main"
-        class="leading-9">
+        class="flex inline-flex flex-wrap">
             @for(var entry :  ForSupport.of(attribute.documentContentData().content()))
                 !{DocumentUnit unit = entry.get();}
                 @if(unit instanceof PhraseUnit)
@@ -68,40 +67,46 @@ hx-vals='js:{
                     };}
                     @template.document.word(
                     wordId = entry.getIndex(),
-                    processedWord = unit.translation().targetWord(),
-                    word = unit.translation().unprocessedTargetWord(),
                     bgColor = wordBgColor,
                     textColor = wordTextColor,
-                    familiarity = unit.translation().familiarity(),
-                    isPersisted = true)
+                    isPersisted = true,
+                    documentId = attribute.documentContentData().documentId(),
+                    rawText = unit.rawText(),
+                    translation = unit.translation(),
+                    currentPage = attribute.paginationData().currentPageNumber())
                 @elseif(unit instanceof WordUnit)
-                    @if(unit.translation().targetWord().length() <= 50)
+                    @if(unit.translation().processedTargetWord().length() <= 50)
                         @template.document.word(
                         wordId = entry.getIndex(),
-                        processedWord = unit.translation().targetWord(),
-                        word = unit.translation().unprocessedTargetWord(),
-                        familiarity = Familiarity.UNKNOWN,
                         bgColor = "bg-accent",
-                        textColor = "text-primary")
+                        textColor = "text-primary",
+                        isPersisted = false,
+                        documentId = attribute.documentContentData().documentId(),
+                        rawText = unit.rawText(),
+                        translation = unit.translation(),
+                        currentPage = attribute.paginationData().currentPageNumber())
                     @else
                         @template.document.word(
                         wordId = entry.getIndex(),
-                        processedWord = unit.translation().targetWord(),
-                        word = unit.translation().unprocessedTargetWord(),
-                        familiarity = Familiarity.IGNORED,
                         bgColor = "bg-primary",
                         textColor = "text-neutral",
-                        isSelectable = false)
+                        isSelectable = false,
+                        isPersisted = false,
+                        documentId = attribute.documentContentData().documentId(),
+                        rawText = unit.rawText(),
+                        translation = unit.translation(),
+                        currentPage = attribute.paginationData().currentPageNumber())
                     @endif
                 @else
                     @template.document.word(
                     wordId = entry.getIndex(),
-                    processedWord = unit.translation().targetWord(),
-                    word = unit.translation().unprocessedTargetWord(),
-                    familiarity = Familiarity.IGNORED,
                     bgColor = "bg-primary",
                     textColor = "text-neutral",
-                    isSelectable = false)
+                    isSelectable = false,
+                    documentId = attribute.documentContentData().documentId(),
+                    rawText = unit.rawText(),
+                    translation = unit.translation(),
+                    currentPage = attribute.paginationData().currentPageNumber())
                 @endif
             @endfor
         </div>
@@ -114,7 +119,6 @@ hx-vals='js:{
         id = attribute.documentContentData().documentId(),
         currentPage = attribute.paginationData().currentPageNumber(),
         pages = attribute.paginationData().numberOfPages(),
-        importId = attribute.documentContentData().documentId(),
         rows = attribute.paginationData().rows(),
         currentRow = attribute.paginationData().currentRowNumber(),
         firstPageOfRow = attribute.paginationData().firstPageOfRowNumber())

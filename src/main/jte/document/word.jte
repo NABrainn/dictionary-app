@@ -1,62 +1,50 @@
-@import lule.dictionary.translations.data.Familiarity
+@import lule.dictionary.translations.data.Translation
 
 @param int wordId
-@param int documentId
-@param String word
-@param String processedWord
 @param String bgColor = ""
 @param String textColor = ""
 @param boolean isSelectable = true
 @param boolean isPhraseWord = false
-@param Familiarity familiarity
 @param boolean isPersisted = false
 @param boolean isWrapped = false
+
+@param int documentId
+@param int currentPage
+@param String rawText
+@param Translation translation
+<input
+id="word-document-reloader-${wordId}"
+hx-trigger="reload-document once"
+hx-get="/documents/${documentId}"
+hx-swap="outerHTML"
+hx-target="#content-main"
+hx-params="selectedId,selectedTargetWord,isSelectedPersisted,type,page"
+hx-vals='{
+    "selectedId": "${wordId}",
+    "selectedTargetWord": "${rawText}",
+    "isSelectedPersisted": "${isPersisted}",
+    "type": "reload",
+    "page": "${currentPage}"
+}'
+type="hidden">
 @if(isSelectable)
     <div
     class="
     ${isWrapped ? "pointer-events-none" : "border border-2  border-transparent"} inline-block rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg"
-    id="word-${wordId}"
-
-    data-id="${wordId}"
-    data-value="${processedWord}"
-    data-familiarity="${familiarity != null ? familiarity.name().toLowerCase() : "unknown"}"
-
-    data-is-selectable="true"
-    data-is-selected="false"
-    data-is-word="true"
-    data-is-saved="${isPersisted  ? "true" : "false"}"
-    data-is-wrapped="${isWrapped  ? "true" : "false"}"
-
-    hx-get="/translations/find"
-    hx-target="#translation-form-container-${wordId}"
-    hx-swap="innerHTML"
-    hx-params="documentId,targetWord,id,isPersisted"
-    hx-vals='js:{
-        documentId: ${documentId},
-        targetWord: "${processedWord}",
-        id: ${wordId},
-        isPersisted: data.get(htmx.find("#word-${wordId}"), "is-saved")
-    }'
-    hx-on::after-request="formPositioner.handleOverflow(htmx.find('#translation-form-container-${wordId}'), 3)"
-    hx-on:click="
-    event.stopPropagation()
-    documentPage.closeAllTranslationForms()
-    documentPage.cleanupSelectedWord()
-    documentPage.cleanupSelectedPhrase()
-    documentPage.handleWordClick(${wordId})">
+    hx-on:click="htmx.trigger('#word-document-reloader-${wordId}', 'reload-document')">
         <div
-        class="
-        cursor-default z-2 absolute inline"
-        id="translation-form-container-${wordId}"
-        data-is-translation-form-container="true"></div>
+        class="cursor-default z-2 absolute inline"
+        id="form-container-${wordId}"
+        hx-on::after-swap="
+        formPositioner.handleOverflow(htmx.find('#form-container-${wordId}'), 3)">
+        </div>
         <span
-        class="${bgColor} ${textColor} rounded"
-        data-is-word-span="true">${word}</span>
+        class="${bgColor} ${textColor} rounded">${rawText}</span>
     </div>
 @else
     <div
     class="
     inline-block relative rounded whitespace-nowrap text-lg pointer-events-none select-none">
-        <span class="${bgColor} ${textColor} rounded">${word}</span>
+        <span class="${bgColor} ${textColor} rounded">${rawText}</span>
     </div>
 @endif

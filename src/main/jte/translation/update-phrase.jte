@@ -1,28 +1,16 @@
 @import gg.jte.support.ForSupport
 @import lule.dictionary.translations.data.Translation
-@import lule.dictionary.documents.data.selectable.Phrase
-@import java.util.Map
-@import java.util.regex.Pattern
 
-@param Phrase phrase
-@param Pattern cleanWordPattern
+@param Translation translation
 @param int selectableId
-@param int documentId
-@param Map<String, Translation> translations
 
-!{var processedWord = String.join(" ", phrase.targetWords().stream()
-                                                .map(word -> cleanWordPattern.matcher(word)
-                                                        .replaceAll("")
-                                                        .replace("-", " ")
-                                                        .toLowerCase())
-                                                .toList());}
-!{var wordBgColor = switch (phrase.familiarity()) {
+!{var wordBgColor = switch (translation.familiarity()) {
     case UNKNOWN -> "bg-accent";
     case RECOGNIZED -> "bg-accent/80";
     case FAMILIAR -> "bg-accent/60";
     default -> "bg-primary";
 };}
-!{var wordTextColor = switch (phrase.familiarity()) {
+!{var wordTextColor = switch (translation.familiarity()) {
     case UNKNOWN -> "text-primary";
     case RECOGNIZED -> "text-primary";
     case FAMILIAR -> "text-primary";
@@ -32,8 +20,8 @@
 class="inline-flex relative rounded text-lg gap-1 cursor-pointer border border-2 border-secondary ${wordTextColor} ${wordBgColor}"
 
 data-id="${selectableId}"
-data-value="${processedWord}"
-data-familiarity="${phrase.familiarity() != null ? phrase.familiarity().name().toLowerCase() : null}"
+data-value="${translation.processedTargetWord()}"
+data-familiarity="${translation.familiarity() != null ? translation.familiarity().name().toLowerCase() : null}"
 
 data-is-phrase="true"
 data-is-saved="true"
@@ -45,8 +33,7 @@ hx-target="#translation-form-container-${selectableId}"
 hx-swap="innerHTML"
 hx-params="documentId,targetWord,id,isPhrase,isPersisted"
 hx-vals='{
-    "documentId": "${documentId}",
-    "targetWord": "${processedWord}",
+    "targetWord": "${translation.processedTargetWord()}",
     "id": "${selectableId}",
     "isPhrase": "true",
     "isPersisted": "true"
@@ -63,42 +50,14 @@ documentPage.handlePhraseClick(${selectableId})">
     id="translation-form-container-${selectableId}"
     data-is-translation-form-container="true">
     </div>
-    @for(var phraseEntry : ForSupport.of(phrase.targetWords()))
+    @for(var phraseEntry : ForSupport.of(translation.processedTargetWord().split(" ")))
         !{var word = phraseEntry.get();}
-        !{var cleanWord = cleanWordPattern.matcher(word)
-                                                .replaceAll("")
-                                                .replace("-", " ")
-                                                .toLowerCase();}
-        @if(!cleanWord.isEmpty())
-            @if(translations.get(cleanWord) != null)
-                @template.document.word(
-                wordId = -1,
-                processedWord = cleanWord,
-                documentId = documentId,
-                word = word,
-                familiarity = translations.get(cleanWord).familiarity(),
-                isSelectable = false,
-                isWrapped = true)
-            @else
-                @template.document.word(
-                wordId = -1,
-                processedWord = cleanWord,
-                documentId = documentId,
-                word = word,
-                isSelectable = true,
-                isWrapped = true,
-                familiarity = phrase.familiarity())
-            @endif
-        @else
-            @template.document.word(
-            wordId = -1,
-            processedWord = cleanWord,
-            documentId = documentId,
-            word = word,
-            textColor = wordTextColor,
-            isSelectable = false,
-            isWrapped = true,
-            familiarity = phrase.familiarity())
-        @endif
+<%--        @template.document.word(--%>
+<%--        wordId = -1,--%>
+<%--        processedWord = word,--%>
+<%--        word = word,--%>
+<%--        isSelectable = true,--%>
+<%--        isWrapped = true,--%>
+<%--        familiarity = translation.familiarity())--%>
     @endfor
 </div>

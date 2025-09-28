@@ -1,10 +1,10 @@
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.controllerAdvice.data.NavbarAttribute
-@import lule.dictionary.documents.data.request.DocumentAttribute
+@import lule.dictionary.documents.data.attribute.DocumentFirstLoadAttribute
 
 @param NavbarAttribute navbarAttribute
 @param BaseAttribute baseAttribute
-@param DocumentAttribute attribute
+@param DocumentFirstLoadAttribute attribute
 
 <script src="/js/document-page.js" defer></script>
 <script src="/js/form-positioner.js"></script>

@@ -10,7 +10,7 @@ public record DocumentUnitStore(@NonNull List<DocumentUnit> phraseParts,
                                 @NonNull List<DocumentUnit> documentUnits) {
     public String bufferValue() {
         return phraseParts.stream()
-                .map(unit -> unit.translation().targetWord())
+                .map(unit -> unit.translation().processedTargetWord())
                 .collect(Collectors.joining(" "));
     }
 
@@ -33,7 +33,9 @@ public record DocumentUnitStore(@NonNull List<DocumentUnit> phraseParts,
     public void wrapToPhrase(Translation translation) {
         int startId = documentUnits.size() - bufferValue().length();
         int endId = documentUnits().size();
-        documentUnits.subList(startId, endId);
-        addDocumentUnit(PhraseUnit.of(translation));
+        List<DocumentUnit> toRemove = documentUnits.subList(startId, endId);
+        String phraseTextFromDocument = toRemove.stream().map(DocumentUnit::rawText).collect(Collectors.joining(" "));
+        toRemove.clear();
+        addDocumentUnit(PhraseUnit.of(phraseTextFromDocument, translation));
     }
 }

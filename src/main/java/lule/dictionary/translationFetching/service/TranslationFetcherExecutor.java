@@ -35,7 +35,6 @@ public class TranslationFetcherExecutor {
             return List.of(targetWord);
         }
         List<TranslationFetcher> sources = List.of(googleService, lingvanexService);
-
         List<CompletableFuture<List<String>>> futures = sources.stream()
                 .map(source -> CompletableFuture
                         .supplyAsync(() -> {

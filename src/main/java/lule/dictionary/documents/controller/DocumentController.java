@@ -3,12 +3,10 @@ package lule.dictionary.documents.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.DocumentLocalizationKey;
-import lule.dictionary.documents.data.attribute.DocumentListAttribute;
+import lule.dictionary.documents.data.attribute.*;
 import lule.dictionary.documents.data.exception.DocumentServiceException;
 import lule.dictionary.documents.data.request.CreateDocumentRequest;
-import lule.dictionary.documents.data.request.DocumentAttribute;
 import lule.dictionary.documents.data.request.LoadDocumentContentRequest;
-import lule.dictionary.documents.data.attribute.DocumentFormAttribute;
 import lule.dictionary.documents.service.DocumentService;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
@@ -38,33 +36,33 @@ public class DocumentController {
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
     public String documentPage(@PathVariable("documentId") int documentId,
+                               @RequestParam(name = "selectedId", defaultValue = "-1") int selectedId,
+                               @RequestParam(name = "selectedTargetWord", defaultValue = "") String selectedTargetWord,
+                               @RequestParam(name = "isSelectedPersisted", defaultValue = "false") boolean isSelectedPersisted,
+                               @RequestParam(name = "type", defaultValue = "firstLoad") String type,
                                @RequestParam(name = "page", defaultValue = "1") int page,
                                Model model,
                                Authentication authentication) {
-        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page), authentication);
+        LoadDocumentContentRequest request = LoadDocumentContentRequest.builder()
+                .wordId(selectedId)
+                .type(type)
+                .documentId(documentId)
+                .page(page)
+                .selectedTargetWord(selectedTargetWord)
+                .isSelectedPersisted(isSelectedPersisted)
+                .build();
+        Result<DocumentAttribute> result = documentService.loadDocumentContent(request, authentication);
         switch (result) {
             case Ok<DocumentAttribute> v -> {
                 model.addAttribute("attribute", v.value());
-                return "document/base-page";
+                return switch (v.value()) {
+                    case DocumentFirstLoadAttribute ignored -> "document/base-page";
+                    case DocumentReloadAttribute ignored -> "document/reloaded-content";
+                    case DocumentPageChangeAttribute ignored -> "document/content";
+                };
             }
             case Err<DocumentAttribute> ignored -> {
-                return "error";
-            }
-        }
-    }
-
-    @GetMapping({"/{documentId}/reload", "/{documentId}/reload/"})
-    public String reloadDocumentPage(@PathVariable("documentId") int documentId,
-                                     @RequestParam(name = "page", defaultValue = "1") int page,
-                                     Model model,
-                                     Authentication authentication) {
-        Result<DocumentAttribute> result = documentService.loadDocumentContent(LoadDocumentContentRequest.of(0, documentId, page), authentication);
-        switch (result) {
-            case Ok<DocumentAttribute> v -> {
-                model.addAttribute("attribute", v.value());
-                return "document/content";
-            }
-            case Err<DocumentAttribute> ignored -> {
+                log.warn("Failed to load document", ignored.throwable());
                 return "error";
             }
         }

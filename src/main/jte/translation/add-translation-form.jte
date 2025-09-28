@@ -9,21 +9,18 @@
 @param Map<TranslationLocalizationKey, String> messages
 
 <div
-hx-on::load="formPositioner.handleOverflow(htmx.find('#translation-form-container-${attribute.id()}'), 3)"
 hx-on:click="event.stopPropagation()"
 class="
 md:gap-0.75
-bg-tertiary flex flex-col p-3 rounded animate-fade-10 gap-4"
+bg-tertiary flex flex-col p-3 rounded gap-4"
 id="translation-form">
     <div class="flex justify-end">
         <span
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer"
-        hx-on:click="
-        event.stopPropagation()
-        documentPage.closeAllTranslationForms()">❌</span>
+        hx-on:click="documentPage.closeAllTranslationForms()">❌</span>
     </div>
-    <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().targetWord()}</span>
+    <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().processedTargetWord()}</span>
     <div class="flex flex-col gap-2 text-wrap">
         @if(attribute.translation().sourceWords().isEmpty())
             <input
@@ -43,30 +40,26 @@ id="translation-form">
             </div>
         @endfor
         <div class="flex flex-col gap-2">
-            <div id="source-word-form" class="flex">
+            <div class="flex">
                 <form
-                class="flex flex-col gap-2"
-                hx-params="id,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,isPhrase,"
-                hx-vals='
-                {
+                class="
+                flex flex-col gap-2
+                translation-form"
+                hx-headers='{
+                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                }'
+                hx-params="id,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,isPhrase"
+                hx-vals='{
                     "id": "${attribute.id()}",
-                    "targetWord": "${attribute.translation().targetWord()}",
+                    "targetWord": "${attribute.translation().processedTargetWord()}",
                     "familiarity": "UNKNOWN",
                     "sourceLanguage": "${attribute.translation().sourceLanguage()}",
                     "targetLanguage": "${attribute.translation().targetLanguage()}",
                     "documentId": "${attribute.documentId()}",
                     "isPhrase": "${attribute.isPhrase()}"
                 }'
-                hx-headers='{
-                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
-                }'
-                hx-post="/translations/new"
-                hx-target="#translation-form-container-${attribute.id()}"
-                hx-swap="innerHTML"
-                hx-on::before-request="
-                if(htmx.find('#no-source-words') === null) {
-                    documentPage.handlePersistWord('${attribute.translation().targetWord()}', 'unknown')
-                }">
+                hx-post="/translations/"
+                hx-swap="none">
                     @for(String word : attribute.translation().sourceWords())
                         <input
                         name="sourceWords"
@@ -75,15 +68,17 @@ id="translation-form">
                     @endfor
                     <div class="flex gap-2">
                         <input
-                        id="input-source-word"
                         class="
-                        max-w-50 outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
+                        max-w-50 outline-none border border-2
+                        ${switch (errors.get("sourceWord")) {
+                            case null -> "border-primary";
+                            case String err -> "border-error";
+                        }} rounded text-neutral text-md grow-1
                         focus:border-accent"
                         type="text"
                         placeholder=""
                         name="sourceWords">
                         <button
-                        id="submit-source-word"
                         class="text-3xl cursor-pointer text-accent"
                         type="submit">+</button>
                     </div>
@@ -96,22 +91,18 @@ id="translation-form">
     flex flex-row justify-center gap-3">
         @for(var level : attribute.familiarityLevels().entrySet())
             <form
-            hx-on::before-request="
-            if(htmx.find('#no-source-words') === null) {
-                documentPage.handlePersistWord('${attribute.translation().targetWord()}', '${level.getValue().name().toLowerCase()}')
-            }"
             class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
-            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8  justify-center items-center"
-            id="translation-form-${attribute.id()}"
+            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8 justify-center items-center
+            translation-form"
             hx-trigger="click"
-            hx-post="/translations/new"
+            hx-post="/translations/"
             hx-headers='{
                 "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
             }'
-            hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase,sourceWords,documentId"
+            hx-params="id,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,isPhrase"
             hx-vals='{
-                "targetWord": "${attribute.translation().targetWord()}",
+                "targetWord": "${attribute.translation().processedTargetWord()}",
                 "familiarity": "${level.getValue().name()}",
                 "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
                 "targetLanguage": "${attribute.translation().targetLanguage().name()}",
@@ -119,8 +110,7 @@ id="translation-form">
                 "id": "${attribute.id()}",
                 "isPhrase": "${attribute.isPhrase()}"
             }'
-            hx-target="closest #translation-form-container-${attribute.id()}"
-            hx-swap="innerHTML">
+            hx-swap="none">
                 @if(attribute.translation().sourceWords().isEmpty())
                     <input
                     id="no-source-words"

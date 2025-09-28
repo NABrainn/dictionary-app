@@ -26,13 +26,12 @@ public class TranslationRepository {
     private final JdbcTemplate template;
     private final RowMapper<Translation> translationMapper = (rs, rowNum) -> Translation.builder()
             .sourceWords(Arrays.asList((String[]) rs.getArray("source_words").getArray()))
-            .targetWord(rs.getString("target_word"))
+            .processedTargetWord(rs.getString("target_word"))
             .familiarity(Familiarity.valueOf(rs.getString("familiarity")))
             .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
             .targetLanguage(Language.valueOf(rs.getString("target_lang")))
             .owner(rs.getString("translation_owner"))
             .isPhrase(rs.getBoolean("is_phrase"))
-            .unprocessedTargetWord("")
             .build();
     private final RowMapper<String> sourceWordsMapper = (rs, rowNum) -> rs.getString("word");
     private final RowMapper<Integer> translationIdMapper = (rs, rowNum) -> rs.getInt("translation_id");
@@ -79,7 +78,7 @@ public class TranslationRepository {
             Integer translationId = template.query(con -> {
                 PreparedStatement ps = con.prepareStatement(insertSql);
                 ps.setArray(1, con.createArrayOf("text", translation.sourceWords().toArray()));
-                ps.setString(2, translation.targetWord().toLowerCase());
+                ps.setString(2, translation.processedTargetWord().toLowerCase());
                 ps.setString(3, translation.sourceLanguage().toString());
                 ps.setString(4, translation.targetLanguage().toString());
                 ps.setString(5, translation.owner());

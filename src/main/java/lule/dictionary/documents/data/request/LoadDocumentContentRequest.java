@@ -1,7 +1,13 @@
 package lule.dictionary.documents.data.request;
 
-public record LoadDocumentContentRequest(int wordId, int documentId, int page) {
-    public static LoadDocumentContentRequest of(int wordId, int importId, int page) {
-        return new LoadDocumentContentRequest(wordId, importId, page);
-    }
+import lombok.Builder;
+import lombok.NonNull;
+
+@Builder
+public record LoadDocumentContentRequest(@NonNull String type,
+                                         int documentId,
+                                         int page,
+                                         int wordId,
+                                         @NonNull String selectedTargetWord,
+                                         boolean isSelectedPersisted) {
 }

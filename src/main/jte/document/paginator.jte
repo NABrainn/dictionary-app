@@ -4,7 +4,6 @@
 @param int id
 @param int currentPage
 @param int pages
-@param int importId
 @param List<List<Integer>> rows
 @param int currentRow
 @param int firstPageOfRow
@@ -12,16 +11,24 @@
 @if(currentPage > 1)
     <div
     class="text-2xl cursor-pointer select-none"
-    hx-params="page"
-    hx-get="/documents/${importId}/reload?page=${currentPage - 1}"
+    hx-params="page,type"
+    hx-vals='{
+        "page": "${currentPage - 1}",
+        "type": "pageChange"
+    }'
+    hx-get="/documents/${id}"
     hx-target="#page-content"
     hx-swap="outerHTML"
     hx-push-url="false">⬅️</div>
 @else
     <div
     class="text-2xl cursor-pointer select-none invisible"
-    hx-params="page"
-    hx-get="/documents/${importId}/reload?page=${currentPage + 1}"
+    hx-params="page,type"
+    hx-vals='{
+        "page": "${currentPage + 1}",
+        "type": "pageChange"
+    }'
+    hx-get="/documents/${id}"
     hx-target="#page-content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
@@ -29,8 +36,12 @@
 @for(var row : ForSupport.of(rows.get(currentRow)))
     @if(currentPage == row.get())
         <form
-        hx-params="page"
-        hx-get="/documents/${id}/reload?page=${row.get()}"
+        hx-params="page,type"
+        hx-vals='{
+            "page": "${row.get()}",
+            "type": "pageChange"
+        }'
+        hx-get="/documents/${id}"
         hx-target="#page-content"
         hx-swap="outerHTML"
         hx-push-url="false">
@@ -40,8 +51,12 @@
         </form>
     @else
         <form
-        hx-params="page"
-        hx-get="/documents/${id}/reload?page=${row.get()}"
+        hx-params="page,type"
+        hx-vals='{
+            "page": "${row.get()}",
+            "type": "pageChange"
+        }'
+        hx-get="/documents/${id}"
         hx-target="#page-content"
         hx-swap="outerHTML"
         hx-push-url="false">
@@ -55,17 +70,25 @@
 @if(currentPage != pages)
     <div
     class="text-2xl cursor-pointer select-none"
-    hx-params="page"
-    hx-get="/documents/${importId}/reload?page=${currentPage + 1}"
+    hx-params="page,type"
+    hx-vals='{
+        "page": "${currentPage + 1}",
+        "type": "pageChange"
+    }'
+    hx-get="/documents/${id}"
     hx-target="#page-content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
 @else
     <div
     class="text-2xl cursor-pointer select-none invisible"
-    hx-params="page"
-    hx-get="/documents/${importId}/reload?page=${currentPage + 1}"
-    hx-target="#main"
+    hx-params="page,type"
+    hx-vals='{
+        "page": "${currentPage + 1}",
+        "type": "pageChange"
+    }'
+    hx-get="/documents/${id}"
+    hx-target="#page-content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
 @endif
