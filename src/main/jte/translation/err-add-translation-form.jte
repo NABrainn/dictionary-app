@@ -3,7 +3,7 @@
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 @import java.util.Map
 
-@param BaseAttribute baseAttribute 
+@param BaseAttribute baseAttribute
 @param TranslationAttribute attribute
 @param Map<String, String> errors
 @param Map<TranslationLocalizationKey, String> messages
@@ -31,7 +31,7 @@ id="translation-form">
         @endif
         @for(String word : attribute.translation().sourceWords())
             <div
-            class="flex gap-2 items-center min-h-8">
+                    class="flex gap-2 items-center min-h-8">
                 <input
                 name="sourceWords"
                 type="hidden"
@@ -59,7 +59,8 @@ id="translation-form">
                     "isPhrase": "${attribute.isPhrase()}"
                 }'
                 hx-post="/translations/"
-                hx-swap="none">
+                hx-swap="outerHTML"
+                hx-target="#translation-form">
                     @for(String word : attribute.translation().sourceWords())
                         <input
                         name="sourceWords"
@@ -91,7 +92,7 @@ id="translation-form">
     flex flex-row justify-center gap-3">
         @for(var level : attribute.familiarityLevels().entrySet())
             <form
-            class="
+                    class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
             cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8 justify-center items-center
             translation-form"
@@ -110,7 +111,8 @@ id="translation-form">
                 "id": "${attribute.id()}",
                 "isPhrase": "${attribute.isPhrase()}"
             }'
-            hx-swap="none">
+                    hx-swap="outerHTML"
+                    hx-target="#translation-form">
                 @if(attribute.translation().sourceWords().isEmpty())
                     <input
                     id="no-source-words"

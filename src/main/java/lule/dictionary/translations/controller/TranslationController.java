@@ -61,8 +61,8 @@ public class TranslationController {
             );
             model.addAllAttributes(attributes);
             return switch (value.type()) {
-                case CREATE -> "translation/add-translation-form";
-                case FIND -> "translation/update-translation-form";
+                case CREATE -> "translation/init-add-translation-form";
+                case FIND -> "translation/init-update-translation-form";
             };
         }
         return "error";
@@ -127,7 +127,7 @@ public class TranslationController {
                         "errors", Map.of()
                 );
                 model.addAllAttributes(attributes);
-                yield  "translation/update-translation-form";
+                yield  "translation/ok-update-translation-form";
             }
             case Err<?> err -> {
                 if(err.throwable() instanceof TranslationServiceException e) {
@@ -137,7 +137,7 @@ public class TranslationController {
                             "errors", e.getMessages()
                     );
                     model.addAllAttributes(attributes);
-                    yield  "translation/add-translation-form";
+                    yield  "translation/err-add-translation-form";
                 }
                 yield  "error";
             }
@@ -169,7 +169,7 @@ public class TranslationController {
                 "errors", Map.of()
         );
         model.addAllAttributes(attributes);
-        return "translation/update-translation-form";
+        return "translation/ok-update-translation-form";
     }
 
     @PutMapping({"/sourceWords/update", "/sourceWords/update/"})
@@ -197,7 +197,7 @@ public class TranslationController {
                             "errors", Map.of()
                     );
                     model.addAllAttributes(attributes);
-                    return "translation/update-translation-form";
+                    return "translation/ok-update-translation-form";
                 }
                 case Err<?> err -> {
                     if(err.throwable() instanceof TranslationServiceException e) {
@@ -207,7 +207,7 @@ public class TranslationController {
                                 "errors", e.getMessages()
                         );
                         model.addAllAttributes(attributes);
-                        return "translation/update-translation-form";
+                        return "translation/err-update-translation-form";
                     }
                     return "error";
                 }

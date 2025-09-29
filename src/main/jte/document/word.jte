@@ -12,22 +12,23 @@
 @param int currentPage
 @param String rawText
 @param Translation translation
-<input
-id="word-document-reloader-${wordId}"
-hx-trigger="reload-document once"
-hx-get="/documents/${documentId}"
-hx-swap="outerHTML"
-hx-target="#content-main"
-hx-params="selectedId,selectedTargetWord,isSelectedPersisted,type,page"
-hx-vals='{
-    "selectedId": "${wordId}",
-    "selectedTargetWord": "${rawText}",
-    "isSelectedPersisted": "${isPersisted}",
-    "type": "reload",
-    "page": "${currentPage}"
-}'
-type="hidden">
+
 @if(isSelectable)
+    <input
+    id="word-document-reloader-${wordId}"
+    hx-trigger="reload-document once"
+    hx-get="/documents/${documentId}"
+    hx-swap="outerHTML"
+    hx-target="#content-main"
+    hx-params="selectedId,selectedTargetWord,isSelectedPersisted,type,page"
+    hx-vals='{
+        "selectedId": "${wordId}",
+        "selectedTargetWord": "${rawText}",
+        "isSelectedPersisted": "${isPersisted}",
+        "type": "reload",
+        "page": "${currentPage}"
+    }'
+    type="hidden">
     <div
     class="
     ${isWrapped ? "pointer-events-none" : "border border-2  border-transparent"} inline-block rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg"
@@ -39,12 +40,18 @@ type="hidden">
         formPositioner.handleOverflow(htmx.find('#form-container-${wordId}'), 3)">
         </div>
         <span
-        class="${bgColor} ${textColor} rounded">${rawText}</span>
+        id="word-${wordId}"
+        data-text="${translation.processedTargetWord()}"
+        class="
+        ${bgColor} ${textColor} rounded
+        ${translation.familiarity().name().toLowerCase()}">${rawText}</span>
     </div>
 @else
     <div
     class="
     inline-block relative rounded whitespace-nowrap text-lg pointer-events-none select-none">
-        <span class="${bgColor} ${textColor} rounded">${rawText}</span>
+        <span
+        id="word-${wordId}"
+        class="${bgColor} ${textColor} rounded">${rawText}</span>
     </div>
 @endif

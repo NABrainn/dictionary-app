@@ -69,7 +69,8 @@ id="translation-form">
                     "id": "${attribute.id()}"
                 }'
                 hx-put="/translations/sourceWords/update"
-                hx-swap="none">
+                hx-swap="outerHTML"
+                hx-target="#translation-form">
                     @for(String word : attribute.translation().sourceWords())
                         <input
                         hx-on:click="event.stopPropagation()"
@@ -130,7 +131,8 @@ id="translation-form">
                 "id": "${attribute.id()}",
                 "isPhrase": "${attribute.isPhrase()}"
             }'
-            hx-swap="none"
+            hx-swap="outerHTML"
+            hx-target="#translation-form"
             hx-on:click="
             event.stopPropagation()">
                 <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
