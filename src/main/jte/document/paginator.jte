@@ -11,24 +11,24 @@
 @if(currentPage > 1)
     <div
     class="text-2xl cursor-pointer select-none"
+    hx-trigger="click"
     hx-params="page,type"
     hx-vals='{
-        "page": "${currentPage - 1}",
-        "type": "pageChange"
+        "page": "${currentPage - 1}"
     }'
-    hx-get="/documents/${id}"
+    hx-get="/documents/${id}/changePage"
     hx-target="#content"
     hx-swap="outerHTML"
     hx-push-url="false">⬅️</div>
 @else
     <div
     class="text-2xl cursor-pointer select-none invisible"
+    hx-trigger="click"
     hx-params="page,type"
     hx-vals='{
-        "page": "${currentPage + 1}",
-        "type": "pageChange"
+        "page": "${currentPage + 1}"
     }'
-    hx-get="/documents/${id}"
+    hx-get="/documents/${id}/changePage"
     hx-target="#content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
@@ -36,12 +36,12 @@
 @for(var row : ForSupport.of(rows.get(currentRow)))
     @if(currentPage == row.get())
         <form
+        hx-trigger="click"
         hx-params="page,type"
         hx-vals='{
-            "page": "${row.get()}",
-            "type": "pageChange"
+            "page": "${row.get()}"
         }'
-        hx-get="/documents/${id}"
+        hx-get="/documents/${id}/changePage"
         hx-target="#content"
         hx-swap="outerHTML"
         hx-push-url="false">
@@ -51,12 +51,12 @@
         </form>
     @else
         <form
+        hx-trigger="click"
         hx-params="page,type"
         hx-vals='{
-            "page": "${row.get()}",
-            "type": "pageChange"
+            "page": "${row.get()}"
         }'
-        hx-get="/documents/${id}"
+        hx-get="/documents/${id}/changePage"
         hx-target="#content"
         hx-swap="outerHTML"
         hx-push-url="false">
@@ -70,24 +70,24 @@
 @if(currentPage != pages)
     <div
     class="text-2xl cursor-pointer select-none"
+    hx-trigger="click"
     hx-params="page,type"
     hx-vals='{
-        "page": "${currentPage + 1}",
-        "type": "pageChange"
+        "page": "${currentPage + 1}"
     }'
-    hx-get="/documents/${id}"
+    hx-get="/documents/${id}/changePage"
     hx-target="#content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
 @else
     <div
     class="text-2xl cursor-pointer select-none invisible"
+    hx-trigger="click"
     hx-params="page,type"
     hx-vals='{
-        "page": "${currentPage + 1}",
-        "type": "pageChange"
+        "page": "${currentPage + 1}"
     }'
-    hx-get="/documents/${id}"
+    hx-get="/documents/${id}/changePage"
     hx-target="#content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
