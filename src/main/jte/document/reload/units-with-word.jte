@@ -46,34 +46,40 @@ hx-vals='{
             @template.document.word(
             wordId = entry.getIndex(),
             bgColor = wordBgColor,
+            filler = "bg-primary",
             textColor = wordTextColor,
             isPersisted = true,
             documentId = result.documentContentData().documentId(),
             rawText = unit.rawText(),
             translation = unit.translation(),
-            currentPage = result.paginationData().currentPageNumber())
+            currentPage = result.paginationData().currentPageNumber(),
+            gapColor = "border-transparent")
         @elseif(unit instanceof WordUnit)
             @if(unit.translation().processedTargetWord().length() <= 50)
                 @template.document.word(
                 wordId = entry.getIndex(),
                 bgColor = wordBgColor,
+                filler = "bg-primary",
                 textColor = wordTextColor,
                 isPersisted = false,
                 documentId = result.documentContentData().documentId(),
                 rawText = unit.rawText(),
                 translation = unit.translation(),
-                currentPage = result.paginationData().currentPageNumber())
+                currentPage = result.paginationData().currentPageNumber(),
+                gapColor = "border-transparent")
             @else
                 @template.document.word(
                 wordId = entry.getIndex(),
                 bgColor = "bg-primary",
+                filler = "bg-primary",
                 textColor = "text-neutral",
                 isSelectable = false,
                 isPersisted = false,
                 documentId = result.documentContentData().documentId(),
                 rawText = unit.rawText(),
                 translation = unit.translation(),
-                currentPage = result.paginationData().currentPageNumber())
+                currentPage = result.paginationData().currentPageNumber(),
+                gapColor = "border-transparent")
             @endif
         @endif
     @endfor

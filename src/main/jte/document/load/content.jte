@@ -17,6 +17,7 @@ hx-vals='js:{
     startId: event.detail.startId,
     endId: event.detail.endId,
     unitText: event.detail.phraseText,
+    isPhrase: true,
     isUnitPersisted: false,
     page: ${result.paginationData().currentPageNumber()}
 }'
@@ -102,7 +103,7 @@ class="flex flex-col gap-8 text-wrap">
         @endif
         <div
         id="units"
-        class="flex inline-flex flex-wrap">
+        class="flex flex-wrap">
             @for(var entry :  ForSupport.of(result.documentContentData().content()))
                 !{DocumentUnit unit = entry.get();}
                 @if(unit instanceof PhraseUnit)
@@ -121,45 +122,53 @@ class="flex flex-col gap-8 text-wrap">
                     @template.document.word(
                     wordId = entry.getIndex(),
                     bgColor = wordBgColor,
+                    filler = "bg-primary",
                     textColor = wordTextColor,
                     isPersisted = true,
                     documentId = result.documentContentData().documentId(),
                     rawText = unit.rawText(),
                     translation = unit.translation(),
-                    currentPage = result.paginationData().currentPageNumber())
+                    currentPage = result.paginationData().currentPageNumber(),
+                    gapColor = "border-transparent")
                 @elseif(unit instanceof WordUnit)
                     @if(unit.translation().processedTargetWord().length() <= 50)
                         @template.document.word(
                         wordId = entry.getIndex(),
                         bgColor = "bg-accent",
+                        filler = "bg-primary",
                         textColor = "text-primary",
                         isPersisted = false,
                         documentId = result.documentContentData().documentId(),
                         rawText = unit.rawText(),
                         translation = unit.translation(),
-                        currentPage = result.paginationData().currentPageNumber())
+                        currentPage = result.paginationData().currentPageNumber(),
+                        gapColor = "border-transparent")
                     @else
                         @template.document.word(
                         wordId = entry.getIndex(),
                         bgColor = "bg-primary",
+                        filler = "bg-primary",
                         textColor = "text-neutral",
                         isSelectable = false,
                         isPersisted = false,
                         documentId = result.documentContentData().documentId(),
                         rawText = unit.rawText(),
                         translation = unit.translation(),
-                        currentPage = result.paginationData().currentPageNumber())
+                        currentPage = result.paginationData().currentPageNumber(),
+                        gapColor = "border-transparent")
                     @endif
                 @else
                     @template.document.word(
                     wordId = entry.getIndex(),
                     bgColor = "bg-primary",
+                    filler = "bg-primary",
                     textColor = "text-neutral",
                     isSelectable = false,
                     documentId = result.documentContentData().documentId(),
                     rawText = unit.rawText(),
                     translation = unit.translation(),
-                    currentPage = result.paginationData().currentPageNumber())
+                    currentPage = result.paginationData().currentPageNumber(),
+                    gapColor = "border-transparent")
                 @endif
             @endfor
         </div>

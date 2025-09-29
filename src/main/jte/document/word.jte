@@ -12,6 +12,8 @@
 @param int currentPage
 @param String rawText
 @param Translation translation
+@param String gapColor
+@param String filler
 
 @if(isSelectable)
     <input
@@ -30,7 +32,7 @@
     type="hidden">
     <div
     class="
-    ${isWrapped ? "pointer-events-none" : "border border-2  border-transparent"} inline-block rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg"
+    border-2 ${gapColor} ${filler} rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg"
     hx-on:click="htmx.trigger('#word-document-reloader-${wordId}', 'reload-document')">
         <div
         class="cursor-default z-2 absolute inline"

@@ -26,7 +26,7 @@ hx-vals='{
     !{List<Integer> range = IntStream.range(result.startId(), result.endId() + 1).boxed().toList();}
     @for(var entry :  ForSupport.of(result.documentContentData().content()))
         !{DocumentUnit unit = entry.get();}
-        !{String wordBgColor = range.stream().anyMatch(num -> num == entry.getIndex()) ?
+        !{String bgColor = range.stream().anyMatch(num -> num == entry.getIndex()) ?
             "bg-tertiary" :
             switch(unit.translation().familiarity()){
                 case UNKNOWN -> "bg-accent";
@@ -35,20 +35,28 @@ hx-vals='{
                 default -> "bg-primary";
             }
         ;}
-        !{String wordTextColor = range.stream().anyMatch(num -> num == entry.getIndex()) ?
+        !{String filler = range.stream().anyMatch(num -> num == entry.getIndex()) ?
+            "bg-tertiary" :
+            "bg-primary";}
+        !{String textColor = range.stream().anyMatch(num -> num == entry.getIndex()) ?
             "text-neutral" :
             switch(unit.translation().familiarity()){
                 case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
                 default -> "text-neutral";
             }
         ;}
+        !{String gapColor = range.stream().anyMatch(num -> num == entry.getIndex()) ?
+            "border-tertiary" :
+            "border-transparent";}
         @if(unit instanceof PhraseUnit)
             nt
         @elseif(unit instanceof TranslationUnit)
             @template.document.word(
             wordId = entry.getIndex(),
-            bgColor = wordBgColor,
-            textColor = wordTextColor,
+            bgColor = bgColor,
+            filler = filler,
+            gapColor = gapColor,
+            textColor = textColor,
             isPersisted = true,
             documentId = result.documentContentData().documentId(),
             rawText = unit.rawText(),
@@ -58,8 +66,10 @@ hx-vals='{
             @if(unit.translation().processedTargetWord().length() <= 50)
                 @template.document.word(
                 wordId = entry.getIndex(),
-                bgColor = wordBgColor,
-                textColor = wordTextColor,
+                bgColor = bgColor,
+                filler = filler,
+                gapColor = gapColor,
+                textColor = textColor,
                 isPersisted = false,
                 documentId = result.documentContentData().documentId(),
                 rawText = unit.rawText(),
@@ -69,6 +79,8 @@ hx-vals='{
                 @template.document.word(
                 wordId = entry.getIndex(),
                 bgColor = "bg-primary",
+                filler = filler,
+                gapColor = gapColor,
                 textColor = "text-neutral",
                 isSelectable = false,
                 isPersisted = false,

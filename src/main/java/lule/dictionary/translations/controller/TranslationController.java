@@ -36,7 +36,7 @@ public class TranslationController {
                                        @RequestParam("id") int id,
                                        @RequestParam("documentId") int documentId,
                                        @RequestParam("targetWord") String targetWord,
-                                       @RequestParam(value = "isPhrase", required = false, defaultValue = "false") boolean isPhrase,
+                                       @RequestParam(value = "isPhrase", defaultValue = "false") boolean isPhrase,
                                        @RequestParam("isPersisted") boolean isPersisted) {
         GetTranslationFormRequest request = isPersisted ?
                 FindTranslationFormRequest.builder()
@@ -66,34 +66,6 @@ public class TranslationController {
             };
         }
         return "error";
-    }
-
-    @GetMapping({"/create-phrase", "/create-phrase/"})
-    public String createPhrase(Model model,
-                               Authentication authentication,
-                               @RequestParam("selectableId") int selectableId,
-                               @RequestParam("documentId") int documentId,
-                               @RequestParam("ids") List<Integer> ids,
-                               @RequestParam("targetWords") List<String> targetWords,
-                               @RequestParam("familiarities") List<String> familiarities,
-                               @RequestParam("isPersistedList") List<String> isPersistedList) {
-        CreatePhraseAttributeRequest request = CreatePhraseAttributeRequest.builder()
-                .ids(ids)
-                .unprocessedTargetWords(targetWords)
-                .familiarities(familiarities)
-                .isPersistedList(isPersistedList)
-                .id(selectableId)
-                .documentId(documentId)
-                .build();
-        PhraseAttribute attribute = translationService.createPhraseAttribute(request, authentication);
-        Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
-        Map<String, Object> attributes = Map.of(
-                "attribute", attribute,
-                "messages", messages,
-                "errors", Map.of()
-        );
-        model.addAllAttributes(attributes);
-        return "translation/new-phrase";
     }
 
     @PostMapping({"", "/"})
