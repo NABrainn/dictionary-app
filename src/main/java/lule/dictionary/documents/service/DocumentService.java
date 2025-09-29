@@ -3,26 +3,30 @@ package lule.dictionary.documents.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.*;
-import lule.dictionary.documents.data.attribute.DocumentFormAttribute;
-import lule.dictionary.documents.data.attribute.DocumentListAttribute;
-import lule.dictionary.documents.data.documentSubmission.SubmissionStrategy;
+import lule.dictionary.documents.data.attribute.*;
+import lule.dictionary.documents.data.documentProcessing.*;
+import lule.dictionary.documents.data.documentSubmission.DocumentFormType;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.exception.DocumentServiceException;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
-import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy;
-import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy;
+import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent;
+import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl;
+import lule.dictionary.documents.data.request.loadDocument.*;
+import lule.dictionary.documents.data.result.FirstLoadResult;
+import lule.dictionary.documents.data.result.ReloadWithPhraseResult;
+import lule.dictionary.documents.data.result.LoadDocumentResult;
+import lule.dictionary.documents.data.result.ReloadWithWordResult;
 import lule.dictionary.familiarity.service.FamiliarityService;
+import lule.dictionary.jsoup.data.Token;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
 import lule.dictionary.stringUtil.service.PatternService;
+import lule.dictionary.stringUtil.service.StringUtils;
+import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.Translation;
-import lule.dictionary.documents.service.exception.DocumentNotFoundException;
-import lule.dictionary.documents.data.selectable.Phrase;
-import lule.dictionary.documents.data.selectable.Selectable;
-import lule.dictionary.documents.data.selectable.Word;
 import lule.dictionary.documents.data.repository.DocumentRepository;
 import lule.dictionary.jsoup.service.JsoupService;
 import lule.dictionary.pagination.service.PaginationService;
@@ -32,18 +36,19 @@ import lule.dictionary.translations.data.request.FindTranslationsInDocumentReque
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.userProfiles.service.UserInterfaceService;
-import lule.dictionary.userProfiles.service.UserProfileService;
 import lule.dictionary.validation.data.Constraint;
+import lule.dictionary.validation.data.rule.NotEmpty;
 import lule.dictionary.validation.data.ValidationException;
+import lule.dictionary.validation.data.rule.Size;
 import lule.dictionary.validation.service.Validator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.function.Predicate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -59,102 +64,126 @@ public class DocumentService {
     private final FamiliarityService familiarityService;
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
-    private final UserProfileService userProfileService;
     private final UserInterfaceService userInterfaceService;
+    private final StringUtils stringUtils;
 
     @Transactional
     public Result<Integer> createDocument(CreateDocumentRequest request) {
         UserProfile principal = (UserProfile) request.authentication().getPrincipal();
         Language uiLanguage = principal.userInterfaceLanguage();
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
-        SubmissionStrategy submissionStrategy = switch (request.submissionStrategy()) {
-            case "url_submit" -> UrlSubmissionStrategy.of(request.title(), request.url(), localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
-            case "content_submit" -> ContentSubmissionStrategy.of(request.title(), request.content(), localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
-            default -> throw new IllegalStateException("Unexpected value: " + request.submissionStrategy());
+        DocumentFormType documentFormType = switch (request.documentFormType()) {
+            case "url_form" -> DocumentFormWithUrl.of(request.title(), request.url(), localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
+            case "content_form" -> DocumentFormWithContent.of(request.title(), request.content(), localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
+            default -> throw new IllegalStateException("Unexpected value: " + request.documentFormType());
         };
-        return switch (submissionStrategy) {
-            case UrlSubmissionStrategy urlSubmission -> {
-                Result<?> result = validator.validate(List.of(
-                        Constraint.of("title", request.title()::isBlank, switch (uiLanguage) {
+        return switch (documentFormType) {
+            case DocumentFormWithUrl documentFormWithUrl -> {
+                Result<?> result = validator.validate(
+                        Constraint.of("title", NotEmpty.of(request.title()), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być pusty";
                             case EN -> "Title cannot be empty";
                             case IT -> "Il titolo non può essere vuoto";
                             case NO -> "Tittelen kan ikke være tom";
                         }),
-                        Constraint.of("title", () -> request.title().length() > 500, switch (uiLanguage) {
+                        Constraint.of("title", Size.of(request.title(), 0, 500), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
                             case EN -> "Title cannot be longer than 500 characters";
                             case IT -> "Il titolo non può essere più lungo di 500 caratteri";
                             case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
                         }),
-                        Constraint.of("url", () -> request.url().isBlank(), switch (uiLanguage) {
+                        Constraint.of("url", NotEmpty.of(request.url()), switch (uiLanguage) {
                             case PL -> "URL nie może być pusty";
                             case EN -> "URL cannot be empty";
                             case IT -> "L'URL non può essere vuoto";
                             case NO -> "URL-en kan ikke være tom";
                         }),
-                        Constraint.of("url", () -> request.url().length() > 500, switch (uiLanguage) {
+                        Constraint.of("url", Size.of(request.url(), 0, 500), switch (uiLanguage) {
                             case PL -> "URL nie może być dłuższy niż 500 znaków";
                             case EN -> "URL cannot be longer than 500 characters";
                             case IT -> "L'URL non può essere più lungo di 500 caratteri";
                             case NO -> "URL-en kan ikke være lenger enn 500 tegn";
                         })
-                ));
+                );
                 yield switch (result) {
                     case Ok<?> ignored -> {
-                        String content = jsoupService.importDocumentContent(urlSubmission.url());
-                        yield  Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
-                                .title(urlSubmission.title())
-                                .url(urlSubmission.url())
-                                .content(content)
-                                .userDetails(principal)
-                                .build()));
+                        String[] documentAsArray = jsoupService.fetchDocument(documentFormWithUrl.url())
+                                .wholeText()
+                                .split("(?<=\\n)(?=\\w)");
+                        String formattedDocument = Arrays.stream(documentAsArray)
+                                .map(tokenBlob -> Token.of(tokenBlob, stringUtils.getCharQuantity(tokenBlob, '\n')))
+                                .map(token -> switch (token.newlineCount()) {
+                                    case 0 -> token;
+                                    case 1 -> token.withContent(patternService.replaceNewline(token.content(), " "));
+                                    default -> token.withContent(patternService.replaceAllNewlines(token.content(), '\n', 30));
+                                })
+                                .map(Token::content)
+                                .filter(Predicate.not(String::isBlank))
+                                .collect(Collectors.joining());
+                        Document document = Document.builder()
+                                .id(-1)
+                                .title(documentFormWithUrl.title())
+                                .pageContent(formattedDocument)
+                                .url(documentFormWithUrl.url())
+                                .sourceLanguage(principal.sourceLanguage())
+                                .targetLanguage(principal.targetLanguage())
+                                .owner(principal.getUsername())
+                                .totalContentLength(formattedDocument.length())
+                                .build();
+                        int documentId = documentRepository.create(document).orElseThrow();
+                        yield Ok.of(documentId);
                     }
                     case Err<?> v -> v.throwable() instanceof ValidationException validationException ?
-                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), validationException.getViolations())) :
+                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(documentFormType, localization), validationException.getViolations())) :
                             Err.of(new RuntimeException());
                 };
 
             }
-            case ContentSubmissionStrategy contentSubmission -> {
-                Result<?> result = validator.validate(List.of(
-                        Constraint.of("title", request.title()::isBlank, switch (uiLanguage) {
+            case DocumentFormWithContent contentSubmission -> {
+                Result<?> result = validator.validate(
+                        Constraint.of("title", NotEmpty.of(request.title()), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być pusty";
                             case EN -> "Title cannot be empty";
                             case IT -> "Il titolo non può essere vuoto";
                             case NO -> "Tittelen kan ikke være tom";
                         }),
-                        Constraint.of("title", () -> request.title().length() > 500, switch (uiLanguage) {
+                        Constraint.of("title", Size.of(request.title(), 0, 500), switch (uiLanguage) {
                             case PL -> "Tytuł nie może być dłuższy niż 500 znaków";
                             case EN -> "Title cannot be longer than 500 characters";
                             case IT -> "Il titolo non può essere più lungo di 500 caratteri";
                             case NO -> "Tittelen kan ikke være lenger enn 500 tegn";
                         }),
-                        Constraint.of("content", () -> request.content().isBlank(), switch (uiLanguage) {
+                        Constraint.of("content", NotEmpty.of(request.content()), switch (uiLanguage) {
                             case PL -> "Treść nie może być pusta";
                             case EN -> "Content cannot be empty";
                             case IT -> "Il contenuto non può essere vuoto";
                             case NO -> "Innholdet kan ikke være tomt";
                         }),
-                        Constraint.of("content", () -> request.content().length() > 100000, switch (uiLanguage) {
+                        Constraint.of("content", Size.of(request.content(), 0, 100000), switch (uiLanguage) {
                             case PL -> "Treść nie może być dłuższa niż 100 000 znaków";
                             case EN -> "Content cannot be longer than 100,000 characters";
                             case IT -> "Il contenuto non può essere più lungo di 100.000 caratteri";
                             case NO -> "Innholdet kan ikke være lenger enn 100 000 tegn";
                         })
-                ));
+                );
                 yield switch (result) {
                     case Ok<?> ignored -> {
                         String content = contentSubmission.content();
-                        yield  Ok.of(insertIntoDatabase(InsertIntoDatabaseRequest.builder()
+                        Document document = Document.builder()
+                                .id(-1)
                                 .title(contentSubmission.title())
+                                .pageContent(content)
                                 .url("")
-                                .content(content)
-                                .userDetails(principal)
-                                .build()));
+                                .sourceLanguage(principal.sourceLanguage())
+                                .targetLanguage(principal.targetLanguage())
+                                .owner(principal.getUsername())
+                                .totalContentLength(content.length())
+                                .build();
+                        int documentId = documentRepository.create(document).orElseThrow();
+                        yield Ok.of(documentId);
                     }
                     case Err<?> v -> v.throwable() instanceof ValidationException validationException ?
-                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(submissionStrategy, localization), validationException.getViolations())) :
+                            Err.of(new DocumentServiceException(DocumentFormAttribute.of(documentFormType, localization), validationException.getViolations())) :
                             Err.of(new RuntimeException());
                 };
             }
@@ -163,166 +192,116 @@ public class DocumentService {
 
     public DocumentListAttribute findMany(Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(principal.getUsername(), principal.targetLanguage());
-        Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
+        Language uiLanguage = principal.userInterfaceLanguage();
+        Language targetLanguage = principal.targetLanguage();
+        String username = principal.getUsername();
+
+        List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(username, targetLanguage);
+        Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(uiLanguage);
         boolean isNavbarOpen = userInterfaceService.isNavbarToggled(authentication);
         return DocumentListAttribute.of(documents, localization, isNavbarOpen);
     }
 
-    public Result<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest request, Authentication authentication) {
-        return (Result<DocumentAttribute>) documentRepository.findById(request.documentId(), request.page())
-                .map(found -> {
-                    Result<?> result = documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(found.totalContentLength())));
-                    switch (result) {
-                        case Ok<?> ignored -> {
-                            AssembleDocumentContentData assembleContentRequest = AssembleDocumentContentData.builder()
-                                    .selectableId(request.wordId())
-                                    .documentId(request.documentId())
-                                    .contentBlob(found.pageContent())
-                                    .owner(found.owner())
-                                    .title(found.title())
-                                    .build();
-                            DocumentContentData documentContentData = assembleDocumentContentData(assembleContentRequest);
-                            DocumentPaginationData paginationData = assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest.of(found.totalContentLength(), request.page()));
-                            boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
-                            return Ok.of(DocumentAttribute.of(documentContentData, paginationData, isNavbarOpen));
-                        }
-                        case Err<?> v -> {
-                            return Err.of(v.throwable());
-                        }
-                    }
-                })
-                .orElseGet(() -> Err.of(new DocumentNotFoundException("")));
-    }
-
-    private int insertIntoDatabase(InsertIntoDatabaseRequest request) {
-        return documentRepository.create(Document.builder()
-                .id(-1)
-                .title(request.title())
-                .pageContent(request.content())
-                .url(request.url())
-                .sourceLanguage(request.userDetails().sourceLanguage())
-                .targetLanguage(request.userDetails().targetLanguage())
-                .owner(request.userDetails().getUsername())
-                .totalContentLength(request.content().length())
-                .build())
-                .orElseThrow(() -> new RuntimeException("Failed to add a new import"));
-    }
-
-    private DocumentContentData assembleDocumentContentData(AssembleDocumentContentData request) {
-        List<Translation> phrases = translationService.extractPhrases(ExtractPhrasesRequest.of(request.contentBlob(), request.owner()));
-        String mappedContent = mapPhrases(MapPhrasesRequest.of(request.contentBlob(), phrases));
-        List<Paragraph> content = mapToSelectables(MapToSelectablesRequest.of(mappedContent, new AtomicInteger(0)));
-        Map<String, Translation> translations = translationService.findTranslationsInDocument(FindTranslationsInDocumentRequest.of(request.contentBlob(), request.owner()));
-        return DocumentContentData.builder()
-                .selectedWordId(request.selectableId())
-                .documentId(request.documentId())
-                .title(request.title())
-                .content(content)
-                .translations(translations)
-                .build();
-    }
-
-    public String mapPhrases(MapPhrasesRequest request) {
-        List<String> contentAsList = Stream.of(request.contentBlob().split("((?<=\\n)|(?=\\n))| "))
-                .map(word -> !word.contains("\n") ? word.trim() : word)
-                .filter(word -> !word.isEmpty())
-                .toList();
-        List<String> formattedContentAsList = Arrays.stream(request.contentBlob().split("((?<=\\n)|(?=\\n))| "))
-                .filter(word -> !word.isEmpty())
-                .map(word -> !word.contains("\n") ? word.trim() : word)
-                .map(String::toLowerCase)
-                .map(patternService::removeSpecialCharacters)
-                .toList();
-        List<PhraseNode> phrasesFound = new ArrayList<>();
-        for(Translation phrase : request.phrases()) {
-            List<String> searchedPhrase = List.of(patternService.removeSpecialCharacters(phrase.targetWord())
-                    .toLowerCase()
-                    .split(" "));
-            List<WordNode> matchingNodes = IntStream.range(0, contentAsList.size())
-                    .mapToObj(i -> WordNode.of(i, formattedContentAsList.get(i), contentAsList.get(i)))
-                    .filter(node -> searchedPhrase.contains(node.formattedText()))
-                    .distinct()
-                    .sorted(Comparator.comparingInt(WordNode::id))
-                    .toList();
-            List<WordNode> buffer = new ArrayList<>();
-            int pointer = 0;
-            for(WordNode node : matchingNodes) {
-                if(!buffer.isEmpty()) {
-                    WordNode lastInBuffer = buffer.getLast();
-                    if(node.id() - lastInBuffer.id() != 1) {
-                        buffer.clear();
-                        pointer = 0;
-                    }
-                }
-                if(!node.formattedText().equals(searchedPhrase.get(pointer))) {
-                    buffer.clear();
-                    pointer = 0;
-                }
-                buffer.add(node);
-                pointer++;
-                String bufferValue = String.join(" ", buffer.stream()
-                        .map(WordNode::formattedText)
-                        .toList());
-                String phraseValue = String.join(" ", searchedPhrase);
-                if(bufferValue.equals(phraseValue)) {
-                    phrasesFound.add(PhraseNode.fromWordNodes(buffer, phrase));
-                    buffer.clear();
-                    pointer = 0;
-                }
+    public Result<LoadDocumentResult> loadDocumentContent(LoadDocumentRequest request, Authentication authentication) {
+        UserProfile principal = (UserProfile) authentication.getPrincipal();
+        Language sourceLanguage = principal.sourceLanguage();
+        Language targetLanguage = principal.targetLanguage();
+        Result<Document> result = documentRepository.findById(request.documentId(), request.page())
+                .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(found.totalContentLength()), found)))
+                .orElseThrow();
+        return switch (result) {
+            case Ok<Document> ok -> {
+                Document document = ok.value();
+                Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(document.pageContent(), document.owner()));
+                Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(document.pageContent(), document.owner())));
+                DocumentUnitStore processedContent = Arrays.stream(document.pageContent().split("\\s+"))
+                        .sequential()
+                        .map(word -> switch (translations.get(patternService.removeSpecialCharacters(word.toLowerCase().trim()))) {
+                            case Translation translation -> TranslationUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
+                            case null -> WordUnit.of(Translation.builder()
+                                    .sourceWords(List.of())
+                                    .processedTargetWord(patternService.removeSpecialCharacters(word.toLowerCase().trim()))
+                                    .familiarity(Familiarity.UNKNOWN)
+                                    .sourceLanguage(sourceLanguage)
+                                    .targetLanguage(targetLanguage)
+                                    .owner(document.owner())
+                                    .isPhrase(false)
+                                    .build(),
+                                    word,
+                                    phrases.containsWord(word.toLowerCase().trim()));
+                            })
+                        .map(unit -> (DocumentUnit) unit)
+                        .collect(Collector.of(
+                                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>()),
+                                (store, documentUnit) -> {
+                                    if (!documentUnit.isPhrasePart()) {
+                                        store.addDocumentUnit(documentUnit);
+                                        store.clearPhraseParts();
+                                    }
+                                    else {
+                                        store.addDocumentUnit(documentUnit);
+                                        store.addPhrasePart(documentUnit);
+                                    }
+                                    if (phrases.findPhrase(store.bufferValue()).isPresent()) {
+                                        Translation translation = phrases.findPhrase(store.bufferValue()).get();
+                                        store.wrapToPhrase(translation);
+                                        store.clearPhraseParts();
+                                    }
+                                },
+                                (left, right) -> {
+                                    List<DocumentUnit> leftUnits = left.documentUnits();
+                                    List<DocumentUnit> rightUnits = right.documentUnits();
+                                    leftUnits.addAll(rightUnits);
+                                    return left;
+                                },
+                                Collector.Characteristics.IDENTITY_FINISH
+                        ));
+                DocumentContentData contentData = DocumentContentData.builder()
+                        .title(document.title())
+                        .content(processedContent.documentUnits())
+                        .translations(translations)
+                        .documentId(request.documentId())
+                        .build();
+                DocumentPaginationData paginationData = DocumentPaginationData.builder()
+                        .currentPageNumber(request.page())
+                        .numberOfPages(paginationService.getNumberOfPages(document.totalContentLength()))
+                        .currentRowNumber(paginationService.getCurrentRow(request.page(), paginationService.getMAX_ROW_SIZE()))
+                        .firstPageOfRowNumber(paginationService.getFirstPageOfRow(request.page(), paginationService.getMAX_ROW_SIZE()))
+                        .rows(paginationService.getRows(paginationService.getNumberOfPages(document.totalContentLength())))
+                        .build();
+                boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
+                yield switch (request) {
+                    case FirstLoadRequest firstLoadRequest -> Ok.of(FirstLoadResult.builder()
+                            .documentContentData(contentData)
+                            .paginationData(paginationData)
+                            .isNavbarOpen(isNavbarOpen)
+                            .build());
+                    case PageChangeRequest pageChangeRequest -> Ok.of(FirstLoadResult.builder()
+                            .documentContentData(contentData)
+                            .paginationData(paginationData)
+                            .isNavbarOpen(isNavbarOpen)
+                            .build());
+                    case ReloadWithWordRequest wordRequest -> Ok.of(ReloadWithWordResult.builder()
+                            .documentContentData(contentData)
+                            .paginationData(paginationData)
+                            .isNavbarOpen(isNavbarOpen)
+                            .unitId(wordRequest.unitId())
+                            .targetWord(request.unitText())
+                            .isSelectablePersisted(request.isUnitPersisted())
+                            .build());
+                    case ReloadWithPhraseRequest phraseRequest -> Ok.of(ReloadWithPhraseResult.builder()
+                            .documentContentData(contentData)
+                            .paginationData(paginationData)
+                            .isNavbarOpen(isNavbarOpen)
+                            .startId(phraseRequest.startId())
+                            .endId(phraseRequest.endId())
+                            .targetWord(request.unitText())
+                            .isSelectablePersisted(request.isUnitPersisted())
+                            .build());
+                };
             }
-        }
-        List<WordNode> phrasesAsWordNodes = phrasesFound.stream()
-                .flatMap(phrase -> phrase.wordNodes().stream())
-                .sorted(Comparator.comparingInt(WordNode::id))
-                .toList();
-
-        List<String> outputContentAsList = new ArrayList<>();
-        int wordId = 0;
-        int pointer = 0;
-
-        while (wordId < contentAsList.size()) {
-            if (pointer < phrasesAsWordNodes.size() && wordId == phrasesAsWordNodes.get(pointer).id()) {
-                List<String> phraseParts = new ArrayList<>();
-                while (pointer < phrasesAsWordNodes.size() && wordId == phrasesAsWordNodes.get(pointer).id()) {
-                    phraseParts.add(phrasesAsWordNodes.get(pointer).renderedText());
-                    pointer++;
-                    wordId++;
-                    if (phraseParts.getLast().endsWith(">>")) {
-                        break;
-                    }
-                }
-                outputContentAsList.add(String.join("-", phraseParts));
-            } else {
-                outputContentAsList.add(contentAsList.get(wordId));
-                wordId++;
-            }
-        }
-        return String.join(" ", outputContentAsList);
-    }
-
-    private List<Paragraph> mapToSelectables(MapToSelectablesRequest request) {
-        return Stream.of(request.contentBlob().split("\n+"))
-                .map(paragraphAsString -> Arrays.stream(paragraphAsString.split("\\s+"))
-                        .map(selectable -> selectable.startsWith("ph<") && selectable.endsWith(">>") ?
-                                Phrase.fromString(selectable, familiarityService.getFamiliarity(selectable), request.idCounter().getAndIncrement()) :
-                                (Selectable) Word.of(selectable, request.idCounter().getAndIncrement()))
-                        .toList())
-                .filter(paragraphAsList -> !paragraphAsList.isEmpty())
-                .map(paragraphAsList -> Paragraph.of(paragraphAsList, 0))
-                .toList();
-    }
-
-    private DocumentPaginationData assembleDocumentPaginationData(AssembleDocumentPaginationDataRequest request) {
-        int currentPage = request.currentPage();
-        int pagesTotal = paginationService.getNumberOfPages(request.totalLength());
-        return DocumentPaginationData.builder()
-                .currentPageNumber(currentPage)
-                .numberOfPages(pagesTotal)
-                .currentRowNumber(paginationService.getCurrentRow(currentPage, paginationService.getMAX_ROW_SIZE()))
-                .firstPageOfRowNumber(paginationService.getFirstPageOfRow(currentPage, paginationService.getMAX_ROW_SIZE()))
-                .rows(paginationService.getRows(pagesTotal))
-                .build();
+            case Err<Document> v -> Err.of(v.throwable());
+        };
     }
 
     public Map<DocumentLocalizationKey, String> getDocumentFormLocalization(Authentication authentication) {
@@ -333,11 +312,11 @@ public class DocumentService {
     public DocumentFormAttribute getDocumentForm(String strategy, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(principal.userInterfaceLanguage());
-        SubmissionStrategy submissionStrategy = switch (strategy) {
-            case "url_submit" -> UrlSubmissionStrategy.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
-            case "content_submit" -> ContentSubmissionStrategy.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
+        DocumentFormType documentFormType = switch (strategy) {
+            case "url_form" -> DocumentFormWithUrl.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_URL));
+            case "content_form" -> DocumentFormWithContent.of("", "", localization.get(DocumentLocalizationKey.SPACE_FOR_CONTENT));
             default -> throw new IllegalStateException("Unexpected value: " + strategy);
         };
-        return DocumentFormAttribute.of(submissionStrategy, localization);
+        return DocumentFormAttribute.of(documentFormType, localization);
     }
 }

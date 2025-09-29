@@ -8,8 +8,7 @@ import java.util.List;
 
 @Builder
 public record Translation(@NonNull List<String> sourceWords,
-                          @NonNull String targetWord,
-                          @NonNull String unprocessedTargetWord,
+                          @NonNull String processedTargetWord,
                           @NonNull Familiarity familiarity,
                           @NonNull Language sourceLanguage,
                           @NonNull Language targetLanguage,
@@ -18,8 +17,7 @@ public record Translation(@NonNull List<String> sourceWords,
         public Translation withSourceWords(List<String> sourceWords) {
                 return Translation.builder()
                         .sourceWords(sourceWords)
-                        .targetWord(targetWord)
-                        .unprocessedTargetWord(unprocessedTargetWord)
+                        .processedTargetWord(processedTargetWord)
                         .familiarity(familiarity)
                         .sourceLanguage(sourceLanguage)
                         .targetLanguage(targetLanguage)
@@ -35,6 +33,6 @@ public record Translation(@NonNull List<String> sourceWords,
                 if(!(object instanceof Translation translation)) {
                         return false;
                 }
-                return this.targetWord.equals(translation.targetWord);
+                return this.processedTargetWord.equals(translation.processedTargetWord);
         }
 }

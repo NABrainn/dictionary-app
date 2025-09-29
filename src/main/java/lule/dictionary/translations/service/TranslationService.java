@@ -19,17 +19,19 @@ import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.repository.TranslationRepository;
 import lule.dictionary.translations.data.exception.TranslationServiceException;
 import lule.dictionary.translations.data.exception.TranslationsNotFoundException;
-import lule.dictionary.translationFetching.service.TranslationFetchingExecutor;
+import lule.dictionary.translationFetching.service.TranslationFetcherExecutor;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.userProfiles.service.UserProfileService;
 import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.ValidationException;
+import lule.dictionary.validation.data.rule.NotEmpty;
+import lule.dictionary.validation.data.rule.Size;
 import lule.dictionary.validation.service.Validator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -40,12 +42,11 @@ import java.util.stream.Stream;
 public class TranslationService {
 
     private final TranslationRepository translationRepository;
-    private final TranslationFetchingExecutor translationFetchingService;
+    private final TranslationFetcherExecutor translationFetchingService;
     private final Validator validator;
     private final FamiliarityService familiarityService;
     private final PatternService patternService;
     private final TranslationLocalizationService translationLocalization;
-    private final UserProfileService userProfileService;
 
     @Transactional
     public Result<TranslationAttribute> createTranslation(@NonNull AddTranslationRequest request,
@@ -53,62 +54,70 @@ public class TranslationService {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language uiLanguage = principal.userInterfaceLanguage();
         String sanitizedSourceWord = request.sourceWords().stream()
+                .filter(Predicate.not(String::isBlank))
                 .findFirst()
                 .map(String::trim)
                 .map(patternService::removeSpecialCharacters)
                 .orElse("");
-        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord())
-                .trim();
-        Result<?> result = validator.validate(List.of(
-                Constraint.of("sourceWord", () -> request.isPhrase() && sanitizedSourceWord.length() > 50, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("sourceWord", () -> !request.isPhrase() && sanitizedSourceWord.length() > 250, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("targetWord", () -> request.isPhrase() && sanitizedTargetWord.length() > 50, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("targetWord", () -> !request.isPhrase() && sanitizedTargetWord.length() > 250, switch (uiLanguage) {
-                    case PL -> "ttt źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("sourceWord", sanitizedSourceWord::isBlank, switch (uiLanguage) {
-                    case PL -> "ttt źródłowe nie może być puste";
-                    case EN -> "Source word cannot be empty";
-                    case IT -> "La parola sorgente non può essere vuota";
-                    case NO -> "Kildeordet kan ikke være tomt";
-                })
-        ));
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord().toLowerCase().trim());
+        Result<?> result = request.isPhrase() ?
+                validator.validate(
+                        Constraint.of("sourceWord", Size.of(sanitizedSourceWord, 0, 250), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być dłuższe niż 250 znaków";
+                            case EN -> "Source word cannot be longer than 250 characters";
+                            case IT -> "La parola sorgente non può superare i 250 caratteri";
+                            case NO -> "Kildeordet kan ikke være lengre enn 250 tegn";
+                        }),
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 250), switch (uiLanguage) {
+                            case PL -> "Słowo docelowe nie może być dłuższe niż 250 znaków";
+                            case EN -> "Target word cannot be longer than 250 characters";
+                            case IT -> "La parola di destinazione non può superare i 250 caratteri";
+                            case NO -> "Målordet kan ikke være lengre enn 250 tegn";
+                        }),
+                        Constraint.of("sourceWord", NotEmpty.of(sanitizedSourceWord), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być puste";
+                            case EN -> "Source word cannot be empty";
+                            case IT -> "La parola sorgente non può essere vuota";
+                            case NO -> "Kildeordet kan ikke være tomt";
+                        })
+                ) :
+                validator.validate(
+                        Constraint.of("sourceWord", Size.of(sanitizedSourceWord, 0, 50), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być dłuższe niż 50 znaków";
+                            case EN -> "Source word cannot be longer than 50 characters";
+                            case IT -> "La parola sorgente non può superare i 50 caratteri";
+                            case NO -> "Kildeordet kan ikke være lengre enn 50 tegn";
+                        }),
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 50), switch (uiLanguage) {
+                            case PL -> "Słowo docelowe nie może być dłuższe niż 50 znaków";
+                            case EN -> "Target word cannot be longer than 50 characters";
+                            case IT -> "La parola di destinazione non può superare i 50 caratteri";
+                            case NO -> "Målordet kan ikke være lengre enn 50 tegn";
+                        }),
+                        Constraint.of("sourceWord", NotEmpty.of(sanitizedSourceWord), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być puste";
+                            case EN -> "Source word cannot be empty";
+                            case IT -> "La parola sorgente non può essere vuota";
+                            case NO -> "Kildeordet kan ikke być tomt";
+                        })
+                );
         return switch (result) {
             case Ok<?> ignored -> {
                 Translation translation = Translation.builder()
                         .sourceWords(request.sourceWords())
-                        .targetWord(request.targetWord())
+                        .processedTargetWord(request.targetWord())
                         .familiarity(request.familiarity())
                         .sourceLanguage(request.sourceLanguage())
                         .targetLanguage(request.targetLanguage())
                         .owner(principal.getUsername())
                         .isPhrase(request.isPhrase())
-                        .unprocessedTargetWord("")
                         .build();
                 translationRepository.addTranslation(translation)
                         .orElseThrow();
                 TranslationAttribute attribute = TranslationAttribute.builder()
                         .id(request.selectedWordId())
                         .translation(translation.withSourceWords(translation.sourceWords().stream()
-                                .filter(word -> !word.isBlank())
+                                .filter(Predicate.not(String::isBlank))
                                 .distinct()
                                 .limit(3)
                                 .toList()))
@@ -125,13 +134,12 @@ public class TranslationService {
                         .id(request.selectedWordId())
                         .translation(Translation.builder()
                                 .sourceWords(List.of())
-                                .targetWord(request.targetWord())
+                                .processedTargetWord(request.targetWord())
                                 .familiarity(request.familiarity())
                                 .sourceLanguage(request.sourceLanguage())
                                 .targetLanguage(request.targetLanguage())
                                 .owner(principal.username())
                                 .isPhrase(request.isPhrase())
-                                .unprocessedTargetWord("")
                                 .build())
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(request.familiarity()))
                         .familiarityLevels(familiarityService.getFamiliarityMap())
@@ -155,7 +163,7 @@ public class TranslationService {
         return TranslationAttribute.builder()
                 .id(request.selectedWordId())
                 .translation(translation.withSourceWords(translation.sourceWords().stream()
-                        .filter(word -> !word.isBlank())
+                        .filter(Predicate.not(String::isBlank))
                         .distinct()
                         .limit(3)
                         .toList()))
@@ -179,40 +187,48 @@ public class TranslationService {
                 .map(String::trim)
                 .orElse("") :
                 "";
-        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord())
-                .trim();
-        Result<?> result = validator.validate(List.of(
-                Constraint.of("sourceWord", () -> request.isPhrase() && sanitizedSourceWord.length() > 50, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("sourceWord", () -> !request.isPhrase() && sanitizedSourceWord.length() > 250, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("targetWord", () -> request.isPhrase() && sanitizedTargetWord.length() > 50, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("targetWord", () -> !request.isPhrase() && sanitizedTargetWord.length() > 250, switch (uiLanguage) {
-                    case PL -> "ttt źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("sourceWord", sanitizedSourceWord::isBlank, switch (uiLanguage) {
-                    case PL -> "ttt źródłowe nie może być puste";
-                    case EN -> "Source word cannot be empty";
-                    case IT -> "La parola sorgente non può essere vuota";
-                    case NO -> "Kildeordet kan ikke være tomt";
-                })
-        ));
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord());
+        Result<?> result = request.isPhrase() ?
+                validator.validate(
+                        Constraint.of("sourceWord", Size.of(sanitizedSourceWord, 0, 250), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być dłuższe niż 250 znaków";
+                            case EN -> "Source word cannot be longer than 250 characters";
+                            case IT -> "La parola sorgente non può superare i 250 caratteri";
+                            case NO -> "Kildeordet kan ikke være lengre enn 250 tegn";
+                        }),
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 250), switch (uiLanguage) {
+                            case PL -> "Słowo docelowe nie może być dłuższe niż 250 znaków";
+                            case EN -> "Target word cannot be longer than 250 characters";
+                            case IT -> "La parola di destinazione non può superare i 250 caratteri";
+                            case NO -> "Målordet kan ikke være lengre enn 250 tegn";
+                        }),
+                        Constraint.of("sourceWord", NotEmpty.of(sanitizedSourceWord), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być puste";
+                            case EN -> "Source word cannot be empty";
+                            case IT -> "La parola sorgente non può essere vuota";
+                            case NO -> "Kildeordet kan ikke være tomt";
+                        })
+                ) :
+                validator.validate(
+                        Constraint.of("sourceWord", Size.of(sanitizedSourceWord, 0, 50), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być dłuższe niż 50 znaków";
+                            case EN -> "Source word cannot be longer than 50 characters";
+                            case IT -> "La parola sorgente non può superare i 50 caratteri";
+                            case NO -> "Kildeordet kan ikke være lengre enn 50 tegn";
+                        }),
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 50), switch (uiLanguage) {
+                            case PL -> "Słowo docelowe nie może być dłuższe niż 50 znaków";
+                            case EN -> "Target word cannot be longer than 50 characters";
+                            case IT -> "La parola di destinazione non può superare i 50 caratteri";
+                            case NO -> "Målordet kan ikke være lengre enn 50 tegn";
+                        }),
+                        Constraint.of("sourceWord", NotEmpty.of(sanitizedSourceWord), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być puste";
+                            case EN -> "Source word cannot be empty";
+                            case IT -> "La parola sorgente non può essere vuota";
+                            case NO -> "Kildeordet kan ikke być tomt";
+                        })
+                );
         return switch (result) {
             case Ok<?> ignored -> translationRepository.updateSourceWords(request.sourceWords(), request.targetWord(), principal.username())
                     .map(translation -> TranslationAttribute.builder()
@@ -236,13 +252,12 @@ public class TranslationService {
                                 .map(patternService::removeSpecialCharacters)
                                 .filter(word -> !word.isBlank())
                                 .toList())
-                        .targetWord(request.targetWord())
+                        .processedTargetWord(request.targetWord())
                         .familiarity(request.familiarity())
                         .sourceLanguage(principal.sourceLanguage())
                         .targetLanguage(principal.targetLanguage())
                         .owner(principal.username())
                         .isPhrase(request.isPhrase())
-                        .unprocessedTargetWord("")
                         .build();
                 TranslationAttribute translationAttribute = TranslationAttribute.builder()
                         .documentId(-1)
@@ -268,41 +283,49 @@ public class TranslationService {
     public TranslationAttribute deleteSourceWord(DeleteSourceWordRequest request, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language uiLanguage = principal.userInterfaceLanguage();
-        String sanitizedSourceWord = patternService.removeSpecialCharacters(request.sourceWord()).trim();
-        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord())
-                .trim();
-        Result<?> result = validator.validate(List.of(
-                Constraint.of("sourceWord", () -> request.isPhrase() && sanitizedSourceWord.length() > 50, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("sourceWord", () -> !request.isPhrase() && sanitizedSourceWord.length() > 250, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("targetWord", () -> request.isPhrase() && sanitizedTargetWord.length() > 50, switch (uiLanguage) {
-                    case PL -> "Słowo źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("targetWord", () -> !request.isPhrase() && sanitizedTargetWord.length() > 250, switch (uiLanguage) {
-                    case PL -> "ttt źródłowe nie może być dłuższe niż 150 znaków";
-                    case EN -> "Source word cannot be longer than 150 characters";
-                    case IT -> "La parola sorgente non può superare i 150 caratteri";
-                    case NO -> "Kildeordet kan ikke være lengre enn 150 tegn";
-                }),
-                Constraint.of("sourceWord", sanitizedSourceWord::isBlank, switch (uiLanguage) {
-                    case PL -> "ttt źródłowe nie może być puste";
-                    case EN -> "Source word cannot be empty";
-                    case IT -> "La parola sorgente non può essere vuota";
-                    case NO -> "Kildeordet kan ikke være tomt";
-                })
-        ));
+        String sanitizedSourceWord = patternService.removeSpecialCharacters(request.sourceWord());
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord());
+        Result<?> result = request.isPhrase() ?
+                validator.validate(
+                        Constraint.of("sourceWord", Size.of(sanitizedSourceWord, 0, 250), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być dłuższe niż 250 znaków";
+                            case EN -> "Source word cannot be longer than 250 characters";
+                            case IT -> "La parola sorgente non può superare i 250 caratteri";
+                            case NO -> "Kildeordet kan ikke være lengre enn 250 tegn";
+                        }),
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 250), switch (uiLanguage) {
+                            case PL -> "Słowo docelowe nie może być dłuższe niż 250 znaków";
+                            case EN -> "Target word cannot be longer than 250 characters";
+                            case IT -> "La parola di destinazione non può superare i 250 caratteri";
+                            case NO -> "Målordet kan ikke være lengre enn 250 tegn";
+                        }),
+                        Constraint.of("sourceWord", NotEmpty.of(sanitizedSourceWord), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być puste";
+                            case EN -> "Source word cannot be empty";
+                            case IT -> "La parola sorgente non può essere vuota";
+                            case NO -> "Kildeordet kan ikke være tomt";
+                        })
+                ) :
+                validator.validate(
+                        Constraint.of("sourceWord", Size.of(sanitizedSourceWord, 0, 50), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być dłuższe niż 50 znaków";
+                            case EN -> "Source word cannot be longer than 50 characters";
+                            case IT -> "La parola sorgente non può superare i 50 caratteri";
+                            case NO -> "Kildeordet kan ikke være lengre enn 50 tegn";
+                        }),
+                        Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 50), switch (uiLanguage) {
+                            case PL -> "Słowo docelowe nie może być dłuższe niż 50 znaków";
+                            case EN -> "Target word cannot be longer than 50 characters";
+                            case IT -> "La parola di destinazione non può superare i 50 caratteri";
+                            case NO -> "Målordet kan ikke være lengre enn 50 tegn";
+                        }),
+                        Constraint.of("sourceWord", NotEmpty.of(sanitizedSourceWord), switch (uiLanguage) {
+                            case PL -> "Słowo źródłowe nie może być puste";
+                            case EN -> "Source word cannot be empty";
+                            case IT -> "La parola sorgente non può essere vuota";
+                            case NO -> "Kildeordet kan ikke być tomt";
+                        })
+                );
         return translationRepository.deleteSourceWord(request.sourceWord(), request.targetWord(), principal.username())
                 .map(translation -> TranslationAttribute.builder()
                         .documentId(-1)
@@ -324,7 +347,7 @@ public class TranslationService {
         return translationRepository.getWordsLearnedCount(principal.getUsername(), principal.targetLanguage());
     }
 
-    public Map<String, Translation> findTranslationsInDocument(FindTranslationsInDocumentRequest request) {
+    public Map<String, Translation> findTranslations(FindTranslationsInDocumentRequest request) {
         List<String> wordList = Arrays.stream(patternService.replaceNewlinesWithSpaces(request.contentBlob()).split(" "))
                 .map(patternService::removeSpecialCharacters)
                 .map(String::trim)
@@ -334,17 +357,20 @@ public class TranslationService {
                 .toList();
         return translationRepository.findByTargetWords(wordList, request.owner()).stream()
                 .distinct()
-                .collect(Collectors.toUnmodifiableMap(Translation::targetWord, value -> value));
+                .collect(Collectors.toUnmodifiableMap(Translation::processedTargetWord, value -> value));
     }
 
-    public List<Translation> extractPhrases(ExtractPhrasesRequest request) {
-        return translationRepository.extractPhrases(request.content(), request.owner());
+    public List<Translation> findPhrases(ExtractPhrasesRequest request) {
+        return translationRepository.findPhrases(request.content(), request.owner());
     }
 
     public TranslationAttribute translate(CreateTranslationFormRequest request, @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(request.targetWord()).toLowerCase(), 3);
-        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), request.targetWord());
+        String sanitizedTargetWord = patternService.removeSpecialCharacters(request.unprocessedTargetWord())
+                .trim()
+                .toLowerCase();
+        List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(sanitizedTargetWord).toLowerCase(), 3);
+        List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), sanitizedTargetWord);
         List<String> sourceWords = Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
                 .filter(word -> !word.isBlank())
                 .distinct()
@@ -355,13 +381,12 @@ public class TranslationService {
                 .id(request.selectedWordId())
                 .translation(Translation.builder()
                         .sourceWords(sourceWords)
-                        .targetWord(request.targetWord())
+                        .processedTargetWord(sanitizedTargetWord)
                         .familiarity(Familiarity.UNKNOWN)
                         .sourceLanguage(principal.sourceLanguage())
                         .targetLanguage(principal.targetLanguage())
                         .owner(principal.username())
                         .isPhrase(request.isPhrase())
-                        .unprocessedTargetWord("")
                         .build())
                 .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
                 .isPhrase(request.isPhrase())
@@ -424,10 +449,13 @@ public class TranslationService {
         return switch (request) {
             case CreateTranslationFormRequest createTranslationRequest -> {
                 UserProfile principal = (UserProfile) authentication.getPrincipal();
-                List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(patternService.removeSpecialCharacters(createTranslationRequest.targetWord()).toLowerCase(), 3);
-                List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), createTranslationRequest.targetWord());
+                String sanitizedTargetWord = patternService.removeSpecialCharacters(createTranslationRequest.unprocessedTargetWord())
+                        .trim()
+                        .toLowerCase();
+                List<String> sourceWordsFromDatabase = translationRepository.findMostFrequentSourceWords(sanitizedTargetWord, 3);
+                List<String> sourceWordsFromService = translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), sanitizedTargetWord);
                 List<String> sourceWords = Stream.concat(sourceWordsFromDatabase.stream(), sourceWordsFromService.stream())
-                        .filter(word -> !word.isBlank())
+                        .filter(Predicate.not(String::isBlank))
                         .distinct()
                         .limit(3)
                         .toList();
@@ -436,13 +464,12 @@ public class TranslationService {
                         .id(createTranslationRequest.selectedWordId())
                         .translation(Translation.builder()
                                 .sourceWords(sourceWords)
-                                .targetWord(createTranslationRequest.targetWord())
+                                .processedTargetWord(sanitizedTargetWord)
                                 .familiarity(Familiarity.UNKNOWN)
                                 .sourceLanguage(principal.sourceLanguage())
                                 .targetLanguage(principal.targetLanguage())
                                 .owner(principal.username())
                                 .isPhrase(createTranslationRequest.isPhrase())
-                                .unprocessedTargetWord("")
                                 .build())
                         .currentFamiliarity(familiarityService.getFamiliarityAsDigit(Familiarity.UNKNOWN))
                         .isPhrase(createTranslationRequest.isPhrase())
@@ -453,13 +480,27 @@ public class TranslationService {
             }
             case FindTranslationFormRequest findTranslationRequest -> {
                 UserProfile principal = (UserProfile) authentication.getPrincipal();
-                String sanitizedTargetWord = patternService.removeSpecialCharacters(findTranslationRequest.targetWord())
+                String sanitizedTargetWord = patternService.removeSpecialCharacters(findTranslationRequest.unprocessedTargetWord())
                         .trim()
                         .toLowerCase();
-                Result<?> result = validator.validate(List.of(
-                        Constraint.of("targetWord", sanitizedTargetWord::isBlank, "blank"),
-                        Constraint.of("targetWord", () -> sanitizedTargetWord.length() > 150, "too long")
-                ));
+                Result<?> result = findTranslationRequest.isPhrase() ?
+                        validator.validate(
+                                Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 250), switch (principal.userInterfaceLanguage()) {
+                                    case PL -> "Docelowe słowo nie może mieć więcej niż 250 znaków";
+                                    case EN -> "Target word cannot exceed 250 characters";
+                                    case IT -> "La parola target non può superare i 250 caratteri";
+                                    case NO -> "Målordet kan ikke være lenger enn 250 tegn";
+                                })
+                        ) :
+                        validator.validate(
+                                Constraint.of("processedTargetWord", Size.of(sanitizedTargetWord, 0, 50), switch (principal.userInterfaceLanguage()) {
+                                    case PL -> "Docelowe słowo nie może mieć więcej niż 50 znaków";
+                                    case EN -> "Target word cannot exceed 50 characters";
+                                    case IT -> "La parola target non può superare i 50 caratteri";
+                                    case NO -> "Målordet kan ikke være lenger enn 50 tegn";
+                                })
+                        );
+
                 yield switch (result) {
                     case Ok<?> ignored -> translationRepository.findByTargetWord(sanitizedTargetWord, principal.username())
                             .map(translation -> TranslationAttribute.builder()
@@ -475,18 +516,17 @@ public class TranslationService {
                             .map(Ok::of)
                             .orElseGet(() ->
                                     Stream.of(
-                                            translationRepository.findMostFrequentSourceWords(findTranslationRequest.targetWord(), 3),
-                                            translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), findTranslationRequest.targetWord())
+                                            translationRepository.findMostFrequentSourceWords(sanitizedTargetWord, 3),
+                                            translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), sanitizedTargetWord)
                                     )
                                     .map(fetchedSourceWords -> Translation.builder()
                                             .sourceWords(fetchedSourceWords)
-                                            .targetWord(findTranslationRequest.targetWord())
+                                            .processedTargetWord(sanitizedTargetWord)
                                             .familiarity(Familiarity.UNKNOWN)
                                             .sourceLanguage(principal.sourceLanguage())
                                             .targetLanguage(principal.targetLanguage())
                                             .owner(principal.username())
                                             .isPhrase(findTranslationRequest.isPhrase())
-                                            .unprocessedTargetWord("")
                                             .build())
                                     .map(translation -> TranslationAttribute.builder()
                                             .id(findTranslationRequest.selectedWordId())
@@ -501,7 +541,9 @@ public class TranslationService {
                                     .map(Ok::of)
                                     .findFirst()
                                     .get());
-                    default -> throw new IllegalStateException("Unexpected value: " + result);
+                    case Err<?> err -> {
+                        throw new RuntimeException(err.throwable());
+                    }
                 };
             }
         };
@@ -529,8 +571,7 @@ public class TranslationService {
                         .familiarityLevels(Map.of())
                         .translation(Translation.builder()
                                 .sourceWords(List.of())
-                                .targetWord(patternService.removeSpecialCharacters(request.unprocessedTargetWords().get(id)).toLowerCase())
-                                .unprocessedTargetWord(request.unprocessedTargetWords().get(id))
+                                .processedTargetWord(patternService.removeSpecialCharacters(request.unprocessedTargetWords().get(id)).toLowerCase())
                                 .familiarity(switch (request.familiarities().get(id).toUpperCase()) {
                                     case "UNKNOWN" -> Familiarity.UNKNOWN;
                                     case "RECOGNIZED" -> Familiarity.RECOGNIZED;
@@ -556,11 +597,10 @@ public class TranslationService {
                 .toList();
         Translation phrase = Translation.builder()
                 .sourceWords(sourceWords)
-                .targetWord(String.join(" ", request.unprocessedTargetWords().stream()
+                .processedTargetWord(String.join(" ", request.unprocessedTargetWords().stream()
                         .map(patternService::removeSpecialCharacters)
                         .map(String::toLowerCase)
                         .toList()))
-                .unprocessedTargetWord(String.join(" ", request.unprocessedTargetWords()))
                 .familiarity(Familiarity.UNKNOWN)
                 .sourceLanguage(principal.sourceLanguage())
                 .targetLanguage(principal.targetLanguage())

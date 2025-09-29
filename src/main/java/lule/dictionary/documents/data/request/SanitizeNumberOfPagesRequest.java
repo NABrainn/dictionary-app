@@ -1,7 +1,12 @@
 package lule.dictionary.documents.data.request;
 
-public record SanitizeNumberOfPagesRequest(int page, int numberOfPages) {
-    public static SanitizeNumberOfPagesRequest of(int page, int numberOfPagesForDocument) {
-        return new SanitizeNumberOfPagesRequest(page, numberOfPagesForDocument);
+import lombok.NonNull;
+import lule.dictionary.documents.data.entity.Document;
+
+public record SanitizeNumberOfPagesRequest(int page,
+                                           int numberOfPages,
+                                           @NonNull Document document) {
+    public static SanitizeNumberOfPagesRequest of(int page, int numberOfPages, Document document) {
+        return new SanitizeNumberOfPagesRequest(page, numberOfPages, document);
     }
 }

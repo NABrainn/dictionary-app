@@ -7,5 +7,5 @@ import lombok.NonNull;
 public record FindTranslationFormRequest(int documentId,
                                          int selectedWordId,
                                          boolean isPhrase,
-                                         @NonNull String targetWord) implements TranslationsRequest, GetTranslationFormRequest {
+                                         @NonNull String unprocessedTargetWord) implements TranslationsRequest, GetTranslationFormRequest {
 }

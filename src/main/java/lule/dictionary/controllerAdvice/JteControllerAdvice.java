@@ -1,7 +1,5 @@
 package lule.dictionary.controllerAdvice;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.controllerAdvice.data.BaseAttribute;
@@ -33,9 +31,7 @@ public class JteControllerAdvice {
     @ModelAttribute
     public void addBaseAttribute(Model model,
                                  Authentication authentication,
-                                 CsrfToken csrfToken,
-                                 HttpServletRequest request) {
-        log.info("Injecting CSRF token: {} for URI: {}", csrfToken != null ? csrfToken.getToken() : "null", request.getRequestURI());
+                                 CsrfToken csrfToken) {
         if(authentication != null) {
             UserProfile principal = (UserProfile) authentication.getPrincipal();
             model.addAttribute("baseAttribute", BaseAttribute.builder()

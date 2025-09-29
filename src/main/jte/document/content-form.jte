@@ -4,7 +4,7 @@
 
 <div class="flex flex-col" id="content">
     <input type="hidden" name="url">
-    <input type="hidden" name="strategy" value="content_submit">
+    <input type="hidden" name="form_type" value="content_form">
     <div class="w-full">
         <label for="area"></label>
         <textarea

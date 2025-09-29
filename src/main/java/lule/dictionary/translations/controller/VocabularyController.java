@@ -101,7 +101,7 @@ public class VocabularyController {
 
     @GetMapping({"/flashcard/flip-to-source-word", "/flashcard/flip-to-source-word/"})
     public String flipToSourceWord(@RequestParam("sourceWord") List<String> sourceWord,
-                                   @RequestParam("targetWord") String targetWord,
+                                   @RequestParam("processedTargetWord") String targetWord,
                                    Model model,
                                    Authentication authentication) {
         WordCardAttribute attribute = translationService.getCardAttribute(GetCardAttributeRequest.of(sourceWord, targetWord));
@@ -113,7 +113,7 @@ public class VocabularyController {
 
     @GetMapping({"/flashcard/flip-to-target-word", "/flashcard/flip-to-target-word/"})
     public String flipToTargetWord(@RequestParam("sourceWord") List<String> sourceWord,
-                                   @RequestParam("targetWord") String targetWord,
+                                   @RequestParam("processedTargetWord") String targetWord,
                                    Model model,
                                    Authentication authentication) {
         WordCardAttribute attribute = translationService.getCardAttribute(GetCardAttributeRequest.of(sourceWord, targetWord));

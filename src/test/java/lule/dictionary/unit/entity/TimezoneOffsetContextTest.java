@@ -1,7 +1,7 @@
 package lule.dictionary.unit.entity;
 
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.configuration.security.filter.timezone.TimeZoneOffsetContext;
+import lule.dictionary.security.data.TimeZoneOffsetContext;
 import org.junit.jupiter.api.Test;
 
 @Slf4j

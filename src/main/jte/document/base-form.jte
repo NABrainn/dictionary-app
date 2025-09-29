@@ -1,9 +1,9 @@
 @import lule.dictionary.controllerAdvice.data.BaseAttribute
 @import lule.dictionary.documents.data.DocumentLocalizationKey
-@import lule.dictionary.documents.data.documentSubmission.ContentSubmissionStrategy
+@import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent
 @import lule.dictionary.documents.data.attribute.DocumentFormAttribute
 @import lule.dictionary.controllerAdvice.data.NavbarAttribute
-@import lule.dictionary.documents.data.documentSubmission.UrlSubmissionStrategy
+@import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl
 @import java.util.Map
 
 @param DocumentFormAttribute attribute
@@ -38,7 +38,7 @@
         md:w-3/5 md:mt-16 md:p-6 md:gap-6
         w-9/10 flex flex-col bg-tertiary mx-auto rounded p-3 mt-2 gap-5"
         hx-post="/documents/new"
-        hx-params="title,url,content,strategy"
+        hx-params="title,url,content,form_type"
         hx-target="#main"
         hx-swap="innerHTML"
         hx-push-url="true"
@@ -55,9 +55,9 @@
                 focus:border-accent"
                 rows="2"
                 name="title"
-                id="title">${switch (attribute.submissionStrategy()){
-                    case ContentSubmissionStrategy content -> content.title();
-                    case UrlSubmissionStrategy url -> url.title();
+                id="title">${switch (attribute.documentFormType()){
+                    case DocumentFormWithContent content -> content.title();
+                    case DocumentFormWithUrl url -> url.title();
                 }}</textarea>
                 @if(errors.get("title") != null)
                     <span class="text-error font-bold">${errors.get("title")}</span>
@@ -66,15 +66,15 @@
             <div class="flex flex-col gap-4">
                 <span class="text-accent font-bold text-2xl">${attribute.localization().get(DocumentLocalizationKey.CONTENT)}</span>
                 <div class="flex justify-center">
-                    @if(attribute.submissionStrategy() instanceof UrlSubmissionStrategy)
+                    @if(attribute.documentFormType() instanceof DocumentFormWithUrl)
                         <button class="
                         bg-primary border border-2 border-r-1 border-primary text-accent px-4 py-1 grow-1 outline-none"
                         type="button"
                         id="url"
                         hx-get="/documents/new/"
-                        hx-params="strategy"
+                        hx-params="form_type"
                         hx-vals='{
-                            "strategy": "url_submit"
+                            "form_type": "url_form"
                         }'
                         hx-target="#document-form-wrapper"
                         hx-swap="outerHTML"
@@ -86,9 +86,9 @@
                         type="button"
                         id="insert"
                         hx-get="/documents/new/"
-                        hx-params="strategy"
+                        hx-params="form_type"
                         hx-vals='{
-                            "strategy": "content_submit"
+                            "form_type": "content_form"
                         }'
                         hx-target="#document-form-wrapper"
                         hx-swap="outerHTML"
@@ -99,9 +99,9 @@
                         type="button"
                         id="url"
                         hx-get="/documents/new/"
-                        hx-params="strategy"
+                        hx-params="form_type"
                         hx-vals='{
-                            "strategy": "url_submit"
+                            "form_type": "url_form"
                         }'
                         hx-target="#document-form-wrapper"
                         hx-swap="outerHTML"
@@ -113,9 +113,9 @@
                         type="button"
                         id="insert"
                         hx-get="/documents/new/"
-                        hx-params="strategy"
+                        hx-params="form_type"
                         hx-vals='{
-                            "strategy": "content_submit"
+                            "form_type": "content_form"
                         }'
                         hx-target="#document-form-wrapper"
                         hx-swap="outerHTML"
@@ -123,12 +123,12 @@
                     @endif
 
                 </div>
-                @if(attribute.submissionStrategy() instanceof ContentSubmissionStrategy content)
+                @if(attribute.documentFormType() instanceof DocumentFormWithContent content)
                     @template.document.content-form(
                     contentPlaceholderText = content.contentPlaceholderText(),
                     error = errors.getOrDefault("content", ""),
                     content = content.content())
-                @elseif(attribute.submissionStrategy() instanceof UrlSubmissionStrategy url)
+                @elseif(attribute.documentFormType() instanceof DocumentFormWithUrl url)
                     @template.document.url-form(
                     urlPlaceholderText = url.urlPlaceholderText(),
                     error = errors.getOrDefault("url", ""),

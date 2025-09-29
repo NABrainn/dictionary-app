@@ -7,7 +7,7 @@
 !{String targetWord;}
 !{List<String> sourceWord;}
 @if(!attribute.translations().isEmpty())
-    !{targetWord = attribute.translations().get(attribute.id() - 1).targetWord();}
+    !{targetWord = attribute.translations().get(attribute.id() - 1).processedTargetWord();}
     !{sourceWord = attribute.translations().get(attribute.id() - 1).sourceWords();}
 @else
     !{targetWord = "";}

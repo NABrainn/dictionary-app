@@ -5,7 +5,7 @@ import lombok.NonNull;
 import org.springframework.security.core.Authentication;
 
 @Builder
-public record CreateDocumentRequest(@NonNull String submissionStrategy,
+public record CreateDocumentRequest(@NonNull String documentFormType,
                                     @NonNull Authentication authentication,
                                     @NonNull String title,
                                     @NonNull String content,
