@@ -18,7 +18,7 @@ id="translation-form">
         <span
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer"
-        _="on click remove <div#translation-form/>">❌</span>
+        _="on click remove #translation-form">❌</span>
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().processedTargetWord()}</span>
     <div class="flex flex-col gap-2 text-wrap">
@@ -58,6 +58,7 @@ id="translation-form">
                     "documentId": "${attribute.documentId()}",
                     "isPhrase": "${attribute.isPhrase()}"
                 }'
+                hx-trigger="click"
                 hx-post="/translations/"
                 hx-swap="outerHTML"
                 hx-target="#translation-form">
@@ -70,11 +71,10 @@ id="translation-form">
                     <div class="flex gap-2">
                         <input
                         class="
-                        max-w-50 outline-none border border-2
+                        max-w-50  outline-none border border-2
                         border-primary rounded text-neutral text-md grow-1
                         focus:border-accent"
                         type="text"
-                        placeholder=""
                         name="sourceWords">
                         <button
                         class="text-3xl cursor-pointer text-accent"
