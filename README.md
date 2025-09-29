@@ -2,21 +2,23 @@
 An application that makes language learning fun and engaging through reading.
 
 ### Tech stack:
-- **Frontend**: htmx, jte, tailwindcss, JavaScript
+- **Frontend**: htmx, hyperscript, jte, tailwindcss, JavaScript
 - **Backend**: Java, Spring Boot
 - **Database**: PostgreSQL
 
 ### Codebase rulebook:
 ### 1. Prefer immutable data:
-- **Use records over classes for data transfer**
-- **Classes are still fine for services and extending exceptions**
-### 2. Prefer constructing via static factory method over "new" keyword
-### ~~3. Do describe public APIs with interfaces~~ 
-### 3. Records ARE interfaces
+- **Always use records over classes for data transfer**
+- **Classes are still fine for services exceptions**
+- **Use wither methods on records for mutation, eg. user.withPassword(...)**
+- **Only deal with setters when necessary, eg. custom Collector or library spec**
+### 2. Always construct records with custom static factory method, eg. User.of(...)
+### 3. No private methods
+- **all implementations must be immediately visible**
+- **for repeating operations, delegate to a service**
 ### 4. Each controller may depend on 1 injected service at most
 ![di_rule](readme_resources/di_rule.png)
-### 5. No private methods, all implementations must be immediately visible (currently in process of removing them)
-
+### 5. All request parameters MUST go into service for validation before being attached to the model
 ### Screenshots
 ![Screenshot](readme_resources/img.png)
 
