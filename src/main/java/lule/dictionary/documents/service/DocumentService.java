@@ -12,10 +12,7 @@ import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl;
-import lule.dictionary.documents.data.request.loadDocument.FirstLoadRequest;
-import lule.dictionary.documents.data.request.loadDocument.LoadDocumentRequest;
-import lule.dictionary.documents.data.request.loadDocument.ReloadWithPhraseRequest;
-import lule.dictionary.documents.data.request.loadDocument.ReloadWithWordRequest;
+import lule.dictionary.documents.data.request.loadDocument.*;
 import lule.dictionary.documents.data.result.FirstLoadResult;
 import lule.dictionary.documents.data.result.ReloadWithPhraseResult;
 import lule.dictionary.documents.data.result.LoadDocumentResult;
@@ -274,7 +271,12 @@ public class DocumentService {
                         .build();
                 boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
                 yield switch (request) {
-                    case FirstLoadRequest ignored -> Ok.of(FirstLoadResult.builder()
+                    case FirstLoadRequest firstLoadRequest -> Ok.of(FirstLoadResult.builder()
+                            .documentContentData(contentData)
+                            .paginationData(paginationData)
+                            .isNavbarOpen(isNavbarOpen)
+                            .build());
+                    case PageChangeRequest pageChangeRequest -> Ok.of(FirstLoadResult.builder()
                             .documentContentData(contentData)
                             .paginationData(paginationData)
                             .isNavbarOpen(isNavbarOpen)
