@@ -6,7 +6,13 @@ import lule.dictionary.documents.data.DocumentLocalizationKey;
 import lule.dictionary.documents.data.attribute.*;
 import lule.dictionary.documents.data.exception.DocumentServiceException;
 import lule.dictionary.documents.data.request.CreateDocumentRequest;
-import lule.dictionary.documents.data.request.LoadDocumentContentRequest;
+import lule.dictionary.documents.data.request.loadDocument.FirstLoadRequest;
+import lule.dictionary.documents.data.request.loadDocument.LoadDocumentRequest;
+import lule.dictionary.documents.data.request.loadDocument.ReloadWithWordRequest;
+import lule.dictionary.documents.data.request.loadDocument.ReloadWithPhraseRequest;
+import lule.dictionary.documents.data.result.PageChangeResult;
+import lule.dictionary.documents.data.result.FirstLoadResult;
+import lule.dictionary.documents.data.result.LoadDocumentResult;
 import lule.dictionary.documents.service.DocumentService;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
@@ -35,33 +41,89 @@ public class DocumentController {
     }
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
-    public String documentPage(@PathVariable("documentId") int documentId,
-                               @RequestParam(name = "selectedId", defaultValue = "-1") int selectedId,
-                               @RequestParam(name = "selectedTargetWord", defaultValue = "") String selectedTargetWord,
-                               @RequestParam(name = "isSelectedPersisted", defaultValue = "false") boolean isSelectedPersisted,
-                               @RequestParam(name = "type", defaultValue = "firstLoad") String type,
+    public String initDocument(@PathVariable("documentId") int documentId,
+                               @RequestParam(name = "unitId", defaultValue = "-1") int unitId,
+                               @RequestParam(name = "unitText", defaultValue = "") String unitText,
+                               @RequestParam(name = "isUnitPersisted", defaultValue = "false") boolean isUnitPersisted,
                                @RequestParam(name = "page", defaultValue = "1") int page,
                                Model model,
                                Authentication authentication) {
-        LoadDocumentContentRequest request = LoadDocumentContentRequest.builder()
-                .wordId(selectedId)
-                .type(type)
+        LoadDocumentRequest request = FirstLoadRequest.builder()
+                .unitId(unitId)
                 .documentId(documentId)
                 .page(page)
-                .selectedTargetWord(selectedTargetWord)
-                .isSelectedPersisted(isSelectedPersisted)
+                .unitText(unitText)
+                .isUnitPersisted(isUnitPersisted)
                 .build();
-        Result<DocumentAttribute> result = documentService.loadDocumentContent(request, authentication);
+        Result<LoadDocumentResult> result = documentService.loadDocumentContent(request, authentication);
         switch (result) {
-            case Ok<DocumentAttribute> v -> {
-                model.addAttribute("attribute", v.value());
+            case Ok<LoadDocumentResult> v -> {
+                model.addAttribute("result", v.value());
                 return switch (v.value()) {
-                    case DocumentFirstLoadAttribute ignored -> "document/base-page";
-                    case DocumentReloadAttribute ignored -> "document/reloaded-content";
-                    case DocumentPageChangeAttribute ignored -> "document/content";
+                    case FirstLoadResult ignored -> "document/load/base-with-content";
+                    case PageChangeResult ignored -> "document/load/content";
+                    default -> throw new RuntimeException("Unexpected operation");
                 };
             }
-            case Err<DocumentAttribute> ignored -> {
+            case Err<LoadDocumentResult> ignored -> {
+                log.warn("Failed to load document", ignored.throwable());
+                return "error";
+            }
+        }
+    }
+
+    @GetMapping({"/{documentId}/withSelectedWord", "/{documentId}/withSelectedWord/"})
+    public String documentWithSelectedWord(@PathVariable("documentId") int documentId,
+                                           @RequestParam(name = "unitId", defaultValue = "-1") int unitId,
+                                           @RequestParam(name = "unitText", defaultValue = "") String unitText,
+                                           @RequestParam(name = "isUnitPersisted", defaultValue = "false") boolean isUnitPersisted,
+                                           @RequestParam(name = "page", defaultValue = "1") int page,
+                                           Model model,
+                                           Authentication authentication) {
+        LoadDocumentRequest request = ReloadWithWordRequest.builder()
+                .unitId(unitId)
+                .documentId(documentId)
+                .page(page)
+                .unitText(unitText)
+                .isUnitPersisted(isUnitPersisted)
+                .build();
+        Result<LoadDocumentResult> result = documentService.loadDocumentContent(request, authentication);
+        switch (result) {
+            case Ok<LoadDocumentResult> v -> {
+                model.addAttribute("result", v.value());
+                return "document/reload/units-with-word";
+            }
+            case Err<LoadDocumentResult> ignored -> {
+                log.warn("Failed to load document", ignored.throwable());
+                return "error";
+            }
+        }
+    }
+
+    @GetMapping({"/{documentId}/withSelectedPhrase", "/{documentId}/withSelectedPhrase/"})
+    public String documentWithSelectedPhrase(@PathVariable("documentId") int documentId,
+                                             @RequestParam(name = "startId", defaultValue = "-1") int startId,
+                                             @RequestParam(name = "endId", defaultValue = "-1") int endId,
+                                             @RequestParam(name = "unitText", defaultValue = "") String unitText,
+                                             @RequestParam(name = "isUnitPersisted", defaultValue = "false") boolean isUnitPersisted,
+                                             @RequestParam(name = "page", defaultValue = "1") int page,
+                                             Model model,
+                                             Authentication authentication) {
+        LoadDocumentRequest request = ReloadWithPhraseRequest.builder()
+                .startId(startId)
+                .endId(endId)
+                .documentId(documentId)
+                .page(page)
+                .unitText(unitText)
+                .isUnitPersisted(isUnitPersisted)
+                .build();
+        Result<LoadDocumentResult> result = documentService.loadDocumentContent(request, authentication);
+        switch (result) {
+            case Ok<LoadDocumentResult> v -> {
+                model.addAttribute("result", v.value());
+                return "document/reload/units-with-phrase";
+            }
+            case Err<LoadDocumentResult> ignored -> {
                 log.warn("Failed to load document", ignored.throwable());
                 return "error";
             }

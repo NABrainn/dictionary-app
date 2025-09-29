@@ -12,13 +12,13 @@
 hx-on:click="event.stopPropagation()"
 class="
 md:gap-0.75
-bg-tertiary flex flex-col p-3 rounded gap-4"
+bg-tertiary flex flex-col p-3 rounded gap-4 select-none"
 id="translation-form">
     <div class="flex justify-end">
         <span
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer"
-        hx-on:click="documentPage.closeAllTranslationForms()">❌</span>
+        _="on click remove <div#translation-form/>">❌</span>
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().processedTargetWord()}</span>
     <div class="flex flex-col gap-2 text-wrap">
@@ -31,7 +31,7 @@ id="translation-form">
         @endif
         @for(String word : attribute.translation().sourceWords())
             <div
-                    class="flex gap-2 items-center min-h-8">
+            class="flex gap-2 items-center min-h-8">
                 <input
                 name="sourceWords"
                 type="hidden"
@@ -92,7 +92,7 @@ id="translation-form">
     flex flex-row justify-center gap-3">
         @for(var level : attribute.familiarityLevels().entrySet())
             <form
-                    class="
+            class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
             cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8 justify-center items-center
             translation-form"

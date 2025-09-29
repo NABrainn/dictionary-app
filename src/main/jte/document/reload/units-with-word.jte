@@ -1,29 +1,30 @@
-@import lule.dictionary.documents.data.attribute.DocumentReloadAttribute
 @import lule.dictionary.documents.data.documentProcessing.DocumentUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
 @import lule.dictionary.documents.data.documentProcessing.TranslationUnit
 @import lule.dictionary.documents.data.documentProcessing.WordUnit
 @import gg.jte.support.ForSupport
+@import lule.dictionary.documents.data.result.ReloadWithWordResult
 
-@param DocumentReloadAttribute attribute
+@param ReloadWithWordResult result
+
 <div
-hx-trigger="open-form once"
+id="units"
+class="flex inline-flex flex-wrap"
+_="on load send openForm to #units"
+hx-trigger="openForm once"
 hx-get="/translations/"
-hx-target="#form-container-${attribute.selectedId()}"
+hx-target="#form-container-${result.unitId()}"
 hx-swap="innerHTML"
 hx-params="documentId,targetWord,id,isPersisted"
 hx-vals='{
-    "documentId": "${attribute.documentContentData().documentId()}",
-    "targetWord": "${attribute.targetWord()}",
-    "id": "${attribute.selectedId()}",
-    "isPersisted": "${attribute.isSelectablePersisted()}"
-}'
-hx-on::load="htmx.trigger('#content-main', 'open-form');"
-id="content-main"
-class="flex inline-flex flex-wrap">
-    @for(var entry :  ForSupport.of(attribute.documentContentData().content()))
+    "documentId": "${result.documentContentData().documentId()}",
+    "targetWord": "${result.targetWord()}",
+    "id": "${result.unitId()}",
+    "isPersisted": "${result.isSelectablePersisted()}"
+}'>
+    @for(var entry :  ForSupport.of(result.documentContentData().content()))
         !{DocumentUnit unit = entry.get();}
-        !{String wordBgColor = entry.getIndex() == attribute.selectedId() ?
+        !{String wordBgColor = entry.getIndex() == result.unitId() ?
             "bg-tertiary" :
             switch(unit.translation().familiarity()){
                 case UNKNOWN -> "bg-accent";
@@ -32,7 +33,7 @@ class="flex inline-flex flex-wrap">
                 default -> "bg-primary";
             }
         ;}
-        !{String wordTextColor = entry.getIndex() == attribute.selectedId() ?
+        !{String wordTextColor = entry.getIndex() == result.unitId() ?
             "text-neutral" :
             switch(unit.translation().familiarity()){
                 case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
@@ -40,19 +41,17 @@ class="flex inline-flex flex-wrap">
             }
         ;}
         @if(unit instanceof PhraseUnit)
-            @template.translation.update-phrase(
-            translation = unit.translation(),
-            selectableId = entry.getIndex())
+            nt
         @elseif(unit instanceof TranslationUnit)
             @template.document.word(
             wordId = entry.getIndex(),
             bgColor = wordBgColor,
             textColor = wordTextColor,
             isPersisted = true,
-            documentId = attribute.documentContentData().documentId(),
+            documentId = result.documentContentData().documentId(),
             rawText = unit.rawText(),
             translation = unit.translation(),
-            currentPage = attribute.paginationData().currentPageNumber())
+            currentPage = result.paginationData().currentPageNumber())
         @elseif(unit instanceof WordUnit)
             @if(unit.translation().processedTargetWord().length() <= 50)
                 @template.document.word(
@@ -60,10 +59,10 @@ class="flex inline-flex flex-wrap">
                 bgColor = wordBgColor,
                 textColor = wordTextColor,
                 isPersisted = false,
-                documentId = attribute.documentContentData().documentId(),
+                documentId = result.documentContentData().documentId(),
                 rawText = unit.rawText(),
                 translation = unit.translation(),
-                currentPage = attribute.paginationData().currentPageNumber())
+                currentPage = result.paginationData().currentPageNumber())
             @else
                 @template.document.word(
                 wordId = entry.getIndex(),
@@ -71,10 +70,10 @@ class="flex inline-flex flex-wrap">
                 textColor = "text-neutral",
                 isSelectable = false,
                 isPersisted = false,
-                documentId = attribute.documentContentData().documentId(),
+                documentId = result.documentContentData().documentId(),
                 rawText = unit.rawText(),
                 translation = unit.translation(),
-                currentPage = attribute.paginationData().currentPageNumber())
+                currentPage = result.paginationData().currentPageNumber())
             @endif
         @endif
     @endfor

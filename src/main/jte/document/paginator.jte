@@ -17,7 +17,7 @@
         "type": "pageChange"
     }'
     hx-get="/documents/${id}"
-    hx-target="#page-content"
+    hx-target="#content"
     hx-swap="outerHTML"
     hx-push-url="false">⬅️</div>
 @else
@@ -29,7 +29,7 @@
         "type": "pageChange"
     }'
     hx-get="/documents/${id}"
-    hx-target="#page-content"
+    hx-target="#content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
 @endif
@@ -42,7 +42,7 @@
             "type": "pageChange"
         }'
         hx-get="/documents/${id}"
-        hx-target="#page-content"
+        hx-target="#content"
         hx-swap="outerHTML"
         hx-push-url="false">
             <div class="bg-tertiary rounded text-primary font-bold text-xl">
@@ -57,7 +57,7 @@
             "type": "pageChange"
         }'
         hx-get="/documents/${id}"
-        hx-target="#page-content"
+        hx-target="#content"
         hx-swap="outerHTML"
         hx-push-url="false">
             <div class="bg-accent rounded text-primary font-bold text-xl">
@@ -76,7 +76,7 @@
         "type": "pageChange"
     }'
     hx-get="/documents/${id}"
-    hx-target="#page-content"
+    hx-target="#content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
 @else
@@ -88,7 +88,7 @@
         "type": "pageChange"
     }'
     hx-get="/documents/${id}"
-    hx-target="#page-content"
+    hx-target="#content"
     hx-swap="outerHTML"
     hx-push-url="false">➡️</div>
 @endif

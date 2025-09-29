@@ -17,15 +17,14 @@
     <input
     id="word-document-reloader-${wordId}"
     hx-trigger="reload-document once"
-    hx-get="/documents/${documentId}"
+    hx-get="/documents/${documentId}/withSelectedWord"
     hx-swap="outerHTML"
-    hx-target="#content-main"
-    hx-params="selectedId,selectedTargetWord,isSelectedPersisted,type,page"
+    hx-target="#units"
+    hx-params="unitId,unitText,isUnitPersisted,page"
     hx-vals='{
-        "selectedId": "${wordId}",
-        "selectedTargetWord": "${rawText}",
-        "isSelectedPersisted": "${isPersisted}",
-        "type": "reload",
+        "unitId": "${wordId}",
+        "unitText": "${rawText}",
+        "isUnitPersisted": "${isPersisted}",
         "page": "${currentPage}"
     }'
     type="hidden">
@@ -49,9 +48,9 @@
 @else
     <div
     class="
-    inline-block relative rounded whitespace-nowrap text-lg pointer-events-none select-none">
+    inline-block relative rounded whitespace-nowrap text-lg pointer-events-none">
         <span
         id="word-${wordId}"
-        class="${bgColor} ${textColor} rounded">${rawText}</span>
+        class="${bgColor} ${textColor} rounded select-none">${rawText}</span>
     </div>
 @endif

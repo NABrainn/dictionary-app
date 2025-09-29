@@ -12,13 +12,13 @@
 hx-on:click="event.stopPropagation()"
 class="
 md:gap-0.75
-bg-tertiary flex flex-col p-3 rounded gap-4"
+bg-tertiary flex flex-col p-3 rounded gap-4  select-none"
 id="translation-form">
     <div class="flex justify-end">
         <span
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer"
-        hx-on:click="documentPage.closeAllTranslationForms()">❌</span>
+        _="on click remove <div#translation-form/>">❌</span>
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().processedTargetWord()}</span>
     <div class="flex flex-col gap-2 text-wrap">

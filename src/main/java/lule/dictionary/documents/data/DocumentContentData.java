@@ -12,8 +12,7 @@ import java.util.Map;
 public record DocumentContentData(@NonNull String title,
                                   @NonNull List<DocumentUnit> content,
                                   @NonNull Map<String, Translation> translations,
-                                  int documentId,
-                                  int selectedWordId) {
+                                  int documentId) {
     @Override
     public Map<String, Translation> translations() {
         return Map.copyOf(translations);

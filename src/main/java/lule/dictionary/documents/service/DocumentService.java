@@ -12,6 +12,14 @@ import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl;
+import lule.dictionary.documents.data.request.loadDocument.FirstLoadRequest;
+import lule.dictionary.documents.data.request.loadDocument.LoadDocumentRequest;
+import lule.dictionary.documents.data.request.loadDocument.ReloadWithPhraseRequest;
+import lule.dictionary.documents.data.request.loadDocument.ReloadWithWordRequest;
+import lule.dictionary.documents.data.result.FirstLoadResult;
+import lule.dictionary.documents.data.result.ReloadWithPhraseResult;
+import lule.dictionary.documents.data.result.LoadDocumentResult;
+import lule.dictionary.documents.data.result.ReloadWithWordResult;
 import lule.dictionary.familiarity.service.FamiliarityService;
 import lule.dictionary.jsoup.data.Token;
 import lule.dictionary.language.service.Language;
@@ -197,7 +205,7 @@ public class DocumentService {
         return DocumentListAttribute.of(documents, localization, isNavbarOpen);
     }
 
-    public Result<DocumentAttribute> loadDocumentContent(LoadDocumentContentRequest request, Authentication authentication) {
+    public Result<LoadDocumentResult> loadDocumentContent(LoadDocumentRequest request, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         Language sourceLanguage = principal.sourceLanguage();
         Language targetLanguage = principal.targetLanguage();
@@ -207,13 +215,6 @@ public class DocumentService {
         return switch (result) {
             case Ok<Document> ok -> {
                 Document document = ok.value();
-                AssembleDocumentContentData assembleContentRequest = AssembleDocumentContentData.builder()
-                        .selectableId(request.wordId())
-                        .documentId(request.documentId())
-                        .contentBlob(document.pageContent())
-                        .owner(document.owner())
-                        .title(document.title())
-                        .build();
                 Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(document.pageContent(), document.owner()));
                 Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(document.pageContent(), document.owner())));
                 DocumentUnitStore processedContent = Arrays.stream(document.pageContent().split("\\s+"))
@@ -263,7 +264,6 @@ public class DocumentService {
                         .content(processedContent.documentUnits())
                         .translations(translations)
                         .documentId(request.documentId())
-                        .selectedWordId(request.wordId())
                         .build();
                 DocumentPaginationData paginationData = DocumentPaginationData.builder()
                         .currentPageNumber(request.page())
@@ -273,26 +273,29 @@ public class DocumentService {
                         .rows(paginationService.getRows(paginationService.getNumberOfPages(document.totalContentLength())))
                         .build();
                 boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
-                yield switch (request.type()) {
-                    case "firstLoad" -> Ok.of(DocumentFirstLoadAttribute.builder()
+                yield switch (request) {
+                    case FirstLoadRequest ignored -> Ok.of(FirstLoadResult.builder()
                             .documentContentData(contentData)
                             .paginationData(paginationData)
                             .isNavbarOpen(isNavbarOpen)
                             .build());
-                    case "reload" -> Ok.of(DocumentReloadAttribute.builder()
+                    case ReloadWithWordRequest wordRequest -> Ok.of(ReloadWithWordResult.builder()
                             .documentContentData(contentData)
                             .paginationData(paginationData)
                             .isNavbarOpen(isNavbarOpen)
-                            .selectedId(request.wordId())
-                            .targetWord(request.selectedTargetWord())
-                            .isSelectablePersisted(request.isSelectedPersisted())
+                            .unitId(wordRequest.unitId())
+                            .targetWord(request.unitText())
+                            .isSelectablePersisted(request.isUnitPersisted())
                             .build());
-                    case "pageChange" -> Ok.of(DocumentPageChangeAttribute.builder()
+                    case ReloadWithPhraseRequest phraseRequest -> Ok.of(ReloadWithPhraseResult.builder()
                             .documentContentData(contentData)
                             .paginationData(paginationData)
                             .isNavbarOpen(isNavbarOpen)
+                            .startId(phraseRequest.startId())
+                            .endId(phraseRequest.endId())
+                            .targetWord(request.unitText())
+                            .isSelectablePersisted(request.isUnitPersisted())
                             .build());
-                    default -> throw new IllegalStateException("Unexpected value: " + request.type());
                 };
             }
             case Err<Document> v -> Err.of(v.throwable());
