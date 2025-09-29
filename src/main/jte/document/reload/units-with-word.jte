@@ -67,19 +67,6 @@ hx-vals='{
                 translation = unit.translation(),
                 currentPage = result.paginationData().currentPageNumber(),
                 gapColor = "border-transparent")
-            @else
-                @template.document.word(
-                wordId = entry.getIndex(),
-                bgColor = "bg-primary",
-                filler = "bg-primary",
-                textColor = "text-neutral",
-                isSelectable = false,
-                isPersisted = false,
-                documentId = result.documentContentData().documentId(),
-                rawText = unit.rawText(),
-                translation = unit.translation(),
-                currentPage = result.paginationData().currentPageNumber(),
-                gapColor = "border-transparent")
             @endif
         @endif
     @endfor

@@ -75,19 +75,6 @@ hx-vals='{
                 rawText = unit.rawText(),
                 translation = unit.translation(),
                 currentPage = result.paginationData().currentPageNumber())
-            @else
-                @template.document.word(
-                wordId = entry.getIndex(),
-                bgColor = "bg-primary",
-                filler = filler,
-                gapColor = gapColor,
-                textColor = "text-neutral",
-                isSelectable = false,
-                isPersisted = false,
-                documentId = result.documentContentData().documentId(),
-                rawText = unit.rawText(),
-                translation = unit.translation(),
-                currentPage = result.paginationData().currentPageNumber())
             @endif
         @endif
     @endfor
