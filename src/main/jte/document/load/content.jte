@@ -1,7 +1,7 @@
 @import lule.dictionary.documents.data.documentProcessing.DocumentUnit
+@import lule.dictionary.documents.data.documentProcessing.NonTranslationWordUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
-@import lule.dictionary.documents.data.documentProcessing.TranslationUnit
-@import lule.dictionary.documents.data.documentProcessing.WordUnit
+@import lule.dictionary.documents.data.documentProcessing.TranslationWordUnit
 @import gg.jte.support.ForSupport
 @import lule.dictionary.documents.data.result.LoadDocumentResult
 
@@ -12,7 +12,7 @@ hx-trigger="reloadDocument"
 hx-get="/documents/${result.documentContentData().documentId()}/withSelectedPhrase"
 hx-swap="outerHTML"
 hx-target="#units"
-hx-params="startId,endId,unitText,isUnitPersisted,page"
+hx-params="startId,endId,unitText,isPhrase,isUnitPersisted,page"
 hx-vals='js:{
     startId: event.detail.startId,
     endId: event.detail.endId,
@@ -29,6 +29,11 @@ class="flex flex-col gap-8 text-wrap">
     md:w-3/5 mx-auto text-wrap min-h-165"
     _="
     @raw
+    def removeSelection()
+        js
+            window.getSelection().removeAllRanges()
+        end
+    end
     on mouseup send selectPhrase
     on selectPhrase
         js
@@ -41,40 +46,28 @@ class="flex flex-col gap-8 text-wrap">
         end then
         put it into phraseNodes then
         if the first of phraseNodes.id is the last of phraseNodes.id
-            js
-                window.getSelection().removeAllRanges()
-            end
+            removeSelection()
             throw 'must be at least 2 elements'
         end
         if phraseNodes.length > 5
-            js
-                window.getSelection().removeAllRanges()
-            end
+            removeSelection()
             throw 'cant be longer than 5 elements'
         end
         repeat in phraseNodes
             if it.classList.contains('bg-tertiary')
-                js
-                    window.getSelection().removeAllRanges()
-                end
+                removeSelection()
                 throw 'cant create phrase from selected unit'
             end
             if it.classList.contains('bg-tertiary')
-                js
-                    window.getSelection().removeAllRanges()
-                end
+                removeSelection()
                 throw 'cant create phrase from selected unit'
             end
             if it.parentElement.parentElement is 'phrase'
-                js
-                    window.getSelection().removeAllRanges()
-                end
+                removeSelection()
                 throw 'cant create phrase from another phrase'
             end
             if it.classList.contains('select-none')
-                js
-                    window.getSelection().removeAllRanges()
-                end
+                removeSelection()
                 throw 'cant create phrase from unselectable unit'
             end
         end
@@ -84,17 +77,12 @@ class="flex flex-col gap-8 text-wrap">
         set endId to lastPhraseNode.id.slice(5) then
         set phraseText to phraseNodes.map( \ node -> node.innerText).join(' ') then
         send reloadDocument(startId: startId, endId: endId, phraseText: phraseText) to #content
-        js
-            window.getSelection().removeAllRanges()
-        end
+        removeSelection()
     catch e
-        js
-            window.getSelection().removeAllRanges()
-        end
+        removeSelection()
     end
     @endraw
-    "
-    >
+    ">
         @if(result.paginationData().currentPageNumber() == 1)
             <span
             class="
@@ -107,8 +95,8 @@ class="flex flex-col gap-8 text-wrap">
             @for(var entry :  ForSupport.of(result.documentContentData().content()))
                 !{DocumentUnit unit = entry.get();}
                 @if(unit instanceof PhraseUnit)
-                    nt
-                @elseif(unit instanceof TranslationUnit)
+                    ${unit.rawText()}
+                @elseif(unit instanceof TranslationWordUnit)
                     !{String wordBgColor = switch(unit.translation().familiarity()){
                         case UNKNOWN -> "bg-accent";
                         case RECOGNIZED -> "bg-accent/80";
@@ -130,7 +118,7 @@ class="flex flex-col gap-8 text-wrap">
                     translation = unit.translation(),
                     currentPage = result.paginationData().currentPageNumber(),
                     gapColor = "border-transparent")
-                @elseif(unit instanceof WordUnit)
+                @elseif(unit instanceof NonTranslationWordUnit)
                     @if(unit.translation().processedTargetWord().length() <= 50)
                         @template.document.word(
                         wordId = entry.getIndex(),
