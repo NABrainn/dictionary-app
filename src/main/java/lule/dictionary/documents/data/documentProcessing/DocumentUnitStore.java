@@ -36,6 +36,6 @@ public record DocumentUnitStore(@NonNull List<DocumentUnit> phraseParts,
         List<DocumentUnit> toRemove = documentUnits.subList(startId, endId);
         String phraseTextFromDocument = toRemove.stream().map(DocumentUnit::rawText).collect(Collectors.joining(" "));
         toRemove.clear();
-        addDocumentUnit(PhraseUnit.of(phraseTextFromDocument, translation));
+        addDocumentUnit(PhraseUnit.of(translation, phraseTextFromDocument));
     }
 }
