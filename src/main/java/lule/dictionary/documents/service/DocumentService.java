@@ -17,7 +17,6 @@ import lule.dictionary.documents.data.result.FirstLoadResult;
 import lule.dictionary.documents.data.result.ReloadWithPhraseResult;
 import lule.dictionary.documents.data.result.LoadDocumentResult;
 import lule.dictionary.documents.data.result.ReloadWithWordResult;
-import lule.dictionary.familiarity.service.FamiliarityService;
 import lule.dictionary.jsoup.data.Token;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.result.data.Err;
@@ -25,7 +24,6 @@ import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.stringUtil.service.StringUtils;
-import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.documents.data.repository.DocumentRepository;
 import lule.dictionary.jsoup.service.JsoupService;
@@ -47,7 +45,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -61,7 +58,7 @@ public class DocumentService {
     private final JsoupService jsoupService;
     private final TranslationService translationService;
     private final PatternService patternService;
-    private final FamiliarityService familiarityService;
+    private final DocumentProcessor documentProcessor;
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
     private final UserInterfaceService userInterfaceService;
@@ -214,51 +211,18 @@ public class DocumentService {
                 Document document = ok.value();
                 Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(document.pageContent(), document.owner()));
                 Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(document.pageContent(), document.owner())));
-                DocumentUnitStore processedContent = Arrays.stream(document.pageContent().split("\\s+"))
-                        .sequential()
-                        .map(word -> switch (translations.get(patternService.removeSpecialCharacters(word.toLowerCase().trim()))) {
-                            case Translation translation -> TranslationUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
-                            case null -> WordUnit.of(Translation.builder()
-                                    .sourceWords(List.of())
-                                    .processedTargetWord(patternService.removeSpecialCharacters(word.toLowerCase().trim()))
-                                    .familiarity(Familiarity.UNKNOWN)
-                                    .sourceLanguage(sourceLanguage)
-                                    .targetLanguage(targetLanguage)
-                                    .owner(document.owner())
-                                    .isPhrase(false)
-                                    .build(),
-                                    word,
-                                    phrases.containsWord(word.toLowerCase().trim()));
-                            })
-                        .map(unit -> (DocumentUnit) unit)
-                        .collect(Collector.of(
-                                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>()),
-                                (store, documentUnit) -> {
-                                    if (!documentUnit.isPhrasePart()) {
-                                        store.addDocumentUnit(documentUnit);
-                                        store.clearPhraseParts();
-                                    }
-                                    else {
-                                        store.addDocumentUnit(documentUnit);
-                                        store.addPhrasePart(documentUnit);
-                                    }
-                                    if (phrases.findPhrase(store.bufferValue()).isPresent()) {
-                                        Translation translation = phrases.findPhrase(store.bufferValue()).get();
-                                        store.wrapToPhrase(translation);
-                                        store.clearPhraseParts();
-                                    }
-                                },
-                                (left, right) -> {
-                                    List<DocumentUnit> leftUnits = left.documentUnits();
-                                    List<DocumentUnit> rightUnits = right.documentUnits();
-                                    leftUnits.addAll(rightUnits);
-                                    return left;
-                                },
-                                Collector.Characteristics.IDENTITY_FINISH
-                        ));
+                ProcessDocumentRequest processRequest = ProcessDocumentRequest.builder()
+                        .content(document.pageContent())
+                        .translations(translations)
+                        .phrases(phrases)
+                        .sourceLanguage(sourceLanguage)
+                        .targetLanguage(targetLanguage)
+                        .owner(document.owner())
+                        .build();
+                List<DocumentUnit> processedContent = documentProcessor.read(processRequest);
                 DocumentContentData contentData = DocumentContentData.builder()
                         .title(document.title())
-                        .content(processedContent.documentUnits())
+                        .content(processedContent)
                         .translations(translations)
                         .documentId(request.documentId())
                         .build();
@@ -271,12 +235,12 @@ public class DocumentService {
                         .build();
                 boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
                 yield switch (request) {
-                    case FirstLoadRequest firstLoadRequest -> Ok.of(FirstLoadResult.builder()
+                    case FirstLoadRequest ignored -> Ok.of(FirstLoadResult.builder()
                             .documentContentData(contentData)
                             .paginationData(paginationData)
                             .isNavbarOpen(isNavbarOpen)
                             .build());
-                    case PageChangeRequest pageChangeRequest -> Ok.of(FirstLoadResult.builder()
+                    case PageChangeRequest ignored -> Ok.of(FirstLoadResult.builder()
                             .documentContentData(contentData)
                             .paginationData(paginationData)
                             .isNavbarOpen(isNavbarOpen)

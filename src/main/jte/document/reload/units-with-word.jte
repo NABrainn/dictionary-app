@@ -1,7 +1,6 @@
-@import lule.dictionary.documents.data.documentProcessing.DocumentUnit
+@import lule.dictionary.documents.data.documentProcessing.*
+@import lule.dictionary.documents.data.documentProcessing.NonTranslationWordUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
-@import lule.dictionary.documents.data.documentProcessing.TranslationUnit
-@import lule.dictionary.documents.data.documentProcessing.WordUnit
 @import gg.jte.support.ForSupport
 @import lule.dictionary.documents.data.result.ReloadWithWordResult
 
@@ -42,7 +41,7 @@ hx-vals='{
         ;}
         @if(unit instanceof PhraseUnit)
             nt
-        @elseif(unit instanceof TranslationUnit)
+        @elseif(unit instanceof lule.dictionary.documents.data.documentProcessing.TranslationWordUnit)
             @template.document.word(
             wordId = entry.getIndex(),
             bgColor = wordBgColor,
@@ -54,7 +53,7 @@ hx-vals='{
             translation = unit.translation(),
             currentPage = result.paginationData().currentPageNumber(),
             gapColor = "border-transparent")
-        @elseif(unit instanceof WordUnit)
+        @elseif(unit instanceof NonTranslationWordUnit)
             @if(unit.translation().processedTargetWord().length() <= 50)
                 @template.document.word(
                 wordId = entry.getIndex(),

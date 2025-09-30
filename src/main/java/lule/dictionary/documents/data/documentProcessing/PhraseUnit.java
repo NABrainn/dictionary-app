@@ -4,10 +4,9 @@ import lombok.NonNull;
 import lule.dictionary.translations.data.Translation;
 
 public record PhraseUnit(@NonNull Translation translation,
-                         @NonNull String rawText,
-                         boolean isPhrasePart) implements DocumentUnit {
+                         @NonNull String rawText) implements DocumentUnit {
 
-    public static DocumentUnit of(String wordFromText, Translation translation) {
-        return new PhraseUnit(translation, wordFromText, false);
+    public static DocumentUnit of(Translation translation, String wordFromText) {
+        return new PhraseUnit(translation, wordFromText);
     }
 }

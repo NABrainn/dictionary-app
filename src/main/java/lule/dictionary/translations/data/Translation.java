@@ -25,6 +25,20 @@ public record Translation(@NonNull List<String> sourceWords,
                         .isPhrase(isPhrase)
                         .build();
         }
+        public static Translation nonTranslation(@NonNull String processedTargetWord,
+                                                 @NonNull Language sourceLanguage,
+                                                 @NonNull Language targetLanguage,
+                                                 @NonNull String owner) {
+                return Translation.builder()
+                        .sourceWords(List.of())
+                        .processedTargetWord(processedTargetWord)
+                        .familiarity(Familiarity.UNKNOWN)
+                        .sourceLanguage(sourceLanguage)
+                        .targetLanguage(targetLanguage)
+                        .owner(owner)
+                        .isPhrase(false)
+                        .build();
+        }
         @Override
         public boolean equals(Object object) {
                 if(object == null) {

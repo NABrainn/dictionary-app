@@ -1,8 +1,8 @@
 @import lule.dictionary.documents.data.result.ReloadWithPhraseResult
 @import lule.dictionary.documents.data.documentProcessing.DocumentUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
-@import lule.dictionary.documents.data.documentProcessing.TranslationUnit
-@import lule.dictionary.documents.data.documentProcessing.WordUnit
+@import lule.dictionary.documents.data.documentProcessing.TranslationWordUnit
+@import lule.dictionary.documents.data.documentProcessing.NonTranslationWordUnit
 @import gg.jte.support.ForSupport
 @import java.util.List
 @import java.util.stream.IntStream
@@ -16,10 +16,11 @@ hx-trigger="openForm once"
 hx-get="/translations/"
 hx-target="#form-container-${result.startId()}"
 hx-swap="innerHTML"
-hx-params="documentId,targetWord,id,isPersisted"
+hx-params="documentId,targetWord,isPhrase,id,isPersisted"
 hx-vals='{
     "documentId": "${result.documentContentData().documentId()}",
     "targetWord": "${result.targetWord()}",
+    "isPhrase": "true",
     "id": "${result.startId()}",
     "isPersisted": "${result.isSelectablePersisted()}"
 }'>
@@ -50,7 +51,7 @@ hx-vals='{
             "border-transparent";}
         @if(unit instanceof PhraseUnit)
             nt
-        @elseif(unit instanceof TranslationUnit)
+        @elseif(unit instanceof TranslationWordUnit)
             @template.document.word(
             wordId = entry.getIndex(),
             bgColor = bgColor,
@@ -62,7 +63,7 @@ hx-vals='{
             rawText = unit.rawText(),
             translation = unit.translation(),
             currentPage = result.paginationData().currentPageNumber())
-        @elseif(unit instanceof WordUnit)
+        @elseif(unit instanceof NonTranslationWordUnit)
             @if(unit.translation().processedTargetWord().length() <= 50)
                 @template.document.word(
                 wordId = entry.getIndex(),
