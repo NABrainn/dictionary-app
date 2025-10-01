@@ -5,4 +5,6 @@ public sealed interface LoadDocumentRequest permits FirstLoadRequest, PageChange
     int page();
     boolean isUnitPersisted();
     String unitText();
+    int startId();
+    int length();
 }
