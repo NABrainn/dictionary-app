@@ -9,9 +9,8 @@ import lule.dictionary.pagination.data.DocumentPaginationData;
 public record ReloadWithPhraseResult(@NonNull DocumentContentData documentContentData,
                                      @NonNull DocumentPaginationData paginationData,
                                      boolean isNavbarOpen,
-
                                      int startId,
-                                     int endId,
+                                     int length,
                                      @NonNull String targetWord,
                                      boolean isSelectablePersisted) implements LoadDocumentResult, ReloadResult {
 }

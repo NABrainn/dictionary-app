@@ -14,5 +14,7 @@ public record ProcessDocumentRequest(@NonNull String content,
                                      @NonNull Phrases phrases,
                                      @NonNull Language sourceLanguage,
                                      @NonNull Language targetLanguage,
-                                     @NonNull String owner) {
+                                     @NonNull String owner,
+                                     int startId,
+                                     int length) {
 }

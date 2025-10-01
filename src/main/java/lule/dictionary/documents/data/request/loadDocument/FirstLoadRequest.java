@@ -6,7 +6,16 @@ import lombok.NonNull;
 @Builder
 public record FirstLoadRequest(int documentId,
                                int page,
-                               int unitId,
                                boolean isUnitPersisted,
-                               @NonNull String unitText) implements LoadDocumentRequest {
+                               @NonNull String unitText,
+                               int startId,
+                               int length) implements LoadDocumentRequest {
+    @Override
+    public int startId() {
+        return -1;
+    }
+    @Override
+    public int length() {
+        return -1;
+    }
 }

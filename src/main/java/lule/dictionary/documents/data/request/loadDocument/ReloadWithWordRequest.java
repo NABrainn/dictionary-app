@@ -6,7 +6,12 @@ import lombok.NonNull;
 @Builder
 public record ReloadWithWordRequest(int documentId,
                                     int page,
-                                    int unitId,
                                     boolean isUnitPersisted,
-                                    @NonNull String unitText) implements LoadDocumentRequest, ReloadRequest {
+                                    @NonNull String unitText,
+                                    int startId,
+                                    int length) implements LoadDocumentRequest, ReloadRequest {
+    @Override
+    public int length() {
+        return 1;
+    }
 }

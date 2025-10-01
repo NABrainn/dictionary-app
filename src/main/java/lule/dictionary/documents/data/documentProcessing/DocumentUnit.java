@@ -2,7 +2,9 @@ package lule.dictionary.documents.data.documentProcessing;
 
 import lule.dictionary.translations.data.Translation;
 
-public sealed interface DocumentUnit permits NonTranslationWordUnit, PhraseUnit, TranslationWordUnit {
+public sealed interface DocumentUnit permits PhraseUnit, SelectedUnit, WordUnit {
+    int id();
     String rawText();
     Translation translation();
+    DocumentUnit withId(int id);
 }

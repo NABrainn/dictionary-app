@@ -39,18 +39,18 @@ public class DocumentController {
 
     @GetMapping({"/{documentId}", "/{documentId}/"})
     public String loadDocument(@PathVariable("documentId") int documentId,
-                               @RequestParam(name = "unitId", defaultValue = "-1") int unitId,
                                @RequestParam(name = "unitText", defaultValue = "") String unitText,
                                @RequestParam(name = "isUnitPersisted", defaultValue = "false") boolean isUnitPersisted,
                                @RequestParam(name = "page", defaultValue = "1") int page,
                                Model model,
                                Authentication authentication) {
         LoadDocumentRequest request = FirstLoadRequest.builder()
-                .unitId(unitId)
+                .startId(-1)
                 .documentId(documentId)
                 .page(page)
                 .unitText(unitText)
                 .isUnitPersisted(isUnitPersisted)
+                .length(-1)
                 .build();
         Result<LoadDocumentResult> result = documentService.loadDocumentContent(request, authentication);
         switch (result) {
@@ -71,18 +71,18 @@ public class DocumentController {
 
     @GetMapping({"/{documentId}/changePage", "/{documentId}/changePage/"})
     public String changePageDocument(@PathVariable("documentId") int documentId,
-                                     @RequestParam(name = "unitId", defaultValue = "-1") int unitId,
                                      @RequestParam(name = "unitText", defaultValue = "") String unitText,
                                      @RequestParam(name = "isUnitPersisted", defaultValue = "false") boolean isUnitPersisted,
                                      @RequestParam(name = "page", defaultValue = "1") int page,
                                      Model model,
                                      Authentication authentication) {
         LoadDocumentRequest request = PageChangeRequest.builder()
-                .unitId(unitId)
+                .startId(-1)
                 .documentId(documentId)
                 .page(page)
                 .unitText(unitText)
                 .isUnitPersisted(isUnitPersisted)
+                .length(-1)
                 .build();
         Result<LoadDocumentResult> result = documentService.loadDocumentContent(request, authentication);
         switch (result) {
@@ -99,18 +99,19 @@ public class DocumentController {
 
     @GetMapping({"/{documentId}/withSelectedWord", "/{documentId}/withSelectedWord/"})
     public String documentWithSelectedWord(@PathVariable("documentId") int documentId,
-                                           @RequestParam(name = "unitId", defaultValue = "-1") int unitId,
+                                           @RequestParam(name = "startId", defaultValue = "-1") int startId,
                                            @RequestParam(name = "unitText", defaultValue = "") String unitText,
                                            @RequestParam(name = "isUnitPersisted", defaultValue = "false") boolean isUnitPersisted,
                                            @RequestParam(name = "page", defaultValue = "1") int page,
                                            Model model,
                                            Authentication authentication) {
         LoadDocumentRequest request = ReloadWithWordRequest.builder()
-                .unitId(unitId)
+                .startId(startId)
                 .documentId(documentId)
                 .page(page)
                 .unitText(unitText)
                 .isUnitPersisted(isUnitPersisted)
+                .length(1)
                 .build();
         Result<LoadDocumentResult> result = documentService.loadDocumentContent(request, authentication);
         switch (result) {
@@ -128,7 +129,7 @@ public class DocumentController {
     @GetMapping({"/{documentId}/withSelectedPhrase", "/{documentId}/withSelectedPhrase/"})
     public String documentWithSelectedPhrase(@PathVariable("documentId") int documentId,
                                              @RequestParam(name = "startId", defaultValue = "-1") int startId,
-                                             @RequestParam(name = "endId", defaultValue = "-1") int endId,
+                                             @RequestParam(name = "length", defaultValue = "-1") int length,
                                              @RequestParam(name = "unitText", defaultValue = "") String unitText,
                                              @RequestParam(name = "isUnitPersisted", defaultValue = "false") boolean isUnitPersisted,
                                              @RequestParam(name = "page", defaultValue = "1") int page,
@@ -136,7 +137,7 @@ public class DocumentController {
                                              Authentication authentication) {
         LoadDocumentRequest request = ReloadWithPhraseRequest.builder()
                 .startId(startId)
-                .endId(endId)
+                .length(length)
                 .documentId(documentId)
                 .page(page)
                 .unitText(unitText)

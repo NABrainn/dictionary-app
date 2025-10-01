@@ -17,13 +17,10 @@ import lule.dictionary.documents.data.result.FirstLoadResult;
 import lule.dictionary.documents.data.result.ReloadWithPhraseResult;
 import lule.dictionary.documents.data.result.LoadDocumentResult;
 import lule.dictionary.documents.data.result.ReloadWithWordResult;
-import lule.dictionary.jsoup.data.Token;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
-import lule.dictionary.stringUtil.service.PatternService;
-import lule.dictionary.stringUtil.service.StringUtils;
 import lule.dictionary.translations.data.Translation;
 import lule.dictionary.documents.data.repository.DocumentRepository;
 import lule.dictionary.jsoup.service.JsoupService;
@@ -44,8 +41,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -57,12 +52,10 @@ public class DocumentService {
     private final PaginationService paginationService;
     private final JsoupService jsoupService;
     private final TranslationService translationService;
-    private final PatternService patternService;
     private final DocumentProcessor documentProcessor;
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
     private final UserInterfaceService userInterfaceService;
-    private final StringUtils stringUtils;
 
     @Transactional
     public Result<Integer> createDocument(CreateDocumentRequest request) {
@@ -104,28 +97,17 @@ public class DocumentService {
                 );
                 yield switch (result) {
                     case Ok<?> ignored -> {
-                        String[] documentAsArray = jsoupService.fetchDocument(documentFormWithUrl.url())
-                                .wholeText()
-                                .split("(?<=\\n)(?=\\w)");
-                        String formattedDocument = Arrays.stream(documentAsArray)
-                                .map(tokenBlob -> Token.of(tokenBlob, stringUtils.getCharQuantity(tokenBlob, '\n')))
-                                .map(token -> switch (token.newlineCount()) {
-                                    case 0 -> token;
-                                    case 1 -> token.withContent(patternService.replaceNewline(token.content(), " "));
-                                    default -> token.withContent(patternService.replaceAllNewlines(token.content(), '\n', 30));
-                                })
-                                .map(Token::content)
-                                .filter(Predicate.not(String::isBlank))
-                                .collect(Collectors.joining());
+                        String documentContent = jsoupService.fetchDocument(documentFormWithUrl.url()).wholeText();
+                        String processedDocument = documentProcessor.write(documentContent);
                         Document document = Document.builder()
                                 .id(-1)
                                 .title(documentFormWithUrl.title())
-                                .pageContent(formattedDocument)
+                                .pageContent(processedDocument)
                                 .url(documentFormWithUrl.url())
                                 .sourceLanguage(principal.sourceLanguage())
                                 .targetLanguage(principal.targetLanguage())
                                 .owner(principal.getUsername())
-                                .totalContentLength(formattedDocument.length())
+                                .totalContentLength(processedDocument.length())
                                 .build();
                         int documentId = documentRepository.create(document).orElseThrow();
                         yield Ok.of(documentId);
@@ -212,6 +194,8 @@ public class DocumentService {
                 Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(document.pageContent(), document.owner()));
                 Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(document.pageContent(), document.owner())));
                 ProcessDocumentRequest processRequest = ProcessDocumentRequest.builder()
+                        .startId(request.startId())
+                        .length(request.length())
                         .content(document.pageContent())
                         .translations(translations)
                         .phrases(phrases)
@@ -249,7 +233,7 @@ public class DocumentService {
                             .documentContentData(contentData)
                             .paginationData(paginationData)
                             .isNavbarOpen(isNavbarOpen)
-                            .unitId(wordRequest.unitId())
+                            .unitId(wordRequest.startId())
                             .targetWord(request.unitText())
                             .isSelectablePersisted(request.isUnitPersisted())
                             .build());
@@ -258,7 +242,7 @@ public class DocumentService {
                             .paginationData(paginationData)
                             .isNavbarOpen(isNavbarOpen)
                             .startId(phraseRequest.startId())
-                            .endId(phraseRequest.endId())
+                            .length(phraseRequest.length())
                             .targetWord(request.unitText())
                             .isSelectablePersisted(request.isUnitPersisted())
                             .build());
