@@ -4,7 +4,6 @@
 @import lule.dictionary.documents.data.documentProcessing.TranslationWordUnit
 @import gg.jte.support.ForSupport
 @import lule.dictionary.documents.data.result.LoadDocumentResult
-
 @param LoadDocumentResult result
 
 <form
@@ -12,10 +11,10 @@ hx-trigger="reloadDocument"
 hx-get="/documents/${result.documentContentData().documentId()}/withSelectedPhrase"
 hx-swap="outerHTML"
 hx-target="#units"
-hx-params="startId,endId,unitText,isPhrase,isUnitPersisted,page"
+hx-params="startId,length,unitText,isPhrase,isUnitPersisted,page"
 hx-vals='js:{
     startId: event.detail.startId,
-    endId: event.detail.endId,
+    length: event.detail.length,
     unitText: event.detail.phraseText,
     isPhrase: true,
     isUnitPersisted: false,
@@ -74,9 +73,9 @@ class="flex flex-col gap-8 text-wrap">
         set firstPhraseNode to the first of phraseNodes then
         set lastPhraseNode to the last of phraseNodes then
         set startId to firstPhraseNode.id.slice(5) then
-        set endId to lastPhraseNode.id.slice(5) then
+        set length to phraseNodes.length then
         set phraseText to phraseNodes.map( \ node -> node.innerText).join(' ') then
-        send reloadDocument(startId: startId, endId: endId, phraseText: phraseText) to #content
+        send reloadDocument(startId: startId, length: length, phraseText: phraseText) to #content
         removeSelection()
     catch e
         removeSelection()
@@ -94,56 +93,83 @@ class="flex flex-col gap-8 text-wrap">
         class="flex flex-wrap">
             @for(var entry :  ForSupport.of(result.documentContentData().content()))
                 !{DocumentUnit unit = entry.get();}
-                @if(unit instanceof PhraseUnit)
-                    ${unit.rawText()}
-                @elseif(unit instanceof TranslationWordUnit)
-                    !{String wordBgColor = switch(unit.translation().familiarity()){
+                !{String wordBgColor = switch(unit.translation().familiarity()){
+                        case UNKNOWN -> "bg-accent";
+                        case RECOGNIZED -> "bg-accent/80";
+                        case FAMILIAR -> "bg-accent/60";
+                        default -> "bg-primary";
+                    }
+                ;}
+                !{String wordFiller = "bg-primary";}
+                !{String wordTextColor = switch(unit.translation().familiarity()){
+                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                        default -> "text-neutral";
+                    }
+                ;}
+                !{String wordGapColor = "border-transparent";}
+                @if(unit instanceof PhraseUnit phraseUnit)
+                    !{String gapColor = switch(phraseUnit.translation().familiarity()){
+                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                        default -> "text-neutral";
+                    };}
+                    !{String fillerColor = switch(phraseUnit.translation().familiarity()){
                         case UNKNOWN -> "bg-accent";
                         case RECOGNIZED -> "bg-accent/80";
                         case FAMILIAR -> "bg-accent/60";
                         default -> "bg-primary";
                     };}
-                    !{String wordTextColor = switch(unit.translation().familiarity()){
+                    !{String textColor = switch(phraseUnit.translation().familiarity()){
                         case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
                         default -> "text-neutral";
                     };}
+                    @template.document.phrase(
+                    phraseId = unit.id(),
+                    phraseLength = phraseUnit.size(),
+                    documentId = result.documentContentData().documentId(),
+                    currentPage = result.paginationData().currentPageNumber(),
+                    phraseText = unit.rawText(),
+                    translation = phraseUnit.translation(),
+                    gapColor = gapColor,
+                    fillerColor = fillerColor,
+                    textColor = textColor)
+                @elseif(unit instanceof TranslationWordUnit)
                     @template.document.word(
-                    wordId = entry.getIndex(),
+                    wordId = unit.id(),
                     bgColor = wordBgColor,
-                    filler = "bg-primary",
+                    gapColor = wordGapColor,
+                    filler = wordFiller,
                     textColor = wordTextColor,
                     isPersisted = true,
                     documentId = result.documentContentData().documentId(),
                     rawText = unit.rawText(),
                     translation = unit.translation(),
-                    currentPage = result.paginationData().currentPageNumber(),
-                    gapColor = "border-transparent")
+                    currentPage = result.paginationData().currentPageNumber())
                 @elseif(unit instanceof NonTranslationWordUnit)
                     @if(unit.translation().processedTargetWord().length() <= 50)
                         @template.document.word(
-                        wordId = entry.getIndex(),
-                        bgColor = "bg-accent",
-                        filler = "bg-primary",
-                        textColor = "text-primary",
+                        wordId = unit.id(),
+                        bgColor = wordBgColor,
+                        gapColor = wordGapColor,
+                        filler = wordFiller,
+                        textColor = wordTextColor,
                         isPersisted = false,
                         documentId = result.documentContentData().documentId(),
                         rawText = unit.rawText(),
                         translation = unit.translation(),
-                        currentPage = result.paginationData().currentPageNumber(),
-                        gapColor = "border-transparent")
+                        currentPage = result.paginationData().currentPageNumber())
                     @endif
                 @else
                     @template.document.word(
-                    wordId = entry.getIndex(),
-                    bgColor = "bg-primary",
-                    filler = "bg-primary",
-                    textColor = "text-neutral",
+                    wordId = unit.id(),
+                    bgColor = wordBgColor,
+                    gapColor = wordGapColor,
+                    filler = wordFiller,
+                    textColor = wordTextColor,
                     isSelectable = false,
                     documentId = result.documentContentData().documentId(),
                     rawText = unit.rawText(),
                     translation = unit.translation(),
-                    currentPage = result.paginationData().currentPageNumber(),
-                    gapColor = "border-transparent")
+                    currentPage = result.paginationData().currentPageNumber())
                 @endif
             @endfor
         </div>
