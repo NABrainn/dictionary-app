@@ -71,7 +71,6 @@ id="translation-form">
                 hx-target="#translation-form">
                     @for(String word : attribute.translation().sourceWords())
                         <input
-                        hx-on:click="event.stopPropagation()"
                         name="sourceWords"
                         type="hidden"
                         value="${word}">
@@ -130,9 +129,7 @@ id="translation-form">
                 "isPhrase": "${attribute.isPhrase()}"
             }'
             hx-swap="outerHTML"
-            hx-target="#translation-form"
-            hx-on:click="
-            event.stopPropagation()">
+            hx-target="#translation-form">
                 <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                 <input
                 class="

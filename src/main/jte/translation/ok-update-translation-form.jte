@@ -8,6 +8,7 @@
 @param Map<String, String> errors
 @param Map<TranslationLocalizationKey, String> messages
 <div
+hx-on:click="event.stopPropagation()"
 _="
 on click halt
 on load send updateFamiliarities
