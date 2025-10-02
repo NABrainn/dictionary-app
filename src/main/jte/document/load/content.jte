@@ -20,7 +20,7 @@ hx-vals='js:{
     page: ${result.paginationData().currentPageNumber()}
 }'
 id="content"
-class="flex flex-col gap-8 text-wrap">
+class="flex flex-col gap-8 text-wrap caret-transparent">
     <div
     class="
     w-full px-2
@@ -51,23 +51,15 @@ class="flex flex-col gap-8 text-wrap">
             removeSelection()
             throw 'cant be longer than 5 elements'
         end
+        set newLineCount to 0
         repeat in phraseNodes
-            if it.classList.contains('bg-tertiary')
-                removeSelection()
-                throw 'cant create phrase from selected unit'
+            if it@data-raw contains '\n'
+                increment newLineCount
             end
-            if it.classList.contains('bg-tertiary')
-                removeSelection()
-                throw 'cant create phrase from selected unit'
-            end
-            if it.parentElement.parentElement is 'phrase'
-                removeSelection()
-                throw 'cant create phrase from another phrase'
-            end
-            if it.classList.contains('select-none')
-                removeSelection()
-                throw 'cant create phrase from unselectable unit'
-            end
+        end
+        if newLineCount is greater than 1
+            removeSelection()
+            throw 'cant have more than 1 endline'
         end
         set firstPhraseNode to the first of phraseNodes then
         set lastPhraseNode to the last of phraseNodes then
