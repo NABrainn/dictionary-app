@@ -16,9 +16,11 @@
 @param String filler
 
 @if(isSelectable)
-    <input
-    id="word-document-reloader-${wordId}"
-    hx-trigger="reloadDocumentFromClick once"
+    <div
+    class="
+    border-2 ${gapColor} ${filler} relative cursor-pointer rounded whitespace-nowrap text-lg"
+    _="on click send reloadDocumentWithSelectedWord"
+    hx-trigger="reloadDocumentWithSelectedWord once"
     hx-get="/documents/${documentId}/withSelectedWord"
     hx-swap="outerHTML"
     hx-target="#units"
@@ -28,12 +30,7 @@
         "unitText": "${rawText}",
         "isUnitPersisted": "${isPersisted}",
         "page": "${currentPage}"
-    }'
-    type="hidden">
-    <div
-    class="
-    border-2 ${gapColor} ${filler} relative cursor-pointer rounded whitespace-nowrap text-lg"
-    _="on click send reloadDocumentFromClick to #word-document-reloader-${wordId}">
+    }'>
         <div
         class="cursor-default z-2 absolute inline"
         id="form-container-${wordId}"

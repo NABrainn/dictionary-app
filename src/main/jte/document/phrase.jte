@@ -9,10 +9,16 @@
 @param Translation translation
 @param String phraseBgColor
 @param String phraseTextColor
-@param String reloader
-<input
-id="${reloader}"
-hx-trigger="reloadDocument once"
+
+<div
+id="phrase-${phraseId}"
+class="${phraseBgColor} ${phraseTextColor}
+flex flex-wrap border gap-1 border-x-2 border-secondary rounded-md cursor-pointer select-none
+${translation.familiarity().name().toLowerCase()}"
+data-text="${translation.processedTargetWord()}"
+
+_="on click send reloadDocumentWithSelectedPhrase"
+hx-trigger="reloadDocumentWithSelectedPhrase once"
 hx-get="/documents/${documentId}/withSelectedPhrase"
 hx-swap="outerHTML"
 hx-target="#units"
@@ -23,16 +29,7 @@ hx-vals='{
     "unitText": "${phraseText}",
     "isUnitPersisted": "true",
     "page": "${currentPage}"
-}'
-type="hidden">
-
-<div
-class="${phraseBgColor} ${phraseTextColor}
-flex flex-wrap border gap-1 border-x-2 border-secondary rounded-md cursor-pointer select-none
-${translation.familiarity().name().toLowerCase()}"
-data-text="${translation.processedTargetWord()}"
-_="on click send reloadDocument to #${reloader}"
-id="phrase-${phraseId}">
+}'>
 @for(var entry : ForSupport.of(phraseText.split(" ")))
     <div
     class="

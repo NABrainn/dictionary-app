@@ -126,8 +126,7 @@ class="flex flex-col gap-8 text-wrap">
                     phraseText = unit.rawText(),
                     translation = phraseUnit.translation(),
                     phraseBgColor = phraseBgColor,
-                    phraseTextColor = phraseTextColor,
-                    reloader = "phrase-document-reloader-" + unit.id())
+                    phraseTextColor = phraseTextColor)
                 @elseif(unit instanceof TranslationWordUnit)
                     @template.document.word(
                     wordId = unit.id(),
