@@ -28,7 +28,7 @@ type="hidden">
 
 <div
 class="
-flex flex-wrap
+flex flex-wrap border-2 border-secondary rounded-md
 ${translation.familiarity().name().toLowerCase()}"
 data-text="${translation.processedTargetWord()}"
 id="phrase-${phraseId}">
@@ -37,7 +37,7 @@ id="phrase-${phraseId}">
         <div
         class="
         ${gapColor} ${fillerColor}
-        border-2 border-transparent rounded-tl rounded-bl rounded-tr-none rounded-br-none
+        border-x-2 border-transparent rounded-tl rounded-bl rounded-tr-none rounded-br-none
         relative cursor-pointer rounded whitespace-nowrap text-lg
         phrase-part"
         hx-on:click="htmx.trigger('#word-document-reloader-${phraseId}', 'reload-document')">
@@ -55,7 +55,7 @@ id="phrase-${phraseId}">
     @elseif(entry.getIndex() == phraseLength - 1)
         <div
         class="
-        ${gapColor} ${fillerColor} border-2 border-transparent rounded-tr rounded-br rounded-tl-none rounded-bl-none
+        ${gapColor} ${fillerColor} border-x-2 border-transparent rounded-tr rounded-br rounded-tl-none rounded-bl-none
          relative cursor-pointer rounded whitespace-nowrap text-lg
         phrase-part"
         hx-on:click="htmx.trigger('#word-document-reloader-${phraseId}', 'reload-document')">
@@ -72,7 +72,7 @@ id="phrase-${phraseId}">
     @else
         <div
         class="
-        ${gapColor} ${fillerColor} border-2 border-transparent rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg
+        ${gapColor} ${fillerColor} border-x-2 border-transparent rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg
         phrase-part"
         hx-on:click="htmx.trigger('#word-document-reloader-${phraseId}', 'reload-document')">
             <div
