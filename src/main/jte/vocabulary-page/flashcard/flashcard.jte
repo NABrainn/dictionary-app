@@ -17,7 +17,8 @@
 <form
 id="flashcard-form"
 class="
-md:w-1/4
+lg:w-1/4
+md:w-1/2
 min-h-140 rounded-md w-4/5 mx-auto flex flex-col">
     @template.vocabulary-page.flashcard.target-word-card(attribute = WordCardAttribute.of(sourceWord, targetWord))
     <div class="rounded-b-md flex py-10 items-center font-bold bg-secondary text-accent text-xl select-none">
