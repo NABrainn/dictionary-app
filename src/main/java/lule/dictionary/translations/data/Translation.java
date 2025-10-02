@@ -2,10 +2,12 @@ package lule.dictionary.translations.data;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.With;
 import lule.dictionary.language.service.Language;
 
 import java.util.List;
 
+@With
 @Builder
 public record Translation(@NonNull List<String> sourceWords,
                           @NonNull String processedTargetWord,
@@ -14,17 +16,6 @@ public record Translation(@NonNull List<String> sourceWords,
                           @NonNull Language targetLanguage,
                           @NonNull String owner,
                           boolean isPhrase) {
-        public Translation withSourceWords(List<String> sourceWords) {
-                return Translation.builder()
-                        .sourceWords(sourceWords)
-                        .processedTargetWord(processedTargetWord)
-                        .familiarity(familiarity)
-                        .sourceLanguage(sourceLanguage)
-                        .targetLanguage(targetLanguage)
-                        .owner(owner)
-                        .isPhrase(isPhrase)
-                        .build();
-        }
         public static Translation nonTranslation(@NonNull String processedTargetWord,
                                                  @NonNull Language sourceLanguage,
                                                  @NonNull Language targetLanguage,
