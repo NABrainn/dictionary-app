@@ -13,9 +13,9 @@ hx-swap="outerHTML"
 hx-target="#units"
 hx-params="startId,length,unitText,isPhrase,isUnitPersisted,page"
 hx-vals='js:{
-    startId: event.detail.startId,
-    length: event.detail.length,
-    unitText: event.detail.phraseText,
+    startId: event?.detail?.startId ?? -1,
+    length: event?.detail?.length ?? -1,
+    unitText: event?.detail?.phraseText ?? "",
     isPhrase: true,
     isUnitPersisted: false,
     page: ${result.paginationData().currentPageNumber()}
