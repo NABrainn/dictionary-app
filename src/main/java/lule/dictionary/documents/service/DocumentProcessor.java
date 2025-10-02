@@ -6,6 +6,7 @@ import lule.dictionary.collector.service.CollectorFactory;
 import lule.dictionary.documents.data.documentProcessing.*;
 import lule.dictionary.documents.data.request.ProcessDocumentRequest;
 import lule.dictionary.jsoup.data.Token;
+import lule.dictionary.language.service.Language;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.stringUtil.service.StringUtils;
 import lule.dictionary.translations.data.Translation;
@@ -39,21 +40,34 @@ public class DocumentProcessor {
     }
 
     public List<DocumentUnit> read(@NonNull ProcessDocumentRequest request) {
-        List<String> contentAsList = List.of(request.content().split("\\s+"));
+        List<String> contentAsList = List.of(request.content().split(" "));
+        Phrases phrases = request.phrases();
+        Language sourceLanguage = request.sourceLanguage();
+        Language targetLanguage = request.targetLanguage();
+        String owner = request.owner();
+        int startId = request.startId();
+        int length = request.length();
         return contentAsList.stream()
+                .flatMap(word -> Arrays.stream(word.split("(?<=\\n)(?=\\w)", 2)))
                 .map(word -> switch (request.translations().get(stringUtils.normalize(word))) {
-                    case Translation translation ->
-                            TranslationWordUnit.of(translation, word, request.phrases().containsWord(translation.processedTargetWord()));
+                    case Translation translation -> TranslationWordUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
                     case null -> (WordUnit) NonTranslationWordUnit.of(
-                            Translation.nonTranslation(stringUtils.normalize(word), request.sourceLanguage(), request.targetLanguage(), request.owner()),
+                            Translation.nonTranslation(stringUtils.normalize(word), sourceLanguage, targetLanguage, owner),
                             word,
-                            request.phrases().containsWord(stringUtils.normalize(word))
+                            phrases.containsWord(stringUtils.normalize(word))
                     );
                 })
                 .filter(unit -> unit.rawText().length() <= 50)
-                .collect(request.startId() == -1 ?
-                        collectorFactory.toDocumentUnits(request.phrases()) :
-                        collectorFactory.toDocumentUnits(request.phrases(), request.startId(), request.length()))
+                .filter(Predicate.not(unit -> unit.rawText().isBlank()))
+                .collect(startId == -1 ?
+                        collectorFactory.toDocumentUnits(phrases) :
+                        collectorFactory.toDocumentUnits(phrases, startId, length))
                 .documentUnits();
+    }
+
+    public List<Paragraph> asParagraphs(@NonNull List<DocumentUnit> units) {
+        return units.stream()
+                .collect(collectorFactory.toParagraphs())
+                .paragraphs();
     }
 }

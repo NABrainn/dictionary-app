@@ -130,4 +130,24 @@ public class CollectorFactory {
                 Collector.Characteristics.IDENTITY_FINISH
         );
     }
+    public Collector<DocumentUnit, ParagraphStore, ParagraphStore> toParagraphs() {
+        return Collector.of(
+                () -> ParagraphStore.of(new ArrayList<>(), new ArrayList<>(), new AtomicInteger(0)),
+                (store, unit) -> {
+                    store.units().add(unit);
+                    if(store.units().getLast().rawText().contains("\n")) {
+                        int firstId = 0;
+                        int lastId = store.units().size() - 1;
+                        List<DocumentUnit> paragraphUnits = new ArrayList<>(store.units().subList(firstId, lastId));
+                        store.paragraphs().add(Paragraph.of(store.counter().getAndIncrement(), paragraphUnits));
+                        store.units().subList(firstId, lastId).clear();
+                    }
+                },
+                (left, right) -> {
+                    left.paragraphs().addAll(right.paragraphs());
+                    return left;
+                },
+                Collector.Characteristics.IDENTITY_FINISH
+        );
+    }
 }

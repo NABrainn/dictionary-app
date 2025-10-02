@@ -20,7 +20,6 @@ public class PaginationServiceTest {
     @Test
     void shouldCreateArrayOfRows1() {
         var integers = paginationService.getRows(23);
-        System.out.println(integers);
         assertEquals(4, integers.size());
         assertEquals(List.of(22, 23), integers.getLast());
     }

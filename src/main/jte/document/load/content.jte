@@ -1,8 +1,7 @@
-@import lule.dictionary.documents.data.documentProcessing.DocumentUnit
+@import lule.dictionary.documents.data.documentProcessing.Paragraph
 @import lule.dictionary.documents.data.documentProcessing.NonTranslationWordUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
 @import lule.dictionary.documents.data.documentProcessing.TranslationWordUnit
-@import gg.jte.support.ForSupport
 @import lule.dictionary.documents.data.result.LoadDocumentResult
 @param LoadDocumentResult result
 
@@ -90,82 +89,85 @@ class="flex flex-col gap-8 text-wrap">
         @endif
         <div
         id="units"
-        class="flex flex-wrap">
-            @for(var entry :  ForSupport.of(result.documentContentData().content()))
-                !{DocumentUnit unit = entry.get();}
-                !{String wordBgColor = switch(unit.translation().familiarity()){
-                        case UNKNOWN -> "bg-accent";
-                        case RECOGNIZED -> "bg-accent/80";
-                        case FAMILIAR -> "bg-accent/60";
-                        default -> "bg-primary";
-                    }
-                ;}
-                !{String wordFiller = "bg-primary";}
-                !{String wordTextColor = switch(unit.translation().familiarity()){
-                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
-                        default -> "text-neutral";
-                    }
-                ;}
-                !{String wordGapColor = "border-transparent";}
-                @if(unit instanceof PhraseUnit phraseUnit)
-                    !{String phraseBgColor = switch(phraseUnit.translation().familiarity()){
-                        case UNKNOWN -> "bg-accent";
-                        case RECOGNIZED -> "bg-accent/80";
-                        case FAMILIAR -> "bg-accent/60";
-                        default -> "bg-primary";
-                    };}
-                    !{String phraseTextColor = switch(phraseUnit.translation().familiarity()){
-                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
-                        default -> "text-neutral";
-                    };}
-                    @template.document.phrase(
-                    phraseId = unit.id(),
-                    phraseLength = phraseUnit.size(),
-                    documentId = result.documentContentData().documentId(),
-                    currentPage = result.paginationData().currentPageNumber(),
-                    phraseText = unit.rawText(),
-                    translation = phraseUnit.translation(),
-                    phraseBgColor = phraseBgColor,
-                    phraseTextColor = phraseTextColor)
-                @elseif(unit instanceof TranslationWordUnit)
-                    @template.document.word(
-                    wordId = unit.id(),
-                    bgColor = wordBgColor,
-                    gapColor = wordGapColor,
-                    filler = wordFiller,
-                    textColor = wordTextColor,
-                    isPersisted = true,
-                    documentId = result.documentContentData().documentId(),
-                    rawText = unit.rawText(),
-                    translation = unit.translation(),
-                    currentPage = result.paginationData().currentPageNumber())
-                @elseif(unit instanceof NonTranslationWordUnit)
-                    @if(unit.translation().processedTargetWord().length() <= 50)
-                        @template.document.word(
-                        wordId = unit.id(),
-                        bgColor = wordBgColor,
-                        gapColor = wordGapColor,
-                        filler = wordFiller,
-                        textColor = wordTextColor,
-                        isPersisted = false,
-                        documentId = result.documentContentData().documentId(),
-                        rawText = unit.rawText(),
-                        translation = unit.translation(),
-                        currentPage = result.paginationData().currentPageNumber())
-                    @endif
-                @else
-                    @template.document.word(
-                    wordId = unit.id(),
-                    bgColor = wordBgColor,
-                    gapColor = wordGapColor,
-                    filler = wordFiller,
-                    textColor = wordTextColor,
-                    isSelectable = false,
-                    documentId = result.documentContentData().documentId(),
-                    rawText = unit.rawText(),
-                    translation = unit.translation(),
-                    currentPage = result.paginationData().currentPageNumber())
-                @endif
+        class="flex flex-col">
+            @for(Paragraph paragraph : result.documentContentData().content())
+                <div class="flex flex-wrap flex-row">
+                    @for(var unit : paragraph.units())
+                        !{String wordBgColor = switch(unit.translation().familiarity()){
+                                case UNKNOWN -> "bg-accent";
+                                case RECOGNIZED -> "bg-accent/80";
+                                case FAMILIAR -> "bg-accent/60";
+                                default -> "bg-primary";
+                            }
+                        ;}
+                        !{String wordFiller = "bg-primary";}
+                        !{String wordTextColor = switch(unit.translation().familiarity()){
+                                case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                                default -> "text-neutral";
+                            }
+                        ;}
+                        !{String wordGapColor = "border-transparent";}
+                        @if(unit instanceof PhraseUnit phraseUnit)
+                            !{String phraseBgColor = switch(phraseUnit.translation().familiarity()){
+                                case UNKNOWN -> "bg-accent";
+                                case RECOGNIZED -> "bg-accent/80";
+                                case FAMILIAR -> "bg-accent/60";
+                                default -> "bg-primary";
+                            };}
+                            !{String phraseTextColor = switch(phraseUnit.translation().familiarity()){
+                                case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                                default -> "text-neutral";
+                            };}
+                        @template.document.phrase(
+                            phraseId = unit.id(),
+                            phraseLength = phraseUnit.size(),
+                            documentId = result.documentContentData().documentId(),
+                            currentPage = result.paginationData().currentPageNumber(),
+                            phraseText = unit.rawText(),
+                            translation = phraseUnit.translation(),
+                            phraseBgColor = phraseBgColor,
+                            phraseTextColor = phraseTextColor)
+                        @elseif(unit instanceof TranslationWordUnit)
+                            @template.document.word(
+                            wordId = unit.id(),
+                            bgColor = wordBgColor,
+                            gapColor = wordGapColor,
+                            filler = wordFiller,
+                            textColor = wordTextColor,
+                            isPersisted = true,
+                            documentId = result.documentContentData().documentId(),
+                            rawText = unit.rawText(),
+                            translation = unit.translation(),
+                            currentPage = result.paginationData().currentPageNumber())
+                        @elseif(unit instanceof NonTranslationWordUnit)
+                            @if(unit.translation().processedTargetWord().length() <= 50)
+                                @template.document.word(
+                                wordId = unit.id(),
+                                bgColor = wordBgColor,
+                                gapColor = wordGapColor,
+                                filler = wordFiller,
+                                textColor = wordTextColor,
+                                isPersisted = false,
+                                documentId = result.documentContentData().documentId(),
+                                rawText = unit.rawText(),
+                                translation = unit.translation(),
+                                currentPage = result.paginationData().currentPageNumber())
+                            @endif
+                        @else
+                            @template.document.word(
+                            wordId = unit.id(),
+                            bgColor = wordBgColor,
+                            gapColor = wordGapColor,
+                            filler = wordFiller,
+                            textColor = wordTextColor,
+                            isSelectable = false,
+                            documentId = result.documentContentData().documentId(),
+                            rawText = unit.rawText(),
+                            translation = unit.translation(),
+                            currentPage = result.paginationData().currentPageNumber())
+                        @endif
+                    @endfor
+                </div>
             @endfor
         </div>
     </div>

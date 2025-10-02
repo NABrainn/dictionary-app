@@ -204,9 +204,10 @@ public class DocumentService {
                         .owner(document.owner())
                         .build();
                 List<DocumentUnit> processedContent = documentProcessor.read(processRequest);
+                List<Paragraph> paragraphs = documentProcessor.asParagraphs(processedContent);
                 DocumentContentData contentData = DocumentContentData.builder()
                         .title(document.title())
-                        .content(processedContent)
+                        .content(paragraphs)
                         .translations(translations)
                         .documentId(request.documentId())
                         .build();

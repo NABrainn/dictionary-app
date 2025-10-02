@@ -2,7 +2,7 @@ package lule.dictionary.documents.data;
 
 import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.documents.data.documentProcessing.DocumentUnit;
+import lule.dictionary.documents.data.documentProcessing.Paragraph;
 import lule.dictionary.translations.data.Translation;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Builder
 public record DocumentContentData(@NonNull String title,
-                                  @NonNull List<DocumentUnit> content,
+                                  @NonNull List<Paragraph> content,
                                   @NonNull Map<String, Translation> translations,
                                   int documentId) {
     @Override
@@ -19,7 +19,7 @@ public record DocumentContentData(@NonNull String title,
     }
 
     @Override
-    public List<DocumentUnit> content() {
+    public List<Paragraph> content() {
         return List.copyOf(content);
     }
 }
