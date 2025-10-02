@@ -53,22 +53,18 @@ hx-vals='{
                 currentPage = result.paginationData().currentPageNumber(),
                 phraseText = selectedPhraseUnit.rawText(),
                 translation = selectedPhraseUnit.translation(),
-                gapColor = gapColor,
-                fillerColor = fillerColor,
-                textColor = textColor)
+                phraseBgColor = fillerColor,
+                phraseTextColor = textColor,
+                reloader = "selected-phrase-document-reloader-" + unit.id())
             @endif
         @elseif(unit instanceof PhraseUnit phraseUnit)
-            !{String gapColor = switch(phraseUnit.translation().familiarity()){
-                case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
-                default -> "text-neutral";
-            };}
-            !{String fillerColor = switch(phraseUnit.translation().familiarity()){
+            !{String phraseBgColor = switch(phraseUnit.translation().familiarity()){
                 case UNKNOWN -> "bg-accent";
                 case RECOGNIZED -> "bg-accent/80";
                 case FAMILIAR -> "bg-accent/60";
                 default -> "bg-primary";
             };}
-            !{String textColor = switch(phraseUnit.translation().familiarity()){
+            !{String phraseTextColor = switch(phraseUnit.translation().familiarity()){
                 case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
                 default -> "text-neutral";
             };}
@@ -79,9 +75,9 @@ hx-vals='{
             currentPage = result.paginationData().currentPageNumber(),
             phraseText = unit.rawText(),
             translation = phraseUnit.translation(),
-            gapColor = gapColor,
-            fillerColor = fillerColor,
-            textColor = textColor)
+            phraseBgColor = phraseBgColor,
+            phraseTextColor = phraseTextColor,
+            reloader = "phrase-document-reloader-" + unit.id())
         @elseif(unit instanceof TranslationWordUnit)
             @template.document.word(
             wordId = unit.id(),

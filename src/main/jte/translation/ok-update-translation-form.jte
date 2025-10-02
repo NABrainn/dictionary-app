@@ -44,13 +44,13 @@ else
     set allPhrases to <div[data-text='${targetWord}']/>
     then set selectedPhrase to <div#phrase-${selectedUnitId}[data-text='${targetWord}']/>
     repeat for phrase in allPhrases
-        remove .unknown .recognized .familiar .known .ignored from <div/> in phrase
-        then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from .phrase-part in phrase
-        then add .{textColors.${familiarity}} to <span.phrase-part/> in phrase
-        then add .{bgColors.${familiarity}} to <div.phrase-part/> in phrase
+        remove .unknown .recognized .familiar .known .ignored from phrase
+        then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from phrase
+        then add .{textColors.${familiarity}} to phrase
+        then add .{bgColors.${familiarity}} to phrase
     end
-    then remove .unknown .recognized .familiar .known .ignored from <div/> in selectedPhrase
-    then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from .phrase-part in selectedPhrase
+    then remove .unknown .recognized .familiar .known .ignored from selectedPhrase
+    then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from selectedPhrase
     then add .text-neutral to <span.phrase-part/> in selectedPhrase
     then add .text-neutral to <div.phrase-part/> in selectedPhrase
 end

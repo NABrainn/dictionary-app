@@ -7,12 +7,12 @@
 @param int currentPage
 @param String phraseText
 @param Translation translation
-@param String gapColor
-@param String fillerColor
-@param String textColor
+@param String phraseBgColor
+@param String phraseTextColor
+@param String reloader
 <input
-id="word-document-reloader-${phraseId}"
-hx-trigger="reload-document once"
+id="${reloader}"
+hx-trigger="reloadDocument once"
 hx-get="/documents/${documentId}/withSelectedPhrase"
 hx-swap="outerHTML"
 hx-target="#units"
@@ -27,64 +27,25 @@ hx-vals='{
 type="hidden">
 
 <div
-class="
-flex flex-wrap border-2 border-secondary rounded-md
+class="${phraseBgColor} ${phraseTextColor}
+flex flex-wrap border gap-1 border-x-2 border-secondary rounded-md cursor-pointer select-none
 ${translation.familiarity().name().toLowerCase()}"
 data-text="${translation.processedTargetWord()}"
+_="on click send reloadDocument to #${reloader}"
 id="phrase-${phraseId}">
 @for(var entry : ForSupport.of(phraseText.split(" ")))
-    @if(entry.getIndex() == 0)
+    <div
+    class="
+    relative whitespace-nowrap text-lg flex items-center
+    phrase-part">
         <div
-        class="
-        ${gapColor} ${fillerColor}
-        border-x-2 border-transparent rounded-tl rounded-bl rounded-tr-none rounded-br-none
-        relative cursor-pointer rounded whitespace-nowrap text-lg
-        phrase-part"
-        hx-on:click="htmx.trigger('#word-document-reloader-${phraseId}', 'reload-document')">
-            <div
-            class="cursor-default z-2 absolute inline"
-            id="form-container-${phraseId}"
-            hx-on::after-swap="
-            formPositioner.handleOverflow(htmx.find('#form-container-${phraseId}'), 3)">
-            </div>
-            <span
-            class="
-            ${textColor} rounded
-            phrase-part">${entry.get()}</span>
+        class="cursor-default z-2 absolute inline"
+        id="form-container-${phraseId}"
+        hx-on::after-swap="formPositioner.handleOverflow(htmx.find('#form-container-${phraseId}'), 3)">
         </div>
-    @elseif(entry.getIndex() == phraseLength - 1)
-        <div
-        class="
-        ${gapColor} ${fillerColor} border-x-2 border-transparent rounded-tr rounded-br rounded-tl-none rounded-bl-none
-         relative cursor-pointer rounded whitespace-nowrap text-lg
-        phrase-part"
-        hx-on:click="htmx.trigger('#word-document-reloader-${phraseId}', 'reload-document')">
-            <div
-            class="cursor-default z-2 absolute inline"
-            id="form-container-${phraseId}"
-            hx-on::after-swap="formPositioner.handleOverflow(htmx.find('#form-container-${phraseId}'), 3)">
-            </div>
-            <span
-            class="
-            ${textColor} rounded
-            phrase-part">${entry.get()}</span>
-        </div>
-    @else
-        <div
-        class="
-        ${gapColor} ${fillerColor} border-x-2 border-transparent rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg
-        phrase-part"
-        hx-on:click="htmx.trigger('#word-document-reloader-${phraseId}', 'reload-document')">
-            <div
-            class="cursor-default z-2 absolute inline"
-            id="form-container-${phraseId}"
-            hx-on::after-swap="formPositioner.handleOverflow(htmx.find('#form-container-${phraseId}'), 3)">
-            </div>
-        <span
-        class="
-        ${textColor}
-        phrase-part">${entry.get()}</span>
-        </div>
-    @endif
+    <span
+    class="
+    phrase-part">${entry.get()}</span>
+    </div>
 @endfor
 </div>
