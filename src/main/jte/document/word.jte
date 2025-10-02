@@ -14,7 +14,6 @@
 @param Translation translation
 @param String gapColor
 @param String filler
-
 @if(isSelectable)
     <div
     class="
@@ -27,7 +26,7 @@
     hx-params="startId,unitText,isUnitPersisted,page"
     hx-vals='{
         "startId": "${wordId}",
-        "unitText": "${rawText}",
+        "unitText": "${translation.processedTargetWord()}",
         "isUnitPersisted": "${isPersisted}",
         "page": "${currentPage}"
     }'>

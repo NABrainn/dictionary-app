@@ -9,10 +9,11 @@
 @param Translation translation
 @param String phraseBgColor
 @param String phraseTextColor
-
+@param boolean selectable
+!{String pointerEvents = !selectable ? "pointer-events-none" : "";}
 <div
 id="phrase-${phraseId}"
-class="${phraseBgColor} ${phraseTextColor}
+class="${phraseBgColor} ${phraseTextColor} ${pointerEvents}
 flex flex-wrap border gap-1 border-x-2 border-secondary rounded-md cursor-pointer select-none
 ${translation.familiarity().name().toLowerCase()}"
 data-text="${translation.processedTargetWord()}"
@@ -36,7 +37,7 @@ hx-vals='{
     relative whitespace-nowrap text-lg flex items-center
     phrase-part">
         <div
-        class="cursor-default z-2 absolute inline"
+        class="cursor-default z-2 absolute inline pointer-events-auto"
         id="form-container-${phraseId}"
         hx-on::after-swap="formPositioner.handleOverflow(htmx.find('#form-container-${phraseId}'), 3)">
         </div>

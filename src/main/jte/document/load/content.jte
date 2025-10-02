@@ -126,7 +126,8 @@ class="flex flex-col gap-8 text-wrap">
                             phraseText = unit.rawText(),
                             translation = phraseUnit.translation(),
                             phraseBgColor = phraseBgColor,
-                            phraseTextColor = phraseTextColor)
+                            phraseTextColor = phraseTextColor,
+                            selectable = true)
                         @elseif(unit instanceof TranslationWordUnit)
                             @template.document.word(
                             wordId = unit.id(),

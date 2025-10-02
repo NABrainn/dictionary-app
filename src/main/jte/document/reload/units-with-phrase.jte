@@ -51,7 +51,8 @@ hx-vals='{
                     phraseText = selectedPhraseUnit.rawText(),
                     translation = selectedPhraseUnit.translation(),
                     phraseBgColor = fillerColor,
-                    phraseTextColor = textColor)
+                    phraseTextColor = textColor,
+                    selectable = false)
                 @endif
             @elseif(unit instanceof PhraseUnit phraseUnit)
                 !{String phraseBgColor = switch(phraseUnit.translation().familiarity()){
@@ -72,7 +73,8 @@ hx-vals='{
                 phraseText = unit.rawText(),
                 translation = phraseUnit.translation(),
                 phraseBgColor = phraseBgColor,
-                phraseTextColor = phraseTextColor)
+                phraseTextColor = phraseTextColor,
+                selectable = true)
             @elseif(unit instanceof TranslationWordUnit)
                 @template.document.word(
                 wordId = unit.id(),
