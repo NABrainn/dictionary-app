@@ -18,13 +18,13 @@
 @if(isSelectable)
     <input
     id="word-document-reloader-${wordId}"
-    hx-trigger="reload-document once"
+    hx-trigger="reloadDocumentFromClick once"
     hx-get="/documents/${documentId}/withSelectedWord"
     hx-swap="outerHTML"
     hx-target="#units"
-    hx-params="unitId,unitText,isUnitPersisted,page"
+    hx-params="startId,unitText,isUnitPersisted,page"
     hx-vals='{
-        "unitId": "${wordId}",
+        "startId": "${wordId}",
         "unitText": "${rawText}",
         "isUnitPersisted": "${isPersisted}",
         "page": "${currentPage}"
@@ -32,8 +32,8 @@
     type="hidden">
     <div
     class="
-    border-2 ${gapColor} ${filler} rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg"
-    hx-on:click="htmx.trigger('#word-document-reloader-${wordId}', 'reload-document')">
+    border-2 ${gapColor} ${filler} relative cursor-pointer rounded whitespace-nowrap text-lg"
+    _="on click send reloadDocumentFromClick to #word-document-reloader-${wordId}">
         <div
         class="cursor-default z-2 absolute inline"
         id="form-container-${wordId}"
