@@ -35,7 +35,8 @@
         </script>
         <form
         class="
-        md:w-3/5 md:mt-16 md:p-6 md:gap-6
+        lg:w-3/5 lg:mt-16 lg:p-6 lg:gap-6
+        md:w-4/5 md:mt-16
         w-9/10 flex flex-col bg-tertiary mx-auto rounded p-3 mt-2 gap-5"
         hx-post="/documents/new"
         hx-params="title,url,content,form_type"

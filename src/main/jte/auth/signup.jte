@@ -20,7 +20,9 @@
         hx-headers='{
             "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
         }'
-        class="md:w-2/5
+        class="
+        lg:w-2/5
+        md:w-3/5
         w-4/5 flex flex-col bg-secondary p-8 mx-auto gap-8">
         <span class="text-accent text-2xl font-bold">${localization.get(AuthText.SIGN_UP)}</span>
         <div class="flex flex-col">

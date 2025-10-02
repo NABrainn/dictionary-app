@@ -8,7 +8,8 @@
 <div
 id="flashcard-config-form"
 class="
-md:w-1/4
+lg:w-1/4
+md:w-1/2
 bg-tertiary min-h-140 rounded-md w-4/5  mx-auto flex flex-col justify-between p-6">
     <div class="flex flex-col gap-10">
         <p class="font-bold text-3xl text-primary">${messages.get(TranslationLocalizationKey.REVIEW_TRANSLATIONS)}</p>
