@@ -227,12 +227,19 @@ public class DocumentService {
                         .rows(paginationService.getRows(paginationService.getNumberOfPages(document.totalContentLength())))
                         .build();
                 boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
+                Optional<SelectedUnit> optionalSelectedUnit = processedContent.stream()
+                        .filter(unit -> unit instanceof SelectedUnit)
+                        .map(unit -> (SelectedUnit) unit)
+                        .findFirst();
+
                 yield switch (request) {
                     case LoadDocumentRequest loadDocumentRequest -> Ok.of(LoadDocumentResponse.of(contentData, paginationData, isNavbarOpen));
-                    case ReloadDocumentRequest reloadDocumentRequest -> switch (reloadDocumentRequest) {
-                        case ReloadWithPhrase reloadWithPhrase -> Ok.of(ReloadWithPhraseResponse.of(contentData, paginationData, reloadWithPhrase.selectedUnitInfo()));
-                        case ReloadWithWord reloadWithWord -> Ok.of(ReloadWithWordResponse.of(contentData, paginationData, reloadWithWord.selectedUnitInfo()));
-                    };
+                    case ReloadDocumentRequest reloadDocumentRequest -> optionalSelectedUnit
+                            .map(unit -> switch (unit) {
+                                case SelectedPhraseUnit selectedPhraseUnit -> Ok.of(ReloadWithPhraseResponse.of(contentData, paginationData, selectedPhraseUnit));
+                                case SelectedWordUnit selectedWordUnit -> Ok.of(ReloadWithWordResponse.of(contentData, paginationData, selectedWordUnit));
+                            })
+                            .orElseThrow();
                 };
             }
             case Err<Document> v -> Err.of(v.throwable());

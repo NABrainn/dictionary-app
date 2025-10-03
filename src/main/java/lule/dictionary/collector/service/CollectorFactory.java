@@ -6,6 +6,8 @@ import lule.dictionary.documents.data.request.loadDocument.SelectedPhraseInfo;
 import lule.dictionary.documents.data.request.loadDocument.SelectedWordInfo;
 import lule.dictionary.translations.data.entity.Translation;
 import lule.dictionary.translations.data.entity.UninitializedPhrase;
+import lule.dictionary.translations.data.entity.UninitializedTranslation;
+import lule.dictionary.userProfiles.data.OwnerInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -59,7 +61,6 @@ public class CollectorFactory {
                             Translation foundPhrase = phrases.containsPhrase(normalizedPhrase).get();
                             PhraseUnit phraseToAdd = PhraseUnit.of(firstElementId, foundPhrase, rawPhrase, store.phraseParts().size());
                             store.documentUnits().add(phraseToAdd);
-                            store.idCounter().set(store.idCounter().get() - (phraseToAdd.size() - 1));
                             store.phraseParts().clear();
                         }
                     }
@@ -98,7 +99,6 @@ public class CollectorFactory {
                             Translation foundPhrase = phrases.containsPhrase(normalizedPhrase).get();
                             PhraseUnit phraseToAdd = PhraseUnit.of(firstElementId, foundPhrase, rawPhrase, store.phraseParts().size());
                             store.documentUnits().add(phraseToAdd);
-                            store.idCounter().set(store.idCounter().get() - (phraseToAdd.size() - 1));
                             store.phraseParts().clear();
                         }
                     }
@@ -109,7 +109,12 @@ public class CollectorFactory {
                         DocumentUnit last = store.documentUnits().getLast();
                         if(last.id() == selectedWordInfo.startId()) {
                             store.documentUnits().removeLast();
-                            SelectedUnit selectedUnitToAdd = SelectedWordUnit.of(selectedWordInfo.startId(), last.translation(), selectedWordInfo.text(), selectedWordInfo.isPersisted());
+                            SelectedUnit selectedUnitToAdd = SelectedWordUnit.of(
+                                    selectedWordInfo.startId(),
+                                    last.translation(),
+                                    last.rawText(),
+                                    !(last.translation() instanceof UninitializedTranslation)
+                            );
                             store.documentUnits().add(selectedUnitToAdd);
                             store.selected().set(true);
                         }
@@ -146,7 +151,6 @@ public class CollectorFactory {
                             Translation foundPhrase = phrases.containsPhrase(normalizedPhrase).get();
                             PhraseUnit phraseToAdd = PhraseUnit.of(firstElementId, foundPhrase, rawPhrase, store.phraseParts().size());
                             store.documentUnits().add(phraseToAdd);
-                            store.idCounter().set(store.idCounter().get() - (phraseToAdd.size() - 1));
                             store.phraseParts().clear();
                         }
                     }
@@ -157,29 +161,33 @@ public class CollectorFactory {
                         if(store.documentUnits().getLast() instanceof PhraseUnit phraseUnit) {
                             if(phraseUnit.id() == selectedPhraseInfo.startId()) {
                                 DocumentUnit toRemove = store.documentUnits().removeLast();
-                                SelectedUnit selectedUnitToAdd = SelectedPhraseUnit.of(toRemove.id(), toRemove.translation(), toRemove.rawText());
+                                SelectedUnit selectedUnitToAdd = SelectedPhraseUnit.of(toRemove.id(), toRemove.id(), toRemove.translation(), toRemove.rawText());
                                 store.documentUnits().add(selectedUnitToAdd);
                                 store.selected().set(true);
                             }
                         }
                         else if(store.documentUnits().getLast() instanceof WordUnit wUnit) {
                             if(wUnit.id() == selectedPhraseInfo.endId()) {
-                                List<DocumentUnit> toRemove = store.documentUnits().subList(selectedPhraseInfo.startId(), selectedPhraseInfo.endId());
+                                System.out.println(store.documentUnits());
+                                List<DocumentUnit> toRemove = store.documentUnits().subList(
+                                        store.documentUnits().size() - (selectedPhraseInfo.endId() - selectedPhraseInfo.startId() + 1),
+                                        store.documentUnits().size()
+                                );
+                                String targetWord = toRemove.stream()
+                                        .map(unit -> unit.translation().processedTargetWord())
+                                        .collect(Collectors.joining(" "));
+                                OwnerInfo ownerInfo = toRemove.getFirst().translation().ownerInfo();
+                                String rawText = toRemove.stream()
+                                        .map(DocumentUnit::rawText)
+                                        .collect(Collectors.joining(" "));
                                 SelectedUnit selectedUnitToAdd = SelectedPhraseUnit.of(
-                                        toRemove.getFirst().id(),
-                                        UninitializedPhrase.of(
-                                                toRemove.stream()
-                                                        .map(unit -> unit.translation().processedTargetWord())
-                                                        .collect(Collectors.joining(" ")),
-                                                toRemove.getFirst().translation().ownerInfo()
-                                        ),
-                                        toRemove.stream()
-                                                .map(DocumentUnit::rawText)
-                                                .collect(Collectors.joining(" "))
+                                        selectedPhraseInfo.startId(),
+                                        selectedPhraseInfo.endId(),
+                                        UninitializedPhrase.of(targetWord, ownerInfo),
+                                        rawText
                                 );
                                 toRemove.clear();
                                 store.documentUnits().add(selectedUnitToAdd);
-                                store.idCounter().decrementAndGet();
                                 store.selected().set(true);
                             }
                         }

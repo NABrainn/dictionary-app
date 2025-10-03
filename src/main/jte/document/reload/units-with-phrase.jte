@@ -1,7 +1,7 @@
 @import lule.dictionary.documents.data.documentProcessing.*
 @import lule.dictionary.documents.data.response.ReloadWithPhraseResponse
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
-@import lule.dictionary.documents.data.documentProcessing.NonTranslationWordUnit
+@import lule.dictionary.documents.data.documentProcessing.NewWordUnit
 @import lule.dictionary.documents.data.documentProcessing.SelectedUnit
 
 @param ReloadWithPhraseResponse response
@@ -11,15 +11,15 @@ class="flex flex-col"
 _="on load send openForm to #units"
 hx-trigger="openForm once"
 hx-get="/translations/"
-hx-target="#form-container-${response.selectedPhraseInfo().startId()}"
+hx-target="#form-container-${response.selectedPhraseInfo().id()}"
 hx-swap="innerHTML"
 hx-params="documentId,targetWord,isPhrase,id,isPersisted"
 hx-vals='{
     "documentId": "${response.contentData().documentId()}",
-    "targetWord": "${response.selectedPhraseInfo().text()}",
+    "targetWord": "${response.selectedPhraseInfo().translation().processedTargetWord()}",
     "isPhrase": "true",
-    "id": "${response.selectedPhraseInfo().startId()}",
-    "isPersisted": "${response.selectedPhraseInfo().isPersisted()}"
+    "id": "${response.selectedPhraseInfo().id()}",
+    "isPersisted": "false"
 }'>
 @for(Paragraph paragraph : response.contentData().content())
     <div class="flex flex-wrap flex-row">
@@ -44,8 +44,8 @@ hx-vals='{
                     !{String fillerColor = "bg-tertiary";}
                     !{String textColor = "text-neutral";}
                     @template.document.phrase(
-                    startId = selectedPhraseUnit.id(),
-                    endId = selectedUnit.rawText().split(" ").length - 1,
+                    startId = response.selectedPhraseInfo().id(),
+                    endId = response.selectedPhraseInfo().endId(),
                     documentId = response.contentData().documentId(),
                     currentPage = response.paginationData().currentPageNumber(),
                     phraseText = selectedPhraseUnit.rawText(),
@@ -67,7 +67,7 @@ hx-vals='{
                 };}
                 @template.document.phrase(
                 startId = unit.id(),
-                endId = phraseUnit.size() - 1,
+                endId = unit.id() + phraseUnit.size(),
                 documentId = response.contentData().documentId(),
                 currentPage = response.paginationData().currentPageNumber(),
                 phraseText = unit.rawText(),
@@ -75,7 +75,7 @@ hx-vals='{
                 phraseBgColor = phraseBgColor,
                 phraseTextColor = phraseTextColor,
                 selectable = true)
-            @elseif(unit instanceof TranslationWordUnit)
+            @elseif(unit instanceof PersistedWordUnit)
                 @template.document.word(
                 wordId = unit.id(),
                 bgColor = wordBgColor,
@@ -87,7 +87,7 @@ hx-vals='{
                 rawText = unit.rawText(),
                 translation = unit.translation(),
                 currentPage = response.paginationData().currentPageNumber())
-            @elseif(unit instanceof NonTranslationWordUnit)
+            @elseif(unit instanceof NewWordUnit)
                 @if(unit.translation().processedTargetWord().length() <= 50)
                     @template.document.word(
                     wordId = unit.id(),

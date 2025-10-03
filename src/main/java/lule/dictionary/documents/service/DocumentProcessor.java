@@ -57,8 +57,8 @@ public class DocumentProcessor {
         return Stream.of(parseDocument.contentBlob().split(" "))
                 .flatMap(word -> Arrays.stream(word.split("(?<=\\n)(?=\\w)")))
                 .map(word -> switch (translations.get(stringUtils.normalize(word))) {
-                    case Translation translation -> TranslationWordUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
-                    case null -> (WordUnit) NonTranslationWordUnit.of(
+                    case Translation translation -> PersistedWordUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
+                    case null -> (WordUnit) NewWordUnit.of(
                             UninitializedWord.of(stringUtils.normalize(word), OwnerInfo.of(sourceLanguage, targetLanguage, owner)),
                             word,
                             phrases.containsWord(stringUtils.normalize(word))

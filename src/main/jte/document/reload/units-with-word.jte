@@ -1,5 +1,5 @@
 @import lule.dictionary.documents.data.documentProcessing.*
-@import lule.dictionary.documents.data.documentProcessing.NonTranslationWordUnit
+@import lule.dictionary.documents.data.documentProcessing.NewWordUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
 @import lule.dictionary.documents.data.documentProcessing.SelectedUnit
 @import lule.dictionary.documents.data.response.ReloadWithWordResponse
@@ -11,19 +11,19 @@ class="flex flex-col"
 _="on load send openForm to #units"
 hx-trigger="openForm once"
 hx-get="/translations"
-hx-target="#form-container-${response.selectedWordInfo().startId()}"
+hx-target="#form-container-${response.selectedWordInfo().id()}"
 hx-swap="innerHTML"
 hx-params="documentId,targetWord,id,isPersisted"
 hx-vals='{
     "documentId": "${response.contentData().documentId()}",
-    "targetWord": "${response.selectedWordInfo().text()}",
-    "id": "${response.selectedWordInfo().startId()}",
+    "targetWord": "${response.selectedWordInfo().translation().processedTargetWord()}",
+    "id": "${response.selectedWordInfo().id()}",
     "isPersisted": "${response.selectedWordInfo().isPersisted()}"
 }'>
     @for(Paragraph paragraph : response.contentData().content())
         <div class="flex flex-wrap flex-row">
             @for(var unit : paragraph.units())
-                !{String wordBgColor = response.selectedWordInfo().startId() == unit.id() ?
+                !{String wordBgColor = response.selectedWordInfo().id() == unit.id() ?
                     "bg-tertiary" :
                     switch(unit.translation().familiarity()){
                         case UNKNOWN -> "bg-accent";
@@ -32,24 +32,23 @@ hx-vals='{
                         default -> "bg-primary";
                     }
                 ;}
-                !{String wordFiller = response.selectedWordInfo().startId() == unit.id() ?
+                !{String wordFiller = response.selectedWordInfo().id() == unit.id() ?
                     "bg-tertiary" :
                     "primary"
                 ;}
-                !{String wordTextColor = response.selectedWordInfo().startId() == unit.id() ?
+                !{String wordTextColor = response.selectedWordInfo().id() == unit.id() ?
                     "text-neutral" :
                     switch(unit.translation().familiarity()){
                         case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
                         default -> "text-neutral";
                     }
                 ;}
-                !{String wordGapColor = response.selectedWordInfo().startId() == unit.id() ?
+                !{String wordGapColor = response.selectedWordInfo().id() == unit.id() ?
                     "border-tertiary" :
                     "border-transparent"
                 ;}
                 !{String phraseGapColor = "border-transparent";}
                 @if(unit instanceof SelectedUnit selectedUnit)
-                    should be true: ${response.selectedWordInfo().isPersisted()}
                     @if(selectedUnit instanceof SelectedWordUnit selectedWordUnit)
                         @template.document.word(
                         wordId = selectedWordUnit.id(),
@@ -76,7 +75,7 @@ hx-vals='{
                     };}
                     @template.document.phrase(
                     startId = unit.id(),
-                    endId = phraseUnit.size() - 1,
+                    endId = unit.id() + phraseUnit.size(),
                     documentId = response.contentData().documentId(),
                     currentPage = response.paginationData().currentPageNumber(),
                     phraseText = unit.rawText(),
@@ -84,7 +83,7 @@ hx-vals='{
                     phraseBgColor = phraseBgColor,
                     phraseTextColor = phraseTextColor,
                     selectable = true)
-                @elseif(unit instanceof TranslationWordUnit)
+                @elseif(unit instanceof PersistedWordUnit)
                     @template.document.word(
                     wordId = unit.id(),
                     bgColor = wordBgColor,
@@ -96,7 +95,7 @@ hx-vals='{
                     rawText = unit.rawText(),
                     translation = unit.translation(),
                     currentPage = response.paginationData().currentPageNumber())
-                @elseif(unit instanceof NonTranslationWordUnit)
+                @elseif(unit instanceof NewWordUnit)
                     @if(unit.translation().processedTargetWord().length() <= 50)
                         @template.document.word(
                         wordId = unit.id(),

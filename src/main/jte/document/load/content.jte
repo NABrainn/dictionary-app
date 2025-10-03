@@ -1,7 +1,7 @@
 @import lule.dictionary.documents.data.documentProcessing.Paragraph
-@import lule.dictionary.documents.data.documentProcessing.NonTranslationWordUnit
+@import lule.dictionary.documents.data.documentProcessing.NewWordUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
-@import lule.dictionary.documents.data.documentProcessing.TranslationWordUnit
+@import lule.dictionary.documents.data.documentProcessing.PersistedWordUnit
 @import lule.dictionary.documents.data.response.LoadDocumentResponse
 @param LoadDocumentResponse response
 
@@ -113,7 +113,7 @@ class="flex flex-col gap-8 text-wrap">
                             };}
                         @template.document.phrase(
                             startId = unit.id(),
-                            endId = phraseUnit.size() - 1,
+                            endId = unit.id() + phraseUnit.size(),
                             documentId = response.contentData().documentId(),
                             currentPage = response.paginationData().currentPageNumber(),
                             phraseText = unit.rawText(),
@@ -121,7 +121,7 @@ class="flex flex-col gap-8 text-wrap">
                             phraseBgColor = phraseBgColor,
                             phraseTextColor = phraseTextColor,
                             selectable = true)
-                        @elseif(unit instanceof TranslationWordUnit)
+                        @elseif(unit instanceof PersistedWordUnit)
                             @template.document.word(
                             wordId = unit.id(),
                             bgColor = wordBgColor,
@@ -133,7 +133,7 @@ class="flex flex-col gap-8 text-wrap">
                             rawText = unit.rawText(),
                             translation = unit.translation(),
                             currentPage = response.paginationData().currentPageNumber())
-                        @elseif(unit instanceof NonTranslationWordUnit)
+                        @elseif(unit instanceof NewWordUnit)
                             @if(unit.translation().processedTargetWord().length() <= 50)
                                 @template.document.word(
                                 wordId = unit.id(),
