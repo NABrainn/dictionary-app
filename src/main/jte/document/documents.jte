@@ -38,9 +38,10 @@
                             <div
                             class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer max-w-70"
                             hx-get="/documents/${item.id()}"
-                            hx-params="page"
+                            hx-params="page,selection"
                             hx-vals='{
-                                "page": "1"
+                                "page": "1",
+                                "selection": "none"
                             }'
                             hx-target="#main"
                             hx-swap="innerHTML"

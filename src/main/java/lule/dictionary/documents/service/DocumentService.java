@@ -1,5 +1,6 @@
 package lule.dictionary.documents.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.*;
@@ -8,15 +9,16 @@ import lule.dictionary.documents.data.documentProcessing.*;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormType;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.exception.DocumentServiceException;
+import lule.dictionary.documents.data.parseDocument.*;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl;
 import lule.dictionary.documents.data.request.loadDocument.*;
-import lule.dictionary.documents.data.result.FirstLoadResult;
-import lule.dictionary.documents.data.result.ReloadWithPhraseResult;
-import lule.dictionary.documents.data.result.LoadDocumentResult;
-import lule.dictionary.documents.data.result.ReloadWithWordResult;
+import lule.dictionary.documents.data.response.LoadDocumentResponse;
+import lule.dictionary.documents.data.response.ReadDocumentResponse;
+import lule.dictionary.documents.data.response.ReloadWithPhraseResponse;
+import lule.dictionary.documents.data.response.ReloadWithWordResponse;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
@@ -181,72 +183,55 @@ public class DocumentService {
         return DocumentListAttribute.of(documents, localization, isNavbarOpen);
     }
 
-    public Result<LoadDocumentResult> loadDocumentContent(LoadDocumentRequest request, Authentication authentication) {
+    public Result<ReadDocumentResponse> loadDocumentContent(@NonNull ReadDocumentRequest request, @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
+        int documentId = request.documentInfo().documentId();
+        int page = request.documentInfo().page();
+
         Language sourceLanguage = principal.sourceLanguage();
         Language targetLanguage = principal.targetLanguage();
-        Result<Document> result = documentRepository.findById(request.documentId(), request.page())
-                .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(found.totalContentLength()), found)))
+
+        Result<Document> result = documentRepository.findById(documentId, page)
+                .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(page, paginationService.getNumberOfPages(found.totalContentLength()), found)))
                 .orElseThrow();
         return switch (result) {
             case Ok<Document> ok -> {
                 Document document = ok.value();
-                Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(document.pageContent(), document.owner()));
-                Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(document.pageContent(), document.owner())));
-                ProcessDocumentRequest processRequest = ProcessDocumentRequest.builder()
-                        .startId(request.startId())
-                        .length(request.length())
-                        .content(document.pageContent())
-                        .translations(translations)
-                        .phrases(phrases)
-                        .sourceLanguage(sourceLanguage)
-                        .targetLanguage(targetLanguage)
-                        .owner(document.owner())
-                        .build();
-                List<DocumentUnit> processedContent = documentProcessor.read(processRequest);
+                String contentBlob = document.pageContent();
+                String owner = document.owner();
+                Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(contentBlob, owner));
+                Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(contentBlob, owner)));
+                TranslationInfo translationInfo = TranslationInfo.of(translations, phrases);
+                OwnerInfo ownerInfo = OwnerInfo.of(sourceLanguage, targetLanguage, owner);
+                ParseDocument parseDocumentRequest = switch (request) {
+                    case LoadDocumentRequest ignored2 -> ParseWithoutSelection.of(translationInfo, ownerInfo, contentBlob);
+                    case ReloadDocumentRequest reloadDocumentRequest -> switch (reloadDocumentRequest) {
+                        case ReloadWithPhrase reloadWithPhrase -> ParseWithPhraseSelection.of(translationInfo, ownerInfo, contentBlob, reloadWithPhrase.selectedUnitInfo());
+                        case ReloadWithWord reloadWithWord -> ParseWithWordSelection.of(translationInfo, ownerInfo, contentBlob, reloadWithWord.selectedUnitInfo());
+                    };
+                };
+                List<DocumentUnit> processedContent = documentProcessor.parse(parseDocumentRequest);
                 List<Paragraph> paragraphs = documentProcessor.asParagraphs(processedContent);
                 DocumentContentData contentData = DocumentContentData.builder()
                         .title(document.title())
                         .content(paragraphs)
                         .translations(translations)
-                        .documentId(request.documentId())
+                        .documentId(documentId)
                         .build();
                 DocumentPaginationData paginationData = DocumentPaginationData.builder()
-                        .currentPageNumber(request.page())
+                        .currentPageNumber(page)
                         .numberOfPages(paginationService.getNumberOfPages(document.totalContentLength()))
-                        .currentRowNumber(paginationService.getCurrentRow(request.page(), paginationService.getMAX_ROW_SIZE()))
-                        .firstPageOfRowNumber(paginationService.getFirstPageOfRow(request.page(), paginationService.getMAX_ROW_SIZE()))
+                        .currentRowNumber(paginationService.getCurrentRow(page, paginationService.getMAX_ROW_SIZE()))
+                        .firstPageOfRowNumber(paginationService.getFirstPageOfRow(page, paginationService.getMAX_ROW_SIZE()))
                         .rows(paginationService.getRows(paginationService.getNumberOfPages(document.totalContentLength())))
                         .build();
                 boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
                 yield switch (request) {
-                    case FirstLoadRequest ignored -> Ok.of(FirstLoadResult.builder()
-                            .documentContentData(contentData)
-                            .paginationData(paginationData)
-                            .isNavbarOpen(isNavbarOpen)
-                            .build());
-                    case PageChangeRequest ignored -> Ok.of(FirstLoadResult.builder()
-                            .documentContentData(contentData)
-                            .paginationData(paginationData)
-                            .isNavbarOpen(isNavbarOpen)
-                            .build());
-                    case ReloadWithWordRequest wordRequest -> Ok.of(ReloadWithWordResult.builder()
-                            .documentContentData(contentData)
-                            .paginationData(paginationData)
-                            .isNavbarOpen(isNavbarOpen)
-                            .unitId(wordRequest.startId())
-                            .targetWord(request.unitText())
-                            .isSelectablePersisted(request.isUnitPersisted())
-                            .build());
-                    case ReloadWithPhraseRequest phraseRequest -> Ok.of(ReloadWithPhraseResult.builder()
-                            .documentContentData(contentData)
-                            .paginationData(paginationData)
-                            .isNavbarOpen(isNavbarOpen)
-                            .startId(phraseRequest.startId())
-                            .length(phraseRequest.length())
-                            .targetWord(request.unitText())
-                            .isSelectablePersisted(request.isUnitPersisted())
-                            .build());
+                    case LoadDocumentRequest loadDocumentRequest -> Ok.of(LoadDocumentResponse.of(contentData, paginationData, isNavbarOpen));
+                    case ReloadDocumentRequest reloadDocumentRequest -> switch (reloadDocumentRequest) {
+                        case ReloadWithPhrase reloadWithPhrase -> Ok.of(ReloadWithPhraseResponse.of(contentData, paginationData, reloadWithPhrase.selectedUnitInfo()));
+                        case ReloadWithWord reloadWithWord -> Ok.of(ReloadWithWordResponse.of(contentData, paginationData, reloadWithWord.selectedUnitInfo()));
+                    };
                 };
             }
             case Err<Document> v -> Err.of(v.throwable());

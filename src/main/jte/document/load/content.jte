@@ -2,29 +2,30 @@
 @import lule.dictionary.documents.data.documentProcessing.NonTranslationWordUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
 @import lule.dictionary.documents.data.documentProcessing.TranslationWordUnit
-@import lule.dictionary.documents.data.result.LoadDocumentResult
-@param LoadDocumentResult result
+@import lule.dictionary.documents.data.response.LoadDocumentResponse
+@param LoadDocumentResponse response
 
 <form
-hx-trigger="reloadDocument"
-hx-get="/documents/${result.documentContentData().documentId()}/withSelectedPhrase"
+hx-trigger="reloadWithSelectedPhrase"
+hx-get="/documents/${response.contentData().documentId()}"
 hx-swap="outerHTML"
 hx-target="#units"
-hx-params="startId,length,unitText,isPhrase,isUnitPersisted,page"
+hx-params="startId,endId,text,isPersisted,page,selection"
 hx-vals='js:{
     startId: event?.detail?.startId ?? -1,
-    length: event?.detail?.length ?? -1,
-    unitText: event?.detail?.phraseText ?? "",
-    isPhrase: true,
-    isUnitPersisted: false,
-    page: ${result.paginationData().currentPageNumber()}
+    endId: event?.detail?.endId ?? -1,
+    text: event?.detail?.phraseText ?? "",
+    isPersisted: false,
+    page: ${response.paginationData().currentPageNumber()},
+    selection: "phrase"
 }'
 id="content"
-class="flex flex-col gap-8 text-wrap caret-transparent">
+class="flex flex-col gap-8 text-wrap">
     <div
     class="
-    w-full px-2
-    md:w-3/5 mx-auto text-wrap min-h-165"
+    lg:w-3/5
+    md:w-4/5
+    w-full mx-auto text-wrap min-h-165 flex flex-col gap-4"
     _="
     @raw
     def removeSelection()
@@ -64,25 +65,25 @@ class="flex flex-col gap-8 text-wrap caret-transparent">
         set firstPhraseNode to the first of phraseNodes then
         set lastPhraseNode to the last of phraseNodes then
         set startId to firstPhraseNode.id.slice(5) then
-        set length to phraseNodes.length then
+        set endId to lastPhraseNode.id.slice(5) then
         set phraseText to phraseNodes.map( \ node -> node.innerText).join(' ') then
-        send reloadDocument(startId: startId, length: length, phraseText: phraseText) to #content
+        send reloadWithSelectedPhrase(startId: startId, endId: endId, phraseText: phraseText) to #content
         removeSelection()
     catch e
         removeSelection()
     end
     @endraw
     ">
-        @if(result.paginationData().currentPageNumber() == 1)
+        @if(response.paginationData().currentPageNumber() == 1)
             <span
             class="
             md:text-4xl
-            text-xl text-neutral font-bold ">${result.documentContentData().title()}</span>
+            text-xl text-neutral font-bold ">${response.contentData().title()}</span>
         @endif
         <div
         id="units"
         class="flex flex-col">
-            @for(Paragraph paragraph : result.documentContentData().content())
+            @for(Paragraph paragraph : response.contentData().content())
                 <div class="flex flex-wrap flex-row">
                     @for(var unit : paragraph.units())
                         !{String wordBgColor = switch(unit.translation().familiarity()){
@@ -111,10 +112,10 @@ class="flex flex-col gap-8 text-wrap caret-transparent">
                                 default -> "text-neutral";
                             };}
                         @template.document.phrase(
-                            phraseId = unit.id(),
-                            phraseLength = phraseUnit.size(),
-                            documentId = result.documentContentData().documentId(),
-                            currentPage = result.paginationData().currentPageNumber(),
+                            startId = unit.id(),
+                            endId = phraseUnit.size() - 1,
+                            documentId = response.contentData().documentId(),
+                            currentPage = response.paginationData().currentPageNumber(),
                             phraseText = unit.rawText(),
                             translation = phraseUnit.translation(),
                             phraseBgColor = phraseBgColor,
@@ -128,10 +129,10 @@ class="flex flex-col gap-8 text-wrap caret-transparent">
                             filler = wordFiller,
                             textColor = wordTextColor,
                             isPersisted = true,
-                            documentId = result.documentContentData().documentId(),
+                            documentId = response.contentData().documentId(),
                             rawText = unit.rawText(),
                             translation = unit.translation(),
-                            currentPage = result.paginationData().currentPageNumber())
+                            currentPage = response.paginationData().currentPageNumber())
                         @elseif(unit instanceof NonTranslationWordUnit)
                             @if(unit.translation().processedTargetWord().length() <= 50)
                                 @template.document.word(
@@ -141,10 +142,10 @@ class="flex flex-col gap-8 text-wrap caret-transparent">
                                 filler = wordFiller,
                                 textColor = wordTextColor,
                                 isPersisted = false,
-                                documentId = result.documentContentData().documentId(),
+                                documentId = response.contentData().documentId(),
                                 rawText = unit.rawText(),
                                 translation = unit.translation(),
-                                currentPage = result.paginationData().currentPageNumber())
+                                currentPage = response.paginationData().currentPageNumber())
                             @endif
                         @else
                             @template.document.word(
@@ -154,10 +155,10 @@ class="flex flex-col gap-8 text-wrap caret-transparent">
                             filler = wordFiller,
                             textColor = wordTextColor,
                             isSelectable = false,
-                            documentId = result.documentContentData().documentId(),
+                            documentId = response.contentData().documentId(),
                             rawText = unit.rawText(),
                             translation = unit.translation(),
-                            currentPage = result.paginationData().currentPageNumber())
+                            currentPage = response.paginationData().currentPageNumber())
                         @endif
                     @endfor
                 </div>
@@ -169,11 +170,11 @@ class="flex flex-col gap-8 text-wrap caret-transparent">
     md:max-w-2/5 md:gap-4
     max-w-full flex justify-center gap-2  mx-auto items-center">
         @template.document.paginator(
-        id = result.documentContentData().documentId(),
-        currentPage = result.paginationData().currentPageNumber(),
-        pages = result.paginationData().numberOfPages(),
-        rows = result.paginationData().rows(),
-        currentRow = result.paginationData().currentRowNumber(),
-        firstPageOfRow = result.paginationData().firstPageOfRowNumber())
+        id = response.contentData().documentId(),
+        currentPage = response.paginationData().currentPageNumber(),
+        pages = response.paginationData().numberOfPages(),
+        rows = response.paginationData().rows(),
+        currentRow = response.paginationData().currentRowNumber(),
+        firstPageOfRow = response.paginationData().firstPageOfRowNumber())
     </div>
 </form>

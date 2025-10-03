@@ -1,27 +1,27 @@
 @import lule.dictionary.documents.data.documentProcessing.*
-@import lule.dictionary.documents.data.result.ReloadWithPhraseResult
+@import lule.dictionary.documents.data.response.ReloadWithPhraseResponse
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
 @import lule.dictionary.documents.data.documentProcessing.NonTranslationWordUnit
 @import lule.dictionary.documents.data.documentProcessing.SelectedUnit
 
-@param ReloadWithPhraseResult result
+@param ReloadWithPhraseResponse response
 <div
 id="units"
 class="flex flex-col"
 _="on load send openForm to #units"
 hx-trigger="openForm once"
 hx-get="/translations/"
-hx-target="#form-container-${result.startId()}"
+hx-target="#form-container-${response.selectedPhraseInfo().startId()}"
 hx-swap="innerHTML"
 hx-params="documentId,targetWord,isPhrase,id,isPersisted"
 hx-vals='{
-    "documentId": "${result.documentContentData().documentId()}",
-    "targetWord": "${result.targetWord()}",
+    "documentId": "${response.contentData().documentId()}",
+    "targetWord": "${response.selectedPhraseInfo().text()}",
     "isPhrase": "true",
-    "id": "${result.startId()}",
-    "isPersisted": "${result.isSelectablePersisted()}"
+    "id": "${response.selectedPhraseInfo().startId()}",
+    "isPersisted": "${response.selectedPhraseInfo().isPersisted()}"
 }'>
-@for(Paragraph paragraph : result.documentContentData().content())
+@for(Paragraph paragraph : response.contentData().content())
     <div class="flex flex-wrap flex-row">
         @for(var unit : paragraph.units())
             !{String wordBgColor = switch(unit.translation().familiarity()){
@@ -44,10 +44,10 @@ hx-vals='{
                     !{String fillerColor = "bg-tertiary";}
                     !{String textColor = "text-neutral";}
                     @template.document.phrase(
-                    phraseId = selectedPhraseUnit.id(),
-                    phraseLength = selectedUnit.rawText().split(" ").length,
-                    documentId = result.documentContentData().documentId(),
-                    currentPage = result.paginationData().currentPageNumber(),
+                    startId = selectedPhraseUnit.id(),
+                    endId = selectedUnit.rawText().split(" ").length - 1,
+                    documentId = response.contentData().documentId(),
+                    currentPage = response.paginationData().currentPageNumber(),
                     phraseText = selectedPhraseUnit.rawText(),
                     translation = selectedPhraseUnit.translation(),
                     phraseBgColor = fillerColor,
@@ -66,10 +66,10 @@ hx-vals='{
                     default -> "text-neutral";
                 };}
                 @template.document.phrase(
-                phraseId = unit.id(),
-                phraseLength = phraseUnit.size(),
-                documentId = result.documentContentData().documentId(),
-                currentPage = result.paginationData().currentPageNumber(),
+                startId = unit.id(),
+                endId = phraseUnit.size() - 1,
+                documentId = response.contentData().documentId(),
+                currentPage = response.paginationData().currentPageNumber(),
                 phraseText = unit.rawText(),
                 translation = phraseUnit.translation(),
                 phraseBgColor = phraseBgColor,
@@ -83,10 +83,10 @@ hx-vals='{
                 gapColor = wordGapColor,
                 textColor = wordTextColor,
                 isPersisted = false,
-                documentId = result.documentContentData().documentId(),
+                documentId = response.contentData().documentId(),
                 rawText = unit.rawText(),
                 translation = unit.translation(),
-                currentPage = result.paginationData().currentPageNumber())
+                currentPage = response.paginationData().currentPageNumber())
             @elseif(unit instanceof NonTranslationWordUnit)
                 @if(unit.translation().processedTargetWord().length() <= 50)
                     @template.document.word(
@@ -96,10 +96,10 @@ hx-vals='{
                     gapColor = wordGapColor,
                     textColor = wordTextColor,
                     isPersisted = false,
-                    documentId = result.documentContentData().documentId(),
+                    documentId = response.contentData().documentId(),
                     rawText = unit.rawText(),
                     translation = unit.translation(),
-                    currentPage = result.paginationData().currentPageNumber())
+                    currentPage = response.paginationData().currentPageNumber())
                 @endif
             @else
                 @template.document.word(
@@ -109,10 +109,10 @@ hx-vals='{
                 filler = wordFiller,
                 textColor = wordTextColor,
                 isSelectable = false,
-                documentId = result.documentContentData().documentId(),
+                documentId = response.contentData().documentId(),
                 rawText = unit.rawText(),
                 translation = unit.translation(),
-                currentPage = result.paginationData().currentPageNumber())
+                currentPage = response.paginationData().currentPageNumber())
             @endif
             @endfor
         </div>

@@ -4,6 +4,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.collector.service.CollectorFactory;
 import lule.dictionary.documents.data.documentProcessing.*;
+import lule.dictionary.documents.data.parseDocument.ParseDocument;
+import lule.dictionary.documents.data.parseDocument.ParseWithPhraseSelection;
+import lule.dictionary.documents.data.parseDocument.ParseWithWordSelection;
+import lule.dictionary.documents.data.parseDocument.ParseWithoutSelection;
 import lule.dictionary.documents.data.request.ProcessDocumentRequest;
 import lule.dictionary.jsoup.data.Token;
 import lule.dictionary.language.service.Language;
@@ -14,8 +18,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -39,17 +45,17 @@ public class DocumentProcessor {
                 .collect(Collectors.joining());
     }
 
-    public List<DocumentUnit> read(@NonNull ProcessDocumentRequest request) {
-        List<String> contentAsList = List.of(request.content().split(" "));
-        Phrases phrases = request.phrases();
-        Language sourceLanguage = request.sourceLanguage();
-        Language targetLanguage = request.targetLanguage();
-        String owner = request.owner();
-        int startId = request.startId();
-        int length = request.length();
-        return contentAsList.stream()
-                .flatMap(word -> Arrays.stream(word.split("(?<=\\n)(?=\\w)", 2)))
-                .map(word -> switch (request.translations().get(stringUtils.normalize(word))) {
+    public List<DocumentUnit> parse(@NonNull ParseDocument parseDocument) {
+        Phrases phrases = parseDocument.translationInfo().phrases();
+        Map<String, Translation> translations = parseDocument.translationInfo().translations();
+
+        Language sourceLanguage = parseDocument.ownerInfo().sourceLanguage();
+        Language targetLanguage = parseDocument.ownerInfo().targetLanguage();
+        String owner = parseDocument.ownerInfo().owner();
+
+        return Stream.of(parseDocument.contentBlob().split(" "))
+                .flatMap(word -> Arrays.stream(word.split("(?<=\\n)(?=\\w)")))
+                .map(word -> switch (translations.get(stringUtils.normalize(word))) {
                     case Translation translation -> TranslationWordUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
                     case null -> (WordUnit) NonTranslationWordUnit.of(
                             Translation.nonTranslation(stringUtils.normalize(word), sourceLanguage, targetLanguage, owner),
@@ -58,10 +64,12 @@ public class DocumentProcessor {
                     );
                 })
                 .filter(unit -> unit.rawText().length() <= 50)
-                .filter(Predicate.not(unit -> unit.rawText().isBlank()))
-                .collect(startId == -1 ?
-                        collectorFactory.toDocumentUnits(phrases) :
-                        collectorFactory.toDocumentUnits(phrases, startId, length))
+                .filter(Predicate.not(unit -> unit.translation().processedTargetWord().isBlank()))
+                .collect(switch (parseDocument){
+                    case ParseWithPhraseSelection parseWithPhraseSelection -> collectorFactory.toDocumentUnits(phrases, parseWithPhraseSelection.selectedPhraseInfo());
+                    case ParseWithWordSelection parseWithWordSelection -> collectorFactory.toDocumentUnits(phrases, parseWithWordSelection.selectedWordInfo());
+                    case ParseWithoutSelection ignored -> collectorFactory.toDocumentUnits(phrases);
+                })
                 .documentUnits();
     }
 

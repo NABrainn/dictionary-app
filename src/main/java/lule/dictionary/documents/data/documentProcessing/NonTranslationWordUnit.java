@@ -1,8 +1,10 @@
 package lule.dictionary.documents.data.documentProcessing;
 
 import lombok.NonNull;
+import lombok.With;
 import lule.dictionary.translations.data.Translation;
 
+@With
 public record NonTranslationWordUnit(int id,
                                      @NonNull Translation translation,
                                      @NonNull String rawText,

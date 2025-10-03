@@ -18,17 +18,18 @@
     <div
     class="
     border-2 ${gapColor} ${filler} relative cursor-pointer rounded whitespace-nowrap text-lg"
-    _="on click send reloadDocumentWithSelectedWord"
-    hx-trigger="reloadDocumentWithSelectedWord once"
-    hx-get="/documents/${documentId}/withSelectedWord"
+    _="on click send reloadWithSelectedWord"
+    hx-trigger="reloadWithSelectedWord once"
+    hx-get="/documents/${documentId}"
     hx-swap="outerHTML"
     hx-target="#units"
-    hx-params="startId,unitText,isUnitPersisted,page"
+    hx-params="startId,text,isPersisted,page,selection"
     hx-vals='{
         "startId": "${wordId}",
-        "unitText": "${translation.processedTargetWord()}",
-        "isUnitPersisted": "${isPersisted}",
-        "page": "${currentPage}"
+        "text": "${translation.processedTargetWord()}",
+        "isPersisted": "${isPersisted}",
+        "page": "${currentPage}",
+        "selection": "word"
     }'>
         <div
         class="cursor-default z-2 absolute inline"
@@ -39,6 +40,7 @@
         <span
         id="word-${wordId}"
         data-text="${translation.processedTargetWord()}"
+        data-raw="${rawText}"
         class="
         ${bgColor} ${textColor} rounded
         ${translation.familiarity().name().toLowerCase()}">${rawText}</span>

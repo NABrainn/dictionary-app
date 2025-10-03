@@ -19,7 +19,9 @@ public record Phrases(List<Translation> phrases) {
 
     public Optional<Translation> containsPhrase(String phrase) {
         return phrases.stream()
-                .filter(translation -> translation.processedTargetWord().equalsIgnoreCase(phrase))
+                .filter(translation -> translation.processedTargetWord()
+                        .trim()
+                        .equalsIgnoreCase(phrase))
                 .findFirst();
     }
 }

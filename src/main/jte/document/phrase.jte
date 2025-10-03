@@ -1,9 +1,9 @@
 @import gg.jte.support.ForSupport
 @import lule.dictionary.translations.data.Translation
 
-@param int phraseLength
-@param int phraseId
 @param int documentId
+@param int startId
+@param int endId
 @param int currentPage
 @param String phraseText
 @param Translation translation
@@ -12,7 +12,7 @@
 @param boolean selectable
 !{String pointerEvents = !selectable ? "pointer-events-none" : "";}
 <div
-id="phrase-${phraseId}"
+id="phrase-${startId}"
 class="${phraseBgColor} ${phraseTextColor} ${pointerEvents}
 flex flex-wrap border gap-1 border-x-2 border-secondary rounded-md cursor-pointer select-none
 ${translation.familiarity().name().toLowerCase()}"
@@ -20,16 +20,17 @@ data-text="${translation.processedTargetWord()}"
 
 _="on click send reloadDocumentWithSelectedPhrase"
 hx-trigger="reloadDocumentWithSelectedPhrase once"
-hx-get="/documents/${documentId}/withSelectedPhrase"
+hx-get="/documents/${documentId}"
 hx-swap="outerHTML"
 hx-target="#units"
-hx-params="startId,length,unitText,isUnitPersisted,page"
+hx-params="startId,endId,text,isPersisted,page,selection"
 hx-vals='{
-    "startId": "${phraseId}",
-    "length": "${translation.processedTargetWord().split(" ").length}",
-    "unitText": "${phraseText}",
-    "isUnitPersisted": "true",
-    "page": "${currentPage}"
+    "startId": "${startId}",
+    "endId": "${endId}",
+    "text": "${translation.processedTargetWord()}",
+    "isPersisted": "true",
+    "page": "${currentPage}",
+    "selection": "phrase"
 }'>
 @for(var entry : ForSupport.of(phraseText.split(" ")))
     <div
@@ -38,8 +39,8 @@ hx-vals='{
     phrase-part">
         <div
         class="cursor-default z-2 absolute inline pointer-events-auto"
-        id="form-container-${phraseId}"
-        hx-on::after-swap="formPositioner.handleOverflow(htmx.find('#form-container-${phraseId}'), 3)">
+        id="form-container-${startId}"
+        hx-on::after-swap="formPositioner.handleOverflow(htmx.find('#form-container-${startId}'), 3)">
         </div>
     <span
     class="

@@ -1,10 +1,9 @@
 package lule.dictionary.documents.data.request.loadDocument;
 
-public sealed interface LoadDocumentRequest permits FirstLoadRequest, PageChangeRequest, ReloadWithPhraseRequest, ReloadWithWordRequest {
-    int documentId();
-    int page();
-    boolean isUnitPersisted();
-    String unitText();
-    int startId();
-    int length();
+import lombok.NonNull;
+
+public record LoadDocumentRequest(@NonNull DocumentInfo documentInfo) implements ReadDocumentRequest {
+    public static LoadDocumentRequest of(DocumentInfo documentInfo) {
+        return new LoadDocumentRequest(documentInfo);
+    }
 }
