@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.translations.data.Familiarity;
-import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.entity.Phrase;
+import lule.dictionary.translations.data.entity.Translation;
+import lule.dictionary.translations.data.entity.Word;
+import lule.dictionary.userProfiles.data.OwnerInfo;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,15 +27,23 @@ import java.util.stream.Stream;
 public class TranslationRepository {
 
     private final JdbcTemplate template;
-    private final RowMapper<Translation> translationMapper = (rs, rowNum) -> Translation.builder()
-            .sourceWords(Arrays.asList((String[]) rs.getArray("source_words").getArray()))
-            .processedTargetWord(rs.getString("target_word"))
-            .familiarity(Familiarity.valueOf(rs.getString("familiarity")))
-            .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
-            .targetLanguage(Language.valueOf(rs.getString("target_lang")))
-            .owner(rs.getString("translation_owner"))
-            .isPhrase(rs.getBoolean("is_phrase"))
-            .build();
+    private final RowMapper<Translation> translationMapper = (rs, rowNum) -> rs.getBoolean("is_phrase") ?
+        Phrase.of(
+                Arrays.asList((String[]) rs.getArray("source_words").getArray()),
+                rs.getString("target_word"),
+                Familiarity.valueOf(rs.getString("familiarity")),
+                OwnerInfo.of(Language.valueOf(rs.getString("source_lang")), Language.valueOf(rs.getString("target_lang")), rs.getString("translation_owner"))
+        ) :
+        Word.of(
+                Arrays.asList((String[]) rs.getArray("source_words").getArray()),
+                rs.getString("target_word"),
+                Familiarity.valueOf(rs.getString("familiarity")),
+                OwnerInfo.of(Language.valueOf(
+                        rs.getString("source_lang")),
+                        Language.valueOf(rs.getString("target_lang")),
+                        rs.getString("translation_owner")
+                )
+        );
     private final RowMapper<String> sourceWordsMapper = (rs, rowNum) -> rs.getString("word");
     private final RowMapper<Integer> translationIdMapper = (rs, rowNum) -> rs.getInt("translation_id");
 
@@ -79,14 +90,14 @@ public class TranslationRepository {
                 PreparedStatement ps = con.prepareStatement(insertSql);
                 ps.setArray(1, con.createArrayOf("text", translation.sourceWords().toArray()));
                 ps.setString(2, translation.processedTargetWord().toLowerCase());
-                ps.setString(3, translation.sourceLanguage().toString());
-                ps.setString(4, translation.targetLanguage().toString());
-                ps.setString(5, translation.owner());
+                ps.setString(3, translation.ownerInfo().sourceLanguage().toString());
+                ps.setString(4, translation.ownerInfo().targetLanguage().toString());
+                ps.setString(5, translation.ownerInfo().owner());
                 ps.setString(6, translation.familiarity().toString());
-                ps.setBoolean(7, translation.isPhrase());
+                ps.setBoolean(7, translation instanceof Phrase);
                 return ps;
             }, translationIdMapper).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
-            template.update(updateSql, translation.owner());
+            template.update(updateSql, translation.ownerInfo().owner());
             if(translationId != null) {
                 return OptionalInt.of(translationId);
             }

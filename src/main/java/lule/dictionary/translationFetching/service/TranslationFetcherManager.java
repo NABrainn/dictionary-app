@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.translationFetching.service.fetcher.GoogleTranslateFetcher;
 import lule.dictionary.translationFetching.service.fetcher.LingvanexFetcher;
-import lule.dictionary.translationFetching.service.fetcher.TranslationFetcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +15,14 @@ import java.util.function.Predicate;
 
 @Service
 @Slf4j
-public class TranslationFetcherExecutor {
+public class TranslationFetcherManager {
 
     private final LingvanexFetcher lingvanexService;
     private final GoogleTranslateFetcher googleService;
     private final ExecutorService executor;
 
     @Autowired
-    public TranslationFetcherExecutor(LingvanexFetcher lingvanexService, GoogleTranslateFetcher googleService) {
+    public TranslationFetcherManager(LingvanexFetcher lingvanexService, GoogleTranslateFetcher googleService) {
         this.lingvanexService = lingvanexService;
         this.googleService = googleService;
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -34,7 +33,7 @@ public class TranslationFetcherExecutor {
             log.info("Source and target languages are equal, returning input: {}", targetWord);
             return List.of(targetWord);
         }
-        List<TranslationFetcher> sources = List.of(googleService, lingvanexService);
+        List<lule.dictionary.translationFetching.service.fetcher.TranslationFetcher> sources = List.of(googleService, lingvanexService);
         List<CompletableFuture<List<String>>> futures = sources.stream()
                 .map(source -> CompletableFuture
                         .supplyAsync(() -> {
@@ -47,7 +46,7 @@ public class TranslationFetcherExecutor {
                 .toList();
 
         futures.forEach(future -> CompletableFuture.allOf(future)
-                .orTimeout(500, TimeUnit.MILLISECONDS)
+                .orTimeout(250, TimeUnit.MILLISECONDS)
                 .exceptionally(ex -> null)
                 .join());
 

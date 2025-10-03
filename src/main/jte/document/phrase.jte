@@ -1,5 +1,5 @@
 @import gg.jte.support.ForSupport
-@import lule.dictionary.translations.data.Translation
+@import lule.dictionary.translations.data.entity.Translation
 
 @param int documentId
 @param int startId

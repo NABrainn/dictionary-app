@@ -5,7 +5,6 @@
 @import lule.dictionary.documents.data.response.ReloadWithWordResponse
 
 @param ReloadWithWordResponse response
-${response.selectedWordInfo().startId()}
 <div
 id="units"
 class="flex flex-col"
@@ -50,6 +49,7 @@ hx-vals='{
                 ;}
                 !{String phraseGapColor = "border-transparent";}
                 @if(unit instanceof SelectedUnit selectedUnit)
+                    should be true: ${response.selectedWordInfo().isPersisted()}
                     @if(selectedUnit instanceof SelectedWordUnit selectedWordUnit)
                         @template.document.word(
                         wordId = selectedWordUnit.id(),
@@ -57,11 +57,11 @@ hx-vals='{
                         filler = wordFiller,
                         gapColor = wordGapColor,
                         textColor = wordTextColor,
-                        isPersisted = false,
                         documentId = response.contentData().documentId(),
                         rawText = selectedWordUnit.rawText(),
                         translation = selectedWordUnit.translation(),
-                        currentPage = response.paginationData().currentPageNumber())
+                        currentPage = response.paginationData().currentPageNumber(),
+                        isPersisted = response.selectedWordInfo().isPersisted())
                     @endif
                 @elseif(unit instanceof PhraseUnit phraseUnit)
                     !{String phraseBgColor = switch(phraseUnit.translation().familiarity()){
@@ -121,7 +121,8 @@ hx-vals='{
                     documentId = response.contentData().documentId(),
                     rawText = unit.rawText(),
                     translation = unit.translation(),
-                    currentPage = response.paginationData().currentPageNumber())
+                    currentPage = response.paginationData().currentPageNumber(),
+                    isPersisted = false)
                 @endif
                 @endfor
         </div>

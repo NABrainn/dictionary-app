@@ -1,6 +1,6 @@
 package lule.dictionary.documents.data.documentProcessing;
 
-import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.entity.Translation;
 
 import java.util.List;
 import java.util.Optional;

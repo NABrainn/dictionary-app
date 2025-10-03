@@ -1,4 +1,4 @@
-package lule.dictionary.documents.data.parseDocument;
+package lule.dictionary.userProfiles.data;
 
 import lombok.NonNull;
 import lule.dictionary.language.service.Language;

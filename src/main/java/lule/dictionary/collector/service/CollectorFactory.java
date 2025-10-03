@@ -4,11 +4,11 @@ import lombok.NonNull;
 import lule.dictionary.documents.data.documentProcessing.*;
 import lule.dictionary.documents.data.request.loadDocument.SelectedPhraseInfo;
 import lule.dictionary.documents.data.request.loadDocument.SelectedWordInfo;
-import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.entity.Translation;
+import lule.dictionary.translations.data.entity.UninitializedPhrase;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -106,11 +106,13 @@ public class CollectorFactory {
                         store.phraseParts().clear();
                     }
                     if(!store.selected().get()) {
-                        store.documentUnits().getLast();
-                        DocumentUnit toRemove = store.documentUnits().removeLast();
-                        SelectedUnit selectedUnitToAdd = SelectedWordUnit.of(toRemove.id(), toRemove.translation(), toRemove.rawText());
-                        store.documentUnits().add(selectedUnitToAdd);
-                        store.selected().set(true);
+                        DocumentUnit last = store.documentUnits().getLast();
+                        if(last.id() == selectedWordInfo.startId()) {
+                            store.documentUnits().removeLast();
+                            SelectedUnit selectedUnitToAdd = SelectedWordUnit.of(selectedWordInfo.startId(), last.translation(), selectedWordInfo.text(), selectedWordInfo.isPersisted());
+                            store.documentUnits().add(selectedUnitToAdd);
+                            store.selected().set(true);
+                        }
                     }
                 },
                 (left, right) -> {
@@ -165,13 +167,11 @@ public class CollectorFactory {
                                 List<DocumentUnit> toRemove = store.documentUnits().subList(selectedPhraseInfo.startId(), selectedPhraseInfo.endId());
                                 SelectedUnit selectedUnitToAdd = SelectedPhraseUnit.of(
                                         toRemove.getFirst().id(),
-                                        Translation.nonTranslation(
+                                        UninitializedPhrase.of(
                                                 toRemove.stream()
                                                         .map(unit -> unit.translation().processedTargetWord())
                                                         .collect(Collectors.joining(" ")),
-                                                toRemove.getFirst().translation().sourceLanguage(),
-                                                toRemove.getFirst().translation().targetLanguage(),
-                                                toRemove.getFirst().translation().owner()
+                                                toRemove.getFirst().translation().ownerInfo()
                                         ),
                                         toRemove.stream()
                                                 .map(DocumentUnit::rawText)

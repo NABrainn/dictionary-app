@@ -1,6 +1,7 @@
 package lule.dictionary.documents.data.parseDocument;
 
 import lombok.NonNull;
+import lule.dictionary.userProfiles.data.OwnerInfo;
 
 public record ParseWithoutSelection(@NonNull TranslationInfo translationInfo,
                                     @NonNull OwnerInfo ownerInfo,

@@ -82,7 +82,7 @@ hx-vals='{
                 filler = wordFiller,
                 gapColor = wordGapColor,
                 textColor = wordTextColor,
-                isPersisted = false,
+                isPersisted = true,
                 documentId = response.contentData().documentId(),
                 rawText = unit.rawText(),
                 translation = unit.translation(),
@@ -112,7 +112,8 @@ hx-vals='{
                 documentId = response.contentData().documentId(),
                 rawText = unit.rawText(),
                 translation = unit.translation(),
-                currentPage = response.paginationData().currentPageNumber())
+                currentPage = response.paginationData().currentPageNumber(),
+                isPersisted = false)
             @endif
             @endfor
         </div>

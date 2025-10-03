@@ -3,7 +3,7 @@ package lule.dictionary.documents.data;
 import lombok.Builder;
 import lombok.NonNull;
 import lule.dictionary.documents.data.documentProcessing.Paragraph;
-import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.entity.Translation;
 
 import java.util.List;
 import java.util.Map;

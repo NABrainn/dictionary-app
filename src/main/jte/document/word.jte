@@ -1,12 +1,10 @@
-@import lule.dictionary.translations.data.Translation
+@import lule.dictionary.translations.data.entity.Translation
 
 @param int wordId
 @param String bgColor = ""
 @param String textColor = ""
 @param boolean isSelectable = true
-@param boolean isPhraseWord = false
-@param boolean isPersisted = false
-@param boolean isWrapped = false
+@param boolean isPersisted
 
 @param int documentId
 @param int currentPage

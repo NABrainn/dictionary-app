@@ -158,7 +158,8 @@ class="flex flex-col gap-8 text-wrap">
                             documentId = response.contentData().documentId(),
                             rawText = unit.rawText(),
                             translation = unit.translation(),
-                            currentPage = response.paginationData().currentPageNumber())
+                            currentPage = response.paginationData().currentPageNumber(),
+                            isPersisted = false)
                         @endif
                     @endfor
                 </div>

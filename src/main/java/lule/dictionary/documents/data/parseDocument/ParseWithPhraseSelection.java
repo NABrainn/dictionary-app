@@ -2,6 +2,7 @@ package lule.dictionary.documents.data.parseDocument;
 
 import lombok.NonNull;
 import lule.dictionary.documents.data.request.loadDocument.SelectedPhraseInfo;
+import lule.dictionary.userProfiles.data.OwnerInfo;
 
 public record ParseWithPhraseSelection(@NonNull TranslationInfo translationInfo,
                                        @NonNull OwnerInfo ownerInfo,

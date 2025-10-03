@@ -1,7 +1,7 @@
 package lule.dictionary.documents.data.documentProcessing;
 
 import lombok.NonNull;
-import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.entity.Translation;
 
 public record SelectedPhraseUnit(int id,
                                  @NonNull Translation translation,

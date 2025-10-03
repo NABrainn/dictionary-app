@@ -8,12 +8,13 @@ import lule.dictionary.documents.data.parseDocument.ParseDocument;
 import lule.dictionary.documents.data.parseDocument.ParseWithPhraseSelection;
 import lule.dictionary.documents.data.parseDocument.ParseWithWordSelection;
 import lule.dictionary.documents.data.parseDocument.ParseWithoutSelection;
-import lule.dictionary.documents.data.request.ProcessDocumentRequest;
 import lule.dictionary.jsoup.data.Token;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.stringUtil.service.StringUtils;
-import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.entity.Translation;
+import lule.dictionary.translations.data.entity.UninitializedWord;
+import lule.dictionary.userProfiles.data.OwnerInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -58,7 +59,7 @@ public class DocumentProcessor {
                 .map(word -> switch (translations.get(stringUtils.normalize(word))) {
                     case Translation translation -> TranslationWordUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
                     case null -> (WordUnit) NonTranslationWordUnit.of(
-                            Translation.nonTranslation(stringUtils.normalize(word), sourceLanguage, targetLanguage, owner),
+                            UninitializedWord.of(stringUtils.normalize(word), OwnerInfo.of(sourceLanguage, targetLanguage, owner)),
                             word,
                             phrases.containsWord(stringUtils.normalize(word))
                     );
