@@ -122,8 +122,8 @@ id="translation-form">
                 {
                     "targetWord": "${attribute.translation().processedTargetWord().toLowerCase()}",
                     "familiarity": "${level.getValue().name()}",
-                    "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
-                    "targetLanguage": "${attribute.translation().targetLanguage().name()}",
+                    "sourceLanguage": "${attribute.translation().ownerInfo().sourceLanguage().name()}",
+                    "targetLanguage": "${attribute.translation().ownerInfo().targetLanguage().name()}",
                     "id": "${attribute.id()}",
                     "isPhrase": "${attribute.isPhrase()}"
                 }'

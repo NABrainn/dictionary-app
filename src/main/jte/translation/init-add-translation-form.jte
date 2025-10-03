@@ -53,8 +53,8 @@ hx-on:click="event.stopPropagation()">
                     "id": "${attribute.id()}",
                     "targetWord": "${attribute.translation().processedTargetWord()}",
                     "familiarity": "UNKNOWN",
-                    "sourceLanguage": "${attribute.translation().sourceLanguage()}",
-                    "targetLanguage": "${attribute.translation().targetLanguage()}",
+                    "sourceLanguage": "${attribute.translation().ownerInfo().sourceLanguage()}",
+                    "targetLanguage": "${attribute.translation().ownerInfo().targetLanguage()}",
                     "documentId": "${attribute.documentId()}",
                     "isPhrase": "${attribute.isPhrase()}"
                 }'
@@ -101,8 +101,8 @@ hx-on:click="event.stopPropagation()">
             hx-vals='{
                 "targetWord": "${attribute.translation().processedTargetWord()}",
                 "familiarity": "${level.getValue().name()}",
-                "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
-                "targetLanguage": "${attribute.translation().targetLanguage().name()}",
+                "sourceLanguage": "${attribute.translation().ownerInfo().sourceLanguage().name()}",
+                "targetLanguage": "${attribute.translation().ownerInfo().targetLanguage().name()}",
                 "documentId": "${attribute.documentId()}",
                 "id": "${attribute.id()}",
                 "isPhrase": "${attribute.isPhrase()}"
