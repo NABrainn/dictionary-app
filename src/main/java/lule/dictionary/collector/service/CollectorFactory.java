@@ -111,9 +111,9 @@ public class CollectorFactory {
                             store.documentUnits().removeLast();
                             SelectedUnit selectedUnitToAdd = SelectedWordUnit.of(
                                     selectedWordInfo.startId(),
+                                    !(last.translation() instanceof UninitializedTranslation),
                                     last.translation(),
-                                    last.rawText(),
-                                    !(last.translation() instanceof UninitializedTranslation)
+                                    last.rawText()
                             );
                             store.documentUnits().add(selectedUnitToAdd);
                             store.selected().set(true);
@@ -161,7 +161,13 @@ public class CollectorFactory {
                         if(store.documentUnits().getLast() instanceof PhraseUnit phraseUnit) {
                             if(phraseUnit.id() == selectedPhraseInfo.startId()) {
                                 DocumentUnit toRemove = store.documentUnits().removeLast();
-                                SelectedUnit selectedUnitToAdd = SelectedPhraseUnit.of(toRemove.id(), toRemove.id(), toRemove.translation(), toRemove.rawText());
+                                SelectedUnit selectedUnitToAdd = SelectedPhraseUnit.of(
+                                        toRemove.id(),
+                                        toRemove.id(),
+                                        true,
+                                        toRemove.translation(),
+                                        toRemove.rawText()
+                                );
                                 store.documentUnits().add(selectedUnitToAdd);
                                 store.selected().set(true);
                             }
@@ -183,6 +189,7 @@ public class CollectorFactory {
                                 SelectedUnit selectedUnitToAdd = SelectedPhraseUnit.of(
                                         selectedPhraseInfo.startId(),
                                         selectedPhraseInfo.endId(),
+                                        false,
                                         UninitializedPhrase.of(targetWord, ownerInfo),
                                         rawText
                                 );

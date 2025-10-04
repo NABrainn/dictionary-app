@@ -6,10 +6,10 @@ import lule.dictionary.translations.data.entity.Translation;
 
 @With
 public record SelectedWordUnit(int id,
+                               boolean isPersisted,
                                @NonNull Translation translation,
-                               @NonNull String rawText,
-                               boolean isPersisted) implements SelectedUnit {
-    public static SelectedWordUnit of(int id, Translation translation, String rawText, boolean persisted) {
-        return new SelectedWordUnit(id, translation, rawText, persisted);
+                               @NonNull String rawText) implements SelectedUnit {
+    public static SelectedWordUnit of(int id, boolean isPersisted, Translation translation, String rawText) {
+        return new SelectedWordUnit(id, isPersisted, translation, rawText);
     }
 }

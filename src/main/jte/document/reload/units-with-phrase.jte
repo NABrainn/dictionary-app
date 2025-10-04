@@ -19,7 +19,7 @@ hx-vals='{
     "targetWord": "${response.selectedPhraseInfo().translation().processedTargetWord()}",
     "isPhrase": "true",
     "id": "${response.selectedPhraseInfo().id()}",
-    "isPersisted": "false"
+    "isPersisted": "${response.selectedPhraseInfo().isPersisted()}"
 }'>
 @for(Paragraph paragraph : response.contentData().content())
     <div class="flex flex-wrap flex-row">
@@ -46,6 +46,7 @@ hx-vals='{
                     @template.document.phrase(
                     startId = response.selectedPhraseInfo().id(),
                     endId = response.selectedPhraseInfo().endId(),
+                    isPersisted = response.selectedPhraseInfo().isPersisted(),
                     documentId = response.contentData().documentId(),
                     currentPage = response.paginationData().currentPageNumber(),
                     phraseText = selectedPhraseUnit.rawText(),
@@ -68,6 +69,7 @@ hx-vals='{
                 @template.document.phrase(
                 startId = unit.id(),
                 endId = unit.id() + phraseUnit.size(),
+                isPersisted = true,
                 documentId = response.contentData().documentId(),
                 currentPage = response.paginationData().currentPageNumber(),
                 phraseText = unit.rawText(),

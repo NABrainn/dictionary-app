@@ -4,12 +4,14 @@
 @param int documentId
 @param int startId
 @param int endId
+@param boolean isPersisted
 @param int currentPage
 @param String phraseText
 @param Translation translation
 @param String phraseBgColor
 @param String phraseTextColor
 @param boolean selectable
+
 !{String pointerEvents = !selectable ? "pointer-events-none" : "";}
 <div
 id="phrase-${startId}"
@@ -28,7 +30,7 @@ hx-vals='{
     "startId": "${startId}",
     "endId": "${endId}",
     "text": "${translation.processedTargetWord()}",
-    "isPersisted": "true",
+    "isPersisted": "${isPersisted}",
     "page": "${currentPage}",
     "selection": "phrase"
 }'>

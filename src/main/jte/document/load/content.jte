@@ -114,6 +114,7 @@ class="flex flex-col gap-8 text-wrap">
                         @template.document.phrase(
                             startId = unit.id(),
                             endId = unit.id() + phraseUnit.size(),
+                            isPersisted = true,
                             documentId = response.contentData().documentId(),
                             currentPage = response.paginationData().currentPageNumber(),
                             phraseText = unit.rawText(),

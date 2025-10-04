@@ -76,6 +76,7 @@ hx-vals='{
                     @template.document.phrase(
                     startId = unit.id(),
                     endId = unit.id() + phraseUnit.size(),
+                    isPersisted = true,
                     documentId = response.contentData().documentId(),
                     currentPage = response.paginationData().currentPageNumber(),
                     phraseText = unit.rawText(),
