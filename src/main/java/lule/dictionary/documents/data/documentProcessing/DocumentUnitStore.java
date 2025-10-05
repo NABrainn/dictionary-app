@@ -78,7 +78,6 @@ public record DocumentUnitStore(@NonNull List<WordUnit> phraseParts,
                 case WordUnit wUnit -> {
                     int phraseLength = selectedPhraseText.split(" ").length;
                     DocumentUnit last = documentUnits().getLast();
-                    System.out.println(last.id());
                     if (wUnit.id() != selectedPhraseDetails.endId()) {
                         int startId = documentUnits().size() - phraseLength;
                         int endId = documentUnits().size();
