@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.PreparedStatement;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -29,13 +30,21 @@ public class TranslationRepository {
     private final JdbcTemplate template;
     private final RowMapper<Translation> translationMapper = (rs, rowNum) -> rs.getBoolean("is_phrase") ?
         PersistedPhraseTranslation.of(
-                Arrays.asList((String[]) rs.getArray("source_words").getArray()),
+                Optional.of((String[]) rs.getArray("source_words").getArray())
+                        .map(Arrays::asList)
+                        .orElse(List.of()),
                 rs.getString("target_word"),
                 Familiarity.valueOf(rs.getString("familiarity")),
-                OwnerInfo.of(Language.valueOf(rs.getString("source_lang")), Language.valueOf(rs.getString("target_lang")), rs.getString("translation_owner"))
+                OwnerInfo.of(Language.valueOf(
+                        rs.getString("source_lang")),
+                        Language.valueOf(rs.getString("target_lang")),
+                        rs.getString("translation_owner")
+                )
         ) :
         PersistedWordTranslation.of(
-                Arrays.asList((String[]) rs.getArray("source_words").getArray()),
+                Optional.of((String[]) rs.getArray("source_words").getArray())
+                        .map(Arrays::asList)
+                        .orElse(List.of()),
                 rs.getString("target_word"),
                 Familiarity.valueOf(rs.getString("familiarity")),
                 OwnerInfo.of(Language.valueOf(
@@ -168,11 +177,11 @@ public class TranslationRepository {
     public Optional<Translation> findByTargetWord(String targetWord, String owner) {
         String sql = """
                 SELECT translation_id,
-                      (
-                          SELECT array_agg(DISTINCT word ORDER BY word)
-                          FROM unnest(source_words[1:3]) AS word
-                          LIMIT 3
-                      ) AS source_words,
+                       (
+                           SELECT COALESCE(array_agg(DISTINCT word ORDER BY word), ARRAY[]::text[])
+                           FROM unnest(COALESCE(source_words[1:3], ARRAY[]::text[])) AS word
+                           LIMIT 3
+                       ) AS source_words,
                       target_word,
                       source_lang,
                       target_lang,

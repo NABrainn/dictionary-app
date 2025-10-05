@@ -7,7 +7,6 @@ import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
 import lule.dictionary.translations.data.TranslationLocalizationKey;
-import lule.dictionary.translations.data.attribute.PhraseAttribute;
 import lule.dictionary.translations.data.request.*;
 import lule.dictionary.translations.data.Familiarity;
 import lule.dictionary.language.service.Language;
@@ -31,13 +30,13 @@ public class TranslationController {
     private final TranslationService translationService;
 
     @GetMapping({"", "/"})
-    public String findOrAddTranslation(Model model,
-                                       Authentication authentication,
-                                       @RequestParam("id") int id,
-                                       @RequestParam("documentId") int documentId,
-                                       @RequestParam("targetWord") String targetWord,
-                                       @RequestParam(value = "isPhrase", defaultValue = "false") boolean isPhrase,
-                                       @RequestParam("isPersisted") boolean isPersisted) {
+    public String addOrUpdateTranslationForm(Model model,
+                                             Authentication authentication,
+                                             @RequestParam("id") int id,
+                                             @RequestParam("documentId") int documentId,
+                                             @RequestParam("targetWord") String targetWord,
+                                             @RequestParam(value = "isPhrase", defaultValue = "false") boolean isPhrase,
+                                             @RequestParam("isPersisted") boolean isPersisted) {
         GetTranslationFormRequest request = isPersisted ?
                 FindTranslationFormRequest.builder()
                         .documentId(documentId)
@@ -186,7 +185,7 @@ public class TranslationController {
             }
     }
 
-    @DeleteMapping({"/sourceWords/delete", "/sourceWords/delete/"})
+    @DeleteMapping({"/sourceWords", "/sourceWords/"})
     public String deleteSourceWord(Model model,
                                    Authentication authentication,
                                    @RequestParam("sourceWord") String sourceWord,
@@ -207,6 +206,6 @@ public class TranslationController {
                 "errors", Map.of()
         );
         model.addAllAttributes(attributes);
-        return "translation/update-translation-form";
+        return "translation/ok-update-translation-form";
     }
 }

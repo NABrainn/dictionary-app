@@ -35,8 +35,8 @@ id="translation-form">
                 <span class="block text-center text-accent text-wrap">${word}</span>
                 <form
                 class="flex items-center"
-                hx-delete="/translations/sourceWords/delete"
-                hx-target="#translation-form-container-${attribute.id()}"
+                hx-delete="/translations/sourceWords"
+                hx-target="#form-container-${attribute.id()}"
                 hx-swap="innerHTML"
                 hx-headers='{
                     "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
