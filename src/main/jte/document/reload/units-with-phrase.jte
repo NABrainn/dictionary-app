@@ -45,7 +45,6 @@ hx-vals='{
                     !{String textColor = "text-neutral";}
                     @template.document.phrase(
                     startId = response.selectedPhraseInfo().id(),
-                    endId = response.selectedPhraseInfo().endId(),
                     isPersisted = response.selectedPhraseInfo().isPersisted(),
                     documentId = response.contentData().documentId(),
                     currentPage = response.paginationData().currentPageNumber(),
@@ -68,7 +67,6 @@ hx-vals='{
                 };}
                 @template.document.phrase(
                 startId = unit.id(),
-                endId = unit.id() + phraseUnit.size(),
                 isPersisted = true,
                 documentId = response.contentData().documentId(),
                 currentPage = response.paginationData().currentPageNumber(),

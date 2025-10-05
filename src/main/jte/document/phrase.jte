@@ -3,7 +3,6 @@
 
 @param int documentId
 @param int startId
-@param int endId
 @param boolean isPersisted
 @param int currentPage
 @param String phraseText
@@ -28,7 +27,6 @@ hx-target="#units"
 hx-params="startId,endId,text,isPersisted,page,selection"
 hx-vals='{
     "startId": "${startId}",
-    "endId": "${endId}",
     "text": "${translation.processedTargetWord()}",
     "isPersisted": "${isPersisted}",
     "page": "${currentPage}",

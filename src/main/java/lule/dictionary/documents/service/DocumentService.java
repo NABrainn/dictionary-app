@@ -193,22 +193,39 @@ public class DocumentService {
         Language targetLanguage = principal.targetLanguage();
 
         Result<Document> result = documentRepository.findById(documentId, page)
-                .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(page, paginationService.getNumberOfPages(found.totalContentLength()), found)))
+                .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(
+                        page,
+                        paginationService.getNumberOfPages(found.totalContentLength()),
+                        found
+                )))
                 .orElseThrow();
         return switch (result) {
             case Ok<Document> ok -> {
                 Document document = ok.value();
                 String contentBlob = document.pageContent();
                 String owner = document.owner();
+
                 Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(contentBlob, owner));
                 Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(contentBlob, owner)));
+
                 TranslationInfo translationInfo = TranslationInfo.of(translations, phrases);
                 OwnerInfo ownerInfo = OwnerInfo.of(sourceLanguage, targetLanguage, owner);
+
                 ParseDocument parseDocumentRequest = switch (request) {
                     case LoadDocumentRequest ignored2 -> ParseWithoutSelection.of(translationInfo, ownerInfo, contentBlob);
                     case ReloadDocumentRequest reloadDocumentRequest -> switch (reloadDocumentRequest) {
-                        case ReloadWithPhrase reloadWithPhrase -> ParseWithPhraseSelection.of(translationInfo, ownerInfo, contentBlob, reloadWithPhrase.selectedUnitInfo());
-                        case ReloadWithWord reloadWithWord -> ParseWithWordSelection.of(translationInfo, ownerInfo, contentBlob, reloadWithWord.selectedUnitInfo());
+                        case ReloadWithPhrase reloadWithPhrase -> ParseWithPhraseSelection.of(
+                                translationInfo,
+                                ownerInfo,
+                                contentBlob,
+                                (SelectedPhraseCords) reloadWithPhrase.selectedUnitInfo()
+                        );
+                        case ReloadWithWord reloadWithWord -> ParseWithWordSelection.of(
+                                translationInfo,
+                                ownerInfo,
+                                contentBlob,
+                                (SelectedWordCords) reloadWithWord.selectedUnitInfo()
+                        );
                     };
                 };
                 List<DocumentUnit> processedContent = documentProcessor.parse(parseDocumentRequest);

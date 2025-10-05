@@ -7,5 +7,4 @@ public sealed interface DocumentUnit permits PhraseUnit, SelectedUnit, WordUnit 
     int id();
     String rawText();
     Translation translation();
-    DocumentUnit withId(int id);
 }

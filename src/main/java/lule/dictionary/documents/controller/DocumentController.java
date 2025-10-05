@@ -44,19 +44,22 @@ public class DocumentController {
                                @RequestParam(name = "selection", defaultValue = "none") String selection,
                                @RequestParam(name = "startId", required = false, defaultValue = "-1") int startId,
                                @RequestParam(name = "endId", required = false, defaultValue = "-1") int endId,
-                               @RequestParam(name = "text", required = false, defaultValue = "") String text,
                                @RequestParam(name = "isPersisted", required = false, defaultValue = "false") boolean isPersisted,
                                Model model,
                                Authentication authentication) {
         DocumentInfo documentInfo = DocumentInfo.of(documentId, page);
         ReadDocumentRequest request = switch (selection) {
             case "word" -> {
-                SelectedWordInfo selectedUnitInfo = SelectedWordInfo.of(text, isPersisted, startId);
+                SelectedUnitCords selectedUnitInfo = isPersisted ?
+                        PersistedSelectedWordCords.of(startId) :
+                        UninitializedSelectedWordCords.of(startId);
                 yield ReloadWithWord.of(documentInfo, selectedUnitInfo);
             }
             case "phrase" -> {
-                SelectedPhraseInfo selectedUnitInfo = SelectedPhraseInfo.of(text, isPersisted, startId, endId);
-                yield ReloadWithPhrase.of(documentInfo, selectedUnitInfo);
+                SelectedUnitCords selectedUnitCords = isPersisted ?
+                        PersistedSelectedPhraseCords.of(startId, endId) :
+                        UninitializedSelectedPhraseCords.of(startId, endId);
+                yield ReloadWithPhrase.of(documentInfo, selectedUnitCords);
             }
             case "none" -> LoadDocumentRequest.of(documentInfo);
             default -> throw new IllegalStateException();

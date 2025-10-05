@@ -10,12 +10,7 @@ public record NewWordUnit(int id,
                           @NonNull String rawText,
                           boolean isPhrasePart) implements WordUnit {
 
-    public static NewWordUnit of(Translation translation, String rawText, boolean isPhrasePart) {
-        return new NewWordUnit(0, translation, rawText, isPhrasePart);
-    }
-
-    @Override
-    public DocumentUnit withId(int id) {
+    public static NewWordUnit of(int id, Translation translation, String rawText, boolean isPhrasePart) {
         return new NewWordUnit(id, translation, rawText, isPhrasePart);
     }
 }

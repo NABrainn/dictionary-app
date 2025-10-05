@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Service
@@ -361,7 +360,7 @@ public class TranslationService {
                 .toList();
         Translation uninitializedTranslation = request.isPhrase() ?
                 UninitializedPhrase.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
-                UninitializedWord.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
+                UninitializedWordTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
         return TranslationAttribute.builder()
                 .documentId(request.documentId())
                 .id(request.selectedWordId())
@@ -439,7 +438,7 @@ public class TranslationService {
                         .toList();
                 Translation uninitializedTranslation = createTranslationRequest.isPhrase() ?
                         UninitializedPhrase.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
-                        UninitializedWord.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
+                        UninitializedWordTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
                 yield Ok.of(TranslationAttribute.builder()
                         .documentId(createTranslationRequest.documentId())
                         .id(createTranslationRequest.selectedWordId())
@@ -498,7 +497,7 @@ public class TranslationService {
                                                     sanitizedTargetWord,
                                                     OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())
                                             ) :
-                                            UninitializedWord.of(
+                                            UninitializedWordTranslation.of(
                                                     fetchedSourceWords,
                                                     sanitizedTargetWord,
                                                     OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()))

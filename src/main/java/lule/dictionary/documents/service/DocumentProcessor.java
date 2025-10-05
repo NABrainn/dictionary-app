@@ -2,7 +2,6 @@ package lule.dictionary.documents.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.collector.service.CollectorFactory;
 import lule.dictionary.documents.data.documentProcessing.*;
 import lule.dictionary.documents.data.parseDocument.ParseDocument;
 import lule.dictionary.documents.data.parseDocument.ParseWithPhraseSelection;
@@ -13,13 +12,14 @@ import lule.dictionary.language.service.Language;
 import lule.dictionary.stringUtil.service.PatternService;
 import lule.dictionary.stringUtil.service.StringUtils;
 import lule.dictionary.translations.data.entity.Translation;
-import lule.dictionary.translations.data.entity.UninitializedWord;
+import lule.dictionary.translations.data.entity.UninitializedWordTranslation;
 import lule.dictionary.userProfiles.data.OwnerInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,7 +30,7 @@ public class DocumentProcessor {
 
     private final StringUtils stringUtils;
     private final PatternService patternService;
-    private final CollectorFactory collectorFactory;
+    private final DocumentUnitCollectorFactory collectorFactory;
 
     public String write(String documentContent) {
         String[] documentAsArray = documentContent.split("(?<=\\n)(?=\\w)");
@@ -54,18 +54,25 @@ public class DocumentProcessor {
         Language targetLanguage = parseDocument.ownerInfo().targetLanguage();
         String owner = parseDocument.ownerInfo().owner();
 
+        AtomicInteger idStore = new AtomicInteger(0);
         return Stream.of(parseDocument.contentBlob().split(" "))
-                .flatMap(word -> Arrays.stream(word.split("(?<=\\n)(?=\\w)")))
-                .map(word -> switch (translations.get(stringUtils.normalize(word))) {
-                    case Translation translation -> PersistedWordUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
+                .flatMap(rawWord -> Arrays.stream(rawWord.split("(?<=\\n)(?=\\w)")))
+                .filter(rawWord -> rawWord.length() <= 50)
+                .filter(Predicate.not(rawWord -> stringUtils.normalize(rawWord).isBlank()))
+                .map(rawWord -> switch (translations.get(stringUtils.normalize(rawWord))) {
+                    case Translation persistedWord -> PersistedWordUnit.of(
+                            idStore.getAndIncrement(),
+                            persistedWord,
+                            rawWord,
+                            phrases.containsWord(persistedWord.processedTargetWord())
+                    );
                     case null -> (WordUnit) NewWordUnit.of(
-                            UninitializedWord.of(stringUtils.normalize(word), OwnerInfo.of(sourceLanguage, targetLanguage, owner)),
-                            word,
-                            phrases.containsWord(stringUtils.normalize(word))
+                            idStore.getAndIncrement(),
+                            UninitializedWordTranslation.of(stringUtils.normalize(rawWord), OwnerInfo.of(sourceLanguage, targetLanguage, owner)),
+                            rawWord,
+                            phrases.containsWord(stringUtils.normalize(rawWord))
                     );
                 })
-                .filter(unit -> unit.rawText().length() <= 50)
-                .filter(Predicate.not(unit -> unit.translation().processedTargetWord().isBlank()))
                 .collect(switch (parseDocument){
                     case ParseWithPhraseSelection parseWithPhraseSelection -> collectorFactory.toDocumentUnits(phrases, parseWithPhraseSelection.selectedPhraseInfo());
                     case ParseWithWordSelection parseWithWordSelection -> collectorFactory.toDocumentUnits(phrases, parseWithWordSelection.selectedWordInfo());

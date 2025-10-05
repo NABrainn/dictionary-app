@@ -21,10 +21,9 @@
     hx-get="/documents/${documentId}"
     hx-swap="outerHTML"
     hx-target="#units"
-    hx-params="startId,text,isPersisted,page,selection"
+    hx-params="startId,isPersisted,page,selection"
     hx-vals='{
         "startId": "${wordId}",
-        "text": "${translation.processedTargetWord()}",
         "isPersisted": "${isPersisted}",
         "page": "${currentPage}",
         "selection": "word"
