@@ -3,6 +3,7 @@
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
 @import lule.dictionary.documents.data.documentProcessing.NewWordUnit
 @import lule.dictionary.documents.data.documentProcessing.SelectedUnit
+@import lule.dictionary.translations.data.entity.PersistedPhraseTranslation
 
 @param ReloadWithPhraseResponse response
 <div
@@ -65,7 +66,7 @@ hx-vals='{
                     case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
                     default -> "text-neutral";
                 };}
-                @if(response.selectedPhraseInfo().translation().processedTargetWord().equals(unit.translation().processedTargetWord()))
+                @if(response.selectedPhraseInfo().translation().processedTargetWord().equals(unit.translation().processedTargetWord()) && !(unit.translation() instanceof PersistedPhraseTranslation))
                     @template.document.phrase(
                     startId = unit.id(),
                     isPersisted = true,
