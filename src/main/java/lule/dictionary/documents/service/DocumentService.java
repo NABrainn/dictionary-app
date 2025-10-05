@@ -250,8 +250,8 @@ public class DocumentService {
                         .findFirst();
 
                 yield switch (request) {
-                    case LoadDocumentRequest loadDocumentRequest -> Ok.of(LoadDocumentResponse.of(contentData, paginationData, isNavbarOpen));
-                    case ReloadDocumentRequest reloadDocumentRequest -> optionalSelectedUnit
+                    case LoadDocumentRequest ignored1 -> Ok.of(LoadDocumentResponse.of(contentData, paginationData, isNavbarOpen));
+                    case ReloadDocumentRequest ignored -> optionalSelectedUnit
                             .map(unit -> switch (unit) {
                                 case SelectedPhraseUnit selectedPhraseUnit -> Ok.of(ReloadWithPhraseResponse.of(contentData, paginationData, selectedPhraseUnit));
                                 case SelectedWordUnit selectedWordUnit -> Ok.of(ReloadWithWordResponse.of(contentData, paginationData, selectedWordUnit));

@@ -15,7 +15,7 @@
 <div
 id="phrase-${startId}"
 class="${phraseBgColor} ${phraseTextColor} ${pointerEvents}
-flex flex-wrap border gap-1 border-x-2 border-secondary rounded-md cursor-pointer select-none
+flex flex-wrap border gap-1 border-2 border-secondary rounded-md cursor-pointer select-none
 ${translation.familiarity().name().toLowerCase()}"
 data-text="${translation.processedTargetWord()}"
 
