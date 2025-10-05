@@ -25,7 +25,7 @@ public record DocumentUnitStore(@NonNull List<WordUnit> phraseParts,
     public void gatherDocumentUnits(@NonNull WordUnit wordUnit,
                                     @NonNull Phrases phrases) {
         documentUnits().add(wordUnit);
-        if(wordUnit.isPhrasePart()) {
+        if (wordUnit.isPhrasePart()) {
             phraseParts().add(wordUnit);
             String normalizedPhrase = phraseParts().stream()
                     .map(unit -> unit.translation().processedTargetWord())
@@ -33,7 +33,7 @@ public record DocumentUnitStore(@NonNull List<WordUnit> phraseParts,
             String rawPhraseText = phraseParts().stream()
                     .map(DocumentUnit::rawText)
                     .collect(Collectors.joining(" "));
-            if(phrases.containsPhrase(normalizedPhrase).isPresent()) {
+            if (phrases.containsPhrase(normalizedPhrase).isPresent()) {
                 int startId = documentUnits().size() - phraseParts().size();
                 int endId = documentUnits().size();
                 List<DocumentUnit> toRemove = documentUnits().subList(startId, endId);
@@ -49,42 +49,8 @@ public record DocumentUnitStore(@NonNull List<WordUnit> phraseParts,
                 phraseParts().clear();
                 documentUnits().add(phraseToAdd);
             }
-        }
-        else {
+        } else {
             phraseParts().clear();
-        }
-    }
-    public void gatherDocumentUnits(@NonNull WordUnit wordUnit,
-                                    @NonNull Phrases phrases,
-                                    @NonNull String selectedPhraseText) {
-        documentUnits().add(wordUnit);
-        if(wordUnit.isPhrasePart()) {
-            phraseParts().add(wordUnit);
-            String normalizedPhrase = this.phraseParts().stream()
-                    .map(unit -> unit.translation().processedTargetWord())
-                    .collect(Collectors.joining(" "));
-            String rawPhraseText = phraseParts().stream()
-                    .map(DocumentUnit::rawText)
-                    .collect(Collectors.joining(" "));
-            if(phrases.containsPhrase(normalizedPhrase).isPresent()) {
-                int stratId = documentUnits().size() - phraseParts().size();
-                int endId = documentUnits().size();
-                List<DocumentUnit> toRemove = documentUnits().subList(stratId, endId);
-                int id = toRemove.getFirst().id();
-                Translation translation = phrases.containsPhrase(normalizedPhrase).get();
-                PhraseUnit phraseToAdd = PhraseUnit.of(
-                        id,
-                        translation,
-                        rawPhraseText,
-                        phraseParts().size()
-                );
-                toRemove.clear();
-                this.phraseParts().clear();
-                this.documentUnits().add(phraseToAdd);
-            }
-        }
-        else {
-            this.phraseParts().clear();
         }
     }
 
@@ -173,9 +139,9 @@ public record DocumentUnitStore(@NonNull List<WordUnit> phraseParts,
                 SelectedUnit selectedUnitToAdd = SelectedWordUnit.of(
                         selectedWordCords.startId(),
                         switch (last.translation()) {
-                            case Phrase ignored1 -> true;
+                            case PersistedPhraseTranslation ignored1 -> true;
                             case UninitializedTranslation ignored -> false;
-                            case Word ignored -> true;
+                            case PersistedWordTranslation ignored -> true;
                         },
                         last.translation(),
                         last.rawText()
