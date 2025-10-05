@@ -43,6 +43,7 @@ else
     set allPhrases to <div[data-text='${targetWord}']/>
     then set selectedPhrase to <div#phrase-${selectedUnitId}[data-text='${targetWord}']/>
     repeat for phrase in allPhrases
+        remove .pointer-events-none from phrase
         remove .unknown .recognized .familiar .known .ignored from phrase
         then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from phrase
         then add .{textColors.${familiarity}} to phrase
@@ -52,6 +53,7 @@ else
     then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from selectedPhrase
     then add .text-neutral to <span.phrase-part/> in selectedPhrase
     then add .text-neutral to <div.phrase-part/> in selectedPhrase
+    then add .pointer-events-none to selectedPhrase
 end
 
 "
