@@ -78,26 +78,29 @@ public record DocumentUnitStore(@NonNull List<WordUnit> phraseParts,
                 case WordUnit wUnit -> {
                     int phraseLength = selectedPhraseText.split(" ").length;
                     DocumentUnit last = documentUnits().getLast();
-                    if (wUnit.id() != selectedPhraseDetails.endId() && last.id() >= phraseLength) {
-                        int startId = documentUnits().size() - 2;
+                    System.out.println(last.id());
+                    if (wUnit.id() != selectedPhraseDetails.endId()) {
+                        int startId = documentUnits().size() - phraseLength;
                         int endId = documentUnits().size();
-                        List<DocumentUnit> matchingPhrase = documentUnits().subList(startId, endId);
-                        String matchingPhraseText = matchingPhrase
-                                .stream()
-                                .map(unit -> unit.translation().processedTargetWord())
-                                .collect(Collectors.joining(" "));
-                        if (matchingPhraseText.equals(selectedPhraseText)) {
-                            String matchingPhraseRawText = matchingPhrase.stream()
-                                    .map(DocumentUnit::rawText)
+                        if(last.id() >= phraseLength - 1) {
+                            List<DocumentUnit> matchingPhrase = documentUnits().subList(startId, endId);
+                            String matchingPhraseText = matchingPhrase
+                                    .stream()
+                                    .map(unit -> unit.translation().processedTargetWord())
                                     .collect(Collectors.joining(" "));
-                            PhraseUnit phraseToAdd = PhraseUnit.of(
-                                    matchingPhrase.getFirst().id(),
-                                    UninitializedPhrase.of(List.of(), matchingPhraseText, matchingPhrase.getFirst().translation().ownerInfo()),
-                                    matchingPhraseRawText,
-                                    matchingPhrase.size()
-                            );
-                            matchingPhrase.clear();
-                            documentUnits().add(phraseToAdd);
+                            if (matchingPhraseText.equals(selectedPhraseText)) {
+                                String matchingPhraseRawText = matchingPhrase.stream()
+                                        .map(DocumentUnit::rawText)
+                                        .collect(Collectors.joining(" "));
+                                PhraseUnit phraseToAdd = PhraseUnit.of(
+                                        matchingPhrase.getFirst().id(),
+                                        UninitializedPhrase.of(List.of(), matchingPhraseText, matchingPhrase.getFirst().translation().ownerInfo()),
+                                        matchingPhraseRawText,
+                                        matchingPhrase.size()
+                                );
+                                matchingPhrase.clear();
+                                documentUnits().add(phraseToAdd);
+                            }
                         }
                     }
                     else if(wUnit.id() == selectedPhraseDetails.endId()) {
