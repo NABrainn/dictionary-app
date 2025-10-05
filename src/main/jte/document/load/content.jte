@@ -10,10 +10,11 @@ hx-trigger="reloadWithSelectedPhrase"
 hx-get="/documents/${response.contentData().documentId()}"
 hx-swap="outerHTML"
 hx-target="#units"
-hx-params="startId,endId,isPersisted,page,selection"
+hx-params="startId,endId,phraseText,isPersisted,page,selection"
 hx-vals='js:{
     startId: event?.detail?.startId ?? -1,
     endId: event?.detail?.endId ?? -1,
+    phraseText: event?.detail?.phraseText ?? "",
     isPersisted: false,
     page: ${response.paginationData().currentPageNumber()},
     selection: "phrase"
@@ -43,7 +44,6 @@ class="flex flex-col gap-8 text-wrap">
             )
         end then
         put it into phraseNodes then
-        log phraseNodes
         if the first of phraseNodes's id is the last of phraseNodes's id
             removeSelection()
             throw 'must be at least 2 elements'
@@ -66,7 +66,8 @@ class="flex flex-col gap-8 text-wrap">
         set lastPhraseNode to the last of phraseNodes then
         set startId to firstPhraseNode.id.slice(5) then
         set endId to lastPhraseNode.id.slice(5) then
-        send reloadWithSelectedPhrase(startId: startId, endId: endId) to #content
+        set phraseText to phraseNodes.map( \ node -> node@data-text).join(' ') then
+        send reloadWithSelectedPhrase(startId: startId, endId: endId, phraseText: phraseText) to #content
         removeSelection()
     catch e
         removeSelection()

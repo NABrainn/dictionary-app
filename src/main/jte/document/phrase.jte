@@ -32,19 +32,19 @@ hx-vals='{
     "page": "${currentPage}",
     "selection": "phrase"
 }'>
-@for(var entry : ForSupport.of(phraseText.split(" ")))
-    <div
-    class="
-    relative whitespace-nowrap text-lg flex items-center
-    phrase-part">
+    @for(var entry : ForSupport.of(phraseText.split(" ")))
         <div
-        class="cursor-default z-2 absolute inline pointer-events-auto"
-        id="form-container-${startId}"
-        hx-on::after-swap="formPositioner.handleOverflow(htmx.find('#form-container-${startId}'), 3)">
+        class="
+        relative whitespace-nowrap text-lg flex items-center
+        phrase-part">
+            <div
+            class="cursor-default z-2 absolute inline pointer-events-auto"
+            id="form-container-${startId}"
+            hx-on::after-swap="formPositioner.handleOverflow(htmx.find('#form-container-${startId}'), 3)">
+            </div>
+        <span
+        class="
+        phrase-part">${entry.get()}</span>
         </div>
-    <span
-    class="
-    phrase-part">${entry.get()}</span>
-    </div>
-@endfor
+    @endfor
 </div>

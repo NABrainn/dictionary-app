@@ -30,7 +30,7 @@ public class DocumentProcessor {
 
     private final StringUtils stringUtils;
     private final PatternService patternService;
-    private final DocumentUnitCollectorFactory collectorFactory;
+    private final DocumentUnitCollectors collectors;
 
     public String write(String documentContent) {
         String[] documentAsArray = documentContent.split("(?<=\\n)(?=\\w)");
@@ -46,7 +46,7 @@ public class DocumentProcessor {
                 .collect(Collectors.joining());
     }
 
-    public List<DocumentUnit> parse(@NonNull ParseDocument parseDocument) {
+    public List<DocumentUnit> read(@NonNull ParseDocument parseDocument) {
         Phrases phrases = parseDocument.translationInfo().phrases();
         Map<String, Translation> translations = parseDocument.translationInfo().translations();
 
@@ -74,16 +74,16 @@ public class DocumentProcessor {
                     );
                 })
                 .collect(switch (parseDocument){
-                    case ParseWithPhraseSelection parseWithPhraseSelection -> collectorFactory.toDocumentUnits(phrases, parseWithPhraseSelection.selectedPhraseInfo());
-                    case ParseWithWordSelection parseWithWordSelection -> collectorFactory.toDocumentUnits(phrases, parseWithWordSelection.selectedWordInfo());
-                    case ParseWithoutSelection ignored -> collectorFactory.toDocumentUnits(phrases);
+                    case ParseWithPhraseSelection parseWithPhraseSelection -> collectors.toDocumentUnits(phrases, parseWithPhraseSelection.selectedPhraseInfo());
+                    case ParseWithWordSelection parseWithWordSelection -> collectors.toDocumentUnits(phrases, parseWithWordSelection.selectedWordInfo());
+                    case ParseWithoutSelection ignored -> collectors.toDocumentUnits(phrases);
                 })
                 .documentUnits();
     }
 
     public List<Paragraph> asParagraphs(@NonNull List<DocumentUnit> units) {
         return units.stream()
-                .collect(collectorFactory.toParagraphs())
+                .collect(collectors.toParagraphs())
                 .paragraphs();
     }
 }

@@ -65,16 +65,29 @@ hx-vals='{
                     case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
                     default -> "text-neutral";
                 };}
-                @template.document.phrase(
-                startId = unit.id(),
-                isPersisted = true,
-                documentId = response.contentData().documentId(),
-                currentPage = response.paginationData().currentPageNumber(),
-                phraseText = unit.rawText(),
-                translation = phraseUnit.translation(),
-                phraseBgColor = phraseBgColor,
-                phraseTextColor = phraseTextColor,
-                selectable = true)
+                @if(response.selectedPhraseInfo().translation().processedTargetWord().equals(unit.translation().processedTargetWord()))
+                    @template.document.phrase(
+                    startId = unit.id(),
+                    isPersisted = true,
+                    documentId = response.contentData().documentId(),
+                    currentPage = response.paginationData().currentPageNumber(),
+                    phraseText = unit.rawText(),
+                    translation = phraseUnit.translation(),
+                    phraseBgColor = phraseBgColor,
+                    phraseTextColor = phraseTextColor,
+                    selectable = false)
+                @else
+                    @template.document.phrase(
+                    startId = unit.id(),
+                    isPersisted = true,
+                    documentId = response.contentData().documentId(),
+                    currentPage = response.paginationData().currentPageNumber(),
+                    phraseText = unit.rawText(),
+                    translation = phraseUnit.translation(),
+                    phraseBgColor = phraseBgColor,
+                    phraseTextColor = phraseTextColor,
+                    selectable = true)
+                @endif
             @elseif(unit instanceof PersistedWordUnit)
                 @template.document.word(
                 wordId = unit.id(),

@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collector;
 
 @Service
-public class DocumentUnitCollectorFactory {
+public class DocumentUnitCollectors {
     public Collector<DocumentUnit, ParagraphStore, ParagraphStore> toParagraphs() {
         return Collector.of(
                 () -> ParagraphStore.of(new ArrayList<>(), new ArrayList<>(), new AtomicInteger(0)),
@@ -27,7 +27,7 @@ public class DocumentUnitCollectorFactory {
 
     public Collector<WordUnit, DocumentUnitStore, DocumentUnitStore> toDocumentUnits(@NonNull Phrases phrases) {
         return Collector.of(
-                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>(), new AtomicInteger(0)),
+                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>()),
                 (store, wordUnit) -> store.gatherDocumentUnits(wordUnit, phrases),
                 (left, right) -> {
                     List<DocumentUnit> leftUnits = left.documentUnits();
@@ -40,9 +40,9 @@ public class DocumentUnitCollectorFactory {
     }
 
     public Collector<WordUnit, DocumentUnitStore, DocumentUnitStore> toDocumentUnits(@NonNull Phrases phrases,
-                                                                                     @NonNull SelectedWordCords selectedWordCords) {
+                                                                                     @NonNull SelectedWordDetails selectedWordCords) {
         return Collector.of(
-                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>(), new AtomicInteger(0), new AtomicBoolean(false)),
+                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>(), new AtomicBoolean(false)),
                 (store, wordUnit) -> {
                     store.gatherDocumentUnits(wordUnit, phrases);
                     store.extractSelectedWord(selectedWordCords);
@@ -58,12 +58,12 @@ public class DocumentUnitCollectorFactory {
     }
 
     public Collector<WordUnit, DocumentUnitStore, DocumentUnitStore> toDocumentUnits(@NonNull Phrases phrases,
-                                                                                     @NonNull SelectedPhraseCords selectedPhraseCords) {
+                                                                                     @NonNull SelectedPhraseDetails selectedPhraseCords) {
         return Collector.of(
-                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>(), new AtomicInteger(0), new AtomicBoolean(false)),
+                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>(), new AtomicBoolean(false)),
                 (store, wordUnit) -> {
                     store.gatherDocumentUnits(wordUnit, phrases);
-                    store.extractSelectedPhrase(selectedPhraseCords);
+                    store.extractSelectedPhrase(selectedPhraseCords, selectedPhraseCords.phraseText());
                 },
                 (left, right) -> {
                     List<DocumentUnit> leftUnits = left.documentUnits();

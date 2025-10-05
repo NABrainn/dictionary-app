@@ -44,24 +44,25 @@ public class DocumentController {
                                @RequestParam(name = "selection", defaultValue = "none") String selection,
                                @RequestParam(name = "startId", required = false, defaultValue = "-1") int startId,
                                @RequestParam(name = "endId", required = false, defaultValue = "-1") int endId,
+                               @RequestParam(name = "phraseText", required = false, defaultValue = "") String phraseText,
                                @RequestParam(name = "isPersisted", required = false, defaultValue = "false") boolean isPersisted,
                                Model model,
                                Authentication authentication) {
-        DocumentInfo documentInfo = DocumentInfo.of(documentId, page);
+        DocumentDetails documentDetails = DocumentDetails.of(documentId, page);
         ReadDocumentRequest request = switch (selection) {
             case "word" -> {
-                SelectedUnitCords selectedUnitInfo = isPersisted ?
-                        PersistedSelectedWordCords.of(startId) :
-                        UninitializedSelectedWordCords.of(startId);
-                yield ReloadWithWord.of(documentInfo, selectedUnitInfo);
+                SelectedUnitDetails selectedUnitdetails = isPersisted ?
+                        PersistedSelectedWordDetails.of(startId) :
+                        UninitializedSelectedWordDetails.of(startId);
+                yield ReloadWithWord.of(documentDetails, selectedUnitdetails);
             }
             case "phrase" -> {
-                SelectedUnitCords selectedUnitCords = isPersisted ?
-                        PersistedSelectedPhraseCords.of(startId, endId) :
-                        UninitializedSelectedPhraseCords.of(startId, endId);
-                yield ReloadWithPhrase.of(documentInfo, selectedUnitCords);
+                SelectedUnitDetails selectedUnitDetails = isPersisted ?
+                        PersistedSelectedPhraseDetails.of(startId, endId, phraseText) :
+                        UninitializedSelectedPhraseDetails.of(startId, endId, phraseText);
+                yield ReloadWithPhrase.of(documentDetails, selectedUnitDetails);
             }
-            case "none" -> LoadDocumentRequest.of(documentInfo);
+            case "none" -> LoadDocumentRequest.of(documentDetails);
             default -> throw new IllegalStateException();
         };
         Result<ReadDocumentResponse> result = documentService.loadDocumentContent(request, authentication);

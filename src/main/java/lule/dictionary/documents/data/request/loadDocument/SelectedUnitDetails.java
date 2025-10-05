@@ -1,5 +1,5 @@
 package lule.dictionary.documents.data.request.loadDocument;
 
-public interface SelectedUnitCords {
+public interface SelectedUnitDetails {
     int startId();
 }

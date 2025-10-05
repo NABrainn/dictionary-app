@@ -186,8 +186,8 @@ public class DocumentService {
 
     public Result<ReadDocumentResponse> loadDocumentContent(@NonNull ReadDocumentRequest request, @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        int documentId = request.documentInfo().documentId();
-        int page = request.documentInfo().page();
+        int documentId = request.documentDetails().documentId();
+        int page = request.documentDetails().page();
 
         Language sourceLanguage = principal.sourceLanguage();
         Language targetLanguage = principal.targetLanguage();
@@ -218,17 +218,17 @@ public class DocumentService {
                                 translationInfo,
                                 ownerInfo,
                                 contentBlob,
-                                (SelectedPhraseCords) reloadWithPhrase.selectedUnitInfo()
+                                (SelectedPhraseDetails) reloadWithPhrase.selectedUnitInfo()
                         );
                         case ReloadWithWord reloadWithWord -> ParseWithWordSelection.of(
                                 translationInfo,
                                 ownerInfo,
                                 contentBlob,
-                                (SelectedWordCords) reloadWithWord.selectedUnitInfo()
+                                (SelectedWordDetails) reloadWithWord.selectedUnitInfo()
                         );
                     };
                 };
-                List<DocumentUnit> processedContent = documentProcessor.parse(parseDocumentRequest);
+                List<DocumentUnit> processedContent = documentProcessor.read(parseDocumentRequest);
                 List<Paragraph> paragraphs = documentProcessor.asParagraphs(processedContent);
                 DocumentContentData contentData = DocumentContentData.builder()
                         .title(document.title())
