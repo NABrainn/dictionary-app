@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.translations.data.Familiarity;
-import lule.dictionary.translations.data.entity.Phrase;
+import lule.dictionary.translations.data.entity.PersistedPhraseTranslation;
 import lule.dictionary.translations.data.entity.Translation;
-import lule.dictionary.translations.data.entity.Word;
+import lule.dictionary.translations.data.entity.PersistedWordTranslation;
 import lule.dictionary.userProfiles.data.OwnerInfo;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -28,13 +28,13 @@ public class TranslationRepository {
 
     private final JdbcTemplate template;
     private final RowMapper<Translation> translationMapper = (rs, rowNum) -> rs.getBoolean("is_phrase") ?
-        Phrase.of(
+        PersistedPhraseTranslation.of(
                 Arrays.asList((String[]) rs.getArray("source_words").getArray()),
                 rs.getString("target_word"),
                 Familiarity.valueOf(rs.getString("familiarity")),
                 OwnerInfo.of(Language.valueOf(rs.getString("source_lang")), Language.valueOf(rs.getString("target_lang")), rs.getString("translation_owner"))
         ) :
-        Word.of(
+        PersistedWordTranslation.of(
                 Arrays.asList((String[]) rs.getArray("source_words").getArray()),
                 rs.getString("target_word"),
                 Familiarity.valueOf(rs.getString("familiarity")),
@@ -94,7 +94,7 @@ public class TranslationRepository {
                 ps.setString(4, translation.ownerInfo().targetLanguage().toString());
                 ps.setString(5, translation.ownerInfo().owner());
                 ps.setString(6, translation.familiarity().toString());
-                ps.setBoolean(7, translation instanceof Phrase);
+                ps.setBoolean(7, translation instanceof PersistedPhraseTranslation);
                 return ps;
             }, translationIdMapper).stream().findFirst().orElseThrow(() -> new RuntimeException("translation not found"));
             template.update(updateSql, translation.ownerInfo().owner());

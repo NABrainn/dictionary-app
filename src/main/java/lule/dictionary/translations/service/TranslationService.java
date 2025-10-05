@@ -106,8 +106,8 @@ public class TranslationService {
         return switch (result) {
             case Ok<?> ignored -> {
                 Translation translation = request.isPhrase() ?
-                        Phrase.of(request.sourceWords(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.getUsername())) :
-                        Word.of(request.sourceWords(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.getUsername()));
+                        PersistedPhraseTranslation.of(request.sourceWords(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.getUsername())) :
+                        PersistedWordTranslation.of(request.sourceWords(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.getUsername()));
                 translationRepository.addTranslation(translation)
                         .orElseThrow();
                 TranslationAttribute attribute = TranslationAttribute.builder()
@@ -127,8 +127,8 @@ public class TranslationService {
             }
             case Err<?> err -> {
                 Translation translation = request.isPhrase() ?
-                        Phrase.of(List.of(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.username())) :
-                        Word.of(List.of(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.username()));
+                        PersistedPhraseTranslation.of(List.of(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.username())) :
+                        PersistedWordTranslation.of(List.of(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.username()));
                 TranslationAttribute translationAttribute = TranslationAttribute.builder()
                         .id(request.selectedWordId())
                         .translation(translation)
@@ -239,8 +239,8 @@ public class TranslationService {
                     .orElseThrow();
             case Err<?> err -> {
                 Translation translation = request.isPhrase() ?
-                        Phrase.of(List.of(), request.targetWord(), request.familiarity(), OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
-                        Word.of(List.of(), request.targetWord(), request.familiarity(), OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
+                        PersistedPhraseTranslation.of(List.of(), request.targetWord(), request.familiarity(), OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
+                        PersistedWordTranslation.of(List.of(), request.targetWord(), request.familiarity(), OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
                 TranslationAttribute translationAttribute = TranslationAttribute.builder()
                         .documentId(-1)
                         .id(request.selectedWordId())
