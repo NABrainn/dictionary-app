@@ -1,6 +1,6 @@
 package lule.dictionary.documents.data.documentProcessing;
 
-import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.entity.Translation;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,9 +17,11 @@ public record Phrases(List<Translation> phrases) {
                         .contains(input));
     }
 
-    public Optional<Translation> findPhrase(String phrase) {
+    public Optional<Translation> containsPhrase(String phrase) {
         return phrases.stream()
-                .filter(dbPhrases -> dbPhrases.processedTargetWord().equalsIgnoreCase(phrase))
+                .filter(translation -> translation.processedTargetWord()
+                        .trim()
+                        .equalsIgnoreCase(phrase))
                 .findFirst();
     }
 }

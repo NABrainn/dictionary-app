@@ -1,5 +1,6 @@
 package lule.dictionary.documents.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.documents.data.*;
@@ -8,32 +9,29 @@ import lule.dictionary.documents.data.documentProcessing.*;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormType;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
 import lule.dictionary.documents.data.exception.DocumentServiceException;
+import lule.dictionary.documents.data.parseDocument.*;
 import lule.dictionary.documents.data.request.*;
 import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl;
 import lule.dictionary.documents.data.request.loadDocument.*;
-import lule.dictionary.documents.data.result.FirstLoadResult;
-import lule.dictionary.documents.data.result.ReloadWithPhraseResult;
-import lule.dictionary.documents.data.result.LoadDocumentResult;
-import lule.dictionary.documents.data.result.ReloadWithWordResult;
-import lule.dictionary.familiarity.service.FamiliarityService;
-import lule.dictionary.jsoup.data.Token;
+import lule.dictionary.documents.data.response.LoadDocumentResponse;
+import lule.dictionary.documents.data.response.ReadDocumentResponse;
+import lule.dictionary.documents.data.response.ReloadWithPhraseResponse;
+import lule.dictionary.documents.data.response.ReloadWithWordResponse;
 import lule.dictionary.language.service.Language;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
-import lule.dictionary.stringUtil.service.PatternService;
-import lule.dictionary.stringUtil.service.StringUtils;
-import lule.dictionary.translations.data.Familiarity;
-import lule.dictionary.translations.data.Translation;
 import lule.dictionary.documents.data.repository.DocumentRepository;
 import lule.dictionary.jsoup.service.JsoupService;
 import lule.dictionary.pagination.service.PaginationService;
 import lule.dictionary.pagination.data.DocumentPaginationData;
+import lule.dictionary.translations.data.entity.Translation;
 import lule.dictionary.translations.data.request.ExtractPhrasesRequest;
 import lule.dictionary.translations.data.request.FindTranslationsInDocumentRequest;
 import lule.dictionary.translations.service.TranslationService;
+import lule.dictionary.userProfiles.data.OwnerInfo;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.userProfiles.service.UserInterfaceService;
 import lule.dictionary.validation.data.Constraint;
@@ -46,9 +44,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -60,12 +55,10 @@ public class DocumentService {
     private final PaginationService paginationService;
     private final JsoupService jsoupService;
     private final TranslationService translationService;
-    private final PatternService patternService;
-    private final FamiliarityService familiarityService;
+    private final DocumentProcessor documentProcessor;
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
     private final UserInterfaceService userInterfaceService;
-    private final StringUtils stringUtils;
 
     @Transactional
     public Result<Integer> createDocument(CreateDocumentRequest request) {
@@ -107,28 +100,17 @@ public class DocumentService {
                 );
                 yield switch (result) {
                     case Ok<?> ignored -> {
-                        String[] documentAsArray = jsoupService.fetchDocument(documentFormWithUrl.url())
-                                .wholeText()
-                                .split("(?<=\\n)(?=\\w)");
-                        String formattedDocument = Arrays.stream(documentAsArray)
-                                .map(tokenBlob -> Token.of(tokenBlob, stringUtils.getCharQuantity(tokenBlob, '\n')))
-                                .map(token -> switch (token.newlineCount()) {
-                                    case 0 -> token;
-                                    case 1 -> token.withContent(patternService.replaceNewline(token.content(), " "));
-                                    default -> token.withContent(patternService.replaceAllNewlines(token.content(), '\n', 30));
-                                })
-                                .map(Token::content)
-                                .filter(Predicate.not(String::isBlank))
-                                .collect(Collectors.joining());
+                        String documentContent = jsoupService.fetchDocument(documentFormWithUrl.url()).wholeText();
+                        String processedDocument = documentProcessor.write(documentContent);
                         Document document = Document.builder()
                                 .id(-1)
                                 .title(documentFormWithUrl.title())
-                                .pageContent(formattedDocument)
+                                .pageContent(processedDocument)
                                 .url(documentFormWithUrl.url())
                                 .sourceLanguage(principal.sourceLanguage())
                                 .targetLanguage(principal.targetLanguage())
                                 .owner(principal.getUsername())
-                                .totalContentLength(formattedDocument.length())
+                                .totalContentLength(processedDocument.length())
                                 .build();
                         int documentId = documentRepository.create(document).orElseThrow();
                         yield Ok.of(documentId);
@@ -202,102 +184,79 @@ public class DocumentService {
         return DocumentListAttribute.of(documents, localization, isNavbarOpen);
     }
 
-    public Result<LoadDocumentResult> loadDocumentContent(LoadDocumentRequest request, Authentication authentication) {
+    public Result<ReadDocumentResponse> loadDocumentContent(@NonNull ReadDocumentRequest request, @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
+        int documentId = request.documentDetails().documentId();
+        int page = request.documentDetails().page();
+
         Language sourceLanguage = principal.sourceLanguage();
         Language targetLanguage = principal.targetLanguage();
-        Result<Document> result = documentRepository.findById(request.documentId(), request.page())
-                .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(request.page(), paginationService.getNumberOfPages(found.totalContentLength()), found)))
+
+        Result<Document> result = documentRepository.findById(documentId, page)
+                .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(
+                        page,
+                        paginationService.getNumberOfPages(found.totalContentLength()),
+                        found
+                )))
                 .orElseThrow();
         return switch (result) {
             case Ok<Document> ok -> {
                 Document document = ok.value();
-                Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(document.pageContent(), document.owner()));
-                Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(document.pageContent(), document.owner())));
-                DocumentUnitStore processedContent = Arrays.stream(document.pageContent().split("\\s+"))
-                        .sequential()
-                        .map(word -> switch (translations.get(patternService.removeSpecialCharacters(word.toLowerCase().trim()))) {
-                            case Translation translation -> TranslationUnit.of(translation, word, phrases.containsWord(translation.processedTargetWord()));
-                            case null -> WordUnit.of(Translation.builder()
-                                    .sourceWords(List.of())
-                                    .processedTargetWord(patternService.removeSpecialCharacters(word.toLowerCase().trim()))
-                                    .familiarity(Familiarity.UNKNOWN)
-                                    .sourceLanguage(sourceLanguage)
-                                    .targetLanguage(targetLanguage)
-                                    .owner(document.owner())
-                                    .isPhrase(false)
-                                    .build(),
-                                    word,
-                                    phrases.containsWord(word.toLowerCase().trim()));
-                            })
-                        .map(unit -> (DocumentUnit) unit)
-                        .collect(Collector.of(
-                                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>()),
-                                (store, documentUnit) -> {
-                                    if (!documentUnit.isPhrasePart()) {
-                                        store.addDocumentUnit(documentUnit);
-                                        store.clearPhraseParts();
-                                    }
-                                    else {
-                                        store.addDocumentUnit(documentUnit);
-                                        store.addPhrasePart(documentUnit);
-                                    }
-                                    if (phrases.findPhrase(store.bufferValue()).isPresent()) {
-                                        Translation translation = phrases.findPhrase(store.bufferValue()).get();
-                                        store.wrapToPhrase(translation);
-                                        store.clearPhraseParts();
-                                    }
-                                },
-                                (left, right) -> {
-                                    List<DocumentUnit> leftUnits = left.documentUnits();
-                                    List<DocumentUnit> rightUnits = right.documentUnits();
-                                    leftUnits.addAll(rightUnits);
-                                    return left;
-                                },
-                                Collector.Characteristics.IDENTITY_FINISH
-                        ));
+                String contentBlob = document.pageContent();
+                String owner = document.owner();
+
+                Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(contentBlob, owner));
+                Phrases phrases = Phrases.of(translationService.findPhrases(ExtractPhrasesRequest.of(contentBlob, owner)));
+
+                TranslationInfo translationInfo = TranslationInfo.of(translations, phrases);
+                OwnerInfo ownerInfo = OwnerInfo.of(sourceLanguage, targetLanguage, owner);
+
+                ParseDocument parseDocumentRequest = switch (request) {
+                    case LoadDocumentRequest ignored2 -> ParseWithoutSelection.of(translationInfo, ownerInfo, contentBlob);
+                    case ReloadDocumentRequest reloadDocumentRequest -> switch (reloadDocumentRequest) {
+                        case ReloadWithPhrase reloadWithPhrase -> ParseWithPhraseSelection.of(
+                                translationInfo,
+                                ownerInfo,
+                                contentBlob,
+                                (SelectedPhraseDetails) reloadWithPhrase.selectedUnitInfo()
+                        );
+                        case ReloadWithWord reloadWithWord -> ParseWithWordSelection.of(
+                                translationInfo,
+                                ownerInfo,
+                                contentBlob,
+                                (SelectedWordDetails) reloadWithWord.selectedUnitInfo()
+                        );
+                    };
+                };
+                List<DocumentUnit> processedContent = documentProcessor.read(parseDocumentRequest);
+                List<Paragraph> paragraphs = documentProcessor.asParagraphs(processedContent);
                 DocumentContentData contentData = DocumentContentData.builder()
                         .title(document.title())
-                        .content(processedContent.documentUnits())
+                        .content(paragraphs)
                         .translations(translations)
-                        .documentId(request.documentId())
+                        .documentId(documentId)
                         .build();
                 DocumentPaginationData paginationData = DocumentPaginationData.builder()
-                        .currentPageNumber(request.page())
+                        .currentPageNumber(page)
                         .numberOfPages(paginationService.getNumberOfPages(document.totalContentLength()))
-                        .currentRowNumber(paginationService.getCurrentRow(request.page(), paginationService.getMAX_ROW_SIZE()))
-                        .firstPageOfRowNumber(paginationService.getFirstPageOfRow(request.page(), paginationService.getMAX_ROW_SIZE()))
+                        .currentRowNumber(paginationService.getCurrentRow(page, paginationService.getMAX_ROW_SIZE()))
+                        .firstPageOfRowNumber(paginationService.getFirstPageOfRow(page, paginationService.getMAX_ROW_SIZE()))
                         .rows(paginationService.getRows(paginationService.getNumberOfPages(document.totalContentLength())))
                         .build();
                 boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
+                Optional<SelectedUnit> optionalSelectedUnit = processedContent.stream()
+                        .filter(unit -> unit instanceof SelectedUnit)
+                        .map(unit -> (SelectedUnit) unit)
+                        .findFirst();
+
                 yield switch (request) {
-                    case FirstLoadRequest firstLoadRequest -> Ok.of(FirstLoadResult.builder()
-                            .documentContentData(contentData)
-                            .paginationData(paginationData)
-                            .isNavbarOpen(isNavbarOpen)
-                            .build());
-                    case PageChangeRequest pageChangeRequest -> Ok.of(FirstLoadResult.builder()
-                            .documentContentData(contentData)
-                            .paginationData(paginationData)
-                            .isNavbarOpen(isNavbarOpen)
-                            .build());
-                    case ReloadWithWordRequest wordRequest -> Ok.of(ReloadWithWordResult.builder()
-                            .documentContentData(contentData)
-                            .paginationData(paginationData)
-                            .isNavbarOpen(isNavbarOpen)
-                            .unitId(wordRequest.unitId())
-                            .targetWord(request.unitText())
-                            .isSelectablePersisted(request.isUnitPersisted())
-                            .build());
-                    case ReloadWithPhraseRequest phraseRequest -> Ok.of(ReloadWithPhraseResult.builder()
-                            .documentContentData(contentData)
-                            .paginationData(paginationData)
-                            .isNavbarOpen(isNavbarOpen)
-                            .startId(phraseRequest.startId())
-                            .endId(phraseRequest.endId())
-                            .targetWord(request.unitText())
-                            .isSelectablePersisted(request.isUnitPersisted())
-                            .build());
+                    case LoadDocumentRequest ignored1 -> Ok.of(LoadDocumentResponse.of(contentData, paginationData, isNavbarOpen));
+                    case ReloadDocumentRequest ignored -> optionalSelectedUnit
+                            .map(unit -> switch (unit) {
+                                case SelectedPhraseUnit selectedPhraseUnit -> Ok.of(ReloadWithPhraseResponse.of(contentData, paginationData, selectedPhraseUnit));
+                                case SelectedWordUnit selectedWordUnit -> Ok.of(ReloadWithWordResponse.of(contentData, paginationData, selectedWordUnit));
+                            })
+                            .orElseThrow();
                 };
             }
             case Err<Document> v -> Err.of(v.throwable());

@@ -2,10 +2,12 @@ package lule.dictionary.controllerAdvice.data;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.With;
 import lule.dictionary.language.service.LanguageData;
 
 import java.util.List;
 
+@With
 @Builder
 public record NavbarAttribute(List<LanguageData> languageDataList,
                               LanguageData targetLanguage,
@@ -96,28 +98,5 @@ public record NavbarAttribute(List<LanguageData> languageDataList,
     public String daysPluralText() {
         if(daysPluralText == null) throw new NullPointerException("Illegal value access: user not authenticated");
         return daysPluralText;
-    }
-
-    public NavbarAttribute withIsNavbarOpen(boolean isNavbarOpen) {
-        return NavbarAttribute.builder()
-                .targetLanguage(this.targetLanguage)
-                .userInterfaceLanguage(this.userInterfaceLanguage)
-                .translationLanguage(this.translationLanguage)
-                .wordsLearned(this.wordsLearned)
-                .dailyStreak(this.dailyStreak)
-                .isNavbarOpen(isNavbarOpen)
-                .wordsLearnedText(this.wordsLearnedText)
-                .daysSingularText(this.daysSingularText)
-                .daysPluralText(this.daysPluralText)
-                .loginBtnText(this.loginBtnText)
-                .lessonsBtnText(this.lessonsBtnText)
-                .vocabularyBtnText(this.vocabularyBtnText)
-                .settingsText(this.settingsText)
-                .languageText(this.languageText)
-                .uiText(this.uiText)
-                .translationsText(this.translationsText)
-                .logoutText(this.logoutText)
-                .languageDataList(this.languageDataList)
-                .build();
     }
 }

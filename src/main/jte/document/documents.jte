@@ -10,10 +10,12 @@
 @template.base(content = @`
     @template.navbar.navbar(
     baseAttribute = baseAttribute,
-    navbarAttribute = navbarAttribute.withIsNavbarOpen(attribute.isNavbarOpen()))
+    navbarAttribute = navbarAttribute.withNavbarOpen(attribute.isNavbarOpen()))
     @if(baseAttribute.isAuthenticated())
         <div
-        class="md:w-1/2
+        class="
+        lg:w-1/2
+        md:w-3/5
         max-w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral">
                 @if(attribute.documents().isEmpty())
                     <div class="flex justify-center text-xl">
@@ -28,15 +30,18 @@
                     </div>
                 @else
                     <div
-                    class="md:grid-cols-3
-                    grid-cols-1 grid gap-8">
+                    class="
+                    lg:grid-cols-3
+                    md:grid-cols-2
+                    grid-cols-1 grid gap-8 mx-auto">
                         @for(var item : attribute.documents())
                             <div
                             class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer max-w-70"
                             hx-get="/documents/${item.id()}"
-                            hx-params="page"
+                            hx-params="page,selection"
                             hx-vals='{
-                                "page": "1"
+                                "page": "1",
+                                "selection": "none"
                             }'
                             hx-target="#main"
                             hx-swap="innerHTML"

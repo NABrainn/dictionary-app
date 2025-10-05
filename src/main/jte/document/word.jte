@@ -1,12 +1,10 @@
-@import lule.dictionary.translations.data.Translation
+@import lule.dictionary.translations.data.entity.Translation
 
 @param int wordId
 @param String bgColor = ""
 @param String textColor = ""
 @param boolean isSelectable = true
-@param boolean isPhraseWord = false
-@param boolean isPersisted = false
-@param boolean isWrapped = false
+@param boolean isPersisted
 
 @param int documentId
 @param int currentPage
@@ -14,26 +12,22 @@
 @param Translation translation
 @param String gapColor
 @param String filler
-
 @if(isSelectable)
-    <input
-    id="word-document-reloader-${wordId}"
-    hx-trigger="reload-document once"
-    hx-get="/documents/${documentId}/withSelectedWord"
-    hx-swap="outerHTML"
-    hx-target="#units"
-    hx-params="unitId,unitText,isUnitPersisted,page"
-    hx-vals='{
-        "unitId": "${wordId}",
-        "unitText": "${rawText}",
-        "isUnitPersisted": "${isPersisted}",
-        "page": "${currentPage}"
-    }'
-    type="hidden">
     <div
     class="
-    border-2 ${gapColor} ${filler} rounded-none relative cursor-pointer rounded whitespace-nowrap text-lg"
-    hx-on:click="htmx.trigger('#word-document-reloader-${wordId}', 'reload-document')">
+    border-2 ${gapColor} ${filler} relative cursor-pointer rounded whitespace-nowrap text-lg"
+    _="on click send reloadWithSelectedWord"
+    hx-trigger="reloadWithSelectedWord once"
+    hx-get="/documents/${documentId}"
+    hx-swap="outerHTML"
+    hx-target="#units"
+    hx-params="startId,isPersisted,page,selection"
+    hx-vals='{
+        "startId": "${wordId}",
+        "isPersisted": "${isPersisted}",
+        "page": "${currentPage}",
+        "selection": "word"
+    }'>
         <div
         class="cursor-default z-2 absolute inline"
         id="form-container-${wordId}"
@@ -43,6 +37,7 @@
         <span
         id="word-${wordId}"
         data-text="${translation.processedTargetWord()}"
+        data-raw="${rawText}"
         class="
         ${bgColor} ${textColor} rounded
         ${translation.familiarity().name().toLowerCase()}">${rawText}</span>

@@ -1,13 +1,16 @@
 package lule.dictionary.documents.data.documentProcessing;
 
 import lombok.NonNull;
-import lule.dictionary.translations.data.Translation;
+import lombok.With;
+import lule.dictionary.translations.data.entity.Translation;
 
-public record PhraseUnit(@NonNull Translation translation,
+@With
+public record PhraseUnit(int id,
+                         @NonNull Translation translation,
                          @NonNull String rawText,
-                         boolean isPhrasePart) implements DocumentUnit {
+                         int size) implements DocumentUnit {
 
-    public static DocumentUnit of(String wordFromText, Translation translation) {
-        return new PhraseUnit(translation, wordFromText, false);
+    public static PhraseUnit of(int id, Translation translation, String rawText, int size) {
+        return new PhraseUnit(id, translation, rawText, size);
     }
 }

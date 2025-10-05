@@ -35,8 +35,8 @@ id="translation-form">
                 <span class="block text-center text-accent text-wrap">${word}</span>
                 <form
                 class="flex items-center"
-                hx-delete="/translations/sourceWords/delete"
-                hx-target="#translation-form-container-${attribute.id()}"
+                hx-delete="/translations/sourceWords"
+                hx-target="#form-container-${attribute.id()}"
                 hx-swap="innerHTML"
                 hx-headers='{
                     "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
@@ -71,7 +71,6 @@ id="translation-form">
                 hx-target="#translation-form">
                     @for(String word : attribute.translation().sourceWords())
                         <input
-                        hx-on:click="event.stopPropagation()"
                         name="sourceWords"
                         type="hidden"
                         value="${word}">
@@ -123,15 +122,13 @@ id="translation-form">
                 {
                     "targetWord": "${attribute.translation().processedTargetWord().toLowerCase()}",
                     "familiarity": "${level.getValue().name()}",
-                    "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
-                    "targetLanguage": "${attribute.translation().targetLanguage().name()}",
+                    "sourceLanguage": "${attribute.translation().ownerInfo().sourceLanguage().name()}",
+                    "targetLanguage": "${attribute.translation().ownerInfo().targetLanguage().name()}",
                     "id": "${attribute.id()}",
                     "isPhrase": "${attribute.isPhrase()}"
                 }'
                 hx-swap="outerHTML"
-                hx-target="#translation-form"
-                hx-on:click="
-                event.stopPropagation()">
+                hx-target="#translation-form">
                     <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                     <input
                     class="

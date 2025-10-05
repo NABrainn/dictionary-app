@@ -2,6 +2,7 @@ package lule.dictionary.userProfiles.data;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.With;
 import lule.dictionary.language.service.Language;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@With
 @Builder(toBuilder = true)
 public record UserProfile(
         @NonNull String username,
@@ -36,19 +38,5 @@ public record UserProfile(
     @Override
     public String getUsername() {
             return username;
-    }
-
-    public UserProfile withPassword(String password) {
-        return UserProfile.builder()
-                .username(this.getUsername())
-                .email(this.email())
-                .password(password)
-                .sourceLanguage(this.sourceLanguage())
-                .targetLanguage(this.targetLanguage())
-                .wordsAddedToday(this.wordsAddedToday())
-                .dailyStreak(this.dailyStreak())
-                .userInterfaceLanguage(this.userInterfaceLanguage())
-                .isNavbarOpen(this.isNavbarOpen())
-                .build();
     }
 }

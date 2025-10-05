@@ -9,8 +9,9 @@
 @param Map<TranslationLocalizationKey, String> messages
 <div
 hx-on:click="event.stopPropagation()"
-hx-on:load="htmx.trigger(this, 'updateFamiliarities')"
-_="on updateFamiliarities
+_="
+on load send updateFamiliarities
+on updateFamiliarities
 set textColors to {
     unknown: 'text-primary',
     recognized: 'text-primary',
@@ -28,15 +29,33 @@ then set bgColors to {
 !{String targetWord = attribute.translation().processedTargetWord();}
 !{String familiarity = attribute.translation().familiarity().name().toLowerCase();}
 !{int selectedUnitId = attribute.id();}
-then set allUnits to <span[data-text='${targetWord}']/>
-then set selectedUnit to <span#word-${selectedUnitId}[data-text='${targetWord}']/>
-then remove .unknown .recognized .familiar .known .ignored from allUnits
-then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from allUnits
-then add .${familiarity} to allUnits
-then add .{textColors.${familiarity}} to allUnits
-then add .{bgColors.${familiarity}} to allUnits
-then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from selectedUnit
-then add .text-neutral .bg-tertiary to selectedUnit
+if '${targetWord}'.split(' ').length is less than 2
+    then set allUnits to <span[data-text='${targetWord}']/>
+    then set selectedUnit to <span#word-${selectedUnitId}[data-text='${targetWord}']/>
+    then remove .unknown .recognized .familiar .known .ignored from allUnits
+    then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from allUnits
+    then add .${familiarity} to allUnits
+    then add .{textColors.${familiarity}} to allUnits
+    then add .{bgColors.${familiarity}} to allUnits
+    then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from selectedUnit
+    then add .text-neutral .bg-tertiary to selectedUnit
+else
+    set allPhrases to <div[data-text='${targetWord}']/>
+    then set selectedPhrase to <div#phrase-${selectedUnitId}[data-text='${targetWord}']/>
+    repeat for phrase in allPhrases
+        remove .pointer-events-none from phrase
+        remove .unknown .recognized .familiar .known .ignored from phrase
+        then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from phrase
+        then add .{textColors.${familiarity}} to phrase
+        then add .{bgColors.${familiarity}} to phrase
+    end
+    then remove .unknown .recognized .familiar .known .ignored from selectedPhrase
+    then remove .{'bg-accent'} .{'bg-accent/80'} .{'bg-accent/60'} .{'bg-primary'} .{'text-primary'} .{'text-neutral'} from selectedPhrase
+    then add .text-neutral to <span.phrase-part/> in selectedPhrase
+    then add .text-neutral to <div.phrase-part/> in selectedPhrase
+    then add .pointer-events-none to selectedPhrase
+end
+
 "
 class="
 md:gap-0.75
@@ -63,8 +82,8 @@ id="translation-form">
                 <span class="block text-center text-accent text-wrap">${word}</span>
                 <form
                 class="flex items-center"
-                hx-delete="/translations/sourceWords/delete"
-                hx-target="#translation-form-container-${attribute.id()}"
+                hx-delete="/translations/sourceWords"
+                hx-target="#form-container-${attribute.id()}"
                 hx-swap="innerHTML"
                 hx-headers='{
                     "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
@@ -99,7 +118,6 @@ id="translation-form">
                 hx-target="#translation-form">
                     @for(String word : attribute.translation().sourceWords())
                         <input
-                        hx-on:click="event.stopPropagation()"
                         name="sourceWords"
                         type="hidden"
                         value="${word}">
@@ -151,15 +169,13 @@ id="translation-form">
                 {
                     "targetWord": "${attribute.translation().processedTargetWord().toLowerCase()}",
                     "familiarity": "${level.getValue().name()}",
-                    "sourceLanguage": "${attribute.translation().sourceLanguage().name()}",
-                    "targetLanguage": "${attribute.translation().targetLanguage().name()}",
+                    "sourceLanguage": "${attribute.translation().ownerInfo().sourceLanguage().name()}",
+                    "targetLanguage": "${attribute.translation().ownerInfo().targetLanguage().name()}",
                     "id": "${attribute.id()}",
                     "isPhrase": "${attribute.isPhrase()}"
                 }'
                 hx-swap="outerHTML"
-                hx-target="#translation-form"
-                hx-on:click="
-                event.stopPropagation()">
+                hx-target="#translation-form">
                     <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                     <input
                     class="

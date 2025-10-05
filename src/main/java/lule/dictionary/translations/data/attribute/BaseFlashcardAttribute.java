@@ -2,7 +2,7 @@ package lule.dictionary.translations.data.attribute;
 
 import lombok.Builder;
 import lombok.NonNull;
-import lule.dictionary.translations.data.Translation;
+import lule.dictionary.translations.data.entity.Translation;
 import lule.dictionary.translations.data.TranslationLocalizationKey;
 
 import java.util.List;
