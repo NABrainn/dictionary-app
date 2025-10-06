@@ -1,72 +1,56 @@
 package lule.dictionary.pagination.service;
 
-import lombok.Getter;
+import lule.dictionary.pagination.data.PageRowStore;
+import lule.dictionary.pagination.data.PaginationData;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
 @Service
-@Getter
 public final class PaginationService {
-
-    private final int MAX_ROW_SIZE = 7;
-    private final int DIVISOR = 2000;
-
-    public List<List<Integer>> getRows(int numberOfPages) {
-        if(numberOfPages <= 0) throw new IllegalArgumentException("Number of pages cannot be below 0");
-        return produceRows(
-                getQuantity(numberOfPages),
-                getMinRowSize(numberOfPages, MAX_ROW_SIZE),
-                getMAX_ROW_SIZE()
-        );
+    public int pagesTotal(int contentLength) {
+        return contentLength / 2000;
     }
 
-    public int getCurrentRow(int currentPage, int maxRowSize) {
-        return (currentPage - 1) / maxRowSize;
-    }
-
-    public int getFirstPageOfRow(int numberOfPages, int currentPage) {
-        return getRows(numberOfPages)
-                .get(getCurrentRow(currentPage, MAX_ROW_SIZE))
-                .getFirst();
-    }
-
-    public int getNumberOfPages(int length) {
-        return (int) Math.ceil((double) length / DIVISOR);
-    }
-
-    private int getMinRowSize(int numberOfPages, int maxRowSize) {
-        if(numberOfPages % maxRowSize == 0) return maxRowSize;
-        return numberOfPages % maxRowSize;
-    }
-
-    private int getQuantity(int numberOfPages) {
-        return (int) Math.ceil((double) numberOfPages / MAX_ROW_SIZE);
-    }
-
-    private List<List<Integer>> produceRows(int quantity, int minRowSize, int maxRowSize) {
-        List<List<Integer>> rows = new ArrayList<>();
-
-        for(int i = 1; i <= quantity; i++) {
-            IterationType type =
-                    (i == quantity) ? IterationType.LAST :
-                    (i == 1) ? IterationType.FIRST :
-                    IterationType.DEFAULT;
-            List<Integer> range = switch (type) {
-                case FIRST -> IntStream.range(i, maxRowSize + 1)
-                        .boxed()
-                        .toList();
-                case LAST -> IntStream.range(maxRowSize * (i - 1) + 1, (maxRowSize * (i - 1) + 1) + minRowSize)
-                        .boxed()
-                        .toList();
-                case DEFAULT -> IntStream.range(maxRowSize * (i - 1) + 1, maxRowSize * i + 1)
-                        .boxed()
-                        .toList();
-            };
-            rows.add(range);
-        }
-        return List.copyOf(rows);
+    public PaginationData paginationData(int pagesTotal, int currentPage) {
+        int maxRowSize = 5;
+        int lastPage = pagesTotal + 1;
+        int firstPage = 1;
+        List<List<Integer>> rows = IntStream.range(firstPage, lastPage)
+                .boxed()
+                .collect(Collector.of(
+                        () -> PageRowStore.of(new ArrayList<>(), new ArrayList<>()),
+                        (store, number) -> {
+                            store.rowBuffer().add(number);
+                            if (store.rowBuffer().size() == maxRowSize || number == pagesTotal) {
+                                store.rows().add(List.copyOf(store.rowBuffer()));
+                                store.rowBuffer().clear();
+                            }
+                        },
+                        (left, right) -> {
+                            left.rows().addAll(right.rows());
+                            return left;
+                        },
+                        Collector.Characteristics.IDENTITY_FINISH
+                ))
+                .rows();
+        List<Integer> currentRow = rows.stream()
+                .map(row -> row.stream()
+                        .anyMatch(page -> page == currentPage) ? row : List.<Integer>of())
+                .filter(Predicate.not(List::isEmpty))
+                .findFirst()
+                .orElse(List.of());
+        int firstPageOfRow = currentRow.getFirst();
+        return PaginationData.builder()
+                .currentPage(currentPage)
+                .pages(pagesTotal)
+                .rows(rows)
+                .currentRow(currentRow)
+                .firstPageOfRow(firstPageOfRow)
+                .build();
     }
 }

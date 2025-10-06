@@ -59,7 +59,7 @@ hx-vals='{
                         documentId = response.contentData().documentId(),
                         rawText = selectedWordUnit.rawText(),
                         translation = selectedWordUnit.translation(),
-                        currentPage = response.paginationData().currentPageNumber(),
+                        currentPage = response.paginationData().currentPage(),
                         isPersisted = response.selectedWordInfo().isPersisted())
                     @endif
                 @elseif(unit instanceof PhraseUnit phraseUnit)
@@ -77,7 +77,7 @@ hx-vals='{
                     startId = unit.id(),
                     isPersisted = true,
                     documentId = response.contentData().documentId(),
-                    currentPage = response.paginationData().currentPageNumber(),
+                    currentPage = response.paginationData().currentPage(),
                     phraseText = unit.rawText(),
                     translation = phraseUnit.translation(),
                     phraseBgColor = phraseBgColor,
@@ -94,7 +94,7 @@ hx-vals='{
                     documentId = response.contentData().documentId(),
                     rawText = unit.rawText(),
                     translation = unit.translation(),
-                    currentPage = response.paginationData().currentPageNumber())
+                    currentPage = response.paginationData().currentPage())
                 @elseif(unit instanceof NewWordUnit)
                     @if(unit.translation().processedTargetWord().length() <= 50)
                         @template.document.word(
@@ -107,7 +107,7 @@ hx-vals='{
                         documentId = response.contentData().documentId(),
                         rawText = unit.rawText(),
                         translation = unit.translation(),
-                        currentPage = response.paginationData().currentPageNumber())
+                        currentPage = response.paginationData().currentPage())
                     @endif
                 @else
                     @template.document.word(
@@ -120,7 +120,7 @@ hx-vals='{
                     documentId = response.contentData().documentId(),
                     rawText = unit.rawText(),
                     translation = unit.translation(),
-                    currentPage = response.paginationData().currentPageNumber(),
+                    currentPage = response.paginationData().currentPage(),
                     isPersisted = false)
                 @endif
                 @endfor

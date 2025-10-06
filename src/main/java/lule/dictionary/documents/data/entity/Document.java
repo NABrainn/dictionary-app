@@ -5,24 +5,23 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lule.dictionary.language.service.Language;
 
-@Builder(toBuilder = true)
+@Builder
 @Slf4j
 public record Document(int id,
                        @NonNull String title,
-                       String pageContent,
+                       String contentBlob,
                        @NonNull String url,
                        @NonNull Language sourceLanguage,
                        @NonNull Language targetLanguage,
                        @NonNull String owner,
-                       int totalContentLength) {
-
-        @Override
-        public String pageContent() {
-                if (pageContent == null) {
-                        log.info("Page content is null, returning empty string");
-                        return "";
-                }
-                return pageContent;
+                       int contentLength) {
+    @Override
+    public String contentBlob() {
+        if (contentBlob == null) {
+            log.info("Page content is null, returning empty string");
+            return "";
         }
+        return contentBlob;
+    }
 }
 

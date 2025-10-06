@@ -48,6 +48,11 @@
 			<version>3.2.1</version>
 		</dependency>
 		<dependency>
+			<groupId>me.paulschwarz</groupId>
+			<artifactId>spring-dotenv</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>gg.jte</groupId>
 			<artifactId>jte</artifactId>
 			<version>3.2.1</version>
@@ -128,26 +133,6 @@
 <!--					</execution>-->
 <!--				</executions>-->
 <!--			</plugin>-->
-<!--			<plugin>-->
-<!--				<groupId>gg.jte</groupId>-->
-<!--				<artifactId>jte-maven-plugin</artifactId>-->
-<!--				<version>3.2.1</version>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<id>jte-generate</id>-->
-<!--						<phase>generate-sources</phase>-->
-<!--						<goals>-->
-<!--							<goal>generate</goal>-->
-<!--						</goals>-->
-<!--						<configuration>-->
-<!--							<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>-->
-<!--							<contentType>Html</contentType>-->
-<!--							<binaryStaticContent>true</binaryStaticContent>-->
-<!--							<targetResourceDirectory>${project.build.outputDirectory}</targetResourceDirectory>-->
-<!--						</configuration>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--			</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -196,7 +181,7 @@
 					<tasks>
 						<task>
 							<exec>
-								<command>docker compose up -d --wait</command>
+								<command>docker compose -f compose.localhost.yaml up -d --wait</command>
 							</exec>
 						</task>
 						<task>

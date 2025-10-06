@@ -16,7 +16,7 @@ hx-vals='js:{
     endId: event?.detail?.endId ?? -1,
     phraseText: event?.detail?.phraseText ?? "",
     isPersisted: false,
-    page: ${response.paginationData().currentPageNumber()},
+    page: ${response.paginationData().currentPage()},
     selection: "phrase"
 }'
 id="content"
@@ -74,7 +74,7 @@ class="flex flex-col gap-8 text-wrap">
     end
     @endraw
     ">
-        @if(response.paginationData().currentPageNumber() == 1)
+        @if(response.paginationData().currentPage() == 1)
             <span
             class="
             md:text-4xl
@@ -115,7 +115,7 @@ class="flex flex-col gap-8 text-wrap">
                             startId = unit.id(),
                             isPersisted = true,
                             documentId = response.contentData().documentId(),
-                            currentPage = response.paginationData().currentPageNumber(),
+                            currentPage = response.paginationData().currentPage(),
                             phraseText = unit.rawText(),
                             translation = phraseUnit.translation(),
                             phraseBgColor = phraseBgColor,
@@ -132,7 +132,7 @@ class="flex flex-col gap-8 text-wrap">
                             documentId = response.contentData().documentId(),
                             rawText = unit.rawText(),
                             translation = unit.translation(),
-                            currentPage = response.paginationData().currentPageNumber())
+                            currentPage = response.paginationData().currentPage())
                         @elseif(unit instanceof NewWordUnit)
                             @if(unit.translation().processedTargetWord().length() <= 50)
                                 @template.document.word(
@@ -145,7 +145,7 @@ class="flex flex-col gap-8 text-wrap">
                                 documentId = response.contentData().documentId(),
                                 rawText = unit.rawText(),
                                 translation = unit.translation(),
-                                currentPage = response.paginationData().currentPageNumber())
+                                currentPage = response.paginationData().currentPage())
                             @endif
                         @else
                             @template.document.word(
@@ -158,7 +158,7 @@ class="flex flex-col gap-8 text-wrap">
                             documentId = response.contentData().documentId(),
                             rawText = unit.rawText(),
                             translation = unit.translation(),
-                            currentPage = response.paginationData().currentPageNumber(),
+                            currentPage = response.paginationData().currentPage(),
                             isPersisted = false)
                         @endif
                     @endfor
@@ -169,13 +169,9 @@ class="flex flex-col gap-8 text-wrap">
     <div
     class="
     md:max-w-2/5 md:gap-4
-    max-w-full flex justify-center gap-2  mx-auto items-center">
+    max-w-full flex justify-center gap-2  mx-auto items-center select-none">
         @template.document.paginator(
-        id = response.contentData().documentId(),
-        currentPage = response.paginationData().currentPageNumber(),
-        pages = response.paginationData().numberOfPages(),
-        rows = response.paginationData().rows(),
-        currentRow = response.paginationData().currentRowNumber(),
-        firstPageOfRow = response.paginationData().firstPageOfRowNumber())
+        documentId = response.contentData().documentId(),
+        paginationData = response.paginationData())
     </div>
 </form>

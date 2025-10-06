@@ -3,8 +3,8 @@ package lule.dictionary.documents.data.repository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
+import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.language.service.Language;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -29,8 +29,8 @@ public class DocumentRepository {
             .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
             .targetLanguage(Language.valueOf(rs.getString("target_lang")))
             .owner(rs.getString("document_owner"))
-            .pageContent(rs.getString("page_content"))
-            .totalContentLength(rs.getInt("total_length"))
+            .contentBlob(rs.getString("page_content"))
+            .contentLength(rs.getInt("total_length"))
             .id(-1)
             .build();
     private final RowMapper<DocumentWithTranslationData> documentWithTranslationDataMapper = (rs, rowNum) -> DocumentWithTranslationData.builder()
@@ -56,12 +56,12 @@ public class DocumentRepository {
         try {
             List<Integer> documentId = template.query(sql, documentIdMapper,
                     document.title(),
-                    document.pageContent(),
+                    document.contentBlob(),
                     document.url(),
                     document.sourceLanguage().toString(),
                     document.targetLanguage().toString(),
                     document.owner(),
-                    document.totalContentLength());
+                    document.contentLength());
 
             if(documentId.stream().findFirst().isPresent())
                 return OptionalInt.of(documentId.stream().findFirst().get());
