@@ -59,7 +59,7 @@ end
 "
 class="
 md:gap-0.75
-gap-4 bg-tertiary flex flex-col p-3 rounded select-none"
+gap-2 bg-tertiary flex flex-col p-3 rounded select-none"
 id="translation-form">
     <div
     class="flex justify-end">

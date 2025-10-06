@@ -25,7 +25,7 @@ class="flex flex-col gap-8 text-wrap">
     class="
     lg:w-3/5
     md:w-4/5
-    w-full mx-auto text-wrap min-h-165 flex flex-col gap-4"
+    w-full mx-auto text-wrap flex flex-col gap-4"
     _="
     @raw
     def removeSelection()
@@ -34,6 +34,7 @@ class="flex flex-col gap-8 text-wrap">
         end
     end
     on mouseup send selectPhrase
+    on touchup send selectPhrase
     on selectPhrase
         js
             const anchorId = window.getSelection()?.anchorNode?.parentElement?.id?.slice(5) ?? 0
@@ -168,8 +169,8 @@ class="flex flex-col gap-8 text-wrap">
     </div>
     <div
     class="
-    md:max-w-2/5 md:gap-4
-    max-w-full flex justify-center gap-2  mx-auto items-center select-none">
+    md:max-w-2/5
+    max-w-full flex justify-center gap-4  mx-auto items-center select-none">
         @template.document.paginator(
         documentId = response.contentData().documentId(),
         paginationData = response.paginationData())
