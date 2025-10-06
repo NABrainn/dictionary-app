@@ -34,8 +34,6 @@ logging:
 server:
   servlet:
     session:
-      create-session: never
-      tracking-modes: cookie
       cookie:
         secure: false
         http-only: true
