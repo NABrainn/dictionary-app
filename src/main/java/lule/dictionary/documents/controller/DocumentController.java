@@ -81,8 +81,8 @@ public class DocumentController {
                     yield  "document/reload/units-with-word";
                 }
             };
-            case Err<ReadDocumentResponse> ignored -> {
-                log.warn("Failed to load document", ignored.throwable());
+            case Err<ReadDocumentResponse> responseErr -> {
+                log.warn("Failed to load document", responseErr.throwable());
                 yield  "error";
             }
         };

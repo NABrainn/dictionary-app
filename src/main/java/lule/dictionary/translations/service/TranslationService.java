@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -104,7 +105,7 @@ public class TranslationService {
                         })
                 );
         return switch (result) {
-            case Ok<?> ignored -> {
+            case Ok<?> _ -> {
                 Translation translation = request.isPhrase() ?
                         PersistedPhraseTranslation.of(request.sourceWords(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.getUsername())) :
                         PersistedWordTranslation.of(request.sourceWords(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.getUsername()));
@@ -221,7 +222,7 @@ public class TranslationService {
                         })
                 );
         return switch (result) {
-            case Ok<?> ignored -> translationRepository.updateSourceWords(request.sourceWords(), request.targetWord(), principal.username())
+            case Ok<?> _ -> translationRepository.updateSourceWords(request.sourceWords(), request.targetWord(), principal.username())
                     .map(translation -> TranslationAttribute.builder()
                             .documentId(-1)
                             .id(request.selectedWordId())
@@ -339,7 +340,11 @@ public class TranslationService {
                 .toList();
         return translationRepository.findByTargetWords(wordList, request.owner()).stream()
                 .distinct()
-                .collect(Collectors.toUnmodifiableMap(Translation::processedTargetWord, value -> value));
+                .collect(Collectors.toUnmodifiableMap(
+                        Translation::processedTargetWord,
+                        translation -> translation,
+                        (existing, _) -> existing
+                ));
     }
 
     public List<Translation> findPhrases(ExtractPhrasesRequest request) {
@@ -474,7 +479,7 @@ public class TranslationService {
                         );
 
                 yield switch (result) {
-                    case Ok<?> ignored -> translationRepository.findByTargetWord(sanitizedTargetWord, principal.username())
+                    case Ok<?> _ -> translationRepository.findByTargetWord(sanitizedTargetWord, principal.username())
                             .map(translation -> TranslationAttribute.builder()
                                     .id(findTranslationRequest.selectedWordId())
                                     .translation(translation.withSourceWords(translation.sourceWords()))

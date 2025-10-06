@@ -37,19 +37,20 @@ public class TranslationController {
                                              @RequestParam("targetWord") String targetWord,
                                              @RequestParam(value = "isPhrase", defaultValue = "false") boolean isPhrase,
                                              @RequestParam("isPersisted") boolean isPersisted) {
-        GetTranslationFormRequest request = isPersisted ?
-                FindTranslationFormRequest.builder()
-                        .documentId(documentId)
-                        .selectedWordId(id)
-                        .isPhrase(isPhrase)
-                        .unprocessedTargetWord(targetWord)
-                        .build() :
-                CreateTranslationFormRequest.builder()
-                        .documentId(documentId)
-                        .selectedWordId(id)
-                        .isPhrase(isPhrase)
-                        .unprocessedTargetWord(targetWord)
-                        .build();
+        GetTranslationFormRequest request = switch (isPersisted) {
+            case true -> FindTranslationFormRequest.builder()
+                    .documentId(documentId)
+                    .selectedWordId(id)
+                    .isPhrase(isPhrase)
+                    .unprocessedTargetWord(targetWord)
+                    .build();
+            case false -> CreateTranslationFormRequest.builder()
+                    .documentId(documentId)
+                    .selectedWordId(id)
+                    .isPhrase(isPhrase)
+                    .unprocessedTargetWord(targetWord)
+                    .build();
+        };
         Result<TranslationAttribute> result = translationService.findOrCreateTranslation(request, authentication);
         Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
         if (result instanceof Ok<TranslationAttribute>(TranslationAttribute value)) {

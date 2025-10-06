@@ -52,7 +52,7 @@ public class AuthController {
         }
         Result<?> result = authService.login(LoginRequest.of(login, password), response);
         return switch (result) {
-            case Ok<?> ignored -> "redirect:/";
+            case Ok<?> _ -> "redirect:/";
             case Err<?> v -> {
                 if(v.throwable() instanceof AuthServiceException authServiceException) {
                     model.addAttribute("error", authServiceException.getViolation());

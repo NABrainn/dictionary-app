@@ -20,7 +20,7 @@ hx-vals='js:{
     selection: "phrase"
 }'
 id="content"
-class="flex flex-col gap-8 text-wrap">
+class="flex flex-row gap-8 text-wrap">
     <div
     class="
     lg:w-3/5
@@ -170,7 +170,7 @@ class="flex flex-col gap-8 text-wrap">
     <div
     class="
     md:max-w-2/5
-    max-w-full flex justify-center gap-4  mx-auto items-center select-none">
+    max-w-full flex flex-col justify-center gap-4  mx-auto items-center select-none">
         @template.document.paginator(
         documentId = response.contentData().documentId(),
         paginationData = response.paginationData())
