@@ -8,10 +8,10 @@ import lule.dictionary.documents.data.attribute.*;
 import lule.dictionary.documents.data.documentProcessing.*;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormType;
 import lule.dictionary.documents.data.entity.DocumentWithTranslationData;
+import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.exception.DocumentServiceException;
 import lule.dictionary.documents.data.parseDocument.*;
 import lule.dictionary.documents.data.request.*;
-import lule.dictionary.documents.data.entity.Document;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent;
 import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl;
 import lule.dictionary.documents.data.request.loadDocument.*;
@@ -20,13 +20,13 @@ import lule.dictionary.documents.data.response.ReadDocumentResponse;
 import lule.dictionary.documents.data.response.ReloadWithPhraseResponse;
 import lule.dictionary.documents.data.response.ReloadWithWordResponse;
 import lule.dictionary.language.service.Language;
+import lule.dictionary.pagination.service.PaginationService;
 import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
 import lule.dictionary.documents.data.repository.DocumentRepository;
 import lule.dictionary.jsoup.service.JsoupService;
-import lule.dictionary.pagination.service.PaginationService;
-import lule.dictionary.pagination.data.DocumentPaginationData;
+import lule.dictionary.pagination.data.PaginationData;
 import lule.dictionary.translations.data.entity.Translation;
 import lule.dictionary.translations.data.request.ExtractPhrasesRequest;
 import lule.dictionary.translations.data.request.FindTranslationsInDocumentRequest;
@@ -52,13 +52,13 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final Validator validator;
-    private final PaginationService paginationService;
     private final JsoupService jsoupService;
     private final TranslationService translationService;
     private final DocumentProcessor documentProcessor;
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
     private final UserInterfaceService userInterfaceService;
+    private final PaginationService paginationService;
 
     @Transactional
     public Result<Integer> createDocument(CreateDocumentRequest request) {
@@ -105,12 +105,12 @@ public class DocumentService {
                         Document document = Document.builder()
                                 .id(-1)
                                 .title(documentFormWithUrl.title())
-                                .pageContent(processedDocument)
+                                .contentBlob(processedDocument)
                                 .url(documentFormWithUrl.url())
                                 .sourceLanguage(principal.sourceLanguage())
                                 .targetLanguage(principal.targetLanguage())
                                 .owner(principal.getUsername())
-                                .totalContentLength(processedDocument.length())
+                                .contentLength(processedDocument.length())
                                 .build();
                         int documentId = documentRepository.create(document).orElseThrow();
                         yield Ok.of(documentId);
@@ -154,12 +154,12 @@ public class DocumentService {
                         Document document = Document.builder()
                                 .id(-1)
                                 .title(contentSubmission.title())
-                                .pageContent(content)
+                                .contentBlob(content)
                                 .url("")
                                 .sourceLanguage(principal.sourceLanguage())
                                 .targetLanguage(principal.targetLanguage())
                                 .owner(principal.getUsername())
-                                .totalContentLength(content.length())
+                                .contentLength(content.length())
                                 .build();
                         int documentId = documentRepository.create(document).orElseThrow();
                         yield Ok.of(documentId);
@@ -187,22 +187,22 @@ public class DocumentService {
     public Result<ReadDocumentResponse> loadDocumentContent(@NonNull ReadDocumentRequest request, @NonNull Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         int documentId = request.documentDetails().documentId();
-        int page = request.documentDetails().page();
+        int currentPage = request.documentDetails().page();
 
         Language sourceLanguage = principal.sourceLanguage();
         Language targetLanguage = principal.targetLanguage();
 
-        Result<Document> result = documentRepository.findById(documentId, page)
-                .map(found -> documentSanitizer.validateNumberOfPages(SanitizeNumberOfPagesRequest.of(
-                        page,
-                        paginationService.getNumberOfPages(found.totalContentLength()),
+        Result<Document> result = documentRepository.findById(documentId, currentPage)
+                .map(found -> documentSanitizer.validateRequestedPage(DocumentPageDetails.of(
+                        currentPage,
+                        paginationService.pagesTotal(found.contentLength()),
                         found
                 )))
-                .orElseThrow();
+                .orElse(Err.of(new RuntimeException("Failed to fetch document")));
         return switch (result) {
             case Ok<Document> ok -> {
                 Document document = ok.value();
-                String contentBlob = document.pageContent();
+                String contentBlob = document.contentBlob();
                 String owner = document.owner();
 
                 Map<String, Translation> translations = translationService.findTranslations(FindTranslationsInDocumentRequest.of(contentBlob, owner));
@@ -236,13 +236,10 @@ public class DocumentService {
                         .translations(translations)
                         .documentId(documentId)
                         .build();
-                DocumentPaginationData paginationData = DocumentPaginationData.builder()
-                        .currentPageNumber(page)
-                        .numberOfPages(paginationService.getNumberOfPages(document.totalContentLength()))
-                        .currentRowNumber(paginationService.getCurrentRow(page, paginationService.getMAX_ROW_SIZE()))
-                        .firstPageOfRowNumber(paginationService.getFirstPageOfRow(page, paginationService.getMAX_ROW_SIZE()))
-                        .rows(paginationService.getRows(paginationService.getNumberOfPages(document.totalContentLength())))
-                        .build();
+                PaginationData paginationData = paginationService.paginationData(
+                        paginationService.pagesTotal(document.contentLength()),
+                        currentPage
+                );
                 boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
                 Optional<SelectedUnit> optionalSelectedUnit = processedContent.stream()
                         .filter(unit -> unit instanceof SelectedUnit)

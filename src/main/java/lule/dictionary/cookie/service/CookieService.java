@@ -13,7 +13,7 @@ public class CookieService {
     @Value("${spring.security.jwt.expiration}")
     private long expiration;
 
-    @Value("${app.security.cookie-secure:true}")
+    @Value("${app.security.cookie-secure}")
     private boolean secure;
 
     public Cookie createJwtCookie(@NonNull String key, @NonNull String token) {

@@ -1,100 +1,65 @@
-@import gg.jte.support.ForSupport
-@import java.util.List
+@import lule.dictionary.pagination.data.PaginationData
 
-@param int id
-@param int currentPage
-@param int pages
-@param List<List<Integer>> rows
-@param int currentRow
-@param int firstPageOfRow
+@param PaginationData paginationData
+@param int documentId
 
-@if(currentPage > 1)
-    <div
-    class="text-2xl cursor-pointer select-none"
+!{String leftArrowStyles = paginationData.currentPage() != 1 ? "block" : "invisible pointer-events-none";}
+!{String rightArrowStyles = paginationData.currentPage() != paginationData.pages() ? "block" : "invisible pointer-events-none";}
+<div class="border-b border-b-4 border-b-primary ${leftArrowStyles}">
+    <span
+    class="text-2xl text-accent font-bold cursor-pointer"
     hx-trigger="click"
     hx-params="page,selection"
     hx-vals='{
-        "page": "${currentPage - 1}",
+        "page": "${paginationData.currentPage() - 1}",
         "selection": "none"
     }'
-    hx-get="/documents/${id}"
+    hx-get="/documents/${documentId}"
     hx-target="#main"
     hx-swap="innerHTML"
-    hx-push-url="false">⬅️</div>
-@else
-    <div
-    class="text-2xl cursor-pointer select-none invisible"
-    hx-trigger="click"
-    hx-params="page,selection"
-    hx-vals='{
-        "page": "${currentPage + 1}",
-        "selection": "none"
-    }'
-    hx-get="/documents/${id}"
-    hx-target="#main"
-    hx-swap="innerHTML"
-    hx-push-url="false">➡️</div>
-@endif
-@for(var row : ForSupport.of(rows.get(currentRow)))
-    @if(currentPage == row.get())
-        <form
-        hx-trigger="click"
-        hx-params="page,selection"
-        hx-vals='{
-            "page": "${row.get()}",
-            "selection": "none"
-        }'
-        hx-get="/documents/${id}"
-        hx-target="#main"
-        hx-swap="innerHTML"
-        hx-push-url="false">
-            <div class="bg-tertiary rounded text-primary font-bold text-xl">
-                <button class="px-2 cursor-pointer" type="submit">${row.get()}</button>
-            </div>
-        </form>
+    hx-push-url="false">
+        @raw<-@endraw
+    </span>
+</div>
+@for(var page : paginationData.currentRow())
+    @if(page == paginationData.currentPage())
+        <div class="border-b border-b-4 border-b-tertiary">
+            <span class="text-2xl font-bold text-accent">
+                ${page}
+            </span>
+        </div>
     @else
-        <form
-        hx-trigger="click"
-        hx-params="page,selection"
-        hx-vals='{
-            "page": "${row.get()}",
-            "selection": "none"
-        }'
-        hx-get="/documents/${id}"
-        hx-target="#main"
-        hx-swap="innerHTML"
-        hx-push-url="false">
-            <div class="bg-accent rounded text-primary font-bold text-xl">
-                <button class="px-2 cursor-pointer" type="submit">${row.get()}</button>
-            </div>
-        </form>
+        <div class="border-b border-b-4 border-b-primary">
+            <span
+            class="text-2xl font-bold text-accent cursor-pointer"
+            hx-trigger="click"
+            hx-params="page,selection"
+            hx-vals='{
+                "page": "${page}",
+                "selection": "none"
+            }'
+            hx-get="/documents/${documentId}"
+            hx-target="#main"
+            hx-swap="innerHTML"
+            hx-push-url="false">
+                ${page}
+            </span>
+        </div>
     @endif
 @endfor
-
-@if(currentPage != pages)
-    <div
-    class="text-2xl cursor-pointer select-none"
+<div class="border-b border-b-4 border-b-primary ${rightArrowStyles}">
+    <span
+    class="text-2xl text-accent font-bold cursor-pointer"
     hx-trigger="click"
     hx-params="page,selection"
     hx-vals='{
-        "page": "${currentPage + 1}",
+        "page": "${paginationData.currentPage() + 1}",
         "selection": "none"
     }'
-    hx-get="/documents/${id}"
+    hx-get="/documents/${documentId}"
     hx-target="#main"
     hx-swap="innerHTML"
-    hx-push-url="false">➡️</div>
-@else
-    <div
-    class="text-2xl cursor-pointer select-none invisible"
-    hx-trigger="click"
-    hx-params="page,selection"
-    hx-vals='{
-        "page": "${currentPage + 1}",
-        "selection": "none"
-    }'
-    hx-get="/documents/${id}"
-    hx-target="#main"
-    hx-swap="innerHTML"
-    hx-push-url="false">➡️</div>
-@endif
+    hx-push-url="false">
+        @raw->@endraw
+    </span>
+</div>

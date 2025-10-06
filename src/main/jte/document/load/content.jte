@@ -16,7 +16,7 @@ hx-vals='js:{
     endId: event?.detail?.endId ?? -1,
     phraseText: event?.detail?.phraseText ?? "",
     isPersisted: false,
-    page: ${response.paginationData().currentPageNumber()},
+    page: ${response.paginationData().currentPage()},
     selection: "phrase"
 }'
 id="content"
@@ -25,7 +25,7 @@ class="flex flex-col gap-8 text-wrap">
     class="
     lg:w-3/5
     md:w-4/5
-    w-full mx-auto text-wrap min-h-165 flex flex-col gap-4"
+    w-full mx-auto text-wrap flex flex-col gap-4"
     _="
     @raw
     def removeSelection()
@@ -34,6 +34,7 @@ class="flex flex-col gap-8 text-wrap">
         end
     end
     on mouseup send selectPhrase
+    on touchup send selectPhrase
     on selectPhrase
         js
             const anchorId = window.getSelection()?.anchorNode?.parentElement?.id?.slice(5) ?? 0
@@ -74,7 +75,7 @@ class="flex flex-col gap-8 text-wrap">
     end
     @endraw
     ">
-        @if(response.paginationData().currentPageNumber() == 1)
+        @if(response.paginationData().currentPage() == 1)
             <span
             class="
             md:text-4xl
@@ -115,7 +116,7 @@ class="flex flex-col gap-8 text-wrap">
                             startId = unit.id(),
                             isPersisted = true,
                             documentId = response.contentData().documentId(),
-                            currentPage = response.paginationData().currentPageNumber(),
+                            currentPage = response.paginationData().currentPage(),
                             phraseText = unit.rawText(),
                             translation = phraseUnit.translation(),
                             phraseBgColor = phraseBgColor,
@@ -132,7 +133,7 @@ class="flex flex-col gap-8 text-wrap">
                             documentId = response.contentData().documentId(),
                             rawText = unit.rawText(),
                             translation = unit.translation(),
-                            currentPage = response.paginationData().currentPageNumber())
+                            currentPage = response.paginationData().currentPage())
                         @elseif(unit instanceof NewWordUnit)
                             @if(unit.translation().processedTargetWord().length() <= 50)
                                 @template.document.word(
@@ -145,7 +146,7 @@ class="flex flex-col gap-8 text-wrap">
                                 documentId = response.contentData().documentId(),
                                 rawText = unit.rawText(),
                                 translation = unit.translation(),
-                                currentPage = response.paginationData().currentPageNumber())
+                                currentPage = response.paginationData().currentPage())
                             @endif
                         @else
                             @template.document.word(
@@ -158,7 +159,7 @@ class="flex flex-col gap-8 text-wrap">
                             documentId = response.contentData().documentId(),
                             rawText = unit.rawText(),
                             translation = unit.translation(),
-                            currentPage = response.paginationData().currentPageNumber(),
+                            currentPage = response.paginationData().currentPage(),
                             isPersisted = false)
                         @endif
                     @endfor
@@ -168,14 +169,10 @@ class="flex flex-col gap-8 text-wrap">
     </div>
     <div
     class="
-    md:max-w-2/5 md:gap-4
-    max-w-full flex justify-center gap-2  mx-auto items-center">
+    md:max-w-2/5
+    max-w-full flex justify-center gap-4  mx-auto items-center select-none">
         @template.document.paginator(
-        id = response.contentData().documentId(),
-        currentPage = response.paginationData().currentPageNumber(),
-        pages = response.paginationData().numberOfPages(),
-        rows = response.paginationData().rows(),
-        currentRow = response.paginationData().currentRowNumber(),
-        firstPageOfRow = response.paginationData().firstPageOfRowNumber())
+        documentId = response.contentData().documentId(),
+        paginationData = response.paginationData())
     </div>
 </form>
