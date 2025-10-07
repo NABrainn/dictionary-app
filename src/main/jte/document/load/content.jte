@@ -11,20 +11,22 @@ hx-trigger="reloadWithSelectedPhrase"
 hx-get="/documents/${response.contentData().documentId()}"
 hx-swap="outerHTML"
 hx-target="#units"
-hx-params="startId,endId,phraseText,isPersisted,page,selection"
+hx-params="startId,endId,text,isPersisted,page,selection"
 hx-vals='js:{
     startId: event?.detail?.startId ?? -1,
     endId: event?.detail?.endId ?? -1,
-    phraseText: event?.detail?.phraseText ?? "",
+    text: event?.detail?.text ?? "",
     isPersisted: false,
     page: ${response.paginationData().currentPage()},
     selection: "phrase"
 }'
 id="content"
-class="flex flex-row min-h-screen text-wrap mx-auto w-[9/10]">
+class="
+md:w-4/5
+flex flex-col text-wrap mx-auto w-[90%]">
     <div
     class="
-    w-full mx-auto text-wrap flex flex-col gap-4"
+    w-full mx-auto text-wrap flex flex-col gap-4 min-h-150"
     _="
     @raw
     def removeSelection()
@@ -66,8 +68,8 @@ class="flex flex-row min-h-screen text-wrap mx-auto w-[9/10]">
         set lastPhraseNode to the last of phraseNodes then
         set startId to firstPhraseNode.id.slice(5) then
         set endId to lastPhraseNode.id.slice(5) then
-        set phraseText to phraseNodes.map( \ node -> node@data-text).join(' ') then
-        send reloadWithSelectedPhrase(startId: startId, endId: endId, phraseText: phraseText) to #content
+        set text to phraseNodes.map( \ node -> node@data-text).join(' ') then log text
+        send reloadWithSelectedPhrase(startId: startId, endId: endId, text: text) to #content
         removeSelection()
     catch e
         removeSelection()
@@ -169,7 +171,7 @@ class="flex flex-row min-h-screen text-wrap mx-auto w-[9/10]">
     <div
     class="
     md:max-w-2/5
-    max-w-full flex flex-col justify-start gap-4  mx-auto items-center select-none">
+    max-w-full flex flex-row justify-start gap-4  mx-auto items-center select-none">
         @template.document.paginator(
         documentId = response.contentData().documentId(),
         paginationData = response.paginationData())

@@ -18,7 +18,7 @@
     hx-target="#main"
     hx-swap="innerHTML"
     hx-push-url="false">
-        @raw^@endraw
+        @raw<-@endraw
     </span>
 </div>
 @for(var page : paginationData.currentRow())
@@ -60,6 +60,6 @@
     hx-target="#main"
     hx-swap="innerHTML"
     hx-push-url="false">
-        @rawv@endraw
+        @raw->@endraw
     </span>
 </div>

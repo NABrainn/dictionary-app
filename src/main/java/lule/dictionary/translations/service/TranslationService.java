@@ -363,7 +363,7 @@ public class TranslationService {
                 .limit(3)
                 .toList();
         Translation uninitializedTranslation = request.isPhrase() ?
-                UninitializedPhrase.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
+                UninitializedPhraseTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
                 UninitializedWordTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
         return TranslationAttribute.builder()
                 .documentId(request.documentId())
@@ -441,7 +441,7 @@ public class TranslationService {
                         .limit(3)
                         .toList();
                 Translation uninitializedTranslation = createTranslationRequest.isPhrase() ?
-                        UninitializedPhrase.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
+                        UninitializedPhraseTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
                         UninitializedWordTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
                 yield Ok.of(TranslationAttribute.builder()
                         .documentId(createTranslationRequest.documentId())
@@ -496,7 +496,7 @@ public class TranslationService {
                                             translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), sanitizedTargetWord)
                                     )
                                     .map(fetchedSourceWords ->  findTranslationRequest.isPhrase() ?
-                                            UninitializedPhrase.of(
+                                            UninitializedPhraseTranslation.of(
                                                     fetchedSourceWords,
                                                     sanitizedTargetWord,
                                                     OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())

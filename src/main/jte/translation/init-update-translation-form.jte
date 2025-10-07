@@ -100,7 +100,7 @@ id="translation-form">
             @if(level.getKey() == attribute.currentFamiliarity())
                 <div class="
                 flex flex-row md:bg-tertiary md:text-primary md:gap-1 md:size-auto md:justify-start
-                font-bold bg-primary text-accent size-8 rounded justify-center items-center"
+                font-bold bg-primary text-accent size-7 rounded justify-center items-center"
                 >
                     <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                     <span class="
@@ -111,7 +111,7 @@ id="translation-form">
             <form
             class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
-            cursor-pointer bg-accent text-primary flex hover:text-primary font-bold rounded size-8 justify-center items-center"
+            cursor-pointer bg-accent text-primary flex hover:text-primary font-bold rounded size-7 justify-center items-center"
             id="translation-form-${attribute.id()}"
             hx-trigger="click"
             hx-put="/translations/familiarity/update"

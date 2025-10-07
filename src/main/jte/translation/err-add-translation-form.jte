@@ -94,7 +94,7 @@ id="translation-form">
             <form
             class="
             md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
-            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-8 justify-center items-center
+            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-7 justify-center items-center
             translation-form"
             hx-trigger="click"
             hx-post="/translations/"

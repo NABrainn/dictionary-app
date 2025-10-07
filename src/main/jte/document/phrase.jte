@@ -10,7 +10,6 @@
 @param String phraseBgColor
 @param String phraseTextColor
 @param boolean selectable
-
 !{String pointerEvents = !selectable ? "pointer-events-none" : "";}
 <div
 id="phrase-${startId}"

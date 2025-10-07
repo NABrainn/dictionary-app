@@ -1,6 +1,8 @@
-package lule.dictionary.documents.data.documentProcessing;
+package lule.dictionary.documents.data.documentProcessing.collectorStore;
 
 import lombok.NonNull;
+import lule.dictionary.documents.data.documentProcessing.DocumentUnit;
+import lule.dictionary.documents.data.documentProcessing.Paragraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,7 @@ public record ParagraphStore(@NonNull List<DocumentUnit> units,
         return new ParagraphStore(units, paragraphs, counter);
     }
 
-    public void extractParagraphs(@NonNull DocumentUnit unit) {
+    public void accumulate(@NonNull DocumentUnit unit) {
         this.units().add(unit);
         if(this.units().getLast().rawText().contains("\n")) {
             int firstId = 0;
@@ -24,5 +26,9 @@ public record ParagraphStore(@NonNull List<DocumentUnit> units,
             this.paragraphs().add(Paragraph.of(this.counter().getAndIncrement(), paragraphUnits));
             this.units().subList(firstId, lastId).clear();
         }
+    }
+    public static ParagraphStore combine(@NonNull ParagraphStore left, @NonNull ParagraphStore right) {
+        left.paragraphs().addAll(right.paragraphs());
+        return left;
     }
 }

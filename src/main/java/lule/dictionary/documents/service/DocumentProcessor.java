@@ -55,7 +55,7 @@ public class DocumentProcessor {
         String owner = parseDocument.ownerInfo().owner();
 
         AtomicInteger idStore = new AtomicInteger(0);
-        return Stream.of(parseDocument.contentBlob().split(" "))
+        final Stream<WordUnit> wordUnits = Stream.of(parseDocument.contentBlob().split(" "))
                 .flatMap(rawWord -> Arrays.stream(rawWord.split("(?<=\\n)(?=\\w)")))
                 .filter(rawWord -> rawWord.length() <= 50)
                 .filter(Predicate.not(rawWord -> stringUtils.normalize(rawWord).isBlank()))
@@ -72,13 +72,33 @@ public class DocumentProcessor {
                             rawWord,
                             phrases.containsWord(stringUtils.normalize(rawWord))
                     );
-                })
-                .collect(switch (parseDocument){
-                    case ParseWithPhraseSelection parseWithPhraseSelection -> collectors.toDocumentUnits(phrases, parseWithPhraseSelection.selectedPhraseInfo());
-                    case ParseWithWordSelection parseWithWordSelection -> collectors.toDocumentUnits(phrases, parseWithWordSelection.selectedWordInfo());
-                    case ParseWithoutSelection ignored -> collectors.toDocumentUnits(phrases);
-                })
-                .documentUnits();
+                });
+        return switch (parseDocument) {
+            case ParseWithPhraseSelection parseWithPhraseSelection -> {
+                List<DocumentUnit> documentUnits = wordUnits
+                        .collect(collectors.toDocumentUnits(phrases))
+                        .units();
+                yield documentUnits.stream()
+                        .anyMatch(unit -> unit.translation().processedTargetWord().equals(parseWithPhraseSelection.selectedPhraseInfo().phraseText()))
+                        ?
+                        documentUnits.stream()
+                                .collect(collectors.toExistingPhraseSelection(parseWithPhraseSelection.selectedPhraseInfo()))
+                                .units()
+                        :
+                        documentUnits.stream()
+                                .collect(collectors.toNewPhraseSelection(parseWithPhraseSelection.selectedPhraseInfo()))
+                                .units();
+            }
+            case ParseWithWordSelection parseWithWordSelection -> wordUnits
+                    .collect(collectors.toDocumentUnits(phrases))
+                    .units()
+                    .stream()
+                    .collect(collectors.toWordSelection(parseWithWordSelection.selectedWordInfo()))
+                    .units();
+            case ParseWithoutSelection ignored -> wordUnits
+                    .collect(collectors.toDocumentUnits(phrases))
+                    .units();
+        };
     }
 
     public List<Paragraph> asParagraphs(@NonNull List<DocumentUnit> units) {
