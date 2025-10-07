@@ -2,7 +2,7 @@ package lule.dictionary.jsoup.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lule.dictionary.jsoup.service.exception.InvalidUriException;
+import lule.dictionary.jsoup.data.InvalidUriException;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

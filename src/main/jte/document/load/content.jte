@@ -3,6 +3,7 @@
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
 @import lule.dictionary.documents.data.documentProcessing.PersistedWordUnit
 @import lule.dictionary.documents.data.response.LoadDocumentResponse
+
 @param LoadDocumentResponse response
 
 <form
@@ -20,11 +21,9 @@ hx-vals='js:{
     selection: "phrase"
 }'
 id="content"
-class="flex flex-row gap-8 text-wrap">
+class="flex flex-row min-h-screen text-wrap mx-auto w-[9/10]">
     <div
     class="
-    lg:w-3/5
-    md:w-4/5
     w-full mx-auto text-wrap flex flex-col gap-4"
     _="
     @raw
@@ -170,7 +169,7 @@ class="flex flex-row gap-8 text-wrap">
     <div
     class="
     md:max-w-2/5
-    max-w-full flex flex-col justify-center gap-4  mx-auto items-center select-none">
+    max-w-full flex flex-col justify-start gap-4  mx-auto items-center select-none">
         @template.document.paginator(
         documentId = response.contentData().documentId(),
         paginationData = response.paginationData())

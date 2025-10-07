@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -105,7 +104,7 @@ public class TranslationService {
                         })
                 );
         return switch (result) {
-            case Ok<?> _ -> {
+            case Ok<?> ignored -> {
                 Translation translation = request.isPhrase() ?
                         PersistedPhraseTranslation.of(request.sourceWords(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.getUsername())) :
                         PersistedWordTranslation.of(request.sourceWords(), request.targetWord(), request.familiarity(), OwnerInfo.of(request.sourceLanguage(), request.targetLanguage(), principal.getUsername()));
@@ -222,7 +221,7 @@ public class TranslationService {
                         })
                 );
         return switch (result) {
-            case Ok<?> _ -> translationRepository.updateSourceWords(request.sourceWords(), request.targetWord(), principal.username())
+            case Ok<?> ignored -> translationRepository.updateSourceWords(request.sourceWords(), request.targetWord(), principal.username())
                     .map(translation -> TranslationAttribute.builder()
                             .documentId(-1)
                             .id(request.selectedWordId())
@@ -268,7 +267,7 @@ public class TranslationService {
         Language uiLanguage = principal.userInterfaceLanguage();
         String sanitizedSourceWord = patternService.removeSpecialCharacters(request.sourceWord());
         String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord());
-        Result<?> result = request.isPhrase() ?
+        Result<?> ignored = request.isPhrase() ?
                 validator.validate(
                         Constraint.of("sourceWord", Size.of(sanitizedSourceWord, 0, 250), switch (uiLanguage) {
                             case PL -> "Słowo źródłowe nie może być dłuższe niż 250 znaków";
@@ -343,7 +342,7 @@ public class TranslationService {
                 .collect(Collectors.toUnmodifiableMap(
                         Translation::processedTargetWord,
                         translation -> translation,
-                        (existing, _) -> existing
+                        (existing, ignored) -> existing
                 ));
     }
 
@@ -479,7 +478,7 @@ public class TranslationService {
                         );
 
                 yield switch (result) {
-                    case Ok<?> _ -> translationRepository.findByTargetWord(sanitizedTargetWord, principal.username())
+                    case Ok<?> ignored -> translationRepository.findByTargetWord(sanitizedTargetWord, principal.username())
                             .map(translation -> TranslationAttribute.builder()
                                     .id(findTranslationRequest.selectedWordId())
                                     .translation(translation.withSourceWords(translation.sourceWords()))

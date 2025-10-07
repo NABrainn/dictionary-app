@@ -31,16 +31,4 @@ public class CookieService {
                 key, tokenCookie.getSecure(), tokenCookie.getMaxAge(), tokenCookie.getAttribute("SameSite"));
         return tokenCookie;
     }
-
-    public Cookie deleteJwtCookie(@NonNull String key) {
-        Cookie tokenCookie = new Cookie(key, null);
-        tokenCookie.setHttpOnly(true);
-        tokenCookie.setPath("/");
-        tokenCookie.setSecure(secure);
-        tokenCookie.setMaxAge(0);
-        tokenCookie.setAttribute("SameSite", "Lax");
-        log.info("Deleted JWT cookie: key={}, secure={}, maxAge={}",
-                key, tokenCookie.getSecure(), tokenCookie.getMaxAge());
-        return tokenCookie;
-    }
 }

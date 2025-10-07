@@ -30,7 +30,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -78,7 +77,7 @@ public class AuthService {
         );
 
         return switch (result) {
-            case Ok<?> _ -> {
+            case Ok<?> ignored -> {
                 try {
                     log.debug("Loading user profile for: {}", sanitizedLogin);
                     UserProfile user = ((UserProfile) userProfileService.loadUserByUsername(sanitizedLogin))
@@ -170,11 +169,11 @@ public class AuthService {
         );
 
         return switch (result) {
-            case Ok<?> _ -> {
+            case Ok<?> ignored -> {
                 log.debug("Checking if user exists: login={}, email={}", sanitizedLogin, request.email());
                 userProfileService.loadByUsernameOrEmail(request.login(), request.email())
                         .ifPresentOrElse(
-                                _ -> {
+                                user -> {
                                     log.warn("User already exists: login={}, email={}", sanitizedLogin, request.email());
                                     Err.of(new AuthServiceException(Map.of("userExists", switch (Language.EN) {
                                         case PL -> "Użytkownik już istnieje";

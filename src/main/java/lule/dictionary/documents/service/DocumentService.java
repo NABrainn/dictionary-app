@@ -99,7 +99,7 @@ public class DocumentService {
                         })
                 );
                 yield switch (result) {
-                    case Ok<?> _ -> {
+                    case Ok<?> ignored -> {
                         String documentContent = jsoupService.fetchDocument(documentFormWithUrl.url()).wholeText();
                         String processedDocument = documentProcessor.write(documentContent);
                         Document document = Document.builder()
@@ -149,7 +149,7 @@ public class DocumentService {
                         })
                 );
                 yield switch (result) {
-                    case Ok<?> _ -> {
+                    case Ok<?> ignored -> {
                         String content = contentSubmission.content();
                         Document document = Document.builder()
                                 .id(-1)

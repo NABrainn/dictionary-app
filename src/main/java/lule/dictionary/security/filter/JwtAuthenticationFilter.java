@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         Optional<String> optionalJwt = (switch (request.getCookies()) {
-            case Cookie[] _ -> Arrays.stream(request.getCookies())
+            case Cookie[] ignored -> Arrays.stream(request.getCookies())
                     .filter(cookie -> "jwt".equals(cookie.getName()))
                     .map(Cookie::getValue)
                     .findFirst();

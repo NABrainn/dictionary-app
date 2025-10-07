@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
 
@@ -52,7 +51,7 @@ public class AuthController {
         }
         Result<?> result = authService.login(LoginRequest.of(login, password), response);
         return switch (result) {
-            case Ok<?> _ -> "redirect:/";
+            case Ok<?> ignored -> "redirect:/";
             case Err<?> v -> {
                 if(v.throwable() instanceof AuthServiceException authServiceException) {
                     model.addAttribute("error", authServiceException.getViolation());
@@ -86,7 +85,7 @@ public class AuthController {
         }
         Result<?> result = authService.signup(SignupRequest.of(login, email, password));
         return switch (result) {
-            case Ok<?> v -> {
+            case Ok<?> ignored -> {
                 model.addAttribute("error", Map.of());
                 model.addAttribute("localization", authService.getTextLocalization());
                 yield  "redirect:/auth/login";
