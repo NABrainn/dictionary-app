@@ -21,6 +21,7 @@ public class DocumentUnitCollectors {
         );
     }
 
+
     public Collector<WordUnit, DocumentUnitStore, DocumentUnitStore> toDocumentUnits(@NonNull Phrases phrases) {
         return Collector.of(
                 () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>()),

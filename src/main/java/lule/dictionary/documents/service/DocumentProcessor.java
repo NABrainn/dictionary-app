@@ -31,6 +31,7 @@ public class DocumentProcessor {
     private final StringUtils stringUtils;
     private final PatternService patternService;
     private final DocumentUnitCollectors collectors;
+    private final DocumentUnitGatherers gatherers;
 
     public String write(String documentContent) {
         String[] documentAsArray = documentContent.split("(?<=\\n)(?=\\w)");
@@ -38,7 +39,7 @@ public class DocumentProcessor {
                 .map(tokenBlob -> Token.of(tokenBlob, stringUtils.getCharQuantity(tokenBlob, '\n')))
                 .map(token -> switch (token.newlineCount()) {
                     case 0 -> token;
-                    case 1 -> token.withContent(patternService.replaceNewline(token.content(), " "));
+                    case 1, 2, 3 -> token.withContent(patternService.replaceNewline(token.content(), " "));
                     default -> token.withContent(patternService.replaceAllNewlines(token.content(), '\n', 30));
                 })
                 .map(Token::content)
@@ -55,10 +56,8 @@ public class DocumentProcessor {
         String owner = parseDocument.ownerInfo().owner();
 
         AtomicInteger idStore = new AtomicInteger(0);
-        final Stream<WordUnit> wordUnits = Stream.of(parseDocument.contentBlob().split(" "))
-                .flatMap(rawWord -> Arrays.stream(rawWord.split("(?<=\\n)(?=\\w)")))
+        final List<DocumentUnit> documentUnits = Stream.of(parseDocument.contentBlob().split(" "))
                 .filter(rawWord -> rawWord.length() <= 50)
-                .filter(Predicate.not(rawWord -> stringUtils.normalize(rawWord).isBlank()))
                 .map(rawWord -> switch (translations.get(stringUtils.normalize(rawWord))) {
                     case Translation persistedWord -> PersistedWordUnit.of(
                             idStore.getAndIncrement(),
@@ -72,32 +71,25 @@ public class DocumentProcessor {
                             rawWord,
                             phrases.containsWord(stringUtils.normalize(rawWord))
                     );
-                });
+                })
+                .gather(gatherers.gatherDocumentUnits(phrases))
+                .toList();
         return switch (parseDocument) {
-            case ParseWithPhraseSelection parseWithPhraseSelection -> {
-                List<DocumentUnit> documentUnits = wordUnits
-                        .collect(collectors.toDocumentUnits(phrases))
-                        .units();
-                yield documentUnits.stream()
-                        .anyMatch(unit -> unit.translation().processedTargetWord().equals(parseWithPhraseSelection.selectedPhraseInfo().phraseText()))
-                        ?
-                        documentUnits.stream()
-                                .collect(collectors.toExistingPhraseSelection(parseWithPhraseSelection.selectedPhraseInfo()))
-                                .units()
-                        :
-                        documentUnits.stream()
-                                .collect(collectors.toNewPhraseSelection(parseWithPhraseSelection.selectedPhraseInfo()))
-                                .units();
-            }
-            case ParseWithWordSelection parseWithWordSelection -> wordUnits
-                    .collect(collectors.toDocumentUnits(phrases))
-                    .units()
+            case ParseWithPhraseSelection parseWithPhraseSelection -> documentUnits.stream()
+                    .anyMatch(unit -> unit.translation().processedTargetWord().equals(parseWithPhraseSelection.selectedPhraseInfo().phraseText()))
+                    ?
+                    documentUnits.stream()
+                            .collect(collectors.toExistingPhraseSelection(parseWithPhraseSelection.selectedPhraseInfo()))
+                            .units()
+                    :
+                    documentUnits.stream()
+                            .collect(collectors.toNewPhraseSelection(parseWithPhraseSelection.selectedPhraseInfo()))
+                            .units();
+            case ParseWithWordSelection parseWithWordSelection -> documentUnits
                     .stream()
                     .collect(collectors.toWordSelection(parseWithWordSelection.selectedWordInfo()))
                     .units();
-            case ParseWithoutSelection ignored -> wordUnits
-                    .collect(collectors.toDocumentUnits(phrases))
-                    .units();
+            case ParseWithoutSelection ignored -> documentUnits;
         };
     }
 
