@@ -43,7 +43,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain staticResourcesFilterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/js/**", "/images/**", "/htmx.min.js", "/output.css", "/util.js")
+                .securityMatcher("/js/**", "/images/**", "/htmx.min.js", "/output.css")
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .build();
@@ -59,7 +59,7 @@ public class SecurityConfiguration {
                         .csrfTokenRequestHandler(requestHandler))
                 .securityMatcher("/**")
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/htmx.min.js", "/util.js", "/output.css", "/images/icon.png", "/favicon.ico", "/error/**", "/auth/**", "/localization/**", "/api/csrf")
+                        .requestMatchers("/htmx.min.js", "/output.css", "/images/icon.png", "/favicon.ico", "/error/**", "/auth/**", "/localization/**", "/api/csrf")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
