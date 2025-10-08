@@ -56,8 +56,14 @@ public class DocumentProcessor {
         String owner = parseDocument.ownerInfo().owner();
 
         AtomicInteger idStore = new AtomicInteger(0);
-        final List<DocumentUnit> documentUnits = Stream.of(parseDocument.contentBlob().split(" "))
+        Stream<String> contentStream = Stream.of(parseDocument.contentBlob().split(" "))
+                .flatMap(rawWord -> rawWord.contains("\n") ?
+                        Arrays.stream((rawWord.substring(0, rawWord.lastIndexOf("\n")) + " " + rawWord.substring(rawWord.lastIndexOf("\n"))).split(" ")) :
+                        Stream.of(rawWord));
+        final List<DocumentUnit> documentUnits = contentStream
                 .filter(rawWord -> rawWord.length() <= 50)
+                .filter(rawWord -> !rawWord.isBlank())
+                .peek(System.out::println)
                 .map(rawWord -> switch (translations.get(stringUtils.normalize(rawWord))) {
                     case Translation persistedWord -> PersistedWordUnit.of(
                             idStore.getAndIncrement(),

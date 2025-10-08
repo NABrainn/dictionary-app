@@ -131,5 +131,9 @@ hx-vals='{
             @endif
             @endfor
         </div>
+        !{int endlineSize = paragraph.endlineSize();}
+        @for(int i = 0; i < endlineSize / 20; i++)
+            <div class="invisible">placeholder</div>
+        @endfor
     @endfor
 </div>

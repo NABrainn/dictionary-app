@@ -260,10 +260,6 @@
     width: calc(var(--spacing) * 5);
     height: calc(var(--spacing) * 5);
   }
-  .size-6 {
-    width: calc(var(--spacing) * 6);
-    height: calc(var(--spacing) * 6);
-  }
   .size-7 {
     width: calc(var(--spacing) * 7);
     height: calc(var(--spacing) * 7);
@@ -305,9 +301,6 @@
   }
   .w-16 {
     width: calc(var(--spacing) * 16);
-  }
-  .w-\[9\/10\] {
-    width: 9/10;
   }
   .w-\[90\%\] {
     width: 90%;
@@ -362,9 +355,6 @@
   }
   .items-center {
     align-items: center;
-  }
-  .justify-around {
-    justify-content: space-around;
   }
   .justify-between {
     justify-content: space-between;

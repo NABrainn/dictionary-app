@@ -68,7 +68,7 @@ flex flex-col text-wrap mx-auto w-[90%]">
         set lastPhraseNode to the last of phraseNodes then
         set startId to firstPhraseNode.id.slice(5) then
         set endId to lastPhraseNode.id.slice(5) then
-        set text to phraseNodes.map( \ node -> node@data-text).join(' ') then log text
+        set text to phraseNodes.map( \ node -> node@data-text).join(' ') then
         send reloadWithSelectedPhrase(startId: startId, endId: endId, text: text) to #content
         removeSelection()
     catch e
@@ -165,6 +165,10 @@ flex flex-col text-wrap mx-auto w-[90%]">
                         @endif
                     @endfor
                 </div>
+                !{int endlineSize = paragraph.endlineSize();}
+                @for(int i = 0; i < endlineSize / 20; i++)
+                    <div class="invisible">placeholder</div>
+                @endfor
             @endfor
         </div>
     </div>

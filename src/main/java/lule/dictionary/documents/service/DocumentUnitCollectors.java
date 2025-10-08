@@ -21,16 +21,6 @@ public class DocumentUnitCollectors {
         );
     }
 
-
-    public Collector<WordUnit, DocumentUnitStore, DocumentUnitStore> toDocumentUnits(@NonNull Phrases phrases) {
-        return Collector.of(
-                () -> DocumentUnitStore.of(new ArrayList<>(), new ArrayList<>()),
-                (store, wordUnit) -> store.accumulate(wordUnit, phrases),
-                DocumentUnitStore::combine,
-                Collector.Characteristics.IDENTITY_FINISH
-        );
-    }
-
     public Collector<DocumentUnit, SelectedWordStore, SelectedWordStore> toWordSelection(@NonNull SelectedWordDetails selectedWordDetails) {
         return Collector.of(
                 () -> SelectedWordStore.of(new ArrayList<>()),
