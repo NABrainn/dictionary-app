@@ -14,9 +14,9 @@ import java.io.IOException;
 public class TimezoneFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         TimeZoneOffsetContext.set(request.getHeader("timeZoneOffset"));
         filterChain.doFilter(request, response);
     }

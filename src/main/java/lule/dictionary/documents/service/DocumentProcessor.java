@@ -31,6 +31,7 @@ public class DocumentProcessor {
     private final StringUtils stringUtils;
     private final PatternService patternService;
     private final DocumentUnitCollectors collectors;
+    private final DocumentUnitGatherers gatherers;
 
     public String write(String documentContent) {
         String[] documentAsArray = documentContent.split("(?<=\\n)(?=\\w)");
@@ -38,7 +39,7 @@ public class DocumentProcessor {
                 .map(tokenBlob -> Token.of(tokenBlob, stringUtils.getCharQuantity(tokenBlob, '\n')))
                 .map(token -> switch (token.newlineCount()) {
                     case 0 -> token;
-                    case 1 -> token.withContent(patternService.replaceNewline(token.content(), " "));
+                    case 1, 2, 3 -> token.withContent(patternService.replaceNewline(token.content(), " "));
                     default -> token.withContent(patternService.replaceAllNewlines(token.content(), '\n', 30));
                 })
                 .map(Token::content)
@@ -55,10 +56,13 @@ public class DocumentProcessor {
         String owner = parseDocument.ownerInfo().owner();
 
         AtomicInteger idStore = new AtomicInteger(0);
-        return Stream.of(parseDocument.contentBlob().split(" "))
-                .flatMap(rawWord -> Arrays.stream(rawWord.split("(?<=\\n)(?=\\w)")))
+        Stream<String> contentStream = Stream.of(parseDocument.contentBlob().split(" "))
+                .flatMap(rawWord -> rawWord.contains("\n") ?
+                        Arrays.stream((rawWord.substring(0, rawWord.lastIndexOf("\n")) + " " + rawWord.substring(rawWord.lastIndexOf("\n"))).split(" ")) :
+                        Stream.of(rawWord));
+        final List<DocumentUnit> documentUnits = contentStream
                 .filter(rawWord -> rawWord.length() <= 50)
-                .filter(Predicate.not(rawWord -> stringUtils.normalize(rawWord).isBlank()))
+                .filter(rawWord -> !rawWord.isBlank())
                 .map(rawWord -> switch (translations.get(stringUtils.normalize(rawWord))) {
                     case Translation persistedWord -> PersistedWordUnit.of(
                             idStore.getAndIncrement(),
@@ -66,19 +70,34 @@ public class DocumentProcessor {
                             rawWord,
                             phrases.containsWord(persistedWord.processedTargetWord())
                     );
-                    case null -> (WordUnit) NewWordUnit.of(
-                            idStore.getAndIncrement(),
-                            UninitializedWordTranslation.of(stringUtils.normalize(rawWord), OwnerInfo.of(sourceLanguage, targetLanguage, owner)),
-                            rawWord,
-                            phrases.containsWord(stringUtils.normalize(rawWord))
-                    );
+                    case null -> (WordUnit) (stringUtils.normalize(rawWord).isBlank() ?
+                            InvalidWordUnit.of(idStore.getAndIncrement(), rawWord) :
+                            NewWordUnit.of(
+                                    idStore.getAndIncrement(),
+                                    UninitializedWordTranslation.of(stringUtils.normalize(rawWord), OwnerInfo.of(sourceLanguage, targetLanguage, owner)),
+                                    rawWord,
+                                    phrases.containsWord(stringUtils.normalize(rawWord))
+                            ));
                 })
-                .collect(switch (parseDocument){
-                    case ParseWithPhraseSelection parseWithPhraseSelection -> collectors.toDocumentUnits(phrases, parseWithPhraseSelection.selectedPhraseInfo());
-                    case ParseWithWordSelection parseWithWordSelection -> collectors.toDocumentUnits(phrases, parseWithWordSelection.selectedWordInfo());
-                    case ParseWithoutSelection ignored -> collectors.toDocumentUnits(phrases);
-                })
-                .documentUnits();
+                .gather(gatherers.gatherDocumentUnits(phrases))
+                .toList();
+        return switch (parseDocument) {
+            case ParseWithPhraseSelection parseWithPhraseSelection -> documentUnits.stream()
+                    .anyMatch(unit -> unit.translation().processedTargetWord().equals(parseWithPhraseSelection.selectedPhraseInfo().phraseText()))
+                    ?
+                    documentUnits.stream()
+                            .collect(collectors.toExistingPhraseSelection(parseWithPhraseSelection.selectedPhraseInfo()))
+                            .units()
+                    :
+                    documentUnits.stream()
+                            .collect(collectors.toNewPhraseSelection(parseWithPhraseSelection.selectedPhraseInfo()))
+                            .units();
+            case ParseWithWordSelection parseWithWordSelection -> documentUnits
+                    .stream()
+                    .collect(collectors.toWordSelection(parseWithWordSelection.selectedWordInfo()))
+                    .units();
+            case ParseWithoutSelection ignored -> documentUnits;
+        };
     }
 
     public List<Paragraph> asParagraphs(@NonNull List<DocumentUnit> units) {

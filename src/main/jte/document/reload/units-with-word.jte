@@ -23,39 +23,15 @@ hx-vals='{
     @for(Paragraph paragraph : response.contentData().content())
         <div class="flex flex-wrap flex-row">
             @for(var unit : paragraph.units())
-                !{String wordBgColor = response.selectedWordInfo().id() == unit.id() ?
-                    "bg-tertiary" :
-                    switch(unit.translation().familiarity()){
-                        case UNKNOWN -> "bg-accent";
-                        case RECOGNIZED -> "bg-accent/80";
-                        case FAMILIAR -> "bg-accent/60";
-                        default -> "bg-primary";
-                    }
-                ;}
-                !{String wordFiller = response.selectedWordInfo().id() == unit.id() ?
-                    "bg-tertiary" :
-                    "primary"
-                ;}
-                !{String wordTextColor = response.selectedWordInfo().id() == unit.id() ?
-                    "text-neutral" :
-                    switch(unit.translation().familiarity()){
-                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
-                        default -> "text-neutral";
-                    }
-                ;}
-                !{String wordGapColor = response.selectedWordInfo().id() == unit.id() ?
-                    "border-tertiary" :
-                    "border-transparent"
-                ;}
                 !{String phraseGapColor = "border-transparent";}
                 @if(unit instanceof SelectedUnit selectedUnit)
                     @if(selectedUnit instanceof SelectedWordUnit selectedWordUnit)
                         @template.document.word(
                         wordId = selectedWordUnit.id(),
-                        bgColor = wordBgColor,
-                        filler = wordFiller,
-                        gapColor = wordGapColor,
-                        textColor = wordTextColor,
+                        bgColor = "bg-tertiary",
+                        filler = "bg-tertiary",
+                        gapColor = "border-tertiary",
+                        textColor = "text-neutral",
                         documentId = response.contentData().documentId(),
                         rawText = selectedWordUnit.rawText(),
                         translation = selectedWordUnit.translation(),
@@ -83,47 +59,70 @@ hx-vals='{
                     phraseBgColor = phraseBgColor,
                     phraseTextColor = phraseTextColor,
                     selectable = true)
-                @elseif(unit instanceof PersistedWordUnit)
-                    @template.document.word(
-                    wordId = unit.id(),
-                    bgColor = wordBgColor,
-                    filler = wordFiller,
-                    gapColor = wordGapColor,
-                    textColor = wordTextColor,
-                    isPersisted = true,
-                    documentId = response.contentData().documentId(),
-                    rawText = unit.rawText(),
-                    translation = unit.translation(),
-                    currentPage = response.paginationData().currentPage())
-                @elseif(unit instanceof NewWordUnit)
-                    @if(unit.translation().processedTargetWord().length() <= 50)
+                @elseif(unit instanceof WordUnit wordUnit)
+                    !{String wordBgColor = unit.translation() != null ?
+                                switch(unit.translation().familiarity()){
+                                    case UNKNOWN -> "bg-accent";
+                                    case RECOGNIZED -> "bg-accent/80";
+                                    case FAMILIAR -> "bg-accent/60";
+                                    default -> "bg-primary";
+                                } :
+                                "bg-primary";
+                            ;}
+                    !{String wordFiller = "bg-primary";}
+                    !{String wordTextColor = unit.translation() != null ?
+                                switch(unit.translation().familiarity()){
+                                    case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                                    default -> "text-neutral";
+                                } :
+                                "text-neutral";
+                    ;}
+                    !{String wordGapColor = "border-transparent";}
+                    @if(wordUnit instanceof PersistedWordUnit)
                         @template.document.word(
                         wordId = unit.id(),
                         bgColor = wordBgColor,
-                        filler = wordFiller,
                         gapColor = wordGapColor,
+                        filler = wordFiller,
                         textColor = wordTextColor,
-                        isPersisted = false,
+                        isPersisted = true,
                         documentId = response.contentData().documentId(),
                         rawText = unit.rawText(),
                         translation = unit.translation(),
                         currentPage = response.paginationData().currentPage())
+                    @elseif(wordUnit instanceof NewWordUnit newWordUnit)
+                        @if(unit.translation().processedTargetWord().length() <= 50)
+                            @template.document.word(
+                            wordId = newWordUnit.id(),
+                            bgColor = wordBgColor,
+                            gapColor = wordGapColor,
+                            filler = wordFiller,
+                            textColor = wordTextColor,
+                            isPersisted = false,
+                            documentId = response.contentData().documentId(),
+                            rawText = newWordUnit.rawText(),
+                            translation = newWordUnit.translation(),
+                            currentPage = response.paginationData().currentPage())
+                        @endif
+                    @elseif(wordUnit instanceof InvalidWordUnit invalidWordUnit)
+                        @template.document.word(
+                        wordId = invalidWordUnit.id(),
+                        bgColor = "bg-primary",
+                        gapColor = wordGapColor,
+                        filler = wordFiller,
+                        textColor = "text-neutral",
+                        isPersisted = false,
+                        documentId = response.contentData().documentId(),
+                        rawText = invalidWordUnit.rawText(),
+                        translation = invalidWordUnit.translation(),
+                        currentPage = response.paginationData().currentPage())
                     @endif
-                @else
-                    @template.document.word(
-                    wordId = unit.id(),
-                    bgColor = wordBgColor,
-                    gapColor = wordGapColor,
-                    filler = wordFiller,
-                    textColor = wordTextColor,
-                    isSelectable = false,
-                    documentId = response.contentData().documentId(),
-                    rawText = unit.rawText(),
-                    translation = unit.translation(),
-                    currentPage = response.paginationData().currentPage(),
-                    isPersisted = false)
                 @endif
-                @endfor
+            @endfor
         </div>
+        !{int endlineSize = paragraph.endlineSize();}
+        @for(int i = 0; i < endlineSize / 20; i++)
+            <div class="invisible">placeholder</div>
+        @endfor
     @endfor
 </div>

@@ -1,8 +1,10 @@
-@import lule.dictionary.documents.data.documentProcessing.Paragraph
+@import lule.dictionary.documents.data.documentProcessing.*
 @import lule.dictionary.documents.data.documentProcessing.NewWordUnit
 @import lule.dictionary.documents.data.documentProcessing.PhraseUnit
 @import lule.dictionary.documents.data.documentProcessing.PersistedWordUnit
+@import lule.dictionary.documents.data.documentProcessing.WordUnit
 @import lule.dictionary.documents.data.response.LoadDocumentResponse
+
 @param LoadDocumentResponse response
 
 <form
@@ -10,22 +12,22 @@ hx-trigger="reloadWithSelectedPhrase"
 hx-get="/documents/${response.contentData().documentId()}"
 hx-swap="outerHTML"
 hx-target="#units"
-hx-params="startId,endId,phraseText,isPersisted,page,selection"
+hx-params="startId,endId,text,isPersisted,page,selection"
 hx-vals='js:{
     startId: event?.detail?.startId ?? -1,
     endId: event?.detail?.endId ?? -1,
-    phraseText: event?.detail?.phraseText ?? "",
+    text: event?.detail?.text ?? "",
     isPersisted: false,
     page: ${response.paginationData().currentPage()},
     selection: "phrase"
 }'
 id="content"
-class="flex flex-col gap-8 text-wrap">
+class="
+md:w-4/5
+flex flex-col text-wrap mx-auto w-[90%]">
     <div
     class="
-    lg:w-3/5
-    md:w-4/5
-    w-full mx-auto text-wrap flex flex-col gap-4"
+    w-full mx-auto text-wrap flex flex-col gap-4 min-h-150"
     _="
     @raw
     def removeSelection()
@@ -67,8 +69,8 @@ class="flex flex-col gap-8 text-wrap">
         set lastPhraseNode to the last of phraseNodes then
         set startId to firstPhraseNode.id.slice(5) then
         set endId to lastPhraseNode.id.slice(5) then
-        set phraseText to phraseNodes.map( \ node -> node@data-text).join(' ') then
-        send reloadWithSelectedPhrase(startId: startId, endId: endId, phraseText: phraseText) to #content
+        set text to phraseNodes.map( \ node -> node@data-text).join(' ') then
+        send reloadWithSelectedPhrase(startId: startId, endId: endId, text: text) to #content
         removeSelection()
     catch e
         removeSelection()
@@ -87,20 +89,6 @@ class="flex flex-col gap-8 text-wrap">
             @for(Paragraph paragraph : response.contentData().content())
                 <div class="flex flex-wrap flex-row">
                     @for(var unit : paragraph.units())
-                        !{String wordBgColor = switch(unit.translation().familiarity()){
-                                case UNKNOWN -> "bg-accent";
-                                case RECOGNIZED -> "bg-accent/80";
-                                case FAMILIAR -> "bg-accent/60";
-                                default -> "bg-primary";
-                            }
-                        ;}
-                        !{String wordFiller = "bg-primary";}
-                        !{String wordTextColor = switch(unit.translation().familiarity()){
-                                case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
-                                default -> "text-neutral";
-                            }
-                        ;}
-                        !{String wordGapColor = "border-transparent";}
                         @if(unit instanceof PhraseUnit phraseUnit)
                             !{String phraseBgColor = switch(phraseUnit.translation().familiarity()){
                                 case UNKNOWN -> "bg-accent";
@@ -122,55 +110,78 @@ class="flex flex-col gap-8 text-wrap">
                             phraseBgColor = phraseBgColor,
                             phraseTextColor = phraseTextColor,
                             selectable = true)
-                        @elseif(unit instanceof PersistedWordUnit)
-                            @template.document.word(
-                            wordId = unit.id(),
-                            bgColor = wordBgColor,
-                            gapColor = wordGapColor,
-                            filler = wordFiller,
-                            textColor = wordTextColor,
-                            isPersisted = true,
-                            documentId = response.contentData().documentId(),
-                            rawText = unit.rawText(),
-                            translation = unit.translation(),
-                            currentPage = response.paginationData().currentPage())
-                        @elseif(unit instanceof NewWordUnit)
-                            @if(unit.translation().processedTargetWord().length() <= 50)
+                        @elseif(unit instanceof WordUnit wordUnit)
+                            !{String wordBgColor = unit.translation() != null ?
+                                switch(unit.translation().familiarity()){
+                                    case UNKNOWN -> "bg-accent";
+                                    case RECOGNIZED -> "bg-accent/80";
+                                    case FAMILIAR -> "bg-accent/60";
+                                    default -> "bg-primary";
+                                } :
+                                "bg-primary";
+                            ;}
+                            !{String wordFiller = "bg-primary";}
+                            !{String wordTextColor = unit.translation() != null ?
+                                switch(unit.translation().familiarity()){
+                                    case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                                    default -> "text-neutral";
+                                } :
+                                "text-neutral";
+                            ;}
+                            !{String wordGapColor = "border-transparent";}
+                            @if(wordUnit instanceof PersistedWordUnit)
                                 @template.document.word(
                                 wordId = unit.id(),
                                 bgColor = wordBgColor,
                                 gapColor = wordGapColor,
                                 filler = wordFiller,
                                 textColor = wordTextColor,
-                                isPersisted = false,
+                                isPersisted = true,
                                 documentId = response.contentData().documentId(),
                                 rawText = unit.rawText(),
                                 translation = unit.translation(),
                                 currentPage = response.paginationData().currentPage())
+                            @elseif(wordUnit instanceof NewWordUnit newWordUnit)
+                                @if(unit.translation().processedTargetWord().length() <= 50)
+                                    @template.document.word(
+                                    wordId = newWordUnit.id(),
+                                    bgColor = wordBgColor,
+                                    gapColor = wordGapColor,
+                                    filler = wordFiller,
+                                    textColor = wordTextColor,
+                                    isPersisted = false,
+                                    documentId = response.contentData().documentId(),
+                                    rawText = newWordUnit.rawText(),
+                                    translation = newWordUnit.translation(),
+                                    currentPage = response.paginationData().currentPage())
+                                @endif
+                            @elseif(wordUnit instanceof InvalidWordUnit invalidWordUnit)
+                                @template.document.word(
+                                wordId = invalidWordUnit.id(),
+                                bgColor = "bg-primary",
+                                gapColor = wordGapColor,
+                                filler = wordFiller,
+                                textColor = "text-neutral",
+                                isPersisted = false,
+                                documentId = response.contentData().documentId(),
+                                rawText = invalidWordUnit.rawText(),
+                                translation = invalidWordUnit.translation(),
+                                currentPage = response.paginationData().currentPage())
                             @endif
-                        @else
-                            @template.document.word(
-                            wordId = unit.id(),
-                            bgColor = wordBgColor,
-                            gapColor = wordGapColor,
-                            filler = wordFiller,
-                            textColor = wordTextColor,
-                            isSelectable = false,
-                            documentId = response.contentData().documentId(),
-                            rawText = unit.rawText(),
-                            translation = unit.translation(),
-                            currentPage = response.paginationData().currentPage(),
-                            isPersisted = false)
                         @endif
                     @endfor
                 </div>
+                !{int endlineSize = paragraph.endlineSize();}
+                @for(int i = 0; i < endlineSize / 20; i++)
+                    <div class="invisible">placeholder</div>
+                @endfor
             @endfor
         </div>
     </div>
     <div
     class="
     md:max-w-2/5
-    max-w-full flex justify-center gap-4  mx-auto items-center select-none">
+    max-w-full flex flex-row justify-start gap-4  mx-auto items-center select-none">
         @template.document.paginator(
         documentId = response.contentData().documentId(),
         paginationData = response.paginationData())

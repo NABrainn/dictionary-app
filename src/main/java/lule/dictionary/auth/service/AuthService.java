@@ -30,7 +30,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -78,7 +77,7 @@ public class AuthService {
         );
 
         return switch (result) {
-            case Ok<?> ignored1 -> {
+            case Ok<?> ignored -> {
                 try {
                     log.debug("Loading user profile for: {}", sanitizedLogin);
                     UserProfile user = ((UserProfile) userProfileService.loadUserByUsername(sanitizedLogin))

@@ -5,7 +5,7 @@ import lule.dictionary.translations.data.Familiarity;
 
 import java.util.List;
 
-public sealed interface Translation permits PersistedPhraseTranslation, UninitializedTranslation, PersistedWordTranslation {
+public sealed interface Translation permits PersistedPhraseTranslation, UninitializedTranslation, PersistedWordTranslation, EmptyTranslation {
     List<String> sourceWords();
     String processedTargetWord();
     Familiarity familiarity();

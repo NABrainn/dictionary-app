@@ -1,4 +1,4 @@
-package lule.dictionary.jsoup.service.exception;
+package lule.dictionary.jsoup.data;
 
 import lombok.Getter;
 import lule.dictionary.language.service.Language;

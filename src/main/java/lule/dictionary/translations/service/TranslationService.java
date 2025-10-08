@@ -267,7 +267,7 @@ public class TranslationService {
         Language uiLanguage = principal.userInterfaceLanguage();
         String sanitizedSourceWord = patternService.removeSpecialCharacters(request.sourceWord());
         String sanitizedTargetWord = patternService.removeSpecialCharacters(request.targetWord());
-        Result<?> result = request.isPhrase() ?
+        Result<?> ignored = request.isPhrase() ?
                 validator.validate(
                         Constraint.of("sourceWord", Size.of(sanitizedSourceWord, 0, 250), switch (uiLanguage) {
                             case PL -> "Słowo źródłowe nie może być dłuższe niż 250 znaków";
@@ -339,7 +339,11 @@ public class TranslationService {
                 .toList();
         return translationRepository.findByTargetWords(wordList, request.owner()).stream()
                 .distinct()
-                .collect(Collectors.toUnmodifiableMap(Translation::processedTargetWord, value -> value));
+                .collect(Collectors.toUnmodifiableMap(
+                        Translation::processedTargetWord,
+                        translation -> translation,
+                        (existing, ignored) -> existing
+                ));
     }
 
     public List<Translation> findPhrases(ExtractPhrasesRequest request) {
@@ -359,7 +363,7 @@ public class TranslationService {
                 .limit(3)
                 .toList();
         Translation uninitializedTranslation = request.isPhrase() ?
-                UninitializedPhrase.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
+                UninitializedPhraseTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
                 UninitializedWordTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
         return TranslationAttribute.builder()
                 .documentId(request.documentId())
@@ -437,7 +441,7 @@ public class TranslationService {
                         .limit(3)
                         .toList();
                 Translation uninitializedTranslation = createTranslationRequest.isPhrase() ?
-                        UninitializedPhrase.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
+                        UninitializedPhraseTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())) :
                         UninitializedWordTranslation.of(sourceWords, sanitizedTargetWord, OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username()));
                 yield Ok.of(TranslationAttribute.builder()
                         .documentId(createTranslationRequest.documentId())
@@ -492,7 +496,7 @@ public class TranslationService {
                                             translationFetchingService.fetchTranslationsAsync(principal.sourceLanguage(), principal.targetLanguage(), sanitizedTargetWord)
                                     )
                                     .map(fetchedSourceWords ->  findTranslationRequest.isPhrase() ?
-                                            UninitializedPhrase.of(
+                                            UninitializedPhraseTranslation.of(
                                                     fetchedSourceWords,
                                                     sanitizedTargetWord,
                                                     OwnerInfo.of(principal.sourceLanguage(), principal.targetLanguage(), principal.username())

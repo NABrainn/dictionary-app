@@ -44,7 +44,7 @@ public class DocumentController {
                                @RequestParam(name = "selection", defaultValue = "none") String selection,
                                @RequestParam(name = "startId", required = false, defaultValue = "-1") int startId,
                                @RequestParam(name = "endId", required = false, defaultValue = "-1") int endId,
-                               @RequestParam(name = "phraseText", required = false, defaultValue = "") String phraseText,
+                               @RequestParam(name = "text", required = false, defaultValue = "") String text,
                                @RequestParam(name = "isPersisted", required = false, defaultValue = "false") boolean isPersisted,
                                Model model,
                                Authentication authentication) {
@@ -58,8 +58,8 @@ public class DocumentController {
             }
             case "phrase" -> {
                 SelectedUnitDetails selectedUnitDetails = isPersisted ?
-                        PersistedSelectedPhraseDetails.of(startId, endId, phraseText) :
-                        UninitializedSelectedPhraseDetails.of(startId, endId, phraseText);
+                        PersistedSelectedPhraseDetails.of(startId, endId, text) :
+                        UninitializedSelectedPhraseDetails.of(startId, endId, text);
                 yield ReloadWithPhrase.of(documentDetails, selectedUnitDetails);
             }
             case "none" -> LoadDocumentRequest.of(documentDetails);
@@ -81,8 +81,8 @@ public class DocumentController {
                     yield  "document/reload/units-with-word";
                 }
             };
-            case Err<ReadDocumentResponse> ignored -> {
-                log.warn("Failed to load document", ignored.throwable());
+            case Err<ReadDocumentResponse> responseErr -> {
+                log.warn("Failed to load document", responseErr.throwable());
                 yield  "error";
             }
         };

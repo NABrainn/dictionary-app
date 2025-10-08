@@ -39,17 +39,17 @@ public class TranslationController {
                                              @RequestParam("isPersisted") boolean isPersisted) {
         GetTranslationFormRequest request = isPersisted ?
                 FindTranslationFormRequest.builder()
-                        .documentId(documentId)
-                        .selectedWordId(id)
-                        .isPhrase(isPhrase)
-                        .unprocessedTargetWord(targetWord)
-                        .build() :
+                    .documentId(documentId)
+                    .selectedWordId(id)
+                    .isPhrase(isPhrase)
+                    .unprocessedTargetWord(targetWord)
+                    .build() :
                 CreateTranslationFormRequest.builder()
-                        .documentId(documentId)
-                        .selectedWordId(id)
-                        .isPhrase(isPhrase)
-                        .unprocessedTargetWord(targetWord)
-                        .build();
+                    .documentId(documentId)
+                    .selectedWordId(id)
+                    .isPhrase(isPhrase)
+                    .unprocessedTargetWord(targetWord)
+                    .build();
         Result<TranslationAttribute> result = translationService.findOrCreateTranslation(request, authentication);
         Map<TranslationLocalizationKey, String> messages = translationService.getTranslationFormMessages(authentication);
         if (result instanceof Ok<TranslationAttribute>(TranslationAttribute value)) {
