@@ -1,9 +1,9 @@
+@import lule.dictionary.translations.data.entity.EmptyTranslation
 @import lule.dictionary.translations.data.entity.Translation
 
 @param int wordId
 @param String bgColor = ""
 @param String textColor = ""
-@param boolean isSelectable = true
 @param boolean isPersisted
 
 @param int documentId
@@ -12,42 +12,32 @@
 @param Translation translation
 @param String gapColor
 @param String filler
-@if(isSelectable)
+<div
+class="
+border-2 ${gapColor} ${filler} relative ${!(translation instanceof EmptyTranslation) ? "cursor-pointer" :  "cursor-default pointer-events-none"} rounded whitespace-nowrap text-lg"
+_="on click send reloadWithSelectedWord"
+hx-trigger="reloadWithSelectedWord once"
+hx-get="/documents/${documentId}"
+hx-swap="outerHTML"
+hx-target="#units"
+hx-params="startId,isPersisted,page,selection"
+hx-vals='{
+    "startId": "${wordId}",
+    "isPersisted": "${isPersisted}",
+    "page": "${currentPage}",
+    "selection": "word"
+}'>
     <div
-    class="
-    border-2 ${gapColor} ${filler} relative cursor-pointer rounded whitespace-nowrap text-lg"
-    _="on click send reloadWithSelectedWord"
-    hx-trigger="reloadWithSelectedWord once"
-    hx-get="/documents/${documentId}"
-    hx-swap="outerHTML"
-    hx-target="#units"
-    hx-params="startId,isPersisted,page,selection"
-    hx-vals='{
-        "startId": "${wordId}",
-        "isPersisted": "${isPersisted}",
-        "page": "${currentPage}",
-        "selection": "word"
-    }'>
-        <div
-        class="cursor-default z-2 absolute inline"
-        id="form-container-${wordId}"
-        hx-on::after-swap="
-        formPositioner.handleOverflow(htmx.find('#form-container-${wordId}'), 3)">
-        </div>
-        <span
-        id="word-${wordId}"
-        data-text="${translation.processedTargetWord()}"
-        data-raw="${rawText}"
-        class="
-        ${bgColor} ${textColor} rounded
-        ${translation.familiarity().name().toLowerCase()}">${rawText}</span>
+    class="cursor-default z-2 absolute inline"
+    id="form-container-${wordId}"
+    hx-on::after-swap="
+    formPositioner.handleOverflow(htmx.find('#form-container-${wordId}'), 3)">
     </div>
-@else
-    <div
+    <span
+    id="word-${wordId}"
+    data-text="${translation.processedTargetWord()}"
+    data-raw="${rawText}"
     class="
-    inline-block relative rounded whitespace-nowrap text-lg pointer-events-none">
-        <span
-        id="word-${wordId}"
-        class="${bgColor} ${textColor} rounded select-none">${rawText}</span>
-    </div>
-@endif
+    ${bgColor} ${textColor} rounded
+    ${translation.familiarity().name().toLowerCase()}">${rawText}</span>
+</div>

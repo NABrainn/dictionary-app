@@ -63,7 +63,6 @@ public class DocumentProcessor {
         final List<DocumentUnit> documentUnits = contentStream
                 .filter(rawWord -> rawWord.length() <= 50)
                 .filter(rawWord -> !rawWord.isBlank())
-                .peek(System.out::println)
                 .map(rawWord -> switch (translations.get(stringUtils.normalize(rawWord))) {
                     case Translation persistedWord -> PersistedWordUnit.of(
                             idStore.getAndIncrement(),
@@ -71,12 +70,14 @@ public class DocumentProcessor {
                             rawWord,
                             phrases.containsWord(persistedWord.processedTargetWord())
                     );
-                    case null -> (WordUnit) NewWordUnit.of(
-                            idStore.getAndIncrement(),
-                            UninitializedWordTranslation.of(stringUtils.normalize(rawWord), OwnerInfo.of(sourceLanguage, targetLanguage, owner)),
-                            rawWord,
-                            phrases.containsWord(stringUtils.normalize(rawWord))
-                    );
+                    case null -> (WordUnit) (stringUtils.normalize(rawWord).isBlank() ?
+                            InvalidWordUnit.of(idStore.getAndIncrement(), rawWord) :
+                            NewWordUnit.of(
+                                    idStore.getAndIncrement(),
+                                    UninitializedWordTranslation.of(stringUtils.normalize(rawWord), OwnerInfo.of(sourceLanguage, targetLanguage, owner)),
+                                    rawWord,
+                                    phrases.containsWord(stringUtils.normalize(rawWord))
+                            ));
                 })
                 .gather(gatherers.gatherDocumentUnits(phrases))
                 .toList();
