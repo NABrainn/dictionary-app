@@ -191,7 +191,6 @@ public class DocumentService {
 
         Language sourceLanguage = principal.sourceLanguage();
         Language targetLanguage = principal.targetLanguage();
-
         Result<Document> result = documentRepository.findById(documentId, currentPage)
                 .map(found -> documentSanitizer.validateRequestedPage(DocumentPageDetails.of(
                         currentPage,
@@ -232,7 +231,7 @@ public class DocumentService {
                 List<Paragraph> paragraphs = documentProcessor.asParagraphs(processedContent);
                 DocumentContentData contentData = DocumentContentData.builder()
                         .title(document.title())
-                        .content(paragraphs)
+                        .content(!paragraphs.isEmpty() ? paragraphs : List.of(Paragraph.of(0, 0, processedContent)))
                         .translations(translations)
                         .documentId(documentId)
                         .build();
