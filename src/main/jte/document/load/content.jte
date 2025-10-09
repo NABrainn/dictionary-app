@@ -60,6 +60,10 @@ flex flex-col text-wrap mx-auto w-[90%]">
             if it@data-raw contains '\n'
                 increment newLineCount
             end
+            if it@data-valid contains 'false'
+                removeSelection()
+                throw 'cant select from unselectable'
+            end
         end
         if newLineCount is greater than 1
             removeSelection()
