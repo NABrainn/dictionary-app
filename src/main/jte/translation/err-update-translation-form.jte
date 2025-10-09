@@ -12,7 +12,7 @@
 hx-on:click="event.stopPropagation()"
 class="
 md:gap-0.75
-gap-2 bg-tertiary flex flex-col p-3 rounded select-none"
+gap-2 bg-tertiary flex flex-col p-3 rounded"
 id="translation-form">
     <div
     class="flex justify-end">
@@ -22,9 +22,9 @@ id="translation-form">
         _="on click remove <div#translation-form/>">❌</span>
     </div>
     <span
-            class="font-bold text-lg text-accent text-wrap">${attribute.translation().processedTargetWord()}</span>
+    class="font-bold text-lg text-accent text-wrap">${attribute.translation().processedTargetWord()}</span>
     <div
-            class="flex flex-col gap-2 text-wrap">
+    class="flex flex-col gap-2 text-wrap">
         @for(String word : attribute.translation().sourceWords())
             <div
             class="flex gap-2 items-center min-h-8">
@@ -32,7 +32,7 @@ id="translation-form">
                 name="sourceWords"
                 type="hidden"
                 value="${word}">
-                <span class="block text-center text-accent text-wrap">${word}</span>
+                <span class="block text-accent text-wrap">${word}</span>
                 <form
                 class="flex items-center"
                 hx-delete="/translations/sourceWords"
@@ -76,16 +76,19 @@ id="translation-form">
                         value="${word}">
                     @endfor
                     <div class="flex gap-2">
-                        <label>
-                            <input
-                            id="input-source-word"
-                            class="
-                            outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
-                            focus:border-accent max-w-50"
-                            type="text"
-                            placeholder=""
-                            name="sourceWords">
-                        </label>
+                        <label
+                        for="sw-input"
+                        class="hidden"></label>
+                        <input
+                        id="sw-input"
+                        class="
+                        md:max-w-50
+                        max-w-40 outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
+                        focus:border-accent"
+                        type="text"
+                        placeholder=""
+                        name="sourceWords"
+                        >
                         <button
                         id="submit-source-word"
                         class="text-3xl cursor-pointer text-accent"
@@ -100,9 +103,10 @@ id="translation-form">
     flex flex-row justify-center gap-3">
         @for(var level : attribute.familiarityLevels().entrySet())
             @if(level.getKey() == attribute.currentFamiliarity())
-                <div class="
-                flex flex-row md:bg-tertiary md:text-primary md:gap-1 md:size-auto md:justify-start
-                font-bold bg-primary text-accent size-7 rounded justify-center items-center">
+                <div
+                class="
+                md:bg-tertiary md:text-primary md:justify-start md:gap-1
+                bg-primary text-accent justify-center size-6 rounded flex font-bold items-center">
                     <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                     <span class="
                     md:inline
@@ -110,10 +114,11 @@ id="translation-form">
                 </div>
             @else
                 <form
-                class="
-                md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
-                cursor-pointer bg-accent text-primary flex hover:text-primary font-bold rounded size-7 justify-center items-center"
                 id="translation-form-${attribute.id()}"
+                class="
+                md:bg-tertiary md:text-accent md:cursor-normal md:justify-start md:gap-1
+                bg-accent text-primary cursor-pointer justify-center flex font-bold rounded size-6  items-center
+                hover:text-primary"
                 hx-trigger="click"
                 hx-put="/translations/familiarity/update"
                 hx-headers='{

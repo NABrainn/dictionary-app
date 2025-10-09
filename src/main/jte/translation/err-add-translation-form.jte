@@ -12,7 +12,7 @@
 hx-on:click="event.stopPropagation()"
 class="
 md:gap-0.75
-bg-tertiary flex flex-col p-3 rounded gap-2 select-none"
+bg-tertiary flex flex-col p-3 rounded gap-2"
 id="translation-form">
     <div class="flex justify-end">
         <span
@@ -36,7 +36,7 @@ id="translation-form">
                 name="sourceWords"
                 type="hidden"
                 value="${word}">
-                <span class="block text-center text-accent text-wrap">${word}</span>
+                <span class="block text-accent text-wrap">${word}</span>
             </div>
         @endfor
         <div class="flex flex-col gap-2">
@@ -68,19 +68,22 @@ id="translation-form">
                         value="${word}">
                     @endfor
                     <div class="flex gap-2">
-                        <label>
-                            <input
-                            class="
-                            max-w-50 outline-none border border-2
-                            ${switch (errors.get("sourceWord")) {
-                                case null -> "border-primary";
-                                case String err -> "border-error";
-                            }} rounded text-neutral text-md grow-1
-                            focus:border-accent"
-                            type="text"
-                            placeholder=""
-                            name="sourceWords">
-                        </label>
+                        <label
+                        for="sw-input"
+                        class="hidden"></label>
+                        <input
+                        id="sw-input"
+                        class="
+                        md:max-w-50
+                        max-w-40 outline-none border border-2
+                        ${switch (errors.get("sourceWord")) {
+                            case null -> "border-primary";
+                            case String err -> "border-error";
+                        }} rounded text-neutral text-md grow-1
+                        focus:border-accent"
+                        type="text"
+                        placeholder=""
+                        name="sourceWords">
                         <button
                         class="text-3xl cursor-pointer text-accent"
                         type="submit">+</button>
@@ -95,9 +98,9 @@ id="translation-form">
         @for(var level : attribute.familiarityLevels().entrySet())
             <form
             class="
-            md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
-            cursor-pointer bg-accent text-primary flex gap-4 hover:text-primary font-bold rounded size-7 justify-center items-center
-            translation-form"
+            md:bg-tertiary md:text-accent md:cursor-normal md:justify-start md:gap-1
+            bg-accent text-primary cursor-pointer justify-center flex font-bold rounded size-6  items-center
+            hover:text-primary"
             hx-trigger="click"
             hx-post="/translations/"
             hx-headers='{
