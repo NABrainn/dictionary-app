@@ -23,7 +23,7 @@ import java.util.OptionalInt;
 public class DocumentRepository {
 
     private final JdbcTemplate template;
-    private final RowMapper<Document> documentMapper = (rs, rowNum) -> Document.builder()
+    private final RowMapper<Document> documentMapper = (rs, _) -> Document.builder()
             .title(rs.getString("title"))
             .url(rs.getString("url"))
             .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
@@ -33,7 +33,7 @@ public class DocumentRepository {
             .contentLength(rs.getInt("total_length"))
             .id(-1)
             .build();
-    private final RowMapper<DocumentWithTranslationData> documentWithTranslationDataMapper = (rs, rowNum) -> DocumentWithTranslationData.builder()
+    private final RowMapper<DocumentWithTranslationData> documentWithTranslationDataMapper = (rs, _) -> DocumentWithTranslationData.builder()
             .title(rs.getString("title"))
             .url(rs.getString("url"))
             .sourceLanguage(Language.valueOf(rs.getString("source_lang")))
@@ -45,7 +45,7 @@ public class DocumentRepository {
             .newWordCount(rs.getInt("new_word_count"))
             .translationCount(rs.getInt("translation_count"))
             .build();
-    private final RowMapper<Integer> documentIdMapper = (rs, rowNum) -> rs.getInt("document_id");
+    private final RowMapper<Integer> documentIdMapper = (rs, _) -> rs.getInt("document_id");
 
     public OptionalInt create(Document document) {
         final String sql = """
