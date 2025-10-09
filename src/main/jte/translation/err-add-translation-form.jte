@@ -68,17 +68,19 @@ id="translation-form">
                         value="${word}">
                     @endfor
                     <div class="flex gap-2">
-                        <input
-                        class="
-                        max-w-50 outline-none border border-2
-                        ${switch (errors.get("sourceWord")) {
-                            case null -> "border-primary";
-                            case String err -> "border-error";
-                        }} rounded text-neutral text-md grow-1
-                        focus:border-accent"
-                        type="text"
-                        placeholder=""
-                        name="sourceWords">
+                        <label>
+                            <input
+                            class="
+                            max-w-50 outline-none border border-2
+                            ${switch (errors.get("sourceWord")) {
+                                case null -> "border-primary";
+                                case String err -> "border-error";
+                            }} rounded text-neutral text-md grow-1
+                            focus:border-accent"
+                            type="text"
+                            placeholder=""
+                            name="sourceWords">
+                        </label>
                         <button
                         class="text-3xl cursor-pointer text-accent"
                         type="submit">+</button>

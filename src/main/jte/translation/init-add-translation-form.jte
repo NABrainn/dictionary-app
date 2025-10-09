@@ -68,13 +68,15 @@ hx-on:click="event.stopPropagation()">
                         value="${word}">
                     @endfor
                     <div class="flex gap-2">
-                        <input
-                        class="
-                        max-w-50  outline-none border border-2
-                        border-primary rounded text-neutral text-md grow-1
-                        focus:border-accent"
-                        type="text"
-                        name="sourceWords">
+                        <label>
+                            <input
+                            class="
+                            max-w-50 outline-none border border-2
+                            border-primary rounded text-neutral text-md grow-1
+                            focus:border-accent"
+                            type="text"
+                            name="sourceWords">
+                        </label>
                         <button
                         class="text-3xl cursor-pointer text-accent"
                         type="submit">+</button>

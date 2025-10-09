@@ -76,14 +76,16 @@ id="translation-form">
                         value="${word}">
                     @endfor
                     <div class="flex gap-2">
-                        <input
-                        id="input-source-word"
-                        class="
-                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
-                        focus:border-accent max-w-50"
-                        type="text"
-                        placeholder=""
-                        name="sourceWords">
+                        <label>
+                            <input
+                            id="input-source-word"
+                            class="
+                            outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
+                            focus:border-accent max-w-50"
+                            type="text"
+                            placeholder=""
+                            name="sourceWords">
+                        </label>
                         <button
                         id="submit-source-word"
                         class="text-3xl cursor-pointer text-accent"
