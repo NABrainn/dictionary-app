@@ -3,7 +3,11 @@ package lule.dictionary.userProfiles.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lule.dictionary.auth.data.exception.AuthServiceException;
 import lule.dictionary.auth.service.SecurityContextService;
+import lule.dictionary.result.data.Err;
+import lule.dictionary.result.data.Ok;
+import lule.dictionary.result.data.Result;
 import lule.dictionary.security.data.TimeZoneOffsetContext;
 import lule.dictionary.language.service.LanguageHelper;
 import lule.dictionary.userProfiles.data.UserProfile;
@@ -22,7 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -57,11 +61,16 @@ public class UserProfileService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(@NonNull String username) throws UserNotFoundException {
-        return userProfileRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        return userProfileRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
     }
 
-    public Optional<UserProfile> loadByUsernameOrEmail(String username, String email) {
-        return userProfileRepository.findByUsernameOrEmail(username, email);
+    public Result<UserProfile> loadByUsernameOrEmail(String username, String email, String errorMessage) {
+        var errorMap = Map.of("userExists", errorMessage);
+        var throwable = new AuthServiceException(errorMap);
+        return userProfileRepository.findByUsernameOrEmail(username, email)
+                .map(user -> (Result<UserProfile>) Ok.of(user))
+                .orElse(Err.of(throwable));
     }
 
     public void updateTimezoneOffset(String owner, String offset) {

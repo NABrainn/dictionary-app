@@ -50,8 +50,8 @@ public class AuthService {
 
     public Result<?> login(@NonNull LoginRequest request, @NonNull HttpServletResponse response) {
         log.info("Processing login request for user: {}", request.login());
-        var sanitizedLogin = patternService.removeSpecialCharacters(request.login());
         var systemLanguage = Language.EN;
+        var sanitizedLogin = patternService.removeSpecialCharacters(request.login());
         var errorMessages = authLocalizationService.errorLocalization(systemLanguage);
 
         var validationResult = validator.validate(
@@ -127,19 +127,18 @@ public class AuthService {
         return switch (validationResult) {
             case Ok<?> _ -> {
                 log.debug("Checking if user exists: login={}, email={}", sanitizedLogin, request.email());
-                userProfileService.loadByUsernameOrEmail(request.login(), request.email())
-                        .ifPresentOrElse(
-                                _ -> {
-                                    log.warn("User already exists: login={}, email={}", sanitizedLogin, request.email());
-                                    throw new AuthServiceException(Map.of("userExists", errorMessages.get(AuthError.USER_EXISTS)));
-                                },
-                                () -> {
-                                    log.debug("Creating new user profile for: {}", sanitizedLogin);
-                                    userProfileService.addUserProfile(request);
-                                });
-
-                log.info("User {} signed up successfully", sanitizedLogin);
-                yield Ok.empty();
+                var userProfileResult = userProfileService.loadByUsernameOrEmail(request.login(), request.email(), errorMessages.get(AuthError.USER_EXISTS));
+                yield switch (userProfileResult) {
+                    case Err<UserProfile> v -> {
+                        log.warn("User already exists: login={}, email={}", sanitizedLogin, request.email());
+                        yield Err.of(v.throwable());
+                    }
+                    case Ok<UserProfile> _ -> {
+                        log.debug("Creating new user profile for: {}", sanitizedLogin);
+                        userProfileService.addUserProfile(request);
+                        yield Ok.empty();
+                    }
+                };
             }
 
             case Err<?> v -> switch (v.throwable()) {
@@ -150,7 +149,7 @@ public class AuthService {
 
                 default -> {
                     log.error("Unexpected error in signup validation: {}", v.throwable(), v.throwable());
-                    throw new IllegalStateException("Unexpected value: " + v.throwable());
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             };
         };
