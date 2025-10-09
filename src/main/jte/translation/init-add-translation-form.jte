@@ -18,7 +18,7 @@ hx-on:click="event.stopPropagation()">
         <span
         class="md:text-md
         text-sm text-red-400 font-bold cursor-pointer"
-        _="on click remove #translation-form">❌</span>
+        _="on click remove <div#translation-form/>">❌</span>
     </div>
     <span class="font-bold text-lg text-accent text-wrap">${attribute.translation().processedTargetWord()}</span>
     <div class="flex flex-col gap-2 text-wrap">
