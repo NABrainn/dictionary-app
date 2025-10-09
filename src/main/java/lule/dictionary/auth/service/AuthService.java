@@ -62,7 +62,7 @@ public class AuthService {
         );
 
         return switch (validationResult) {
-            case Ok<?> ignored -> {
+            case Ok<?> _ -> {
                 try {
                     log.debug("Loading user profile for: {}", sanitizedLogin);
                     var user = ((UserProfile) userProfileService.loadUserByUsername(sanitizedLogin)).withPassword(request.password());
@@ -125,7 +125,7 @@ public class AuthService {
         );
 
         return switch (validationResult) {
-            case Ok<?> ignored -> {
+            case Ok<?> _ -> {
                 log.debug("Checking if user exists: login={}, email={}", sanitizedLogin, request.email());
                 userProfileService.loadByUsernameOrEmail(request.login(), request.email())
                         .ifPresentOrElse(
