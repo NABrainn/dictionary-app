@@ -11,7 +11,7 @@
 <div
 hx-on:click="event.stopPropagation()"
 class="
-md:gap-0.75
+md:gap-1
 bg-tertiary flex flex-col p-3 rounded gap-2"
 id="translation-form">
     <div class="flex justify-end">

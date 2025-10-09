@@ -58,7 +58,7 @@ end
 
 "
 class="
-md:gap-0.75
+md:gap-1
 gap-2 bg-tertiary flex flex-col p-3 rounded"
 id="translation-form">
     <div
