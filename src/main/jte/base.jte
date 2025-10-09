@@ -9,21 +9,6 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <script>
-    @if(baseAttribute != null)
-        @if(!baseAttribute.isAuthenticated())
-            if (window.location.pathname.startsWith('/auth/')) {
-                fetch('/localization/uiLanguage', {
-                    method: "GET",
-                    headers: {
-                        "uiLanguage": window.navigator.languages[1] || "en"
-                    }
-                })
-                .catch(error => console.error("Error setting system language:", error.message));
-            }
-        @endif
-    @endif
-    </script>
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
