@@ -24,11 +24,7 @@ public class SecurityContextService {
         SecurityContextHolder.getContext().setAuthentication(token);
     }
 
-    public void clearContext() {
-        SecurityContextHolder.getContext().setAuthentication(null);
-    }
-
-    public boolean isAuthenticated() {
+    public boolean authenticated() {
         return SecurityContextHolder.getContext().getAuthentication() != null;
     }
 }
