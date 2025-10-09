@@ -17,7 +17,7 @@ public class DocumentUnitCollectors {
                 () -> ParagraphStore.of(new ArrayList<>(), new ArrayList<>(), new AtomicInteger(0)),
                 ParagraphStore::accumulate,
                 ParagraphStore::combine,
-                Collector.Characteristics.IDENTITY_FINISH
+                ParagraphStore::finish
         );
     }
 
