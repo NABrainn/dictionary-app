@@ -81,7 +81,7 @@ flex flex-col text-wrap mx-auto w-[90%]">
             <span
             class="
             md:text-4xl
-            text-xl text-neutral font-bold ">${response.contentData().title()}</span>
+            text-xl text-neutral font-bold text-wrap">${response.contentData().title()}</span>
         @endif
         <div
         id="units"
