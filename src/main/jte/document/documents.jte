@@ -1,86 +1,87 @@
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
-@import lule.dictionary.controllerAdvice.data.NavbarAttribute
+@import lule.dictionary.controllerAdvice.data.navbar.Navbar
+@import lule.dictionary.controllerAdvice.data.navbar.NavbarWithOpenPanel
+@import lule.dictionary.controllerAdvice.data.user.User
 @import lule.dictionary.documents.data.DocumentLocalizationKey
 @import lule.dictionary.documents.data.attribute.DocumentListAttribute
 
-@param NavbarAttribute navbarAttribute
-@param BaseAttribute baseAttribute
+@param User user
+@param Navbar navbar
 @param DocumentListAttribute attribute
 
 @template.base(content = @`
-    @template.navbar.navbar(
-    baseAttribute = baseAttribute,
-    navbarAttribute = navbarAttribute.withNavbarOpen(attribute.isNavbarOpen()))
-    @if(baseAttribute.isAuthenticated())
-        <div
-        class="
-        lg:w-1/2
-        md:w-3/5
-        max-w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral">
-                @if(attribute.documents().isEmpty())
-                    <div class="flex justify-center text-xl">
-                        <span class="text-neutral font-bold">${attribute.localization().get(DocumentLocalizationKey.THERE_ARE_NO_DOCUMENTS_IN_THE_LIBRARY)}.
-                            <a
-                            class="cursor-pointer text-accent underline"
-                            hx-get="/documents/new"
-                            hx-target="#main"
-                            hx-swap="innerHTML"
-                            hx-push-url="/documents/new">${attribute.localization().get(DocumentLocalizationKey.CLICK_HERE)}</a> ${attribute.localization().get(DocumentLocalizationKey.TO_ADD_YOUR_FIRST)}
-                        </span>
-                    </div>
-                @else
-                    <div
-                    class="
-                    lg:grid-cols-3
-                    md:grid-cols-2
-                    grid-cols-1 grid gap-8 mx-auto">
-                        @for(var item : attribute.documents())
-                            <div
-                            class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer max-w-70"
-                            hx-get="/documents/${item.id()}"
-                            hx-params="page,selection"
-                            hx-vals='{
-                                "page": "1",
-                                "selection": "none"
-                            }'
-                            hx-target="#main"
-                            hx-swap="innerHTML"
-                            hx-push-url="/lessons/${item.id()}">
-                                <img
-                                class="self-center size-60"
-                                src="/images/open-book.svg"
-                                alt="image of a document">
-                                <p
-                                class="md:text-xl
-                                text-lg font-bold truncate text-primary">${item.title()}</p>
-                                <div class="flex flex-col gap-1">
-                                    <span>${attribute.localization().get(DocumentLocalizationKey.WORDS_TOTAL)}: <span class="text-secondary font-bold">${item.wordCount()}</span></span>
-                                    <span>${attribute.localization().get(DocumentLocalizationKey.NEW_WORDS)}: <span class="text-secondary font-bold">${item.newWordCount()}</span></span>
-                                    <span>${attribute.localization().get(DocumentLocalizationKey.TRANSLATIONS)}: <span class="text-secondary font-bold">${item.translationCount()}</span></span>
-                                    <span>${attribute.localization().get(DocumentLocalizationKey.AUTHOR)}: <span class="text-secondary font-bold">${item.owner()}</span></span>
-                                </div>
-                            </div>
-                        @endfor
-                    </div>
-
-                @endif
-
-            </div>
-        <div class="flex items-center justify-end sticky bottom-8">
-            <button
-            class="
-            md:mr-36
-            flex items-center gap-2 cursor-pointer border border-3 border-rounded border-tertiary bg-secondary px-5 py-3 rounded text-lg font-bold text-neutral text-xl mr-2
-            hover:bg-secondary hover:brightness-[110%]"
-                    hx-get="/documents/new"
-                    hx-target="#main"
-                    hx-swap="innerHTML"
-                    hx-push-url="/documents/new"
-                    type="button">
-                <span class="block text-2xl">+</span>
-                <span class="block">${attribute.localization().get(DocumentLocalizationKey.ADD_BOOK)}</span>
-            </button>
-        </div>
+    @if(navbar instanceof NavbarWithOpenPanel navbarWithOpenPanel)
+        @template.navbar.navbar-with-open-panel(navbar = navbar)
+    @else
+        @template.navbar.navbar-with-closed-panel(navbar = navbar)
     @endif
+    <div
+    class="
+    lg:w-1/2
+    md:w-3/5
+    max-w-full grow-1 p-2 mx-auto flex flex-col justify-between gap-16 text-neutral">
+            @if(attribute.documents().isEmpty())
+                <div class="flex justify-center text-xl">
+                    <span class="text-neutral font-bold">${attribute.localization().get(DocumentLocalizationKey.THERE_ARE_NO_DOCUMENTS_IN_THE_LIBRARY)}.
+                        <a
+                        class="cursor-pointer text-accent underline"
+                        hx-get="/documents/new"
+                        hx-target="#main"
+                        hx-swap="innerHTML"
+                        hx-push-url="/documents/new">${attribute.localization().get(DocumentLocalizationKey.CLICK_HERE)}</a> ${attribute.localization().get(DocumentLocalizationKey.TO_ADD_YOUR_FIRST)}
+                    </span>
+                </div>
+            @else
+                <div
+                class="
+                lg:grid-cols-3
+                md:grid-cols-2
+                grid-cols-1 grid gap-8 mx-auto">
+                    @for(var item : attribute.documents())
+                        <div
+                        class="flex flex-col gap-2 bg-tertiary rounded p-4 cursor-pointer max-w-70"
+                        hx-get="/documents/${item.id()}"
+                        hx-params="page,selection"
+                        hx-vals='{
+                            "page": "1",
+                            "selection": "none"
+                        }'
+                        hx-target="#main"
+                        hx-swap="innerHTML"
+                        hx-push-url="/lessons/${item.id()}">
+                            <img
+                            class="self-center size-60"
+                            src="/images/open-book.svg"
+                            alt="image of a document">
+                            <p
+                            class="md:text-xl
+                            text-lg font-bold truncate text-primary">${item.title()}</p>
+                            <div class="flex flex-col gap-1">
+                                <span>${attribute.localization().get(DocumentLocalizationKey.WORDS_TOTAL)}: <span class="text-secondary font-bold">${item.wordCount()}</span></span>
+                                <span>${attribute.localization().get(DocumentLocalizationKey.NEW_WORDS)}: <span class="text-secondary font-bold">${item.newWordCount()}</span></span>
+                                <span>${attribute.localization().get(DocumentLocalizationKey.TRANSLATIONS)}: <span class="text-secondary font-bold">${item.translationCount()}</span></span>
+                                <span>${attribute.localization().get(DocumentLocalizationKey.AUTHOR)}: <span class="text-secondary font-bold">${item.owner()}</span></span>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+
+            @endif
+
+        </div>
+    <div class="flex items-center justify-end sticky bottom-8">
+        <button
+        class="
+        md:mr-36
+        flex items-center gap-2 cursor-pointer border border-3 border-rounded border-tertiary bg-secondary px-5 py-3 rounded text-lg font-bold text-neutral text-xl mr-2
+        hover:bg-secondary hover:brightness-[110%]"
+                hx-get="/documents/new"
+                hx-target="#main"
+                hx-swap="innerHTML"
+                hx-push-url="/documents/new"
+                type="button">
+            <span class="block text-2xl">+</span>
+            <span class="block">${attribute.localization().get(DocumentLocalizationKey.ADD_BOOK)}</span>
+        </button>
+    </div>
 `,
-baseAttribute = baseAttribute)
+user = user)

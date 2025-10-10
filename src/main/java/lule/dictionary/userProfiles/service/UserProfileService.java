@@ -9,7 +9,7 @@ import lule.dictionary.result.data.Err;
 import lule.dictionary.result.data.Ok;
 import lule.dictionary.result.data.Result;
 import lule.dictionary.security.data.TimeZoneOffsetContext;
-import lule.dictionary.language.service.LanguageHelper;
+import lule.dictionary.language.service.LanguageService;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.auth.data.request.SignupRequest;
 import lule.dictionary.language.service.Language;
@@ -34,7 +34,7 @@ import java.util.Map;
 public class UserProfileService implements UserDetailsService {
 
     private final BCryptPasswordEncoder encoder;
-    private final LanguageHelper languageHelper;
+    private final LanguageService languageService;
     private final SecurityContextService securityContextService;
     private final UserProfileRepository userProfileRepository;
 
@@ -65,12 +65,12 @@ public class UserProfileService implements UserDetailsService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    public Result<UserProfile> loadByUsernameOrEmail(String username, String email, String errorMessage) {
+    public Result<?> loadByUsernameOrEmail(String username, String email, String errorMessage) {
         var errorMap = Map.of("userExists", errorMessage);
         var throwable = new AuthServiceException(errorMap);
         return userProfileRepository.findByUsernameOrEmail(username, email)
-                .map(user -> (Result<UserProfile>) Ok.of(user))
-                .orElse(Err.of(throwable));
+                .map(_ -> (Result<?>) Err.of(throwable))
+                .orElse(Ok.empty());
     }
 
     public void updateTimezoneOffset(String owner, String offset) {
@@ -82,7 +82,7 @@ public class UserProfileService implements UserDetailsService {
     //TODO merge below methods into one
     public void updateTargetLanguage(String languageString, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        languageHelper.fromString(languageString)
+        languageService.fromString(languageString)
                 .ifPresent(value -> {
                     userProfileRepository.updateTargetLanguage(principal.getUsername(), value.name());
                     UserProfile user = (UserProfile) loadUserByUsername(principal.getUsername());
@@ -94,7 +94,7 @@ public class UserProfileService implements UserDetailsService {
 
     public void updateSourceLanguage(String languageString, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        languageHelper.fromString(languageString)
+        languageService.fromString(languageString)
                 .ifPresent(value -> {
                     userProfileRepository.updateSourceLanguage(principal.getUsername(), value.name());
                     UserProfile user = (UserProfile) loadUserByUsername(principal.getUsername());
@@ -105,7 +105,7 @@ public class UserProfileService implements UserDetailsService {
 
     public void updateUILanguage(String languageString, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        languageHelper.fromString(languageString)
+        languageService.fromString(languageString)
                 .ifPresent(value -> {
                     userProfileRepository.updateUILanguage(principal.getUsername(), value.name());
                     UserProfile user = (UserProfile) loadUserByUsername(principal.getUsername());

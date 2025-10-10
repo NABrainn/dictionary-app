@@ -1,9 +1,9 @@
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.controllerAdvice.data.user.User
 @import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 @import java.util.Map
 
-@param BaseAttribute baseAttribute
+@param User user
 @param TranslationAttribute attribute
 @param Map<String, String> errors
 @param Map<TranslationLocalizationKey, String> messages
@@ -39,7 +39,7 @@ hx-on:click="event.stopPropagation()">
                 hx-target="#form-container-${attribute.id()}"
                 hx-swap="innerHTML"
                 hx-headers='{
-                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                    "X-XSRF-TOKEN": "${user._csrf()}"
                 }'
                 hx-params="sourceWord,targetWord,id"
                 hx-vals='{
@@ -60,7 +60,7 @@ hx-on:click="event.stopPropagation()">
                 <form
                 class="flex flex-col gap-2"
                 hx-headers='{
-                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                    "X-XSRF-TOKEN": "${user._csrf()}"
                 }'
                 hx-params="id,targetWord,familiarity,sourceWords"
                 hx-vals='{
@@ -123,7 +123,7 @@ hx-on:click="event.stopPropagation()">
             hx-trigger="click"
             hx-put="/translations/familiarity/update"
             hx-headers='{
-                "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                "X-XSRF-TOKEN": "${user._csrf()}"
             }'
             hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase"
             hx-vals='

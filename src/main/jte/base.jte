@@ -1,11 +1,10 @@
 @import gg.jte.Content
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.controllerAdvice.data.user.User
 
 @param Content authView = null
 @param Content content = null
-@param BaseAttribute baseAttribute
+@param User user
 
-!{String csrf = baseAttribute != null ? baseAttribute.csrf() : "";}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +14,7 @@
         <script src="/htmx.min.js"></script>
         <link rel="stylesheet" href="/output.css">
         <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
-        <title>here is the required title element</title>
+        <title>application</title>
     </head>
     <body
     class="bg-primary grow-1 flex flex-col gap-8 min-h-screen"

@@ -1,4 +1,5 @@
-@import lule.dictionary.language.service.LanguageData
+@import lule.dictionary.controllerAdvice.data.navbar.LanguageOption
+@import lule.dictionary.language.service.Language
 @import java.util.List
 
 @param String settingsText
@@ -7,13 +8,12 @@
 @param String translationsText
 @param String logoutText
 
-@param String size
-@param LanguageData userInterfaceLanguage
-@param LanguageData translationLanguage
-@param List<LanguageData> languages
+@param Language uiLanguage
+@param Language sourceLanguage
+@param List<LanguageOption> languageOptions
 @param String csrf
 
-<div class="flex justify-end items-center z-420 justify-center ${size}">
+<div class="flex justify-end items-center z-420 justify-center">
     <div>
         <a
         class="
@@ -38,8 +38,8 @@
                         <span>${uiText}:</span>
                         <div>
                             @template.navbar.language-picker(
-                            selectedLanguage = userInterfaceLanguage,
-                            languages = languages,
+                            selectedLanguage = uiLanguage,
+                            languages = languageOptions,
                             type = "ui")
                         </div>
                     </div>
@@ -47,8 +47,8 @@
                         <span>${translationsText}:</span>
                         <div>
                             @template.navbar.language-picker(
-                            selectedLanguage = translationLanguage,
-                            languages = languages,
+                            selectedLanguage = sourceLanguage,
+                            languages = languageOptions,
                             type = "source")
                         </div>
                     </div>

@@ -1,9 +1,8 @@
 @param String lessons
 @param String vocabulary
-@param String size
 
 <div
-class="flex items-center gap-12 align-center text-lg text-neutral ${size}">
+class="flex items-center gap-12 align-center text-lg text-neutral">
     <a
     hx-get="/lessons"
     hx-swap="innerHTML"
@@ -46,7 +45,7 @@ class="flex items-center gap-12 align-center text-lg text-neutral ${size}">
     hidden text-md cursor-pointer underline font-bold">
         <div class="flex items-center gap-1">
         <svg
-        height="24px" width="24px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        height="24px" width="24px" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
         viewBox="0 0 512 512" xml:space="preserve"
         class="fill-accent">
         <g>
@@ -119,7 +118,7 @@ class="flex items-center gap-12 align-center text-lg text-neutral ${size}">
     md:text-lg md:hidden
     inline text-lg cursor-pointer font-bold">
         <svg
-        height="24px" width="24px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        height="24px" width="24px" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
         viewBox="0 0 512 512" xml:space="preserve"
         class="fill-accent">
         <g>

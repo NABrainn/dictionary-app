@@ -65,6 +65,7 @@ flex flex-col text-wrap mx-auto w-[90%]">
                 throw 'cant select from unselectable'
             end
         end
+        -- TODO: find a way to remove below constraint without breaking UI
         if newLineCount is greater than 1
             removeSelection()
             throw 'cant have more than 1 endline'
@@ -123,7 +124,7 @@ flex flex-col text-wrap mx-auto w-[90%]">
                                     default -> "bg-primary";
                                 } :
                                 "bg-primary";
-                            ;}
+                            }
                             !{String wordFiller = "bg-primary";}
                             !{String wordTextColor = unit.translation() != null ?
                                 switch(unit.translation().familiarity()){
@@ -131,7 +132,7 @@ flex flex-col text-wrap mx-auto w-[90%]">
                                     default -> "text-neutral";
                                 } :
                                 "text-neutral";
-                            ;}
+                            }
                             !{String wordGapColor = "border-transparent";}
                             @if(wordUnit instanceof PersistedWordUnit)
                                 @template.document.word(

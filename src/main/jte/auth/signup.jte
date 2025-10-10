@@ -1,24 +1,22 @@
 @import lule.dictionary.auth.data.localization.AuthText
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
-@import lule.dictionary.controllerAdvice.data.NavbarAttribute
+@import lule.dictionary.controllerAdvice.data.navbar.Navbar
+@import lule.dictionary.controllerAdvice.data.user.User
 @import java.util.Map
 
-@param NavbarAttribute navbarAttribute
-@param BaseAttribute baseAttribute
+@param Navbar navbar
+@param User user
 @param Map<String, String> navbarLocalization
 @param Map<AuthText, String> localization
 @param Map<String, String> error
 
 @template.base(authView = @`
-    @template.navbar.navbar(
-    navbarAttribute = navbarAttribute,
-    baseAttribute = baseAttribute)
+    @template.navbar.navbar-with-open-panel(navbar = navbar)
     <form
         hx-post="/auth/signup"
         hx-target="#main"
         hx-swap="outerHTML"
         hx-headers='{
-            "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+            "X-XSRF-TOKEN": "${user._csrf()}"
         }'
         class="
         lg:w-2/5
@@ -68,4 +66,4 @@
         </div>
     </form>
 `,
-baseAttribute = baseAttribute)
+user = user)

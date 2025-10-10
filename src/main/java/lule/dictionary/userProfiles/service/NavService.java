@@ -1,5 +1,6 @@
 package lule.dictionary.userProfiles.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.userProfiles.data.UserProfile;
 import lule.dictionary.userProfiles.data.repository.UserProfileRepository;
@@ -8,16 +9,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserInterfaceService {
+public class NavService {
 
     private final UserProfileRepository userProfileRepository;
 
-    public boolean toggleNavbar(String item, Authentication authentication) {
+    public boolean toggle(String item, Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
-        return item.equals("navbar") && userProfileRepository.toggleNavbar(principal.getUsername());
+        return item.equals("progressionPanel") && userProfileRepository.toggleNavbar(principal.getUsername());
     }
 
-    public boolean isNavbarToggled(Authentication authentication) {
+    public boolean isNavbarOpen(Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         return userProfileRepository.isNavbarToggled(principal.getUsername());
     }
@@ -25,5 +26,13 @@ public class UserInterfaceService {
     public boolean hideNavbar(Authentication authentication) {
         UserProfile principal = (UserProfile) authentication.getPrincipal();
         return userProfileRepository.hideNavbar(principal.getUsername());
+    }
+
+    public void updateLanguage(String language, Authentication authentication) {
+
+    }
+
+    public boolean isOpen(@NonNull String item, @NonNull String username) {
+        return userProfileRepository.isOpen(item, username);
     }
 }

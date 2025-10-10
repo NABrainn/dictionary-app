@@ -1,21 +1,19 @@
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.controllerAdvice.data.navbar.Navbar
+@import lule.dictionary.controllerAdvice.data.user.User
 @import lule.dictionary.documents.data.DocumentLocalizationKey
 @import lule.dictionary.documents.data.documentSubmission.DocumentFormWithContent
 @import lule.dictionary.documents.data.attribute.DocumentFormAttribute
-@import lule.dictionary.controllerAdvice.data.NavbarAttribute
 @import lule.dictionary.documents.data.documentSubmission.DocumentFormWithUrl
 @import java.util.Map
 
 @param DocumentFormAttribute attribute
-@param NavbarAttribute navbarAttribute
-@param BaseAttribute baseAttribute
+@param Navbar navbar
+@param User user
 @param Map<String, String> errors
 
 @template.base(content = @`
     <div id="document-form-wrapper">
-        @template.navbar.navbar(
-        navbarAttribute = navbarAttribute,
-        baseAttribute = baseAttribute)
+        @template.navbar.navbar-with-open-panel(navbar = navbar)
         <script>
             if (!customElements.get('static-textarea')) {
                 class StaticTextArea extends HTMLTextAreaElement {
@@ -44,7 +42,7 @@
         hx-swap="innerHTML"
         hx-push-url="true"
         hx-headers='{
-            "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+            "X-XSRF-TOKEN": "${user._csrf()}"
         }'>
             <div class="flex flex-col gap-2">
                 <label class="text-accent font-bold text-2xl min-h-8" for="title">${attribute.localization().get(DocumentLocalizationKey.TITLE)}</label>
@@ -144,4 +142,4 @@
         </form>
     </div>
     `,
-baseAttribute = baseAttribute)
+user = user)

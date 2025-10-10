@@ -129,11 +129,11 @@ public class AuthService {
                 log.debug("Checking if user exists: login={}, email={}", sanitizedLogin, request.email());
                 var userProfileResult = userProfileService.loadByUsernameOrEmail(request.login(), request.email(), errorMessages.get(AuthError.USER_EXISTS));
                 yield switch (userProfileResult) {
-                    case Err<UserProfile> v -> {
+                    case Err<?> v -> {
                         log.warn("User already exists: login={}, email={}", sanitizedLogin, request.email());
                         yield Err.of(v.throwable());
                     }
-                    case Ok<UserProfile> _ -> {
+                    case Ok<?> _ -> {
                         log.debug("Creating new user profile for: {}", sanitizedLogin);
                         userProfileService.addUserProfile(request);
                         yield Ok.empty();

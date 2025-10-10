@@ -1,15 +1,15 @@
 <svg
-height="20px" width="20px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+height="20px" width="20px" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
 viewBox="0 0 32.055 32.055" xml:space="preserve"
 class="md:size-10
 size-8 cursor-pointer fill-accent basis-1/5"
 hx-trigger="click"
-hx-get="/settings/toggle/"
+hx-get="/nav/toggle/"
 hx-params="item"
 hx-vals='{
-    "item": "navbar"
+    "item": "progressionPanel"
 }'
-hx-target="#profile-panel"
+hx-target="#nav-wrapper"
 hx-swap="innerHTML transition:true">
 	<g>
         <path d="M3.968,12.061C1.775,12.061,0,13.835,0,16.027c0,2.192,1.773,3.967,3.968,3.967c2.189,0,3.966-1.772,3.966-3.967

@@ -1,9 +1,9 @@
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.controllerAdvice.data.user.User
 @import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 @import java.util.Map
 
-@param BaseAttribute baseAttribute
+@param User user
 @param TranslationAttribute attribute
 @param Map<String, String> errors
 @param Map<TranslationLocalizationKey, String> messages
@@ -46,7 +46,7 @@ id="translation-form">
                 flex flex-col gap-2
                 translation-form"
                 hx-headers='{
-                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                    "X-XSRF-TOKEN": "${user._csrf()}"
                 }'
                 hx-params="id,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,isPhrase"
                 hx-vals='{
@@ -104,7 +104,7 @@ id="translation-form">
             hx-trigger="click"
             hx-post="/translations/"
             hx-headers='{
-                "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                "X-XSRF-TOKEN": "${user._csrf()}"
             }'
             hx-params="id,targetWord,familiarity,sourceLanguage,targetLanguage,documentId,sourceWords,isPhrase"
             hx-vals='{

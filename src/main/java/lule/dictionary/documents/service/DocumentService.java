@@ -33,7 +33,7 @@ import lule.dictionary.translations.data.request.FindTranslationsInDocumentReque
 import lule.dictionary.translations.service.TranslationService;
 import lule.dictionary.userProfiles.data.OwnerInfo;
 import lule.dictionary.userProfiles.data.UserProfile;
-import lule.dictionary.userProfiles.service.UserInterfaceService;
+import lule.dictionary.userProfiles.service.NavService;
 import lule.dictionary.validation.data.Constraint;
 import lule.dictionary.validation.data.rule.NotEmpty;
 import lule.dictionary.validation.data.ValidationException;
@@ -57,7 +57,7 @@ public class DocumentService {
     private final DocumentProcessor documentProcessor;
     private final DocumentSanitizer documentSanitizer;
     private final DocumentsLocalizationService documentsLocalization;
-    private final UserInterfaceService userInterfaceService;
+    private final NavService navService;
     private final PaginationService paginationService;
 
     @Transactional
@@ -180,7 +180,7 @@ public class DocumentService {
 
         List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(username, targetLanguage);
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(uiLanguage);
-        boolean isNavbarOpen = userInterfaceService.isNavbarToggled(authentication);
+        boolean isNavbarOpen = navService.isNavbarOpen(authentication);
         return DocumentListAttribute.of(documents, localization, isNavbarOpen);
     }
 
@@ -239,7 +239,7 @@ public class DocumentService {
                         paginationService.pagesTotal(document.contentLength()),
                         currentPage
                 );
-                boolean isNavbarOpen = userInterfaceService.hideNavbar(authentication);
+                boolean isNavbarOpen = navService.hideNavbar(authentication);
                 Optional<SelectedUnit> optionalSelectedUnit = processedContent.stream()
                         .filter(unit -> unit instanceof SelectedUnit)
                         .map(unit -> (SelectedUnit) unit)

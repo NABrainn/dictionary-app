@@ -1,5 +1,6 @@
 package lule.dictionary.language.service;
 
+import lule.dictionary.controllerAdvice.data.navbar.LanguageOption;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -8,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class LanguageHelper {
+public class LanguageService {
 
     private final String imageBasePath = "/images/flags";
 
@@ -81,5 +82,14 @@ public class LanguageHelper {
             map.put(languageData.language(), languageData.imgPath());
         }
         return map;
+    }
+
+    public List<LanguageOption> languageOptions() {
+        return List.of(
+            LanguageOption.of(Language.NO, imageBasePath + "/norway.png"),
+            LanguageOption.of(Language.EN, imageBasePath + "/uk.png"),
+            LanguageOption.of(Language.IT, imageBasePath + "/italy.png"),
+            LanguageOption.of(Language.PL, imageBasePath + "/poland.png")
+        );
     }
 }

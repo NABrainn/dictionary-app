@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.language.service.Language;
-import lule.dictionary.language.service.LanguageHelper;
+import lule.dictionary.language.service.LanguageService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -15,13 +15,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GoogleTranslateFetcher implements TranslationFetcher {
 
-    private final LanguageHelper languageHelper;
+    private final LanguageService languageService;
 
     @Override
     public List<String> translate(Language sourceLanguage, Language targetLanguage, String targetWord) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String sourceLanguageCode = languageHelper.getCode(sourceLanguage);
-        String targetLanguageCode = languageHelper.getCode(targetLanguage);
+        String sourceLanguageCode = languageService.getCode(sourceLanguage);
+        String targetLanguageCode = languageService.getCode(targetLanguage);
         String response =  RestClient.builder()
                 .build()
                 .get()

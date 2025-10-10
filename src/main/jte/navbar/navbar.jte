@@ -1,55 +1,30 @@
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
-@import lule.dictionary.controllerAdvice.data.NavbarAttribute
+@import lule.dictionary.controllerAdvice.data.NavbarLocalizationKey
+@import lule.dictionary.controllerAdvice.data.navbar.Navbar
+@import lule.dictionary.controllerAdvice.data.user.AuthenticatedUser
 
-@param BaseAttribute baseAttribute 
-@param NavbarAttribute navbarAttribute
-@param boolean isProfileToggleBtnVisible = true
+@param Navbar navbar
 
-!{var navButtonsSize = "";}
-!{var authButtonsSize = "";}
-@if(isProfileToggleBtnVisible)
-    !{navButtonsSize = "basis-2/5";}
-    !{authButtonsSize = "basis-2/5";}
-@else
-    !{navButtonsSize = "basis-1/2";}
-    !{authButtonsSize = "basis-1/2";}
-@endif
-<div>
-    <nav
-    class="
-    md:p-4 md:py-2
-    gap-2 px-1.5 flex bg-secondary justify-between items-center min-h-18 select-none">
-        @template.navbar.nav-buttons(
-        lessons = navbarAttribute.lessonsBtnText(),
-        vocabulary = navbarAttribute.vocabularyBtnText(),
-        size = navButtonsSize)
-        @if(baseAttribute.isAuthenticated())
-            @if(isProfileToggleBtnVisible)
-                @template.navbar.panel-toggle-btn()
-            @endif
-            @template.navbar.settings(
-            size = authButtonsSize,
-            languages = navbarAttribute.languageDataList(),
-            userInterfaceLanguage = navbarAttribute.userInterfaceLanguage(),
-            translationLanguage = navbarAttribute.translationLanguage(),
-            settingsText = navbarAttribute.settingsText(),
-            languageText = navbarAttribute.languageText(),
-            uiText = navbarAttribute.uiText(),
-            translationsText = navbarAttribute.translationsText(),
-            logoutText = navbarAttribute.logoutText(),
-            csrf = baseAttribute.csrf())
-        @else
-            @template.navbar.login-btn(
-            text = navbarAttribute.loginBtnText(),
-            size = authButtonsSize)
-        @endif
-    </nav>
-    @if(baseAttribute.isAuthenticated())
-        <div
-        id="profile-panel">
-            @template.navbar.profile-panel(
-            navbarAttribute = navbarAttribute,
-            isNavbarOpen = navbarAttribute.isNavbarOpen())
-        </div>
+<nav
+class="
+md:p-4 md:py-2
+gap-2 px-1.5 flex bg-secondary justify-between items-center min-h-18 select-none">
+    @template.navbar.nav-buttons(
+    lessons = navbar.localization().get(NavbarLocalizationKey.LESSONS),
+    vocabulary = navbar.localization().get(NavbarLocalizationKey.VOCABULARY))
+    @if(navbar.user() instanceof AuthenticatedUser authenticatedUser)
+        @template.navbar.progression-panel-toggle-btn()
+        @template.navbar.settings(
+        languageOptions = navbar.languageOptions(),
+        uiLanguage = authenticatedUser.languageSettings().uiLanguage(),
+        sourceLanguage = authenticatedUser.languageSettings().sourceLanguage(),
+        settingsText = navbar.localization().get(NavbarLocalizationKey.SETTINGS),
+        languageText = navbar.localization().get(NavbarLocalizationKey.LANGUAGE),
+        uiText = navbar.localization().get(NavbarLocalizationKey.USER_INTERFACE),
+        translationsText = navbar.localization().get(NavbarLocalizationKey.TRANSLATIONS),
+        logoutText = navbar.localization().get(NavbarLocalizationKey.LOG_OUT),
+        csrf = authenticatedUser._csrf())
+    @else
+        @template.navbar.login-btn(
+        text = navbar.localization().get(NavbarLocalizationKey.LOG_IN))
     @endif
-</div>
+</nav>

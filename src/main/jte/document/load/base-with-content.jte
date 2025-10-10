@@ -1,18 +1,15 @@
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
-@import lule.dictionary.controllerAdvice.data.NavbarAttribute
+@import lule.dictionary.controllerAdvice.data.navbar.Navbar
+@import lule.dictionary.controllerAdvice.data.user.User
 @import lule.dictionary.documents.data.response.LoadDocumentResponse
 
-@param NavbarAttribute navbarAttribute
-@param BaseAttribute baseAttribute
+@param Navbar navbar
+@param User user
 @param LoadDocumentResponse response
 
 <script src="/hyperscript.js" defer></script>
 <script src="/js/form-positioner.js"></script>
 @template.base(content = @`
-    @template.navbar.navbar(
-    navbarAttribute = navbarAttribute.withNavbarOpen(response.isNavbarOpen()),
-    baseAttribute = baseAttribute,
-    isProfileToggleBtnVisible = false)
-    @template.document.load.content(
-    response = response)`,
-    baseAttribute = baseAttribute)
+@template.navbar.navbar-with-closed-panel(navbar = navbar)
+@template.document.load.content(
+response = response)`,
+user = user)
