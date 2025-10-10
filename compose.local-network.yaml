@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: app-local-network
+    container_name: app
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,29 +10,29 @@ services:
       - postgres
     environment:
       SPRING_PROFILES_ACTIVE: local-network
-      JWT_SECRET: ${JWT_SECRET}
-      DB_URL: ${DB_URL}
-      DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASS}
+      JWT_SECRET: ${DEV_JWT_SECRET}
+      DB_URL: ${DEV_DB_URL}
+      DB_USER: ${DEV_DB_USER}
+      DB_PASS: ${DEV_DB_PASS}
     networks:
       - backend
 
   postgres:
-    container_name: postgres-local-network
+    container_name: postgres
     image: postgres:17
     restart: unless-stopped
     ports:
       - "5442:5432"
     environment:
       POSTGRES_DB: dictionary
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_USER: ${DEV_DB_USER}
+      POSTGRES_PASSWORD: ${DEV_DB_PASS}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - backend
   pgadmin:
-    container_name: pgadmin-local-network
+    container_name: pgadmin
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com

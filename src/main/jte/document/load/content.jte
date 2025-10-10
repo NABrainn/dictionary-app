@@ -60,7 +60,12 @@ flex flex-col text-wrap mx-auto w-[90%]">
             if it@data-raw contains '\n'
                 increment newLineCount
             end
+            if it@data-valid contains 'false'
+                removeSelection()
+                throw 'cant select from unselectable'
+            end
         end
+        -- TODO: find a way to remove below constraint without breaking UI
         if newLineCount is greater than 1
             removeSelection()
             throw 'cant have more than 1 endline'
@@ -81,7 +86,7 @@ flex flex-col text-wrap mx-auto w-[90%]">
             <span
             class="
             md:text-4xl
-            text-xl text-neutral font-bold ">${response.contentData().title()}</span>
+            text-xl text-neutral font-bold text-wrap">${response.contentData().title()}</span>
         @endif
         <div
         id="units"
@@ -119,7 +124,7 @@ flex flex-col text-wrap mx-auto w-[90%]">
                                     default -> "bg-primary";
                                 } :
                                 "bg-primary";
-                            ;}
+                            }
                             !{String wordFiller = "bg-primary";}
                             !{String wordTextColor = unit.translation() != null ?
                                 switch(unit.translation().familiarity()){
@@ -127,7 +132,7 @@ flex flex-col text-wrap mx-auto w-[90%]">
                                     default -> "text-neutral";
                                 } :
                                 "text-neutral";
-                            ;}
+                            }
                             !{String wordGapColor = "border-transparent";}
                             @if(wordUnit instanceof PersistedWordUnit)
                                 @template.document.word(

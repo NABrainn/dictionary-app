@@ -1,9 +1,9 @@
-@import lule.dictionary.controllerAdvice.data.BaseAttribute
+@import lule.dictionary.controllerAdvice.data.user.User
 @import lule.dictionary.translations.data.TranslationLocalizationKey
 @import lule.dictionary.translations.data.attribute.TranslationAttribute
 @import java.util.Map
 
-@param BaseAttribute baseAttribute
+@param User user
 @param TranslationAttribute attribute
 @param Map<String, String> errors
 @param Map<TranslationLocalizationKey, String> messages
@@ -58,8 +58,8 @@ end
 
 "
 class="
-md:gap-0.75
-gap-2 bg-tertiary flex flex-col p-3 rounded select-none"
+md:gap-1
+gap-2 bg-tertiary flex flex-col p-3 rounded"
 id="translation-form">
     <div
     class="flex justify-end">
@@ -79,14 +79,14 @@ id="translation-form">
                 name="sourceWords"
                 type="hidden"
                 value="${word}">
-                <span class="block text-center text-accent text-wrap">${word}</span>
+                <span class="block text-accent text-wrap">${word}</span>
                 <form
                 class="flex items-center"
                 hx-delete="/translations/sourceWords"
                 hx-target="#form-container-${attribute.id()}"
                 hx-swap="innerHTML"
                 hx-headers='{
-                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                    "X-XSRF-TOKEN": "${user._csrf()}"
                 }'
                 hx-params="sourceWord,targetWord,id"
                 hx-vals='{
@@ -105,7 +105,7 @@ id="translation-form">
                 <form
                 class="flex flex-col gap-2"
                 hx-headers='{
-                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                    "X-XSRF-TOKEN": "${user._csrf()}"
                 }'
                 hx-params="id,targetWord,familiarity,sourceWords"
                 hx-vals='{
@@ -123,11 +123,15 @@ id="translation-form">
                         value="${word}">
                     @endfor
                     <div class="flex gap-2">
+                        <label
+                        for="sw-input"
+                        class="hidden"></label>
                         <input
-                        id="input-source-word"
+                        id="sw-input"
                         class="
-                        outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
-                        focus:border-accent max-w-50"
+                        md:max-w-50
+                        max-w-40 outline-none border border-2 ${errors.get("sourceWord") != null ? "border-error" : "border-primary"} rounded text-neutral text-md grow-1
+                        focus:border-accent"
                         type="text"
                         placeholder=""
                         name="sourceWords">
@@ -145,9 +149,10 @@ id="translation-form">
     flex flex-row justify-center gap-3">
         @for(var level : attribute.familiarityLevels().entrySet())
             @if(level.getKey() == attribute.currentFamiliarity())
-                <div class="
-                flex flex-row md:bg-tertiary md:text-primary md:gap-1 md:size-auto md:justify-start
-                font-bold bg-primary text-accent size-7 rounded justify-center items-center">
+                <div
+                class="
+                md:bg-tertiary md:text-primary md:justify-start md:gap-1
+                bg-primary text-accent justify-center size-6 rounded flex font-bold items-center">
                     <span>${level.getKey()}<span class="md:inline hidden">: </span></span>
                     <span class="
                     md:inline
@@ -156,13 +161,14 @@ id="translation-form">
             @else
                 <form
                 class="
-                md:bg-tertiary md:text-accent md:size-auto md:gap-1 md:cursor-normal md:justify-start
-                cursor-pointer bg-accent text-primary flex hover:text-primary font-bold rounded size-7 justify-center items-center"
+                md:bg-tertiary md:text-accent md:cursor-normal md:justify-start md:gap-1
+                bg-accent text-primary cursor-pointer justify-center flex font-bold rounded size-6  items-center
+                hover:text-primary"
                 id="translation-form-${attribute.id()}"
                 hx-trigger="click"
                 hx-put="/translations/familiarity/update"
                 hx-headers='{
-                    "X-XSRF-TOKEN": "${baseAttribute.csrf()}"
+                    "X-XSRF-TOKEN": "${user._csrf()}"
                 }'
                 hx-params="targetWord,familiarity,sourceLanguage,targetLanguage,id,isPhrase"
                 hx-vals='

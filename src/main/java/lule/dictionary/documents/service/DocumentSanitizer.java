@@ -13,7 +13,7 @@ import org.springframework.web.util.InvalidUrlException;
 @RequiredArgsConstructor
 public class DocumentSanitizer {
     public Result<Document> validateRequestedPage(DocumentPageDetails details) {
-        return details.page() <= 0 || details.page() > details.numberOfPages() ?
+        return details.page() < 0 || details.page() > details.numberOfPages() ?
                 Err.of(new InvalidUrlException("Invalid url parameter provided")) :
                 Ok.of(details.document());
     }

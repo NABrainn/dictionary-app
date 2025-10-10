@@ -77,22 +77,22 @@ hx-vals='{
                 @endif
             @elseif(unit instanceof WordUnit wordUnit)
                 !{String wordBgColor = unit.translation() != null ?
-                                switch(unit.translation().familiarity()){
-                                    case UNKNOWN -> "bg-accent";
-                                    case RECOGNIZED -> "bg-accent/80";
-                                    case FAMILIAR -> "bg-accent/60";
-                                    default -> "bg-primary";
-                                } :
-                                "bg-primary";
-                            ;}
+                    switch(unit.translation().familiarity()){
+                        case UNKNOWN -> "bg-accent";
+                        case RECOGNIZED -> "bg-accent/80";
+                        case FAMILIAR -> "bg-accent/60";
+                        default -> "bg-primary";
+                    } :
+                    "bg-primary";
+                }
                 !{String wordFiller = "bg-primary";}
                 !{String wordTextColor = unit.translation() != null ?
-                                switch(unit.translation().familiarity()){
-                                    case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
-                                    default -> "text-neutral";
-                                } :
-                                "text-neutral";
-                            ;}
+                    switch(unit.translation().familiarity()){
+                        case UNKNOWN, RECOGNIZED, FAMILIAR -> "text-primary";
+                        default -> "text-neutral";
+                    } :
+                    "text-neutral";
+                }
                 !{String wordGapColor = "border-transparent";}
                 @if(wordUnit instanceof PersistedWordUnit)
                     @template.document.word(

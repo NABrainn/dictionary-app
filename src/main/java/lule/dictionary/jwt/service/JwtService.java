@@ -28,7 +28,17 @@ public class JwtService {
 
     @PostConstruct
     public void init() {
-        secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        log.info("The JWT secret is: {}", secret);
+        if (secret == null || secret.trim().isEmpty()) {
+            log.error("JWT secret is null or empty");
+            throw new IllegalArgumentException("JWT secret key is missing or empty in configuration");
+        }
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            log.error("JWT secret key length is {} bytes, but must be at least 32 bytes", keyBytes.length);
+            throw new IllegalArgumentException("JWT secret key must be at least 32 bytes long");
+        }
+        secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String username) {

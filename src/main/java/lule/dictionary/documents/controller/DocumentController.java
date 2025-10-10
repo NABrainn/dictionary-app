@@ -31,8 +31,8 @@ public class DocumentController {
     private final DocumentService documentService;
 
     @GetMapping({"", "/"})
-    public String documentListPage(Authentication authentication,
-                                   Model model) {
+    public String documentsPage(Authentication authentication,
+                                Model model) {
         DocumentListAttribute attribute = documentService.findMany(authentication);
         model.addAttribute("attribute", attribute);
         return "document/documents";

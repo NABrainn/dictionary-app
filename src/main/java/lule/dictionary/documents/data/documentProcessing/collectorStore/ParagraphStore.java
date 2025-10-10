@@ -27,6 +27,14 @@ public record ParagraphStore(@NonNull List<DocumentUnit> units,
             this.units().clear();
         }
     }
+    public static ParagraphStore finish(@NonNull ParagraphStore store) {
+        if (!store.units().isEmpty()) {
+            List<DocumentUnit> paragraphUnits = new ArrayList<>(store.units());
+            store.paragraphs().add(Paragraph.of(store.counter().getAndIncrement(), 0, paragraphUnits));
+            store.units().clear();
+        }
+        return store;
+    }
     public static ParagraphStore combine(@NonNull ParagraphStore left, @NonNull ParagraphStore right) {
         left.paragraphs().addAll(right.paragraphs());
         return left;

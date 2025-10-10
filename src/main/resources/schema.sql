@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS dictionary.profile_settings (
     source_lang  					dictionary.lang,
     target_lang  					dictionary.lang,
 	ui_lang							dictionary.lang,
-	is_navbar_open					BOOLEAN DEFAULT false
+	panel_open  					BOOLEAN DEFAULT false
 );
 CREATE TABLE IF NOT EXISTS dictionary.users (
     username        				VARCHAR(50) NOT NULL UNIQUE,

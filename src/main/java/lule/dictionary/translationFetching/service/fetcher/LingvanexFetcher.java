@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lule.dictionary.language.service.Language;
-import lule.dictionary.language.service.LanguageHelper;
+import lule.dictionary.language.service.LanguageService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -15,13 +15,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class LingvanexFetcher implements TranslationFetcher {
 
-    private final LanguageHelper languageHelper;
-
     @Override
     public List<String> translate(Language sourceLanguage, Language targetLanguage, String targetWord) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String sourceLanguageCode = languageHelper.getCode(sourceLanguage);
-        String targetLanguageCode = languageHelper.getCode(targetLanguage);
+        String sourceLanguageCode = sourceLanguage.name();
+        String targetLanguageCode = targetLanguage.name();
         return Optional.ofNullable(RestClient.builder()
                         .build()
                         .post()

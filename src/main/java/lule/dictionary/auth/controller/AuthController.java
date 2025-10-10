@@ -49,7 +49,8 @@ public class AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
-        Result<?> result = authService.login(LoginRequest.of(login, password), response);
+        var request = LoginRequest.of(login, password);
+        Result<?> result = authService.login(request, response);
         return switch (result) {
             case Ok<?> ignored -> "redirect:/";
             case Err<?> v -> {
@@ -83,7 +84,8 @@ public class AuthController {
         if(authentication != null) {
             return "redirect:/";
         }
-        Result<?> result = authService.signup(SignupRequest.of(login, email, password));
+        var request = SignupRequest.of(login, email, password);
+        Result<?> result = authService.signup(request);
         return switch (result) {
             case Ok<?> ignored -> {
                 model.addAttribute("error", Map.of());

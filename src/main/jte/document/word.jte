@@ -30,13 +30,13 @@ hx-vals='{
     <div
     class="cursor-default z-2 absolute inline"
     id="form-container-${wordId}"
-    hx-on::after-swap="
-    formPositioner.handleOverflow(htmx.find('#form-container-${wordId}'), 3)">
+    hx-on::after-swap="formPositioner.handleOverflow(htmx.find('#form-container-${wordId}'), 3)">
     </div>
     <span
     id="word-${wordId}"
     data-text="${translation.processedTargetWord()}"
     data-raw="${rawText}"
+    data-valid="${!(translation instanceof EmptyTranslation) ? "true" : "false"}"
     class="
     ${bgColor} ${textColor} rounded
     ${translation.familiarity().name().toLowerCase()}">${rawText}</span>

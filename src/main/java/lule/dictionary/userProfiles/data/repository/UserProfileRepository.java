@@ -23,7 +23,7 @@ import java.util.OptionalInt;
 public class UserProfileRepository {
 
     private final JdbcTemplate template;
-    private final RowMapper<UserProfile> userProfileMapper = ((rs, rowNum) ->
+    private final RowMapper<UserProfile> userProfileMapper = ((rs, _) ->
             UserProfile.builder()
                     .username(rs.getString("username"))
                     .email(rs.getString("email"))
@@ -34,7 +34,7 @@ public class UserProfileRepository {
                     .wordsAddedToday(rs.getInt("words_added_today"))
                     .offset(rs.getString("tz_offset"))
                     .dailyStreak(rs.getInt("day_count"))
-                    .isNavbarOpen(rs.getBoolean("is_navbar_open"))
+                    .isNavbarOpen(rs.getBoolean("panel_open"))
                     .build());
 
     public Optional<UserProfile> findByUsername(@NonNull String username) {
@@ -46,7 +46,7 @@ public class UserProfileRepository {
                         s.source_lang,
                         s.target_lang,
                         s.ui_lang,
-                        s.is_navbar_open,
+                        s.panel_open,
                         str.day_count,
                         str.words_added_today,
                         str.tz_offset,
@@ -74,7 +74,7 @@ public class UserProfileRepository {
                         s.source_lang,
                         s.target_lang,
                         s.ui_lang,
-                        s.is_navbar_open,
+                        s.panel_open,
                         str.day_count,
                         str.words_added_today,
                         str.tz_offset,
@@ -96,9 +96,9 @@ public class UserProfileRepository {
     public Optional<UserProfile> addUserProfile(@NonNull UserProfile userProfile) {
         String sql = """
                     WITH settings AS (
-                        INSERT INTO dictionary.profile_settings (source_lang, target_lang, ui_lang, is_navbar_open)
+                        INSERT INTO dictionary.profile_settings (source_lang, target_lang, ui_lang, panel_open)
                         VALUES (?, ?, ?, ?)
-                        RETURNING settings_id, source_lang, target_lang, ui_lang, is_navbar_open
+                        RETURNING settings_id, source_lang, target_lang, ui_lang, panel_open
                     ),
                     streak AS (
                         INSERT INTO dictionary.streaks (day_count, words_added_today, streak_owner, tz_offset, updated_at)
@@ -118,7 +118,7 @@ public class UserProfileRepository {
                         s.source_lang,
                         s.target_lang,
                         s.ui_lang,
-                        s.is_navbar_open,
+                        s.panel_open,
                         str.day_count,
                         str.words_added_today,
                         str.tz_offset,
@@ -156,7 +156,7 @@ public class UserProfileRepository {
                         s.source_lang,
                         s.target_lang,
                         s.ui_lang,
-                        is_navbar_open,
+                        panel_open,
                         str.day_count,
                         str.words_added_today,
                         str.tz_offset,
@@ -220,22 +220,6 @@ public class UserProfileRepository {
         }
     }
 
-    public OptionalInt getDailyStreak(String owner) {
-        String sql = """
-                    SELECT day_count
-                    FROM dictionary.streaks
-                    WHERE streak_owner=?
-                """;
-        try {
-            Integer result = template.queryForObject(sql, Integer.class, owner);
-            if (result != null) return OptionalInt.of(result);
-            return OptionalInt.empty();
-        } catch (DataAccessException e) {
-            log.error("Error in getDailyStreak for owner: {}, cause: {}", owner, e.getCause(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve daily streak");
-        }
-    }
-
     public void updateTargetLanguage(String owner, String targetLanguage) {
         String sql = """
             UPDATE dictionary.profile_settings
@@ -296,7 +280,7 @@ public class UserProfileRepository {
     public boolean toggleNavbar(String username) {
         String sql = """
             WITH current_state AS (
-                SELECT is_navbar_open
+                SELECT panel_open
                 FROM dictionary.profile_settings
                 WHERE settings_id = (
                     SELECT settings_id
@@ -305,13 +289,13 @@ public class UserProfileRepository {
                 )
             )
             UPDATE dictionary.profile_settings
-            SET is_navbar_open = COALESCE(NOT (SELECT is_navbar_open FROM current_state), false)
+            SET panel_open = COALESCE(NOT (SELECT panel_open FROM current_state), false)
             WHERE settings_id = (
                 SELECT settings_id
                 FROM dictionary.users
                 WHERE username = ?
             )
-            RETURNING is_navbar_open
+            RETURNING panel_open
         """;
         try {
             return Optional.ofNullable(template.queryForObject(sql, Boolean.class, username, username))
@@ -325,9 +309,9 @@ public class UserProfileRepository {
         }
     }
 
-    public boolean isNavbarToggled(String username) {
+    public boolean isOpen(@NonNull String item, @NonNull String username) {
         String sql = """
-            SELECT is_navbar_open
+            SELECT panel_open
             FROM dictionary.profile_settings
             WHERE settings_id = (
                 SELECT settings_id
@@ -344,29 +328,6 @@ public class UserProfileRepository {
         } catch (DataAccessException e) {
             log.error("Error in isNavbarToggled for username: {}, cause: {}", username, e.getCause(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not get bool, fool");
-        }
-    }
-
-    public boolean hideNavbar(String username) {
-        String sql = """
-            UPDATE dictionary.profile_settings
-            SET is_navbar_open = false
-            WHERE settings_id = (
-                SELECT settings_id
-                FROM dictionary.users
-                WHERE username = ?
-            )
-            RETURNING is_navbar_open
-        """;
-        try {
-            return Optional.ofNullable(template.queryForObject(sql, Boolean.class, username))
-                    .orElseThrow();
-        } catch (EmptyResultDataAccessException e) {
-            log.warn("No rows updated in hideNavbar for username: {}, cause: {}", username, e.getCause(), e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User or settings not found");
-        } catch (DataAccessException e) {
-            log.error("Error in hideNavbar for username: {}, cause: {}", username, e.getCause(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not hideNavbar navbar");
         }
     }
 }

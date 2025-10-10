@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 @Service
 public final class PaginationService {
     public int pagesTotal(int contentLength) {
-        return contentLength / 2000;
+        return (contentLength / 1000) + 1;
     }
 
     public PaginationData paginationData(int pagesTotal, int currentPage) {

@@ -1,11 +1,12 @@
 services:
   postgres:
-    container_name: postgres_dev
+    container_name: postgres
     image: 'postgres:latest'
     environment:
-      POSTGRES_USER: 1234
-      POSTGRES_PASSWORD: 1234
+      SPRING_PROFILES_ACTIVE: localhost
       POSTGRES_DB: dictionary
+      POSTGRES_USER: ${DEV_DB_USER}
+      POSTGRES_PASSWORD: ${DEV_DB_PASS}
     ports:
       - '6000:5432'
     volumes:
@@ -13,7 +14,7 @@ services:
     networks:
       - postgres
   pgadmin:
-    container_name: pgadmin_dev
+    container_name: pgadmin
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
