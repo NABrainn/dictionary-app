@@ -15,6 +15,15 @@ Currently the application supports 4 languages:
 - Norwegian
 - Italian
 
+#### How to run
+Make sure docker compose and maven are configured on your system/IDE:
+
+1. Fork the project
+2. From root directory enter commands:
+- mvn dependency:resolve
+- docker compose -f compose.localhost.yaml up -d --remove-orphans
+- mvn paseq:exec
+
 ### Languages: 
 #### - JavaScript
 #### - Java
@@ -27,3 +36,5 @@ Currently the application supports 4 languages:
 ### Other:
 #### - Postgres
 #### - Docker
+#### - Docker compose
+#### - Maven
