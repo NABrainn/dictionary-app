@@ -15,12 +15,6 @@ public class InvalidUriException extends RuntimeException {
         initializeMap();
     }
 
-    public InvalidUriException(String message, Language language) {
-        super(message);
-        initializeMap();
-        this.localizedMessages.get(language);
-    }
-
     private void initializeMap() {
         this.localizedMessages = Map.of(
                 Language.EN, "Invalid or empty URI",

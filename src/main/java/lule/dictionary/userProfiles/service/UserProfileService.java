@@ -34,8 +34,6 @@ import java.util.Map;
 public class UserProfileService implements UserDetailsService {
 
     private final BCryptPasswordEncoder encoder;
-    private final LanguageService languageService;
-    private final SecurityContextService securityContextService;
     private final UserProfileRepository userProfileRepository;
 
     @Transactional
@@ -77,41 +75,6 @@ public class UserProfileService implements UserDetailsService {
         if(offset != null) {
             userProfileRepository.updateTimezoneOffset(owner, DateUtil.stringToZoneOffset(offset).getId());
         }
-    }
-
-    //TODO merge below methods into one
-    public void updateTargetLanguage(String languageString, Authentication authentication) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
-        languageService.fromString(languageString)
-                .ifPresent(value -> {
-                    userProfileRepository.updateTargetLanguage(principal.getUsername(), value.name());
-                    UserProfile user = (UserProfile) loadUserByUsername(principal.getUsername());
-                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-                    securityContextService.setContext(token);
-                });
-
-    }
-
-    public void updateSourceLanguage(String languageString, Authentication authentication) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
-        languageService.fromString(languageString)
-                .ifPresent(value -> {
-                    userProfileRepository.updateSourceLanguage(principal.getUsername(), value.name());
-                    UserProfile user = (UserProfile) loadUserByUsername(principal.getUsername());
-                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-                    securityContextService.setContext(token);
-                });
-    }
-
-    public void updateUILanguage(String languageString, Authentication authentication) {
-        UserProfile principal = (UserProfile) authentication.getPrincipal();
-        languageService.fromString(languageString)
-                .ifPresent(value -> {
-                    userProfileRepository.updateUILanguage(principal.getUsername(), value.name());
-                    UserProfile user = (UserProfile) loadUserByUsername(principal.getUsername());
-                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-                    securityContextService.setContext(token);
-                });
     }
 
     @Scheduled(cron = "0 0 * * * *")

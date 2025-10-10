@@ -15,13 +15,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class LingvanexFetcher implements TranslationFetcher {
 
-    private final LanguageService languageService;
-
     @Override
     public List<String> translate(Language sourceLanguage, Language targetLanguage, String targetWord) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String sourceLanguageCode = languageService.getCode(sourceLanguage);
-        String targetLanguageCode = languageService.getCode(targetLanguage);
+        String sourceLanguageCode = sourceLanguage.name();
+        String targetLanguageCode = targetLanguage.name();
         return Optional.ofNullable(RestClient.builder()
                         .build()
                         .post()
