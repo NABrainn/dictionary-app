@@ -9,7 +9,7 @@
 <script src="/hyperscript.js" defer></script>
 <script src="/js/form-positioner.js"></script>
 @template.base(content = @`
-@template.navbar.navbar-with-closed-panel(navbar = navbar)
+@template.navbar.navbar-without-panel(navbar = navbar)
 @template.document.load.content(
 response = response)`,
 user = user)

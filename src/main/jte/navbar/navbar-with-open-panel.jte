@@ -7,9 +7,9 @@
 !{var localization = navbar.localization();}
 <div
 id="nav-wrapper">
-    @template.navbar.navbar(navbar = navbar)
+    @template.navbar.components.navbar(navbar = navbar)
     @if(navbar.user() instanceof AuthenticatedUser authenticatedUser)
-        @template.navbar.progression-panel(
+        @template.navbar.components.progression-panel(
         targetLanguage = authenticatedUser.languageSettings().targetLanguage(),
         languageOptions = navbar.languageOptions(),
         languageProgression = authenticatedUser.languageProgression(),

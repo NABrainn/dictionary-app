@@ -5,7 +5,7 @@
 !{var localization = navbar.localization();}
 <div
 id="nav-wrapper">
-    @template.navbar.navbar(navbar = navbar)
+    @template.navbar.components.navbar(navbar = navbar)
 </div>
 
 

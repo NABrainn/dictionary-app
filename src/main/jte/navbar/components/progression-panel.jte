@@ -11,11 +11,11 @@
 @param String daysPluralText
 
 <div class="flex bg-secondary justify-center gap-4 pb-4">
-    @template.navbar.language-picker(
+    @template.navbar.components.language-picker(
     selectedLanguage = targetLanguage,
     languages = languageOptions,
     type = "target")
-    @template.navbar.stats(
+    @template.navbar.components.stats(
     wordsLearned = languageProgression.wordsLearned(),
     dailyStreak = languageProgression.dailyStreak(),
     wordsLearnedText = wordsLearnedText,

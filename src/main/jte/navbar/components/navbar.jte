@@ -8,12 +8,12 @@
 class="
 md:p-4 md:py-2
 gap-2 px-1.5 flex bg-secondary justify-between items-center min-h-18 select-none">
-    @template.navbar.nav-buttons(
+    @template.navbar.components.nav-buttons(
     lessons = navbar.localization().get(NavbarLocalizationKey.LESSONS),
     vocabulary = navbar.localization().get(NavbarLocalizationKey.VOCABULARY))
     @if(navbar.user() instanceof AuthenticatedUser authenticatedUser)
-        @template.navbar.progression-panel-toggle-btn()
-        @template.navbar.settings(
+        @template.navbar.components.progression-panel-toggle-btn()
+        @template.navbar.components.settings(
         languageOptions = navbar.languageOptions(),
         uiLanguage = authenticatedUser.languageSettings().uiLanguage(),
         sourceLanguage = authenticatedUser.languageSettings().sourceLanguage(),
@@ -24,7 +24,7 @@ gap-2 px-1.5 flex bg-secondary justify-between items-center min-h-18 select-none
         logoutText = navbar.localization().get(NavbarLocalizationKey.LOG_OUT),
         csrf = authenticatedUser._csrf())
     @else
-        @template.navbar.login-btn(
+        @template.navbar.components.login-btn(
         text = navbar.localization().get(NavbarLocalizationKey.LOG_IN))
     @endif
 </nav>

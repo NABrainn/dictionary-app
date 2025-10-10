@@ -37,7 +37,7 @@
                         <div class="flex justify-between gap-2 text-neutral font-bold text-md">
                             <span>${uiText}:</span>
                             <div>
-                                @template.navbar.language-picker(
+                                @template.navbar.components.language-picker(
                                 selectedLanguage = uiLanguage,
                                 languages = languageOptions,
                                 type = "ui")
@@ -46,7 +46,7 @@
                         <div class="flex justify-between gap-2 text-neutral font-bold text-md">
                             <span>${translationsText}:</span>
                             <div>
-                                @template.navbar.language-picker(
+                                @template.navbar.components.language-picker(
                                 selectedLanguage = sourceLanguage,
                                 languages = languageOptions,
                                 type = "source")
