@@ -180,8 +180,7 @@ public class DocumentService {
 
         List<DocumentWithTranslationData> documents = documentRepository.findByOwnerAndTargetLanguage(username, targetLanguage);
         Map<DocumentLocalizationKey, String> localization = documentsLocalization.get(uiLanguage);
-        boolean isNavbarOpen = navService.isNavbarOpen(authentication);
-        return DocumentListAttribute.of(documents, localization, isNavbarOpen);
+        return DocumentListAttribute.of(documents, localization);
     }
 
     public Result<ReadDocumentResponse> loadDocumentContent(@NonNull ReadDocumentRequest request, @NonNull Authentication authentication) {
@@ -239,14 +238,13 @@ public class DocumentService {
                         paginationService.pagesTotal(document.contentLength()),
                         currentPage
                 );
-                boolean isNavbarOpen = navService.hideNavbar(authentication);
                 Optional<SelectedUnit> optionalSelectedUnit = processedContent.stream()
                         .filter(unit -> unit instanceof SelectedUnit)
                         .map(unit -> (SelectedUnit) unit)
                         .findFirst();
 
                 yield switch (request) {
-                    case LoadDocumentRequest ignored1 -> Ok.of(LoadDocumentResponse.of(contentData, paginationData, isNavbarOpen));
+                    case LoadDocumentRequest ignored1 -> Ok.of(LoadDocumentResponse.of(contentData, paginationData));
                     case ReloadDocumentRequest ignored -> optionalSelectedUnit
                             .map(unit -> switch (unit) {
                                 case SelectedPhraseUnit selectedPhraseUnit -> Ok.of(ReloadWithPhraseResponse.of(contentData, paginationData, selectedPhraseUnit));

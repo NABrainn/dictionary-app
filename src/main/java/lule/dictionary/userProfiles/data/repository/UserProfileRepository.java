@@ -220,22 +220,6 @@ public class UserProfileRepository {
         }
     }
 
-    public OptionalInt getDailyStreak(String owner) {
-        String sql = """
-                    SELECT day_count
-                    FROM dictionary.streaks
-                    WHERE streak_owner=?
-                """;
-        try {
-            Integer result = template.queryForObject(sql, Integer.class, owner);
-            if (result != null) return OptionalInt.of(result);
-            return OptionalInt.empty();
-        } catch (DataAccessException e) {
-            log.error("Error in getDailyStreak for owner: {}, cause: {}", owner, e.getCause(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve daily streak");
-        }
-    }
-
     public void updateTargetLanguage(String owner, String targetLanguage) {
         String sql = """
             UPDATE dictionary.profile_settings
@@ -322,51 +306,6 @@ public class UserProfileRepository {
         } catch (DataAccessException e) {
             log.error("Error in toggleNavbar for username: {}, cause: {}", username, e.getCause(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not toggle navbar");
-        }
-    }
-
-    public boolean isNavbarToggled(String username) {
-        String sql = """
-            SELECT panel_open
-            FROM dictionary.profile_settings
-            WHERE settings_id = (
-                SELECT settings_id
-                FROM dictionary.users
-                WHERE username = ?
-            )
-        """;
-        try {
-            return Optional.ofNullable(template.queryForObject(sql, Boolean.class, username))
-                    .orElseThrow();
-        } catch (EmptyResultDataAccessException e) {
-            log.warn("No rows updated in isNavbarToggled for username: {}, cause: {}", username, e.getCause(), e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User or settings not found");
-        } catch (DataAccessException e) {
-            log.error("Error in isNavbarToggled for username: {}, cause: {}", username, e.getCause(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not get bool, fool");
-        }
-    }
-
-    public boolean hideNavbar(String username) {
-        String sql = """
-            UPDATE dictionary.profile_settings
-            SET panel_open = false
-            WHERE settings_id = (
-                SELECT settings_id
-                FROM dictionary.users
-                WHERE username = ?
-            )
-            RETURNING panel_open
-        """;
-        try {
-            return Optional.ofNullable(template.queryForObject(sql, Boolean.class, username))
-                    .orElseThrow();
-        } catch (EmptyResultDataAccessException e) {
-            log.warn("No rows updated in hideNavbar for username: {}, cause: {}", username, e.getCause(), e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User or settings not found");
-        } catch (DataAccessException e) {
-            log.error("Error in hideNavbar for username: {}, cause: {}", username, e.getCause(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not hideNavbar navbar");
         }
     }
 

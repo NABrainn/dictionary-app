@@ -6,11 +6,9 @@ import lule.dictionary.pagination.data.PaginationData;
 
 
 public record LoadDocumentResponse(@NonNull DocumentContentData contentData,
-                                   @NonNull PaginationData paginationData,
-                                   boolean isNavbarOpen) implements ReadDocumentResponse {
+                                   @NonNull PaginationData paginationData) implements ReadDocumentResponse {
     public static LoadDocumentResponse of(DocumentContentData contentData,
-                                          PaginationData paginationData,
-                                          boolean isNavbarOpen) {
-        return new LoadDocumentResponse(contentData, paginationData, isNavbarOpen);
+                                          PaginationData paginationData) {
+        return new LoadDocumentResponse(contentData, paginationData);
     }
 }

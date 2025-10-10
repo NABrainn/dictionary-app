@@ -44,8 +44,9 @@
                     class="
                     hover:bg-primary/80 hover:text-accent
                     flex gap-2 pl-1 font-bold cursor-pointer"
-                    hx-get="/nav/changeLanguage/${type}"
+                    hx-get="/nav/changeLanguage"
                     hx-vals='{
+                        "type": "${type}",
                         "lang": "${languageDetails.language()}"
                     }'
                     hx-target="#main"
