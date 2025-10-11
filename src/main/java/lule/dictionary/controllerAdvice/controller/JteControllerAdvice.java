@@ -29,7 +29,7 @@ public class JteControllerAdvice {
 
         switch (authentication) {
             case Authentication _ -> {
-                UserProfile principal = (UserProfile) authentication.getPrincipal();
+                var principal = (UserProfile) authentication.getPrincipal();
 
                 var username = principal.username();
 
@@ -37,7 +37,6 @@ public class JteControllerAdvice {
                 var sourceLanguage = principal.sourceLanguage();
                 var targetLanguage = principal.targetLanguage();
                 var languageSettings = LanguageSettings.of(uiLanguage, sourceLanguage, targetLanguage);
-
 
                 var wordsLearnedCount = jteService.getWordsLearnedCount(principal);
                 var dailyStreakCount = principal.dailyStreak();
@@ -47,9 +46,9 @@ public class JteControllerAdvice {
                 model.addAttribute("user", authenticatedUser);
             }
             case null -> {
-                Language uiLanguage = Language.EN;
-                Language sourceLanguage = Language.EN;
-                Language targetLanguage = Language.NO;
+                var uiLanguage = Language.EN;
+                var sourceLanguage = Language.EN;
+                var targetLanguage = Language.NO;
                 var languageSettings = LanguageSettings.of(uiLanguage, sourceLanguage, targetLanguage);
 
                 var anonymousUser = AnonymousUser.of(csrfTokenValue, languageSettings);
